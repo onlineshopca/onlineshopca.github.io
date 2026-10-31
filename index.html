@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"></head><body>
 <title>online.shop.on.ca Store</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
@@ -1042,6 +1042,22 @@ footer .wrap{padding:24px 36px 28px;font-size:12px}
   .toast{bottom:calc(160px + env(safe-area-inset-bottom,0px))}
   footer .wrap{padding:20px}
 }
+
+/* ===== v35: colours exactly as the mockup (light, see-through glass, stronger sapphire field) ===== */
+:root{--glass:linear-gradient(135deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.12) 42%,rgba(255,255,255,.06) 58%,rgba(255,255,255,.26) 100%);
+  --glassline:rgba(255,255,255,.7);--card:rgba(255,255,255,.3);--field:.52;
+  --shadow:inset 0 1px 0 #fff,inset 1px 0 0 rgba(255,255,255,.25),inset 0 -1px 0 rgba(255,255,255,.12),0 10px 24px rgba(15,30,70,.10)}
+.bgfield{filter:blur(90px)}
+.bgfield .b1{width:720px;height:620px;left:-200px;top:-160px;background:#1a38a0}
+.bgfield .b2{width:760px;height:700px;right:-220px;top:120px;background:#1f2f9e}
+.bgfield .b3{width:640px;height:560px;left:30%;top:60vh;background:#1660b8}
+.bgfield .b4{width:700px;height:640px;right:-160px;bottom:-300px;background:#1546a8}
+@media (max-width:700px){.bgfield{filter:blur(60px)}
+  .bgfield .b1{width:360px;height:320px;left:-140px;top:-80px}
+  .bgfield .b2{width:380px;height:360px;right:-160px;top:260px}
+  .bgfield .b3{width:320px;height:300px;left:-60px;top:520px}
+  .bgfield .b4{width:300px;height:280px;right:-120px;bottom:-80px}}
+.ghero .gf .h1{background:#1a38a0}.ghero .gf .h2{background:#1546a8}.ghero .gf .h3{background:#1660b8}.ghero .gf .h4{background:#1f2f9e}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
