@@ -1137,6 +1137,46 @@ input,select,textarea{background:#fff;border-color:rgba(0,0,0,.14)}
 .card .tile .pic img{mix-blend-mode:multiply!important}
 @media (max-width:700px){.ghero .ctas a.main{padding:13px 28px!important;border-radius:999px!important;font-size:16px!important;flex:0 0 auto!important}}
 .infobox>div>span:first-child,.infobox .ico{background:#0d2f75!important;background-image:none!important;box-shadow:none!important}
+
+/* ===== v38: Apple / Google style buttons ===== */
+/* primary: flat filled pill, regular weight, no shadow (Apple "Buy" / Google filled button) */
+.btn,.bagbtn,.cardact .btn,.ghero .ctas a.main{background:#0d2f75!important;color:#fff!important;border:0!important;box-shadow:none!important;
+  border-radius:980px!important;font-weight:500!important;letter-spacing:0!important;text-shadow:none!important;
+  transition:background-color .2s ease,transform .1s ease!important}
+.btn{min-height:44px;padding:0 22px!important;font-size:15px!important}
+.btn.small,.cardact .btn{min-height:32px!important;padding:0 16px!important;font-size:14px!important}
+.bagbtn{height:50px!important;font-size:17px!important;font-weight:500!important}
+.btn:hover,.bagbtn:hover,.cardact .btn:hover,.ghero .ctas a.main:hover{background:#1546a8!important;filter:none!important}
+.btn:active,.bagbtn:active,.ghero .ctas a:active,.chip:active,.morefl:active{transform:scale(.97)}
+/* secondary: outlined pill (Apple outline / Google outlined button) */
+.btn.ghost,.ghostbtn,.ghero .ctas a:not(.main),.morefl,.fltbtn,.seeall{background:transparent!important;color:#0d2f75!important;
+  border:1px solid #747775!important;box-shadow:none!important;border-radius:980px!important;font-weight:500!important}
+.btn.ghost:hover,.ghostbtn:hover,.ghero .ctas a:not(.main):hover,.morefl:hover,.fltbtn:hover,.seeall:hover{background:rgba(13,47,117,.06)!important;border-color:#5f6368!important}
+.morefl[aria-expanded="true"],.fltbtn[aria-expanded="true"]{background:#dfe6f5!important;color:#0d2f75!important;border-color:transparent!important}
+/* filter chips: Google filter chip — 32px, 8px corners, checkmark + tonal fill when selected */
+.chip,.fopt,.fchip,.chips button,.daystrip button,.timegrid button{background:#fff!important;color:#1f1f1f!important;border:1px solid #c4c7c5!important;
+  border-radius:8px!important;box-shadow:none!important;font-weight:500!important;min-height:32px;transition:background-color .15s,border-color .15s!important}
+.qrow .chip{padding:6px 14px!important;font-size:14px!important}
+.chip:hover,.fopt:hover,.fchip:hover,.chips button:hover,.daystrip button:hover,.timegrid button:hover{background:#f1f3f4!important;border-color:#c4c7c5!important}
+.chip[aria-pressed="true"],.fopt[aria-pressed="true"],.chips button[aria-pressed="true"],.daystrip button[aria-pressed="true"],.timegrid button[aria-pressed="true"]{
+  background:#dfe6f5!important;color:#0d2f75!important;border-color:transparent!important}
+.chip[aria-pressed="true"]::before,.fopt[aria-pressed="true"]::before{content:"";display:inline-block;width:12px;height:7px;margin-right:7px;
+  border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-3px) rotate(-45deg)}
+.chip i,.fopt i{opacity:.6!important}
+/* icon buttons: no outline, grey circle on hover (Apple / Google) */
+.gicon,.storeacct{background:transparent!important;border:0!important;box-shadow:none!important}
+.gicon:hover,.storeacct:hover{background:rgba(0,0,0,.06)!important}
+.gicon .cartcount{background:#0d2f75!important;box-shadow:none!important}
+/* steppers & small controls */
+.stepper,.qty{background:#fff!important;border:1px solid #c4c7c5!important;border-radius:980px!important;box-shadow:none!important}
+.stepper button:hover{background:#f1f3f4!important}
+.admintabs button,.seg button{border-radius:980px!important}
+/* menu tabs: Apple text-style, subtle hover */
+.gtabs a{border:0!important}
+.gtabs a:hover,.gtabs a.hot{background:rgba(0,0,0,.05)!important}
+.gtabs a[aria-current="page"]{background:transparent!important;color:#0d2f75!important;font-weight:600!important}
+/* keyboard focus ring like Google/Apple */
+.btn:focus-visible,.bagbtn:focus-visible,.chip:focus-visible,.fopt:focus-visible,.gicon:focus-visible,.morefl:focus-visible,.ghero .ctas a:focus-visible{outline:2px solid #0b57d0!important;outline-offset:2px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
