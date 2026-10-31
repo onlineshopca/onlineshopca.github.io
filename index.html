@@ -1188,6 +1188,14 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 .addbtn,.cardact .btn{background:#0d2f75!important;color:#fff!important}
 
 .cbrand .sin{font-weight:600;color:#1d1d1f}.cbrand .sout{font-weight:600;color:#c0262d}
+
+.csave{display:block;font-size:13px;font-weight:600;color:#1a7f37;margin-top:2px}
+.isave{display:flex;flex-direction:column;gap:2px;font-size:15px;color:#1a7f37}
+.isave b{font-weight:600}.isave span{font-size:13px;color:#6e6e73}
+.iteminfo .badge{background:#f5f5f7!important;color:#1d1d1f!important}
+.ctag{display:none!important}
+.isave em{font-style:normal}
+.iteminfo .meta b{color:#1d1d1f!important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1455,6 +1463,7 @@ function addToCart(id){ const p = PRODUCTS.find(x=>x.id===id); if (!p) return; c
   cart[id] = {q:q+1, snap:p}; saveCart(); toast("Added to cart"); }
 function toast(t){ const el=$("#toast"); el.textContent=t; el.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>el.hidden=true,1800); }
 
+function saveHST(p){ return (p.was && p.price != null && p.was > p.price) ? Math.round((p.was - p.price) * (1 + HST_RATE) * 100) / 100 : 0; }
 function stockTxt(p){
   if (p.stock == null) return "In stock";
   if (p.stock <= 0) return `<b class="sout">Sold out</b>`;
@@ -1484,9 +1493,9 @@ function productCards(list, opts){
     <article class="card">
       <a class="piclink tile" href="#item-${esc(p.id)}" aria-label="View ${esc(p.name)}">${picHTML(p, false)}</a>
       <div class="body">
-        <span class="ctag ${tc}">${esc(tg)}</span>
         <a class="name namelink" href="#item-${esc(p.id)}">${esc(p.name)}</a>
-        <span class="cbrand">${showBrand && p.brand ? esc(p.brand) + " · " : ""}${stockTxt(p)}</span>
+        <span class="cbrand">${p.condition === "used" && p.grade ? esc(p.grade) + " · " : ""}${showBrand && p.brand ? esc(p.brand) + " · " : ""}${stockTxt(p)}</span>
+        ${saveHST(p) > 0 ? `<span class="csave">You save ${money(saveHST(p))} incl. HST</span>` : ""}
         <div class="cfoot"><span class="cprice">${p.price == null ? "Ask for price" : money(p.price)}${p.was ? ` <s>${money(p.was)}</s>` : ""}</span>
           <div class="cardact" data-act="${p.id}">${cardAction(p.id)}</div></div>
       </div></article>`; }).join("");
@@ -1924,10 +1933,11 @@ const views = {
     <article class="itemview">
       <div class="itemgal">${stage}</div>
       <div class="iteminfo">
-        <span class="badge">${used ? "Used" + (p.grade ? " · " + esc(p.grade) : "") : "New"}${save > 0 ? " · Save " + money(save) : ""}</span>
+        <span class="badge">${used ? "Used" + (p.grade ? " · " + esc(p.grade) : "") : "Brand new"}</span>
         <h1>${esc(p.name)}</h1>
         ${summary ? `<p class="lead">${esc(summary)}</p>` : ""}
         <div class="itemprice"><span class="bigp">${p.price == null ? "Ask for price" : money(p.price)}</span>${p.was ? `<s>${money(p.was)}</s>` : ""}</div>
+        ${saveHST(p) > 0 ? `<div class="isave"><em><b>You save ${money(saveHST(p))}</b> including 13% HST</em><span>Regular ${money(p.was * (1 + HST_RATE))} with HST · You pay ${money(p.price * (1 + HST_RATE))} with HST</span></div>` : ""}
         <span class="meta">${p.brand ? esc(p.brand) + " · " : ""}<b>${out ? "Sold out" : left === Infinity ? "In stock" : `${left} in stock`}</b></span>
         <div class="qtyrow"><span>Quantity</span><span class="qty"><button type="button" data-iq="-1" aria-label="One fewer"${out ? " disabled" : ""}>−</button><span id="iqv">${ITEMQ.q}</span><button type="button" data-iq="1" aria-label="One more"${out ? " disabled" : ""}>+</button></span></div>
         <button type="button" class="btn bagbtn" data-addbag="${esc(p.id)}"${out ? " disabled" : ""}>${out ? "Sold out" : ITEMQ.added ? "Added to Bag ✓" : "Add to Bag"}</button>
