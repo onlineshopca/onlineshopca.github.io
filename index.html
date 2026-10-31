@@ -1202,6 +1202,7 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 .csave{font-size:13px;font-weight:600;color:#1a7f37;margin-top:1px}
 .isave{color:#6e6e73}.isave em{font-style:normal;font-size:15px}.isave b{color:#1a7f37;font-weight:600}
 .cfoot{align-items:flex-end}
+.chst s,.isave s{color:#6e6e73}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1470,7 +1471,7 @@ function addToCart(id){ const p = PRODUCTS.find(x=>x.id===id); if (!p) return; c
 function toast(t){ const el=$("#toast"); el.textContent=t; el.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>el.hidden=true,1800); }
 
 function withHST(v){ return Math.round(v * (1 + HST_RATE) * 100) / 100; }
-function saveHST(p){ return (p.was && p.price != null && p.was > p.price) ? Math.round((p.was - p.price) * (1 + HST_RATE) * 100) / 100 : 0; }
+function saveHST(p){ if (!(p.was && p.price != null)) return 0; const v = Math.round((withHST(p.was) - p.price) * 100) / 100; return v > 0 ? v : 0; }
 function stockTxt(p){
   if (p.stock == null) return "In stock";
   if (p.stock <= 0) return `<b class="sout">Sold out</b>`;
@@ -1502,7 +1503,7 @@ function productCards(list, opts){
       <div class="body">
         <a class="name namelink" href="#item-${esc(p.id)}">${esc(p.name)}</a>
         <span class="cbrand">${p.condition === "used" && p.grade ? esc(p.grade) + " · " : ""}${showBrand && p.brand ? esc(p.brand) + " · " : ""}${stockTxt(p)}</span>
-        <div class="cfoot"><span class="cpwrap"><span class="cprice">${p.price == null ? "Ask for price" : money(withHST(p.price))}${p.price != null && p.was && p.was > p.price ? ` <s>${money(withHST(p.was))}</s>` : ""}</span>${p.price == null ? "" : `<span class="chst">Total with HST</span>`}${saveHST(p) > 0 ? `<span class="csave">Save ${money(saveHST(p))}</span>` : ""}</span>
+        <div class="cfoot"><span class="cpwrap"><span class="cprice">${p.price == null ? "Ask for price" : money(p.price)}</span>${saveHST(p) > 0 ? `<span class="chst">Regular <s>${money(withHST(p.was))}</s> incl. HST</span><span class="csave">Save ${money(saveHST(p))}</span>` : ""}</span>
           <div class="cardact" data-act="${p.id}">${cardAction(p.id)}</div></div>
       </div></article>`; }).join("");
 }
@@ -1942,14 +1943,14 @@ const views = {
         <span class="badge">${used ? "Used" + (p.grade ? " · " + esc(p.grade) : "") : "Brand new"}</span>
         <h1>${esc(p.name)}</h1>
         ${summary ? `<p class="lead">${esc(summary)}</p>` : ""}
-        <div class="itemprice"><span class="bigp">${p.price == null ? "Ask for price" : money(withHST(p.price))}</span>${p.price != null && p.was && p.was > p.price ? `<s>${money(withHST(p.was))}</s>` : ""}</div>
-        ${p.price == null ? "" : `<div class="isave"><em>Total with HST${saveHST(p) > 0 ? ` · <b>Save ${money(saveHST(p))}</b>` : ""}</em><span>${money(p.price)} + 13% HST ${money(withHST(p.price) - p.price)}</span></div>`}
+        <div class="itemprice"><span class="bigp">${p.price == null ? "Ask for price" : money(p.price)}</span></div>
+        ${saveHST(p) > 0 ? `<div class="isave"><em>Regular <s>${money(withHST(p.was))}</s> incl. HST · <b>Save ${money(saveHST(p))}</b></em></div>` : ""}
         <span class="meta">${p.brand ? esc(p.brand) + " · " : ""}<b>${out ? "Sold out" : left === Infinity ? "In stock" : `${left} in stock`}</b></span>
         <div class="qtyrow"><span>Quantity</span><span class="qty"><button type="button" data-iq="-1" aria-label="One fewer"${out ? " disabled" : ""}>−</button><span id="iqv">${ITEMQ.q}</span><button type="button" data-iq="1" aria-label="One more"${out ? " disabled" : ""}>+</button></span></div>
         <button type="button" class="btn bagbtn" data-addbag="${esc(p.id)}"${out ? " disabled" : ""}>${out ? "Sold out" : ITEMQ.added ? "Added to Bag ✓" : "Add to Bag"}</button>
         <div class="infobox">
           <div><span class="ibic">${ICP}</span><span><b>Pickup in Richmond Hill</b><br><span>We'll email you to confirm a pickup time, or ask about local delivery.</span></span></div>
-          <div><span class="ibic alt">${ICC}</span><span><b>Pay at pickup</b><br><span>e-Transfer or cash. Nothing is charged online. Price shown includes HST.</span></span></div>
+          <div><span class="ibic alt">${ICC}</span><span><b>Pay at pickup</b><br><span>e-Transfer or cash. Nothing is charged online. Plus HST.</span></span></div>
         </div>
         <a class="msglink" href="#contact-us">Questions about this item? Message us ›</a>
       </div>
