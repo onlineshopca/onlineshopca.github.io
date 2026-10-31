@@ -1075,6 +1075,68 @@ footer .wrap{padding:24px 36px 28px;font-size:12px}
 .chip[aria-pressed="true"] i,.fopt[aria-pressed="true"] i{opacity:.75}
 .qrow .chip{font-weight:500;padding:8px 15px}
 .qlab{color:#6b7280}
+
+/* ===== v37: WHITE THEME (Apple-style) — overrides all glass/blue surfaces ===== */
+:root,:root[data-theme]{
+  --bg:#f5f5f7;--fg:#1d1d1f;--muted:#6e6e73;--line:rgba(0,0,0,.08);--soft:#f5f5f7;--card:#fff;
+  --glass:#ffffff;--glassline:rgba(0,0,0,.06);--gloss:transparent;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);--shadow-lg:0 2px 6px rgba(0,0,0,.05),0 16px 40px rgba(0,0,0,.08);
+  --pri:#0d2f75;--prish:none;--primary:#0d2f75;--primary-2:#1546a8;--link:#0d2f75;--accent:#0d2f75;
+  --btn:#ffffff;--btnline:rgba(0,0,0,.14);--btnsh:none;
+  --bar:rgba(255,255,255,.88);--field:0;--input:#fff;--new:#0d2f75;--newbg:#eef2fa;--used:#0d2f75;--usedbg:#eef2fa}
+html{background:#f5f5f7}
+.bgfield{display:none!important}
+/* cards & panels: solid white, no glass */
+.card,.iteminfo,.hlcard,.qbar,.infobox,.soon,.panel,.box,.summary,.fltpanel,.sheet{background:#fff!important;border:1px solid rgba(0,0,0,.06)!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.infobox{background:#f5f5f7!important;box-shadow:none!important;border:0!important}
+.card .tile{background:#fff!important}.card .tile::after{display:none}
+.card .tile .pic img,.pic.big.stage img,.thumbs img{mix-blend-mode:normal!important}
+.card:hover{box-shadow:0 2px 4px rgba(0,0,0,.05),0 14px 32px rgba(0,0,0,.10)!important}
+/* header, mega menu, tab bar, bag bar, footer */
+header.gbar,header.gbar.open,.mega{background:rgba(255,255,255,.9)!important;backdrop-filter:saturate(180%) blur(20px)!important;-webkit-backdrop-filter:saturate(180%) blur(20px)!important}
+.mega{box-shadow:0 30px 50px -30px rgba(0,0,0,.18)!important}
+.gtabs a:hover,.gtabs a.hot,.gtabs a[aria-current="page"]{background:#f5f5f7!important;border-color:transparent!important;box-shadow:none!important}
+.gtabs a[aria-current="page"]{color:#1d1d1f!important}
+.gicon,.storeacct{background:#fff!important;border:1px solid rgba(0,0,0,.1)!important;box-shadow:none!important;backdrop-filter:none!important}
+.gicon .cartcount{background:#0d2f75!important}
+.tabbar,.bagbar{background:rgba(255,255,255,.94)!important;border:1px solid rgba(0,0,0,.08)!important;box-shadow:0 8px 28px rgba(0,0,0,.12)!important}
+.tabbar a,.tabbar button{color:#1d1d1f!important}
+.tabbar [aria-current],.tabbar a:hover,.tabbar button:hover{background:#f5f5f7!important;border-color:transparent!important;box-shadow:none!important;color:#0d2f75!important;transform:none!important}
+.bagbar .bagico,.bagbar>span:first-child{background:#0d2f75!important;background-image:none!important;box-shadow:none!important}
+footer{background:#f5f5f7!important;backdrop-filter:none!important;border-top:1px solid rgba(0,0,0,.08)!important}
+/* banners: white with dark text */
+.ghero,.pagehero,.lhero,.svchero{background:#fff!important;background-image:none!important;color:#1d1d1f!important;border:1px solid rgba(0,0,0,.06);
+  box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06)!important;animation:none!important}
+.ghero .gf,.ghero::after,.pagehero::before,.svchero::before,.viewall::before{display:none!important}
+.ghero h1,.ghero h2,.pagehero h1,.svchero h1,.lhero h1{color:#1d1d1f!important;text-shadow:none!important}
+.pagehero p,.svchero p,.lhero p,.pagehero .phtext p,.hsort,.hsort label{color:#6e6e73!important;text-shadow:none!important}
+.ghero .ctas a{background:#fff!important;color:#0d2f75!important;border:1px solid rgba(13,47,117,.35)!important;box-shadow:none!important;backdrop-filter:none!important;text-shadow:none!important}
+.ghero .ctas a.main{background:#0d2f75!important;color:#fff!important;border-color:#0d2f75!important}
+@media (max-width:700px){.ghero .ctas a:not(.main){display:none}.ghero .ctas a.main{background:#0d2f75!important}}
+.hsort select{background:#fff!important;border:1px solid rgba(0,0,0,.14)!important;box-shadow:none!important;color:#1d1d1f!important}
+.svchero .art,.svchero .steps span{background:#f5f5f7!important;border-color:rgba(0,0,0,.08)!important;color:#1d1d1f}
+.svchero .art svg{stroke:#0d2f75!important}.svchero .steps b{color:#0d2f75!important}
+/* view-all cards: white, navy text */
+.viewall,.viewall.new,.viewall.used,.viewall.svc{background:#fff!important;background-image:none!important;color:#1d1d1f!important;animation:none!important;
+  border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06)!important}
+.viewall b{color:#1d1d1f!important;text-shadow:none!important}.viewall small{color:#6e6e73!important}
+.viewall .arrow{background:#0d2f75!important;border-color:#0d2f75!important;backdrop-filter:none!important}
+.viewall:hover{filter:none;box-shadow:0 2px 4px rgba(0,0,0,.05),0 14px 32px rgba(0,0,0,.10)!important}
+/* buttons */
+.btn,.bagbtn,.cardact .btn{background:#0d2f75!important;background-image:none!important;color:#fff!important;border:1px solid #0d2f75!important;box-shadow:none!important;backdrop-filter:none!important;animation:none!important}
+.btn:hover,.bagbtn:hover{background:#1546a8!important;filter:none!important}
+.btn.ghost,.ghostbtn,.qty,.stockctl,.gnav,.thumbs button,.admintabs button,.seg,.stepper{background:#fff!important;color:#1d1d1f!important;border:1px solid rgba(0,0,0,.14)!important;box-shadow:none!important;backdrop-filter:none!important}
+.admintabs button[aria-pressed="true"],.seg button[aria-pressed="true"]{background:#0d2f75!important;color:#fff!important;border-color:#0d2f75!important}
+.iteminfo .badge,.fltbadge{background:#eef2fa!important;color:#0d2f75!important;box-shadow:none!important}
+.pic.big.stage,.pic.big{background:#fff!important;background-image:none!important;animation:none!important;border:1px solid rgba(0,0,0,.06)!important;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06)!important}
+.pic.big.stage::before{display:none}
+input,select,textarea{background:#fff;border-color:rgba(0,0,0,.14)}
+
+.card .tile{border:0!important;box-shadow:none!important;background:#f5f5f7!important}
+.card .tile .pic img{mix-blend-mode:multiply!important}
+@media (max-width:700px){.ghero .ctas a.main{padding:13px 28px!important;border-radius:999px!important;font-size:16px!important;flex:0 0 auto!important}}
+.infobox>div>span:first-child,.infobox .ico{background:#0d2f75!important;background-image:none!important;box-shadow:none!important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
