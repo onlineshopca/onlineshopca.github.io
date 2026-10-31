@@ -1186,6 +1186,8 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 .provider .av,.bkdate{background:#0d2f75!important;box-shadow:none!important}
 .toast{background:#1d1d1f!important;color:#fff!important;box-shadow:0 8px 24px rgba(0,0,0,.18)!important}
 .addbtn,.cardact .btn{background:#0d2f75!important;color:#fff!important}
+
+.cbrand .sin{font-weight:600;color:#1d1d1f}.cbrand .sout{font-weight:600;color:#c0262d}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1453,11 +1455,15 @@ function addToCart(id){ const p = PRODUCTS.find(x=>x.id===id); if (!p) return; c
   cart[id] = {q:q+1, snap:p}; saveCart(); toast("Added to cart"); }
 function toast(t){ const el=$("#toast"); el.textContent=t; el.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>el.hidden=true,1800); }
 
+function stockTxt(p){
+  if (p.stock == null) return "In stock";
+  if (p.stock <= 0) return `<b class="sout">Sold out</b>`;
+  return `<b class="sin">${p.stock} in stock</b>`;
+}
 function stockNote(p){
   if (p.stock == null) return "";
   if (p.stock <= 0) return `<span class="stocknote out">Sold out</span>`;
-  if (p.stock <= 3) return `<span class="stocknote low">Only ${p.stock} left</span>`;
-  return `<span class="stocknote">In stock</span>`;
+  return `<span class="stocknote">${p.stock} in stock</span>`;
 }
 let query = "";
 function productGrid(list, opts){
@@ -1480,7 +1486,7 @@ function productCards(list, opts){
       <div class="body">
         <span class="ctag ${tc}">${esc(tg)}</span>
         <a class="name namelink" href="#item-${esc(p.id)}">${esc(p.name)}</a>
-        ${showBrand && p.brand ? `<span class="cbrand">${esc(p.brand)}</span>` : ""}
+        <span class="cbrand">${showBrand && p.brand ? esc(p.brand) + " · " : ""}${stockTxt(p)}</span>
         <div class="cfoot"><span class="cprice">${p.price == null ? "Ask for price" : money(p.price)}${p.was ? ` <s>${money(p.was)}</s>` : ""}</span>
           <div class="cardact" data-act="${p.id}">${cardAction(p.id)}</div></div>
       </div></article>`; }).join("");
@@ -1922,7 +1928,7 @@ const views = {
         <h1>${esc(p.name)}</h1>
         ${summary ? `<p class="lead">${esc(summary)}</p>` : ""}
         <div class="itemprice"><span class="bigp">${p.price == null ? "Ask for price" : money(p.price)}</span>${p.was ? `<s>${money(p.was)}</s>` : ""}</div>
-        <span class="meta">${p.brand ? esc(p.brand) + " · " : ""}<b>${out ? "Sold out" : left <= 3 ? `Only ${left} left` : "In stock"}</b></span>
+        <span class="meta">${p.brand ? esc(p.brand) + " · " : ""}<b>${out ? "Sold out" : left === Infinity ? "In stock" : `${left} in stock`}</b></span>
         <div class="qtyrow"><span>Quantity</span><span class="qty"><button type="button" data-iq="-1" aria-label="One fewer"${out ? " disabled" : ""}>−</button><span id="iqv">${ITEMQ.q}</span><button type="button" data-iq="1" aria-label="One more"${out ? " disabled" : ""}>+</button></span></div>
         <button type="button" class="btn bagbtn" data-addbag="${esc(p.id)}"${out ? " disabled" : ""}>${out ? "Sold out" : ITEMQ.added ? "Added to Bag ✓" : "Add to Bag"}</button>
         <div class="infobox">
