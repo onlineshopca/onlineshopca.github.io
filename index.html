@@ -1535,9 +1535,8 @@ function toast(t){ const el=$("#toast"); el.textContent=t; el.hidden=false; clea
 function withHST(v){ return Math.round(v * (1 + HST_RATE) * 100) / 100; }
 function saveHST(p){ if (!(p.was && p.price != null)) return 0; const v = Math.round((withHST(p.was) - p.price) * 100) / 100; return v > 0 ? v : 0; }
 function stockTxt(p){
-  if (p.stock == null) return "In stock";
-  if (p.stock <= 0) return `<b class="sout">Sold out</b>`;
-  return `<b class="sin">${p.stock} in stock</b>`;
+  if (p.stock != null && p.stock <= 0) return `<b class="sout">Sold out</b>`;
+  return "";
 }
 function stockNote(p){
   if (p.stock == null) return "";
@@ -1564,7 +1563,7 @@ function productCards(list, opts){
       <a class="piclink tile" href="#item-${esc(p.id)}" aria-label="View ${esc(p.name)}">${picHTML(p, false)}</a>
       <div class="body">
         <a class="name namelink" href="#item-${esc(p.id)}">${esc(p.name)}</a>
-        <span class="cbrand">${p.condition === "used" && p.grade ? esc(p.grade) + " · " : ""}${showBrand && p.brand ? esc(p.brand) + " · " : ""}${stockTxt(p)}</span>
+        <span class="cbrand">${[p.condition === "used" && p.grade ? esc(p.grade) : "", showBrand && p.brand ? esc(p.brand) : "", stockTxt(p)].filter(Boolean).join(" · ")}</span>
         <div class="cfoot"><span class="cpwrap"><span class="cprice">${p.price == null ? "Ask for price" : money(p.price)}</span>${saveHST(p) > 0 ? `<span class="chst">Regular <s>${money(withHST(p.was))}</s> incl. HST</span><span class="csave">Save ${money(saveHST(p))}</span>` : ""}</span>
           <div class="cardact" data-act="${p.id}">${cardAction(p.id)}</div></div>
       </div></article>`; }).join("");
@@ -2002,7 +2001,7 @@ const views = {
         ${summary ? `<p class="lead">${esc(summary)}</p>` : ""}
         <div class="itemprice"><span class="bigp">${p.price == null ? "Ask for price" : money(p.price)}</span></div>
         ${saveHST(p) > 0 ? `<div class="isave"><em>Regular <s>${money(withHST(p.was))}</s> incl. HST · <b>Save ${money(saveHST(p))}</b></em></div>` : ""}
-        <span class="meta">${p.brand ? esc(p.brand) + " · " : ""}<b>${out ? "Sold out" : left === Infinity ? "In stock" : `${left} in stock`}</b></span>
+        <span class="meta">${p.brand ? esc(p.brand) : ""}${out ? `${p.brand ? " · " : ""}<b>Sold out</b>` : ""}</span>
         <div class="qtyrow"><span>Quantity</span><span class="qty"><button type="button" data-iq="-1" aria-label="One fewer"${out ? " disabled" : ""}>−</button><span id="iqv">${ITEMQ.q}</span><button type="button" data-iq="1" aria-label="One more"${out ? " disabled" : ""}>+</button></span></div>
         <button type="button" class="btn bagbtn" data-addbag="${esc(p.id)}"${out ? " disabled" : ""}>${out ? "Sold out" : ITEMQ.added ? "Added to Bag ✓" : "Add to Bag"}</button>
         <div class="infobox">
