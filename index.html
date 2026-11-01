@@ -1454,10 +1454,6 @@ const IMG = {}, IMG_PENDING = {};
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
 const refsOf = p => (p.images && p.images.length) ? p.images : (p.image ? [p.image] : []);
 function imgSrc(ref, p, i){
-  if (String(ref).startsWith("pimg:")){ const pid = ref.slice(5), key = "p" + pid;
-    if (IMG[key]) return IMG[key];
-    if (FB && !IMG_PENDING[key]){ IMG_PENDING[key] = 1; FB.getProviderImage(pid).then(d => { if (!d) return; IMG[key] = d; document.querySelectorAll(`img[data-ref="pimg:${CSS.escape(pid)}"]`).forEach(el => el.src = d); }).catch(() => { delete IMG_PENDING[key]; }); }
-    return BLANK; }
   if (!String(ref).startsWith("img:")) return ref;
   const id = ref.slice(4);
   if (IMG[id]) return IMG[id];
@@ -2016,7 +2012,6 @@ const views = {
   services(){ return servicesView(); },
   service(){ return serviceView(); },
   provider(){ return providerView(); },
-  providerEdit(){ return providerEditView(); },
   booked(){ return bookedView(); },
   account(){ return accountView(); },
   orders(){ return myOrdersView(); },
@@ -2275,7 +2270,7 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", providerEdit:"my-provider-profile"};
+const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
 let itemId = null, serviceId = null, providerId = null, PROVIDERS = [], providersLoaded = false;
@@ -2335,7 +2330,7 @@ function render(){
   $("#view").innerHTML = views[v]();
   if (priceRange[v]) syncPriceUI(v);
   const it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
-  const navV = it ? it.condition : ["service", "booked", "provider", "providerEdit"].includes(v) ? "services" : v;
+  const navV = it ? it.condition : ["service", "booked", "provider"].includes(v) ? "services" : v;
   if (v === "service") afterServiceRender();
   document.querySelectorAll("header nav a, .tabbar a").forEach(a => (a.dataset.tab===navV || a.dataset.also===navV) ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
   document.title = it ? `${it.name} · online.shop.on.ca` : "online.shop.on.ca Store";
@@ -2346,7 +2341,7 @@ function render(){
   const trail = v === "item" ? (it ? [[it.condition === "new" ? "Brand new items" : "Used items", it.condition === "new" ? "#new-items" : "#used-items"], [it.name]] : [["Item"]])
     : {new:[["Brand new items"]], used:[["Used items"]], contact:[["Contact us"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["My orders & bookings"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
          service:[["Services","#services"],[(SERVICES.find(s=>s.id===serviceId)||{}).title || "Service"]],
-         provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]], providerEdit:[["Your account","#account"],["Provider profile"]]}[v];
+         provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]]}[v];
   const cr = $("#crumbs");
   if (trail){ cr.innerHTML = `<li><a href="#home">Home</a></li>` + trail.map(([t,h])=> h?`<li><a href="${h}">${esc(t)}</a></li>`:`<li aria-current="page">${esc(t)}</li>`).join(""); cr.hidden = false; }
   else cr.hidden = true;
@@ -2496,8 +2491,6 @@ function accountView(){
       <h2>Shortcuts</h2>
       <a class="btn" href="#my-orders">My orders</a>
       ${isAdmin() ? `<a class="btn ghost" href="#admin" style="color:var(--fg)">Admin: manage orders</a>` : ""}
-      <a class="btn ghost" href="#my-provider-profile" style="color:var(--fg)">Provider profile</a>
-      <span class="note" style="margin-top:-4px">Offer classes or services? Show your job history, education and certifications.</span>
       <a class="linkbtn" href="#cart" style="text-align:left">Go to cart</a>
       <p class="note">Signed in ${viaGoogle ? "with Google" : "with email"} as ${esc(USER.email || "")}.</p>
     </aside>
@@ -2506,10 +2499,11 @@ function accountView(){
 
 
 /* =========================================================
-   SERVICE PROVIDER PROFILES (LinkedIn-style)
+   SERVICE PROVIDER PROFILES (LinkedIn-style) — added and edited by the shop's admins only.
+   Stored with the services (kind: "provider"), so only admins can change them.
    ========================================================= */
-let PED = {uid:null, data:null, loading:false, exists:false, photo:null, saving:false};
-let PADM2 = {list:null, unsub:null};
+let ALL_PROVIDERS = [];
+let PED = {id:null, data:null, photo:null};
 const EMP_TYPES = ["Full-time", "Part-time", "Self-employed", "Freelance", "Contract", "Internship", "Volunteer"];
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const safeUrl = u => { u = String(u || "").trim(); if (!u) return ""; if (!/^https?:\/\//i.test(u)) u = "https://" + u; try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : ""; } catch(_) { return ""; } };
@@ -2524,23 +2518,25 @@ function spanTxt(start, end){
   return [y ? `${y} yr${y > 1 ? "s" : ""}` : "", mo ? `${mo} mo${mo > 1 ? "s" : ""}` : ""].filter(Boolean).join(" ");
 }
 function blankProvider(){
-  return {name: (PROFILE && PROFILE.name) || (USER && USER.displayName) || "", headline: "", location: "", providerType: "Individual", about: "",
-    photo: "", languages: [], skills: [], website: "", linkedin: "", published: true,
-    experience: [{title:"", company:"", type:"Full-time", location:"", start:"", end:"", current:false, description:""}],
-    education: [], certifications: []};
+  return {name: "", headline: "", location: "", providerType: "Individual", about: "", photo: "", languages: [], skills: [], website: "", linkedin: "", active: true,
+    experience: [{title:"", company:"", type:"Full-time", location:"", start:"", end:"", current:false, description:""}], education: [], certifications: []};
+}
+function useProviders(list){
+  ALL_PROVIDERS = list.map(d => ({...blankProvider(), ...d, experience: d.experience || [], education: d.education || [], certifications: d.certifications || []}));
+  PROVIDERS = ALL_PROVIDERS.filter(p => p.active !== false).sort((a, b) => String(a.name).localeCompare(b.name));
+  providersLoaded = true;
 }
 function provAvatar(p, size){
   const src = p.photo ? imgSrc(p.photo) : "";
   return `<span class="pav" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .36)}px">${src ? `<img src="${esc(src)}" data-ref="${esc(p.photo)}" alt="">` : esc(initials(p.name))}</span>`;
 }
-function providerById(uid){
-  const p = PROVIDERS.find(x => x.id === uid);
+function providerById(id){
+  const p = PROVIDERS.find(x => x.id === id);
   if (p) return p;
-  if (USER && uid === USER.uid && PED.data) return {id: uid, ...PED.data, _preview: true};
-  if (isAdmin() && PADM2.list){ const a = PADM2.list.find(x => x.id === uid); if (a) return {...a, _preview: true}; }
+  if (isAdmin()){ const a = ALL_PROVIDERS.find(x => x.id === id); if (a) return {...a, _hidden: true}; }
   return null;
 }
-const servicesOf = uid => SERVICES.filter(s => s.providerUid === uid);
+const servicesOf = id => SERVICES.filter(s => s.providerUid === id);
 
 /* ---- Cards on the Services page ---- */
 function providerCards(list){
@@ -2553,18 +2549,15 @@ function providerCards(list){
       <span class="pgo">View profile ›</span></a>`).join("");
 }
 function providersSectionHTML(){
-  return `<section class="provsec"><div class="sectionhead"><h2>Meet our providers</h2><a class="linkbtn" href="#my-provider-profile">Are you a provider? Create your profile ›</a></div>
-    ${PROVIDERS.length ? `<div class="provgrid">${providerCards(PROVIDERS)}</div>` : `<div class="empty">Provider profiles will show here. Teach a class or offer a service? <a href="#my-provider-profile" style="color:var(--link)">Create your profile</a>.</div>`}</section>`;
+  if (!PROVIDERS.length) return "";
+  return `<section class="provsec"><div class="sectionhead"><h2>Meet our providers</h2></div><div class="provgrid">${providerCards(PROVIDERS)}</div></section>`;
 }
 
 /* ---- Public profile page ---- */
 function providerView(){
   const p = providerById(providerId);
-  if (!p){
-    if (USER && providerId === USER.uid && !PED.data){ loadMyProvider(); return `<div class="empty">Loading…</div>`; }
-    return providersLoaded ? `<div class="empty">This profile isn't available. <a href="#services" style="color:var(--link)">See all services</a></div>` : `<div class="empty">Loading…</div>`;
-  }
-  const mine = USER && USER.uid === p.id, svcs = servicesOf(p.id);
+  if (!p) return providersLoaded ? `<div class="empty">This profile isn't available. <a href="#services" style="color:var(--link)">See all services</a></div>` : `<div class="empty">Loading…</div>`;
+  const svcs = servicesOf(p.id), admin = isAdmin();
   const sec = (title, body) => body ? `<section class="pcard"><h2>${title}</h2>${body}</section>` : "";
   const exp = (p.experience || []).filter(x => x.title || x.company).map(x => `<li class="pitem">
       <span class="plogo">${esc(initials(x.company || x.title))}</span>
@@ -2587,7 +2580,7 @@ function providerView(){
         ${u ? `<a class="pcred" href="${esc(u)}" target="_blank" rel="noopener nofollow">Show credential ↗</a>` : ""}</div></li>`; }).join("");
   const web = safeUrl(p.website), li = safeUrl(p.linkedin);
   return `<div class="pprofile">
-    ${p._preview ? `<div class="msg ${p.approved ? "ok" : "err"}" style="margin-bottom:14px">${!p.published ? "Your profile is hidden. Only you can see it." : p.approved ? "This is your live profile." : "Preview: only you and the shop can see this until the shop approves it."}${mine ? ` <a href="#my-provider-profile" style="color:inherit;font-weight:600">Edit profile ›</a>` : ""}</div>` : ""}
+    ${p._hidden ? `<div class="msg err" style="margin-bottom:14px">This profile is hidden from the website. Only admins can see it.</div>` : ""}
     <section class="pcard phead">
       <div class="pcover"></div>
       <div class="pheadin">
@@ -2595,7 +2588,7 @@ function providerView(){
         <h1>${esc(p.name)}</h1>
         ${p.headline ? `<p class="phl">${esc(p.headline)}</p>` : ""}
         <p class="pmuted">${esc([p.location, p.providerType === "Company" ? "Company" : ""].filter(Boolean).join(" · "))}</p>
-        <div class="pbtns">${svcs.length ? `<a class="btn" href="#psvcs" data-top-no>See services</a>` : ""}<a class="btn ghost" href="#contact-us">Message the shop</a>${mine ? `<a class="btn ghost" href="#my-provider-profile">Edit profile</a>` : ""}</div>
+        <div class="pbtns">${svcs.length ? `<a class="btn" href="#psvcs">See services</a>` : ""}<a class="btn ghost" href="#contact-us">Message the shop</a>${admin ? `<button class="btn ghost" type="button" data-pedit="${esc(p.id)}">Edit profile</button>` : ""}</div>
         ${web || li ? `<p class="plinks">${web ? `<a href="${esc(web)}" target="_blank" rel="noopener nofollow">Website ↗</a>` : ""}${li ? `<a href="${esc(li)}" target="_blank" rel="noopener nofollow">LinkedIn ↗</a>` : ""}</p>` : ""}
       </div>
     </section>
@@ -2609,15 +2602,7 @@ function providerView(){
   </div>`;
 }
 
-/* ---- Profile editor ---- */
-async function loadMyProvider(){
-  if (!FB || !USER || PED.loading || PED.uid === USER.uid) return;
-  PED.loading = true;
-  try { const d = await FB.getProviderProfile(USER.uid); PED.exists = !!d; PED.data = d ? {...blankProvider(), ...d} : blankProvider(); }
-  catch(e){ console.error(e); PED.exists = false; PED.data = blankProvider(); }
-  PED.uid = USER.uid; PED.loading = false; PED.photo = null;
-  if (["providerEdit", "provider", "account"].includes(current())) render();
-}
+/* ---- Admin: list, add and edit profiles ---- */
 function pedRow(sec, x, i){
   const f = (name, label, val, attrs) => `<label>${label}<input data-f="${name}" value="${esc(val || "")}"${attrs || ""}></label>`;
   const ta = (name, label, val, ph) => `<label>${label}<textarea data-f="${name}" placeholder="${ph || ""}">${esc(val || "")}</textarea></label>`;
@@ -2626,8 +2611,8 @@ function pedRow(sec, x, i){
       <div class="row">${f("title", "Title", x.title, ' placeholder="e.g. Microsoft Office Trainer"')}${f("company", "Company or organization", x.company)}</div>
       <div class="row"><label>Employment type<select data-f="type">${EMP_TYPES.map(t => `<option${t === x.type ? " selected" : ""}>${t}</option>`).join("")}</select></label>${f("location", "Location", x.location, ' placeholder="e.g. Toronto, ON · Remote"')}</div>
       <div class="row">${f("start", "Start date", x.start, ' type="month"')}${f("end", "End date", x.end, ' type="month"' + (x.current ? " disabled" : ""))}</div>
-      <label class="chk"><input type="checkbox" data-f="current"${x.current ? " checked" : ""}> I currently work here</label>
-      ${ta("description", "Description", x.description, "What you did, results, tools you used")}${rm}</fieldset>`;
+      <label class="chk"><input type="checkbox" data-f="current"${x.current ? " checked" : ""}> Currently works here</label>
+      ${ta("description", "Description", x.description, "What they did, results, tools used")}${rm}</fieldset>`;
   if (sec === "education") return `<fieldset class="pfs" data-sec="education" data-i="${i}">
       ${f("school", "School", x.school, ' placeholder="e.g. Centennial College"')}
       <div class="row">${f("degree", "Degree or certificate", x.degree)}${f("field", "Field of study", x.field)}</div>
@@ -2642,34 +2627,31 @@ function pedCollect(){
   const g = n => (f.querySelector(`[name="${n}"]`) || {}).value || "";
   Object.assign(PED.data, {name: g("name").trim(), headline: g("headline").trim(), location: g("location").trim(), providerType: g("providerType") || "Individual",
     about: g("about").trim(), website: g("website").trim(), linkedin: g("linkedin").trim(), skills: listTxt(g("skills")), languages: listTxt(g("languages")),
-    published: !!(f.querySelector('[name="published"]') || {}).checked});
+    active: !!(f.querySelector('[name="active"]') || {}).checked});
   ["experience", "education", "certifications"].forEach(sec => {
     PED.data[sec] = [...f.querySelectorAll(`fieldset[data-sec="${sec}"]`)].map(fs => {
       const o = {}; fs.querySelectorAll("[data-f]").forEach(el => o[el.dataset.f] = el.type === "checkbox" ? el.checked : el.value.trim());
       if (o.current) o.end = ""; return o; });
   });
 }
-function providerEditView(){
-  if (!USER) return needSignIn("providerEdit", "Create your provider profile", "Sign in or create an account first. Your profile shows your experience, education and certifications to customers, like a LinkedIn profile.");
-  if (PED.uid !== USER.uid || !PED.data){ loadMyProvider(); return `<div class="empty">Loading your profile…</div>`; }
-  const d = PED.data, live = PED.exists && d.approved && d.published;
+function providerFormHTML(){
+  const d = PED.data, isNew = PED.id === "new";
   const photo = PED.photo || (d.photo ? imgSrc(d.photo) : "");
-  return `<div class="sectionhead"><h1>${PED.exists ? "Your provider profile" : "Create your provider profile"}</h1>${PED.exists ? `<a class="linkbtn" href="#provider-${esc(USER.uid)}">View profile ›</a>` : ""}</div>
-  <p class="note" style="max-width:720px;margin:-6px 0 16px">Show customers who you are: your job history, education, certifications and skills, like a LinkedIn profile. ${PED.exists ? (live ? "Your profile is live." : d.published ? "The shop will review your profile before it shows on the website." : "Your profile is hidden.") : "The shop reviews new profiles before they show on the website."}</p>
+  return `<div class="sectionhead"><h2>${isNew ? "Add a provider profile" : "Edit " + esc(d.name || "profile")}</h2><button class="linkbtn" type="button" data-pcancel>Back to providers</button></div>
   <form id="provForm" class="pform" novalidate>
     <section class="panel"><h2>Intro</h2>
-      <div class="pphoto">${photo ? `<img src="${esc(photo)}" alt="Your photo">` : `<span class="pav" style="width:96px;height:96px;font-size:34px">${esc(initials(d.name))}</span>`}
+      <div class="pphoto">${photo ? `<img src="${esc(photo)}" alt="Profile photo">` : `<span class="pav" style="width:96px;height:96px;font-size:34px">${esc(initials(d.name || "?"))}</span>`}
         <label class="btn ghost small">Upload photo<input type="file" id="provPhoto" accept="image/*" hidden></label>${photo ? `<button type="button" class="linkbtn" data-prphoto-rm>Remove photo</button>` : ""}</div>
       <div class="row"><label>Full name or business name<input name="name" required maxlength="80" value="${esc(d.name)}"></label>
-        <label>I am<select name="providerType"><option${d.providerType !== "Company" ? " selected" : ""}>Individual</option><option${d.providerType === "Company" ? " selected" : ""}>Company</option></select></label></div>
-      <label>Headline <small>(one line under your name)</small><input name="headline" maxlength="160" value="${esc(d.headline)}" placeholder="e.g. Microsoft Certified Trainer · Office & legal admin specialist"></label>
+        <label>Provider is<select name="providerType"><option${d.providerType !== "Company" ? " selected" : ""}>Individual</option><option${d.providerType === "Company" ? " selected" : ""}>Company</option></select></label></div>
+      <label>Headline <small>(one line under the name)</small><input name="headline" maxlength="160" value="${esc(d.headline)}" placeholder="e.g. Microsoft Certified Trainer · Office & legal admin specialist"></label>
       <label>Location<input name="location" maxlength="80" value="${esc(d.location)}" placeholder="e.g. Richmond Hill, Ontario"></label>
     </section>
     <section class="panel"><h2>About</h2>
-      <label>Tell customers about yourself <small>(up to 2,600 characters)</small><textarea name="about" maxlength="2600" style="min-height:140px" placeholder="Your background, how you teach or work, who you help">${esc(d.about)}</textarea></label>
+      <label>About this provider <small>(up to 2,600 characters)</small><textarea name="about" maxlength="2600" style="min-height:140px" placeholder="Background, how they teach or work, who they help">${esc(d.about)}</textarea></label>
     </section>
     <section class="panel"><div class="phd"><h2>Experience</h2><button type="button" class="btn ghost small" data-padd="experience">+ Add position</button></div>
-      ${(d.experience || []).map((x, i) => pedRow("experience", x, i)).join("") || `<p class="note">Add the jobs and roles that show your expertise.</p>`}</section>
+      ${(d.experience || []).map((x, i) => pedRow("experience", x, i)).join("") || `<p class="note">Add jobs and roles that show their expertise.</p>`}</section>
     <section class="panel"><div class="phd"><h2>Education</h2><button type="button" class="btn ghost small" data-padd="education">+ Add education</button></div>
       ${(d.education || []).map((x, i) => pedRow("education", x, i)).join("") || `<p class="note">Add schools, colleges and programs.</p>`}</section>
     <section class="panel"><div class="phd"><h2>Licences &amp; certifications</h2><button type="button" class="btn ghost small" data-padd="certifications">+ Add certification</button></div>
@@ -2681,30 +2663,54 @@ function providerEditView(){
     <section class="panel"><h2>Links</h2>
       <div class="row"><label>Website<input name="website" type="url" value="${esc(d.website)}" placeholder="https://"></label>
         <label>LinkedIn profile<input name="linkedin" type="url" value="${esc(d.linkedin)}" placeholder="https://www.linkedin.com/in/…"></label></div>
-      <label class="chk"><input type="checkbox" name="published"${d.published !== false ? " checked" : ""}> Show my profile on the website</label>
+      <label class="chk"><input type="checkbox" name="active"${d.active !== false ? " checked" : ""}> Show this profile on the website</label>
     </section>
     <div id="provMsg" hidden></div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit">${PED.exists ? "Save profile" : "Create profile"}</button>${PED.exists ? `<a class="btn ghost" href="#provider-${esc(USER.uid)}">View profile</a>` : ""}</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit">${isNew ? "Add profile" : "Save profile"}</button>${!isNew ? `<button class="btn ghost" type="button" data-pdel="${esc(PED.id)}" style="color:var(--danger)!important">Delete profile</button>` : ""}</div>
   </form>`;
 }
-document.addEventListener("click", e => {
+function providersAdminHTML(){
+  if (PED.id && PED.data) return providerFormHTML();
+  return `<div class="sectionhead"><p class="note" style="margin:0">Add the people and companies who give your services, with their job history, education and certifications. Link a service to a profile in Admin → Services.</p><button class="btn small" type="button" data-pedit="new">+ Add provider</button></div>
+    ${!ALL_PROVIDERS.length ? `<div class="empty">No provider profiles yet.</div>` : `<div class="ordlist">${ALL_PROVIDERS.slice().sort((a, b) => String(a.name).localeCompare(b.name)).map(p => `<div class="prow2">${provAvatar(p, 48)}<div class="pinfo"><b>${esc(p.name)}</b><span class="note">${esc(p.headline || "")}</span><span class="note">${servicesOf(p.id).length} service(s) · <b>${p.active !== false ? "Shown on website" : "Hidden"}</b></span></div>
+      <div class="pact"><a class="btn ghost small" href="#provider-${esc(p.id)}">View</a><button class="btn small" type="button" data-pedit="${esc(p.id)}">Edit</button></div></div>`).join("")}</div>`}`;
+}
+function openProviderEditor(id){
+  const src = id === "new" ? blankProvider() : ALL_PROVIDERS.find(x => x.id === id);
+  if (!src) return;
+  PED = {id, data: JSON.parse(JSON.stringify({...blankProvider(), ...src})), photo: null};
+  ADM.tab = "providers";
+  if (current() !== "admin") go("admin"); else { render(); window.scrollTo(0, 0); }
+}
+document.addEventListener("click", async e => {
+  const ed = e.target.closest("[data-pedit]");
+  if (ed){ e.preventDefault(); openProviderEditor(ed.dataset.pedit); return; }
+  if (e.target.closest("[data-pcancel]")){ PED = {id:null, data:null, photo:null}; refreshAdmin(true); window.scrollTo(0, 0); return; }
   const add = e.target.closest("[data-padd]");
   if (add){ pedCollect(); const sec = add.dataset.padd;
     PED.data[sec] = [...(PED.data[sec] || []), sec === "experience" ? {title:"", company:"", type:"Full-time", location:"", start:"", end:"", current:false, description:""} : sec === "education" ? {school:"", degree:"", field:"", start:"", end:"", description:""} : {name:"", issuer:"", issued:"", url:""}];
-    render(); const rows = document.querySelectorAll(`fieldset[data-sec="${sec}"]`); const last = rows[rows.length - 1]; if (last){ last.scrollIntoView({block:"center"}); const i = last.querySelector("input"); if (i) i.focus(); } return; }
+    refreshAdmin(true); const rows = document.querySelectorAll(`fieldset[data-sec="${sec}"]`); const last = rows[rows.length - 1]; if (last){ last.scrollIntoView({block:"center"}); const i = last.querySelector("input"); if (i) i.focus(); } return; }
   const rm = e.target.closest("[data-prm]");
-  if (rm){ pedCollect(); PED.data[rm.dataset.prm].splice(+rm.dataset.i, 1); render(); return; }
-  if (e.target.closest("[data-prphoto-rm]")){ pedCollect(); PED.photo = ""; PED.data.photo = ""; render(); return; }
-  const ap = e.target.closest("[data-papprove]");
-  if (ap){ const v = ap.dataset.papprove === "1"; ap.disabled = true;
-    FB.setProviderApproved(ap.dataset.uid, v).then(() => toast(v ? "Profile approved and live" : "Profile hidden from the website")).catch(er => { console.error(er); ap.disabled = false; toast("Couldn't update. Try again."); }); return; }
+  if (rm){ pedCollect(); PED.data[rm.dataset.prm].splice(+rm.dataset.i, 1); refreshAdmin(true); return; }
+  if (e.target.closest("[data-prphoto-rm]")){ pedCollect(); PED.photo = ""; PED.data.photo = ""; refreshAdmin(true); return; }
+  const del = e.target.closest("[data-pdel]");
+  if (del){ const id = del.dataset.pdel, p = ALL_PROVIDERS.find(x => x.id === id), n = servicesOf(id).length;
+    if (!confirmInline(del, n ? `Delete? ${n} service(s) will just show the provider's name.` : "Click again to delete")) return;
+    try { await FB.deleteService(id, p && String(p.photo).startsWith("img:") ? [p.photo.slice(4)] : []); toast("Profile deleted"); PED = {id:null, data:null, photo:null}; refreshAdmin(true); }
+    catch(er){ console.error(er); toast("Couldn't delete. Try again."); } return; }
   const ps = e.target.closest('a[href="#psvcs"]');
   if (ps){ e.preventDefault(); const t = $("#psvcs"); if (t) t.scrollIntoView({behavior:"smooth"}); }
 });
+function confirmInline(btn, text){
+  if (btn.dataset.armed){ return true; }
+  btn.dataset.armed = "1"; const old = btn.textContent; btn.textContent = text;
+  setTimeout(() => { if (btn.isConnected){ delete btn.dataset.armed; btn.textContent = old; } }, 4000);
+  return false;
+}
 document.addEventListener("change", async e => {
   if (e.target.matches('#provForm [data-f="current"]')){ const end = e.target.closest("fieldset").querySelector('[data-f="end"]'); if (end){ end.disabled = e.target.checked; if (e.target.checked) end.value = ""; } return; }
   if (e.target.id === "provPhoto" && e.target.files[0]){
-    try { pedCollect(); PED.photo = await resizeImage(e.target.files[0], 400, 0.85); render(); }
+    try { pedCollect(); PED.photo = await resizeImage(e.target.files[0], 400, 0.85); refreshAdmin(true); }
     catch(er){ console.error(er); toast("Couldn't read that photo. Try a JPG or PNG."); }
   }
 });
@@ -2712,46 +2718,26 @@ document.addEventListener("submit", async e => {
   if (e.target.id !== "provForm") return;
   e.preventDefault(); pedCollect();
   const d = PED.data, m = $("#provMsg"), btn = e.target.querySelector("button[type=submit]");
-  if (!d.name) return showMsg(m, false, "Enter your name or business name.");
+  if (!d.name) return showMsg(m, false, "Enter the provider's name.");
   for (const x of d.experience) if ((x.title || x.company) && !(x.title && x.company)) return showMsg(m, false, "Each position needs a title and a company.");
-  for (const x of d.experience) if (x.start && x.end && x.end < x.start) return showMsg(m, false, "Check your experience dates: the end date must be after the start date.");
+  for (const x of d.experience) if (x.start && x.end && x.end < x.start) return showMsg(m, false, "Check the experience dates: the end date must be after the start date.");
   btn.disabled = true; btn.textContent = "Saving…";
   try {
+    const isNew = PED.id === "new";
+    const id = isNew ? "PRV" + String(Math.max(0, ...ALL_PROVIDERS.map(x => parseInt(String(x.id).replace(/^PRV/, ""), 10) || 0)) + 1).padStart(3, "0") : PED.id;
     let photo = d.photo || "";
-    if (PED.photo){ const id = await FB.saveProviderImage(USER.uid, PED.photo); IMG["p" + id] = PED.photo; photo = "pimg:" + id; }
-    else if (PED.photo === "") photo = "";
+    if (PED.photo){ const imgId = await FB.saveImage(PED.photo); IMG[imgId] = PED.photo; photo = "img:" + imgId; }
     const clip = (s, n) => String(s || "").slice(0, n);
-    const data = {name: clip(d.name, 80), headline: clip(d.headline, 160), location: clip(d.location, 80), providerType: d.providerType === "Company" ? "Company" : "Individual",
-      about: clip(d.about, 2600), photo, website: safeUrl(d.website), linkedin: safeUrl(d.linkedin), published: !!d.published,
+    const data = {kind: "provider", name: clip(d.name, 80), headline: clip(d.headline, 160), location: clip(d.location, 80), providerType: d.providerType === "Company" ? "Company" : "Individual",
+      about: clip(d.about, 2600), photo, website: safeUrl(d.website), linkedin: safeUrl(d.linkedin), active: !!d.active,
       skills: d.skills.slice(0, 50).map(s => clip(s, 60)), languages: d.languages.slice(0, 20).map(s => clip(s, 40)),
       experience: d.experience.filter(x => x.title || x.company).slice(0, 30).map(x => ({title: clip(x.title, 100), company: clip(x.company, 100), type: x.type || "", location: clip(x.location, 80), start: x.start || "", end: x.current ? "" : (x.end || ""), current: !!x.current, description: clip(x.description, 2000)})),
       education: d.education.filter(x => x.school).slice(0, 20).map(x => ({school: clip(x.school, 120), degree: clip(x.degree, 100), field: clip(x.field, 100), start: clip(x.start, 4), end: clip(x.end, 4), description: clip(x.description, 1000)})),
-      certifications: d.certifications.filter(x => x.name).slice(0, 30).map(x => ({name: clip(x.name, 150), issuer: clip(x.issuer, 100), issued: x.issued || "", url: safeUrl(x.url)})),
-      email: USER.email || ""};
-    await FB.saveProviderProfile(USER.uid, data, !PED.exists);
-    const wasNew = !PED.exists;
-    PED.exists = true; PED.data = {...PED.data, ...data, approved: PED.data.approved || false}; PED.photo = null;
-    toast(wasNew ? "Profile created" : "Profile saved");
-    if (wasNew) sendEmail("New provider profile to review", {Provider: data.name, Headline: data.headline, Email: USER.email || "", Review: location.origin + location.pathname + "#admin"}).catch(() => {});
-    go("provider", USER.uid);
-  } catch(er){ console.error(er); btn.disabled = false; btn.textContent = PED.exists ? "Save profile" : "Create profile"; showMsg(m, false, "Couldn't save your profile. Check your connection and try again."); }
+      certifications: d.certifications.filter(x => x.name).slice(0, 30).map(x => ({name: clip(x.name, 150), issuer: clip(x.issuer, 100), issued: x.issued || "", url: safeUrl(x.url)}))};
+    await FB.saveService(id, data, isNew);
+    toast(isNew ? "Profile added" : "Profile saved"); PED = {id:null, data:null, photo:null}; refreshAdmin(true); window.scrollTo(0, 0);
+  } catch(er){ console.error(er); btn.disabled = false; btn.textContent = PED.id === "new" ? "Add profile" : "Save profile"; showMsg(m, false, "Couldn't save the profile. Check your connection and try again."); }
 });
-
-/* ---- Admin: approve provider profiles ---- */
-function startProvAdmin(){
-  if (!FB || !isAdmin() || PADM2.unsub) return;
-  PADM2.unsub = () => {};
-  PADM2.unsub = FB.watchAllProviders(list => { PADM2.list = list.sort((a, b) => (a.approved === b.approved ? 0 : a.approved ? 1 : -1) || String(a.name).localeCompare(b.name)); refreshAdmin(); }, err => { console.error(err); PADM2.list = PADM2.list || []; refreshAdmin(); });
-}
-function providersAdminHTML(){
-  startProvAdmin();
-  if (!PADM2.list) return `<div class="empty">Loading profiles…</div>`;
-  if (!PADM2.list.length) return `<div class="empty">No provider profiles yet. Providers create one from <b>Your account → Provider profile</b>, or at <a href="#my-provider-profile" style="color:var(--link)">#my-provider-profile</a>.</div>`;
-  return `<p class="note" style="margin:0 0 12px">New profiles stay off the website until you approve them. To show a provider on a service, pick their profile in Admin → Services → Provider.</p>
-    <div class="ordlist">${PADM2.list.map(p => { const st = !p.published ? "Hidden by provider" : p.approved ? "Live" : "Waiting for approval";
-      return `<div class="prow2">${provAvatar(p, 48)}<div class="pinfo"><b>${esc(p.name)}</b><span class="note">${esc(p.headline || "")}</span><span class="note">${esc(p.email || "")} · ${servicesOf(p.id).length} service(s) · <b>${st}</b></span></div>
-        <div class="pact"><a class="btn ghost small" href="#provider-${esc(p.id)}">View</a>${p.approved ? `<button class="btn ghost small" type="button" data-papprove="0" data-uid="${esc(p.id)}">Hide</button>` : `<button class="btn small" type="button" data-papprove="1" data-uid="${esc(p.id)}">Approve</button>`}</div></div>`; }).join("")}</div>`;
-}
 
 /* ---- My orders ---- */
 function startMyOrders(){
@@ -2792,7 +2778,6 @@ function startAdmin(){
   ADM.unsubO = FB.watchAllOrders(list => { ADM.orders = list; refreshAdmin(); }, err => { console.error(err); ADM.error = err.code || String(err); refreshAdmin(true); });
   ADM.unsubU = FB.watchUsers(list => { ADM.users = list; refreshAdmin(); }, err => console.error(err));
   ADM.unsubB = FB.watchAllBookings(list => { ADM.bookings = list; refreshAdmin(); }, err => console.error(err));
-  startProvAdmin();
 }
 function refreshAdmin(force){
   if (current() !== "admin") return;
@@ -2806,7 +2791,7 @@ function adminView(){
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
   return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them.</p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested").length} new)` : ""}</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers${PADM2.list && PADM2.list.some(p => !p.approved && p.published) ? ` (${PADM2.list.filter(p => !p.approved && p.published).length} to review)` : ""}</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
+    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested").length} new)` : ""}</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
 }
@@ -2931,7 +2916,9 @@ function fsToService(d){
     leadHours: d.leadHours == null || d.leadHours === "" ? 24 : +d.leadHours, horizonDays: +d.horizonDays || 21, blocked: d.blocked || [],
     images: (d.images || []).slice(0, 5), thumb: d.thumb || "", active: d.active !== false, order: d.order || 0 };
 }
-function useServices(list){
+function useServices(all){
+  useProviders(all.filter(d => d.kind === "provider"));
+  const list = all.filter(d => d.kind !== "provider");
   ALL_SERVICES = list; servicesLoaded = true;
   SERVICES = list.map(fsToService).filter(s => s.active).sort((a,b) => (a.order - b.order) || a.title.localeCompare(b.title));
 }
@@ -3326,7 +3313,7 @@ function serviceFormHTML(){
       <label>Provider name<input name="providerName" required value="${esc(d.providerName || "")}"></label>
       <label>Provider is<select name="providerType">${opt("Individual", d.providerType)}${opt("Company", d.providerType)}</select></label>
     </div>
-    <label>Provider profile <small>(links this service to a provider's profile page; approve profiles in the Providers tab)</small><select name="providerUid"><option value="">No profile linked</option>${(PADM2.list || []).filter(p => p.approved).map(p => `<option value="${esc(p.id)}"${d.providerUid === p.id ? " selected" : ""}>${esc(p.name)}${p.headline ? " · " + esc(p.headline.slice(0, 50)) : ""}</option>`).join("")}</select></label>
+    <label>Provider profile <small>(links this service to a profile page; add profiles in the Providers tab)</small><select name="providerUid"><option value="">No profile linked</option>${ALL_PROVIDERS.map(p => `<option value="${esc(p.id)}"${d.providerUid === p.id ? " selected" : ""}>${esc(p.name)}${p.headline ? " · " + esc(p.headline.slice(0, 50)) : ""}</option>`).join("")}</select></label>
     <label>About the provider <small>(short note, shown when no profile is linked)</small><textarea name="providerBio" style="min-height:80px">${esc(d.providerBio || "")}</textarea></label>
     <h3>Price and sessions</h3>
     <div class="row">
@@ -3629,7 +3616,7 @@ document.addEventListener("click", async e => {
     catch(err){ console.error(err); toast("Couldn't cancel. Contact us instead."); }
     return;
   }
-  if (b.dataset.atab){ ADM.tab = b.dataset.atab; ADM.q = ""; render(); return; }
+  if (b.dataset.atab){ ADM.tab = b.dataset.atab; ADM.q = ""; PED = {id:null, data:null, photo:null}; render(); return; }
   if (b.dataset.afilter){ ADM.status = b.dataset.afilter; refreshAdmin(true); return; }
   if (b.dataset.auid != null){ ADM.uid = b.dataset.auid || null; ADM.tab = "orders"; ADM.status = "All"; ADM.q = ""; render(); return; }
   if (b.hasAttribute("data-admrefresh")){ refreshAdmin(true); $("#admNew").hidden = true; return; }
@@ -3707,11 +3694,6 @@ function onFirebaseReady(api){
     useServices(list);
     if (current() === "admin") refreshAdmin(); else if (current() === "service") { const p = $("#bookPanel"); if (p) refreshBookPanel(); else render(); } else render();
   }, err => { console.error(err); servicesLoaded = true; render(); });
-  if (FB.watchPublicProviders) FB.watchPublicProviders(list => {
-    PROVIDERS = list.sort((a, b) => String(a.name).localeCompare(b.name)); providersLoaded = true;
-    if (["services", "service", "provider"].includes(current())) render();
-  }, err => { console.error(err); providersLoaded = true; if (current() === "provider") render(); });
-  else providersLoaded = true;
   FB.onAuth(async u => {
     const prevUid = USER && USER.uid;
     USER = u; PROFILE = null;
@@ -3729,7 +3711,7 @@ function onFirebaseReady(api){
       if (ADM.unsubO){ ADM.unsubO(); ADM.unsubO = null; } if (ADM.unsubU){ ADM.unsubU(); ADM.unsubU = null; }
       if (ADM.unsubB){ ADM.unsubB(); ADM.unsubB = null; } if (MY.unsubB){ MY.unsubB(); MY.unsubB = null; } MY.bookings = null;
       ADM.orders = ADM.users = ADM.bookings = null; ADM.error = null; ADM.notes = {};
-      PED = {uid:null, data:null, loading:false, exists:false, photo:null, saving:false}; if (PADM2.unsub){ PADM2.unsub(); PADM2.unsub = null; } PADM2.list = null;
+      PED = {id:null, data:null, photo:null};
     }
     authReady = true; updateAcct();
     if (u && afterLogin){ const v = afterLogin; afterLogin = null; authMode = "signin"; go(v === "account" ? "account" : v); if (v === "account" || v === "checkout") toast("You're signed in"); }
@@ -3891,15 +3873,7 @@ window.SHOP_FB = {
       return {stock: want === had ? null : want ? "taken" : "returned", soldOut};
     });
   },
-  saveNote: (id, text) => setDoc(doc(db, "adminNotes", id), {text, updatedAt: serverTimestamp()}),
-  /* Provider profiles */
-  async getProviderProfile(uid){ const s = await getDoc(doc(db, "providers", uid)); return s.exists() ? s.data() : null; },
-  saveProviderProfile: (uid, data, isNew) => setDoc(doc(db, "providers", uid), {...data, ...(isNew ? {approved: false, createdAt: serverTimestamp()} : {}), updatedAt: serverTimestamp()}, {merge: true}),
-  watchPublicProviders: (cb, err) => onSnapshot(query(collection(db, "providers"), where("approved", "==", true), where("published", "==", true)), s => cb(s.docs.map(withId)), err),
-  watchAllProviders: (cb, err) => onSnapshot(collection(db, "providers"), s => cb(s.docs.map(withId)), err),
-  setProviderApproved: (uid, v) => updateDoc(doc(db, "providers", uid), {approved: v, updatedAt: serverTimestamp()}),
-  async saveProviderImage(uid, data){ const r = await addDoc(collection(db, "providerImages"), {uid, data, createdAt: serverTimestamp()}); return r.id; },
-  async getProviderImage(id){ const s = await getDoc(doc(db, "providerImages", id)); return s.exists() ? s.data().data : null; }
+  saveNote: (id, text) => setDoc(doc(db, "adminNotes", id), {text, updatedAt: serverTimestamp()})
 };
 window.dispatchEvent(new Event("firebase-ready"));
 </script>
