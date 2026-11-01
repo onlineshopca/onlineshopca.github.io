@@ -1204,6 +1204,54 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 .cfoot{align-items:flex-end}
 .chst s,.isave s{color:#6e6e73}
 .storehead + .hsec{margin-top:0!important;padding-top:8px!important}
+
+/* ===== v45: provider profiles (LinkedIn-style) ===== */
+@media (min-width:701px){.storehead{display:none!important}}
+.storehead{justify-content:flex-end!important}
+.pav{display:inline-grid;place-items:center;border-radius:50%;background:#e8ecf4;color:#0d2f75;font-weight:700;overflow:hidden;flex:none}
+.pav img{width:100%;height:100%;object-fit:cover}
+.provsec{margin-top:34px}
+.provgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.provcard{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:22px 18px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:22px;text-decoration:none;color:#1d1d1f;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06)}
+.provcard:hover{box-shadow:0 2px 4px rgba(0,0,0,.05),0 14px 32px rgba(0,0,0,.10)}
+.provcard .pav{margin-bottom:8px}.provcard b{font-size:17px}.provcard .ph{font-size:14px;color:#1d1d1f;line-height:1.35}
+.provcard .pl,.provcard .psk{font-size:13px;color:#6e6e73}.pgo{font-size:14px;font-weight:600;color:#0d2f75;margin-top:6px}
+.provlink{text-decoration:none;color:inherit}.provlink:hover{border-color:rgba(13,47,117,.3)!important}
+.pprofile{max-width:880px;margin:0 auto;display:grid;gap:16px}
+.pcard{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:22px;padding:24px 28px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06)}
+.pcard h2{font-size:22px;margin:0 0 14px}
+.phead{padding:0;overflow:hidden}
+.pcover{height:150px;background:#e8ecf4}
+.pheadin{padding:0 28px 26px;margin-top:-72px}
+.pheadin .pav{border:5px solid #fff;font-size:44px}
+.pheadin h1{font-size:30px;margin:12px 0 4px;letter-spacing:-.02em}
+.phl{font-size:17px;margin:0 0 6px;color:#1d1d1f}
+.pmuted{color:#6e6e73;font-size:14px;margin:0}
+.pbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.plinks{display:flex;gap:18px;margin:14px 0 0;font-size:14px}.plinks a,.pcred{color:#0d2f75;font-weight:600;text-decoration:none}
+.pabout{white-space:pre-line;margin:0;line-height:1.55}
+.plist{list-style:none;margin:0;padding:0;display:grid}
+.pitem{display:grid;grid-template-columns:48px minmax(0,1fr);gap:14px;padding:16px 0;border-top:1px solid rgba(0,0,0,.08)}
+.pitem:first-child{border-top:0;padding-top:0}
+.plogo{width:48px;height:48px;border-radius:10px;background:#f5f5f7;color:#0d2f75;display:grid;place-items:center;font-weight:700;font-size:15px}
+.pitem>div{display:flex;flex-direction:column;gap:2px;font-size:14px;min-width:0}
+.pitem b{font-size:16px}.pitem p{white-space:pre-line;margin:8px 0 0;font-size:14px;line-height:1.5}
+.pskills{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.pskills li{padding:6px 14px;border-radius:8px;background:#f5f5f7;font-size:14px}
+.pform{display:grid;gap:16px;max-width:880px}
+.pform .panel{display:grid;gap:12px}
+.phd{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.phd h2{margin:0}
+.pfs{border:1px solid rgba(0,0,0,.1);border-radius:16px;padding:16px;margin:0;display:grid;gap:10px;min-width:0}
+.pfs .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.pfs label{display:grid;gap:6px;min-width:0}.pfs textarea{min-height:90px}
+.prm{justify-self:start;color:#c0262d!important}
+.pphoto{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.pphoto img{width:96px;height:96px;border-radius:50%;object-fit:cover}
+.pphoto label.btn{cursor:pointer}
+.chk{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;font-weight:500}
+.chk input{width:18px;height:18px;margin:0}
+.prow2{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:16px}
+.prow2 .pinfo{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}.prow2 .pact{display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:700px){.pcard{padding:20px}.pheadin{padding:0 20px 22px}.pheadin h1{font-size:24px}.pcover{height:110px}.prow2{flex-wrap:wrap}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1406,6 +1454,10 @@ const IMG = {}, IMG_PENDING = {};
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
 const refsOf = p => (p.images && p.images.length) ? p.images : (p.image ? [p.image] : []);
 function imgSrc(ref, p, i){
+  if (String(ref).startsWith("pimg:")){ const pid = ref.slice(5), key = "p" + pid;
+    if (IMG[key]) return IMG[key];
+    if (FB && !IMG_PENDING[key]){ IMG_PENDING[key] = 1; FB.getProviderImage(pid).then(d => { if (!d) return; IMG[key] = d; document.querySelectorAll(`img[data-ref="pimg:${CSS.escape(pid)}"]`).forEach(el => el.src = d); }).catch(() => { delete IMG_PENDING[key]; }); }
+    return BLANK; }
   if (!String(ref).startsWith("img:")) return ref;
   const id = ref.slice(4);
   if (IMG[id]) return IMG[id];
@@ -1822,7 +1874,7 @@ const views = {
     const nNew = PRODUCTS.filter(p => p.condition === "new"), nUsed = PRODUCTS.filter(p => p.condition === "used"), loading = feedState.new === "loading";
     const soon = (icon, title, text) => `<div class="soon"><span class="soonic">${svgI(icon)}</span><b>${title}</b><span>${text}</span></div>`;
     return `
-    <div class="storehead"><h1>Store</h1><a class="gicon storeacct" href="#account" aria-label="Your account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a></div>
+    <div class="storehead"><a class="gicon storeacct" href="#account" aria-label="Your account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a></div>
     <section class="hsec"><div class="hhead"><h2>Brand New</h2><span>Sealed and never used, below market price.</span></div>
       <div class="homegrid">${loading ? soon("clock", "Loading items…", "") : nNew.length ? productCards(nNew.slice(0, 4)) : soon("level", "New items are coming soon", "Check back shortly.")}
         ${viewAll("new", "#new-items", nNew.length ? nNew.length + " item" + (nNew.length === 1 ? "" : "s") : "Brand New", "View all brand new")}</div></section>
@@ -1963,6 +2015,8 @@ const views = {
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn" href="#my-orders">View my orders</a><a class="btn ghost" href="#home" style="color:var(--fg)">Continue shopping</a></div></div>`; },
   services(){ return servicesView(); },
   service(){ return serviceView(); },
+  provider(){ return providerView(); },
+  providerEdit(){ return providerEditView(); },
   booked(){ return bookedView(); },
   account(){ return accountView(); },
   orders(){ return myOrdersView(); },
@@ -2221,14 +2275,15 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent"};
+const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", providerEdit:"my-provider-profile"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
-let itemId = null, serviceId = null;
+let itemId = null, serviceId = null, providerId = null, PROVIDERS = [], providersLoaded = false;
 function viewFromHash(){
   const h = decodeURIComponent(location.hash.slice(1));
   if (h.startsWith("item-")){ itemId = h.slice(5); return "item"; }
   if (h.startsWith("service-")){ serviceId = h.slice(8); return "service"; }
+  if (h.startsWith("provider-")){ providerId = h.slice(9); return "provider"; }
   return VIEW_OF[h] || "home";
 }
 let currentView = viewFromHash();
@@ -2237,8 +2292,9 @@ function go(v, id){
   if (!views[v]) v = "home";
   if (v === "item") itemId = id;
   if (v === "service" && id != null && id !== serviceId){ serviceId = id; resetBooking(); }
+  if (v === "provider" && id != null) providerId = id;
   currentView = v; render(); window.scrollTo(0,0);
-  const slug = v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : SLUG[v];
+  const slug = v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : SLUG[v];
   try { if (location.hash.slice(1) !== slug) location.hash = slug; } catch(_) {}
 }
 document.addEventListener("click", e => {
@@ -2247,6 +2303,7 @@ document.addEventListener("click", e => {
   const h = a.getAttribute("href").slice(1);
   if (h.startsWith("item-")){ e.preventDefault(); go("item", decodeURIComponent(h.slice(5))); return; }
   if (h.startsWith("service-")){ e.preventDefault(); go("service", decodeURIComponent(h.slice(8))); return; }
+  if (h.startsWith("provider-")){ e.preventDefault(); go("provider", decodeURIComponent(h.slice(9))); return; }
   const v = VIEW_OF[h];
   if (!v) return;
   e.preventDefault(); go(v);
@@ -2278,16 +2335,18 @@ function render(){
   $("#view").innerHTML = views[v]();
   if (priceRange[v]) syncPriceUI(v);
   const it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
-  const navV = it ? it.condition : v === "service" || v === "booked" ? "services" : v;
+  const navV = it ? it.condition : ["service", "booked", "provider", "providerEdit"].includes(v) ? "services" : v;
   if (v === "service") afterServiceRender();
   document.querySelectorAll("header nav a, .tabbar a").forEach(a => (a.dataset.tab===navV || a.dataset.also===navV) ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
   document.title = it ? `${it.name} · online.shop.on.ca` : "online.shop.on.ca Store";
   ["new","used"].forEach(c => { const el = document.querySelector(`[data-count="${c}"]`); if (el) el.textContent = feedState[c]==="loading" ? "" : PRODUCTS.filter(p=>p.condition===c).length; });
   { const el = document.querySelector('[data-count="services"]'); if (el) el.textContent = SERVICES.length || ""; }
   if (v === "service"){ const s = SERVICES.find(x => x.id === serviceId); if (s) document.title = `${s.title} · online.shop.on.ca`; }
+  if (v === "provider"){ const pp = providerById(providerId); if (pp) document.title = `${pp.name} · online.shop.on.ca`; }
   const trail = v === "item" ? (it ? [[it.condition === "new" ? "Brand new items" : "Used items", it.condition === "new" ? "#new-items" : "#used-items"], [it.name]] : [["Item"]])
     : {new:[["Brand new items"]], used:[["Used items"]], contact:[["Contact us"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["My orders & bookings"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
-         service:[["Services","#services"],[(SERVICES.find(s=>s.id===serviceId)||{}).title || "Service"]]}[v];
+         service:[["Services","#services"],[(SERVICES.find(s=>s.id===serviceId)||{}).title || "Service"]],
+         provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]], providerEdit:[["Your account","#account"],["Provider profile"]]}[v];
   const cr = $("#crumbs");
   if (trail){ cr.innerHTML = `<li><a href="#home">Home</a></li>` + trail.map(([t,h])=> h?`<li><a href="${h}">${esc(t)}</a></li>`:`<li aria-current="page">${esc(t)}</li>`).join(""); cr.hidden = false; }
   else cr.hidden = true;
@@ -2330,7 +2389,7 @@ document.addEventListener("change", e => {
     $("#pminN").value = r.min ?? 0; $("#pmaxN").value = r.max ?? "";
   }
 });
-window.addEventListener("hashchange", () => { const prevItem = itemId, prevSvc = serviceId, v = viewFromHash(); if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
+window.addEventListener("hashchange", () => { const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, v = viewFromHash(); if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
 /* =========================================================
    ACCOUNTS, ORDERS AND ADMIN (Firebase)
    ========================================================= */
@@ -2437,10 +2496,261 @@ function accountView(){
       <h2>Shortcuts</h2>
       <a class="btn" href="#my-orders">My orders</a>
       ${isAdmin() ? `<a class="btn ghost" href="#admin" style="color:var(--fg)">Admin: manage orders</a>` : ""}
+      <a class="btn ghost" href="#my-provider-profile" style="color:var(--fg)">Provider profile</a>
+      <span class="note" style="margin-top:-4px">Offer classes or services? Show your job history, education and certifications.</span>
       <a class="linkbtn" href="#cart" style="text-align:left">Go to cart</a>
       <p class="note">Signed in ${viaGoogle ? "with Google" : "with email"} as ${esc(USER.email || "")}.</p>
     </aside>
   </div>`;
+}
+
+
+/* =========================================================
+   SERVICE PROVIDER PROFILES (LinkedIn-style)
+   ========================================================= */
+let PED = {uid:null, data:null, loading:false, exists:false, photo:null, saving:false};
+let PADM2 = {list:null, unsub:null};
+const EMP_TYPES = ["Full-time", "Part-time", "Self-employed", "Freelance", "Contract", "Internship", "Volunteer"];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const safeUrl = u => { u = String(u || "").trim(); if (!u) return ""; if (!/^https?:\/\//i.test(u)) u = "https://" + u; try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : ""; } catch(_) { return ""; } };
+const listTxt = s => String(s || "").split(/[,\n]/).map(x => x.trim()).filter(Boolean).slice(0, 50);
+const ym = s => { const m = /^(\d{4})-(\d{2})/.exec(s || ""); return m ? {y: +m[1], m: +m[2]} : null; };
+const ymTxt = s => { const d = ym(s); return d ? `${MONTHS[d.m - 1]} ${d.y}` : (/^\d{4}$/.test(s || "") ? s : ""); };
+function spanTxt(start, end){
+  const a = ym(start); if (!a) return "";
+  const now = new Date(), b = ym(end) || {y: now.getFullYear(), m: now.getMonth() + 1};
+  let n = (b.y - a.y) * 12 + (b.m - a.m) + 1; if (n < 1) return "";
+  const y = Math.floor(n / 12), mo = n % 12;
+  return [y ? `${y} yr${y > 1 ? "s" : ""}` : "", mo ? `${mo} mo${mo > 1 ? "s" : ""}` : ""].filter(Boolean).join(" ");
+}
+function blankProvider(){
+  return {name: (PROFILE && PROFILE.name) || (USER && USER.displayName) || "", headline: "", location: "", providerType: "Individual", about: "",
+    photo: "", languages: [], skills: [], website: "", linkedin: "", published: true,
+    experience: [{title:"", company:"", type:"Full-time", location:"", start:"", end:"", current:false, description:""}],
+    education: [], certifications: []};
+}
+function provAvatar(p, size){
+  const src = p.photo ? imgSrc(p.photo) : "";
+  return `<span class="pav" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .36)}px">${src ? `<img src="${esc(src)}" data-ref="${esc(p.photo)}" alt="">` : esc(initials(p.name))}</span>`;
+}
+function providerById(uid){
+  const p = PROVIDERS.find(x => x.id === uid);
+  if (p) return p;
+  if (USER && uid === USER.uid && PED.data) return {id: uid, ...PED.data, _preview: true};
+  if (isAdmin() && PADM2.list){ const a = PADM2.list.find(x => x.id === uid); if (a) return {...a, _preview: true}; }
+  return null;
+}
+const servicesOf = uid => SERVICES.filter(s => s.providerUid === uid);
+
+/* ---- Cards on the Services page ---- */
+function providerCards(list){
+  return list.map(p => `<a class="provcard" href="#provider-${esc(p.id)}">
+      ${provAvatar(p, 72)}
+      <b>${esc(p.name)}</b>
+      ${p.headline ? `<span class="ph">${esc(p.headline)}</span>` : ""}
+      ${p.location ? `<span class="pl">${esc(p.location)}</span>` : ""}
+      ${(p.skills || []).length ? `<span class="psk">${p.skills.slice(0, 3).map(esc).join(" · ")}</span>` : ""}
+      <span class="pgo">View profile ›</span></a>`).join("");
+}
+function providersSectionHTML(){
+  return `<section class="provsec"><div class="sectionhead"><h2>Meet our providers</h2><a class="linkbtn" href="#my-provider-profile">Are you a provider? Create your profile ›</a></div>
+    ${PROVIDERS.length ? `<div class="provgrid">${providerCards(PROVIDERS)}</div>` : `<div class="empty">Provider profiles will show here. Teach a class or offer a service? <a href="#my-provider-profile" style="color:var(--link)">Create your profile</a>.</div>`}</section>`;
+}
+
+/* ---- Public profile page ---- */
+function providerView(){
+  const p = providerById(providerId);
+  if (!p){
+    if (USER && providerId === USER.uid && !PED.data){ loadMyProvider(); return `<div class="empty">Loading…</div>`; }
+    return providersLoaded ? `<div class="empty">This profile isn't available. <a href="#services" style="color:var(--link)">See all services</a></div>` : `<div class="empty">Loading…</div>`;
+  }
+  const mine = USER && USER.uid === p.id, svcs = servicesOf(p.id);
+  const sec = (title, body) => body ? `<section class="pcard"><h2>${title}</h2>${body}</section>` : "";
+  const exp = (p.experience || []).filter(x => x.title || x.company).map(x => `<li class="pitem">
+      <span class="plogo">${esc(initials(x.company || x.title))}</span>
+      <div><b>${esc(x.title)}</b>
+        <span>${esc(x.company)}${x.type ? ` · ${esc(x.type)}` : ""}</span>
+        ${x.start ? `<span class="pmuted">${ymTxt(x.start)} – ${x.current || !x.end ? "Present" : ymTxt(x.end)}${spanTxt(x.start, x.current ? "" : x.end) ? ` · ${spanTxt(x.start, x.current ? "" : x.end)}` : ""}</span>` : ""}
+        ${x.location ? `<span class="pmuted">${esc(x.location)}</span>` : ""}
+        ${x.description ? `<p>${esc(x.description)}</p>` : ""}</div></li>`).join("");
+  const edu = (p.education || []).filter(x => x.school).map(x => `<li class="pitem">
+      <span class="plogo">${esc(initials(x.school))}</span>
+      <div><b>${esc(x.school)}</b>
+        ${x.degree || x.field ? `<span>${esc([x.degree, x.field].filter(Boolean).join(", "))}</span>` : ""}
+        ${x.start || x.end ? `<span class="pmuted">${esc([x.start, x.end].filter(Boolean).join(" – "))}</span>` : ""}
+        ${x.description ? `<p>${esc(x.description)}</p>` : ""}</div></li>`).join("");
+  const certs = (p.certifications || []).filter(x => x.name).map(x => { const u = safeUrl(x.url); return `<li class="pitem">
+      <span class="plogo">${esc(initials(x.issuer || x.name))}</span>
+      <div><b>${esc(x.name)}</b>
+        ${x.issuer ? `<span>${esc(x.issuer)}</span>` : ""}
+        ${x.issued ? `<span class="pmuted">Issued ${ymTxt(x.issued)}</span>` : ""}
+        ${u ? `<a class="pcred" href="${esc(u)}" target="_blank" rel="noopener nofollow">Show credential ↗</a>` : ""}</div></li>`; }).join("");
+  const web = safeUrl(p.website), li = safeUrl(p.linkedin);
+  return `<div class="pprofile">
+    ${p._preview ? `<div class="msg ${p.approved ? "ok" : "err"}" style="margin-bottom:14px">${!p.published ? "Your profile is hidden. Only you can see it." : p.approved ? "This is your live profile." : "Preview: only you and the shop can see this until the shop approves it."}${mine ? ` <a href="#my-provider-profile" style="color:inherit;font-weight:600">Edit profile ›</a>` : ""}</div>` : ""}
+    <section class="pcard phead">
+      <div class="pcover"></div>
+      <div class="pheadin">
+        ${provAvatar(p, 132)}
+        <h1>${esc(p.name)}</h1>
+        ${p.headline ? `<p class="phl">${esc(p.headline)}</p>` : ""}
+        <p class="pmuted">${esc([p.location, p.providerType === "Company" ? "Company" : ""].filter(Boolean).join(" · "))}</p>
+        <div class="pbtns">${svcs.length ? `<a class="btn" href="#psvcs" data-top-no>See services</a>` : ""}<a class="btn ghost" href="#contact-us">Message the shop</a>${mine ? `<a class="btn ghost" href="#my-provider-profile">Edit profile</a>` : ""}</div>
+        ${web || li ? `<p class="plinks">${web ? `<a href="${esc(web)}" target="_blank" rel="noopener nofollow">Website ↗</a>` : ""}${li ? `<a href="${esc(li)}" target="_blank" rel="noopener nofollow">LinkedIn ↗</a>` : ""}</p>` : ""}
+      </div>
+    </section>
+    ${sec("About", p.about ? `<p class="pabout">${esc(p.about)}</p>` : "")}
+    ${svcs.length ? `<section class="pcard" id="psvcs"><h2>Services</h2><div class="svcgrid">${serviceCards(svcs)}</div></section>` : ""}
+    ${sec("Experience", exp ? `<ul class="plist">${exp}</ul>` : "")}
+    ${sec("Education", edu ? `<ul class="plist">${edu}</ul>` : "")}
+    ${sec("Licences &amp; certifications", certs ? `<ul class="plist">${certs}</ul>` : "")}
+    ${sec("Skills", (p.skills || []).length ? `<ul class="pskills">${p.skills.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : "")}
+    ${sec("Languages", (p.languages || []).length ? `<ul class="pskills">${p.languages.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : "")}
+  </div>`;
+}
+
+/* ---- Profile editor ---- */
+async function loadMyProvider(){
+  if (!FB || !USER || PED.loading || PED.uid === USER.uid) return;
+  PED.loading = true;
+  try { const d = await FB.getProviderProfile(USER.uid); PED.exists = !!d; PED.data = d ? {...blankProvider(), ...d} : blankProvider(); }
+  catch(e){ console.error(e); PED.exists = false; PED.data = blankProvider(); }
+  PED.uid = USER.uid; PED.loading = false; PED.photo = null;
+  if (["providerEdit", "provider", "account"].includes(current())) render();
+}
+function pedRow(sec, x, i){
+  const f = (name, label, val, attrs) => `<label>${label}<input data-f="${name}" value="${esc(val || "")}"${attrs || ""}></label>`;
+  const ta = (name, label, val, ph) => `<label>${label}<textarea data-f="${name}" placeholder="${ph || ""}">${esc(val || "")}</textarea></label>`;
+  const rm = `<button type="button" class="linkbtn prm" data-prm="${sec}" data-i="${i}">Remove</button>`;
+  if (sec === "experience") return `<fieldset class="pfs" data-sec="experience" data-i="${i}">
+      <div class="row">${f("title", "Title", x.title, ' placeholder="e.g. Microsoft Office Trainer"')}${f("company", "Company or organization", x.company)}</div>
+      <div class="row"><label>Employment type<select data-f="type">${EMP_TYPES.map(t => `<option${t === x.type ? " selected" : ""}>${t}</option>`).join("")}</select></label>${f("location", "Location", x.location, ' placeholder="e.g. Toronto, ON · Remote"')}</div>
+      <div class="row">${f("start", "Start date", x.start, ' type="month"')}${f("end", "End date", x.end, ' type="month"' + (x.current ? " disabled" : ""))}</div>
+      <label class="chk"><input type="checkbox" data-f="current"${x.current ? " checked" : ""}> I currently work here</label>
+      ${ta("description", "Description", x.description, "What you did, results, tools you used")}${rm}</fieldset>`;
+  if (sec === "education") return `<fieldset class="pfs" data-sec="education" data-i="${i}">
+      ${f("school", "School", x.school, ' placeholder="e.g. Centennial College"')}
+      <div class="row">${f("degree", "Degree or certificate", x.degree)}${f("field", "Field of study", x.field)}</div>
+      <div class="row">${f("start", "Start year", x.start, ' inputmode="numeric" maxlength="4" placeholder="2023"')}${f("end", "End year (or expected)", x.end, ' inputmode="numeric" maxlength="4" placeholder="2025"')}</div>
+      ${ta("description", "Description", x.description, "Activities, awards, focus")}${rm}</fieldset>`;
+  return `<fieldset class="pfs" data-sec="certifications" data-i="${i}">
+      <div class="row">${f("name", "Name", x.name, ' placeholder="e.g. Microsoft Office Specialist: Excel Expert"')}${f("issuer", "Issuing organization", x.issuer, ' placeholder="e.g. Microsoft"')}</div>
+      <div class="row">${f("issued", "Issue date", x.issued, ' type="month"')}${f("url", "Credential link", x.url, ' type="url" placeholder="https://"')}</div>${rm}</fieldset>`;
+}
+function pedCollect(){
+  const f = $("#provForm"); if (!f || !PED.data) return;
+  const g = n => (f.querySelector(`[name="${n}"]`) || {}).value || "";
+  Object.assign(PED.data, {name: g("name").trim(), headline: g("headline").trim(), location: g("location").trim(), providerType: g("providerType") || "Individual",
+    about: g("about").trim(), website: g("website").trim(), linkedin: g("linkedin").trim(), skills: listTxt(g("skills")), languages: listTxt(g("languages")),
+    published: !!(f.querySelector('[name="published"]') || {}).checked});
+  ["experience", "education", "certifications"].forEach(sec => {
+    PED.data[sec] = [...f.querySelectorAll(`fieldset[data-sec="${sec}"]`)].map(fs => {
+      const o = {}; fs.querySelectorAll("[data-f]").forEach(el => o[el.dataset.f] = el.type === "checkbox" ? el.checked : el.value.trim());
+      if (o.current) o.end = ""; return o; });
+  });
+}
+function providerEditView(){
+  if (!USER) return needSignIn("providerEdit", "Create your provider profile", "Sign in or create an account first. Your profile shows your experience, education and certifications to customers, like a LinkedIn profile.");
+  if (PED.uid !== USER.uid || !PED.data){ loadMyProvider(); return `<div class="empty">Loading your profile…</div>`; }
+  const d = PED.data, live = PED.exists && d.approved && d.published;
+  const photo = PED.photo || (d.photo ? imgSrc(d.photo) : "");
+  return `<div class="sectionhead"><h1>${PED.exists ? "Your provider profile" : "Create your provider profile"}</h1>${PED.exists ? `<a class="linkbtn" href="#provider-${esc(USER.uid)}">View profile ›</a>` : ""}</div>
+  <p class="note" style="max-width:720px;margin:-6px 0 16px">Show customers who you are: your job history, education, certifications and skills, like a LinkedIn profile. ${PED.exists ? (live ? "Your profile is live." : d.published ? "The shop will review your profile before it shows on the website." : "Your profile is hidden.") : "The shop reviews new profiles before they show on the website."}</p>
+  <form id="provForm" class="pform" novalidate>
+    <section class="panel"><h2>Intro</h2>
+      <div class="pphoto">${photo ? `<img src="${esc(photo)}" alt="Your photo">` : `<span class="pav" style="width:96px;height:96px;font-size:34px">${esc(initials(d.name))}</span>`}
+        <label class="btn ghost small">Upload photo<input type="file" id="provPhoto" accept="image/*" hidden></label>${photo ? `<button type="button" class="linkbtn" data-prphoto-rm>Remove photo</button>` : ""}</div>
+      <div class="row"><label>Full name or business name<input name="name" required maxlength="80" value="${esc(d.name)}"></label>
+        <label>I am<select name="providerType"><option${d.providerType !== "Company" ? " selected" : ""}>Individual</option><option${d.providerType === "Company" ? " selected" : ""}>Company</option></select></label></div>
+      <label>Headline <small>(one line under your name)</small><input name="headline" maxlength="160" value="${esc(d.headline)}" placeholder="e.g. Microsoft Certified Trainer · Office & legal admin specialist"></label>
+      <label>Location<input name="location" maxlength="80" value="${esc(d.location)}" placeholder="e.g. Richmond Hill, Ontario"></label>
+    </section>
+    <section class="panel"><h2>About</h2>
+      <label>Tell customers about yourself <small>(up to 2,600 characters)</small><textarea name="about" maxlength="2600" style="min-height:140px" placeholder="Your background, how you teach or work, who you help">${esc(d.about)}</textarea></label>
+    </section>
+    <section class="panel"><div class="phd"><h2>Experience</h2><button type="button" class="btn ghost small" data-padd="experience">+ Add position</button></div>
+      ${(d.experience || []).map((x, i) => pedRow("experience", x, i)).join("") || `<p class="note">Add the jobs and roles that show your expertise.</p>`}</section>
+    <section class="panel"><div class="phd"><h2>Education</h2><button type="button" class="btn ghost small" data-padd="education">+ Add education</button></div>
+      ${(d.education || []).map((x, i) => pedRow("education", x, i)).join("") || `<p class="note">Add schools, colleges and programs.</p>`}</section>
+    <section class="panel"><div class="phd"><h2>Licences &amp; certifications</h2><button type="button" class="btn ghost small" data-padd="certifications">+ Add certification</button></div>
+      ${(d.certifications || []).map((x, i) => pedRow("certifications", x, i)).join("") || `<p class="note">Add certifications such as Microsoft Office Specialist.</p>`}</section>
+    <section class="panel"><h2>Skills &amp; languages</h2>
+      <label>Skills <small>(separate with commas)</small><input name="skills" value="${esc((d.skills || []).join(", "))}" placeholder="e.g. Microsoft Excel, Word, Legal documents, Teaching"></label>
+      <label>Languages <small>(separate with commas)</small><input name="languages" value="${esc((d.languages || []).join(", "))}" placeholder="e.g. English, Farsi, French"></label>
+    </section>
+    <section class="panel"><h2>Links</h2>
+      <div class="row"><label>Website<input name="website" type="url" value="${esc(d.website)}" placeholder="https://"></label>
+        <label>LinkedIn profile<input name="linkedin" type="url" value="${esc(d.linkedin)}" placeholder="https://www.linkedin.com/in/…"></label></div>
+      <label class="chk"><input type="checkbox" name="published"${d.published !== false ? " checked" : ""}> Show my profile on the website</label>
+    </section>
+    <div id="provMsg" hidden></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit">${PED.exists ? "Save profile" : "Create profile"}</button>${PED.exists ? `<a class="btn ghost" href="#provider-${esc(USER.uid)}">View profile</a>` : ""}</div>
+  </form>`;
+}
+document.addEventListener("click", e => {
+  const add = e.target.closest("[data-padd]");
+  if (add){ pedCollect(); const sec = add.dataset.padd;
+    PED.data[sec] = [...(PED.data[sec] || []), sec === "experience" ? {title:"", company:"", type:"Full-time", location:"", start:"", end:"", current:false, description:""} : sec === "education" ? {school:"", degree:"", field:"", start:"", end:"", description:""} : {name:"", issuer:"", issued:"", url:""}];
+    render(); const rows = document.querySelectorAll(`fieldset[data-sec="${sec}"]`); const last = rows[rows.length - 1]; if (last){ last.scrollIntoView({block:"center"}); const i = last.querySelector("input"); if (i) i.focus(); } return; }
+  const rm = e.target.closest("[data-prm]");
+  if (rm){ pedCollect(); PED.data[rm.dataset.prm].splice(+rm.dataset.i, 1); render(); return; }
+  if (e.target.closest("[data-prphoto-rm]")){ pedCollect(); PED.photo = ""; PED.data.photo = ""; render(); return; }
+  const ap = e.target.closest("[data-papprove]");
+  if (ap){ const v = ap.dataset.papprove === "1"; ap.disabled = true;
+    FB.setProviderApproved(ap.dataset.uid, v).then(() => toast(v ? "Profile approved and live" : "Profile hidden from the website")).catch(er => { console.error(er); ap.disabled = false; toast("Couldn't update. Try again."); }); return; }
+  const ps = e.target.closest('a[href="#psvcs"]');
+  if (ps){ e.preventDefault(); const t = $("#psvcs"); if (t) t.scrollIntoView({behavior:"smooth"}); }
+});
+document.addEventListener("change", async e => {
+  if (e.target.matches('#provForm [data-f="current"]')){ const end = e.target.closest("fieldset").querySelector('[data-f="end"]'); if (end){ end.disabled = e.target.checked; if (e.target.checked) end.value = ""; } return; }
+  if (e.target.id === "provPhoto" && e.target.files[0]){
+    try { pedCollect(); PED.photo = await resizeImage(e.target.files[0], 400, 0.85); render(); }
+    catch(er){ console.error(er); toast("Couldn't read that photo. Try a JPG or PNG."); }
+  }
+});
+document.addEventListener("submit", async e => {
+  if (e.target.id !== "provForm") return;
+  e.preventDefault(); pedCollect();
+  const d = PED.data, m = $("#provMsg"), btn = e.target.querySelector("button[type=submit]");
+  if (!d.name) return showMsg(m, false, "Enter your name or business name.");
+  for (const x of d.experience) if ((x.title || x.company) && !(x.title && x.company)) return showMsg(m, false, "Each position needs a title and a company.");
+  for (const x of d.experience) if (x.start && x.end && x.end < x.start) return showMsg(m, false, "Check your experience dates: the end date must be after the start date.");
+  btn.disabled = true; btn.textContent = "Saving…";
+  try {
+    let photo = d.photo || "";
+    if (PED.photo){ const id = await FB.saveProviderImage(USER.uid, PED.photo); IMG["p" + id] = PED.photo; photo = "pimg:" + id; }
+    else if (PED.photo === "") photo = "";
+    const clip = (s, n) => String(s || "").slice(0, n);
+    const data = {name: clip(d.name, 80), headline: clip(d.headline, 160), location: clip(d.location, 80), providerType: d.providerType === "Company" ? "Company" : "Individual",
+      about: clip(d.about, 2600), photo, website: safeUrl(d.website), linkedin: safeUrl(d.linkedin), published: !!d.published,
+      skills: d.skills.slice(0, 50).map(s => clip(s, 60)), languages: d.languages.slice(0, 20).map(s => clip(s, 40)),
+      experience: d.experience.filter(x => x.title || x.company).slice(0, 30).map(x => ({title: clip(x.title, 100), company: clip(x.company, 100), type: x.type || "", location: clip(x.location, 80), start: x.start || "", end: x.current ? "" : (x.end || ""), current: !!x.current, description: clip(x.description, 2000)})),
+      education: d.education.filter(x => x.school).slice(0, 20).map(x => ({school: clip(x.school, 120), degree: clip(x.degree, 100), field: clip(x.field, 100), start: clip(x.start, 4), end: clip(x.end, 4), description: clip(x.description, 1000)})),
+      certifications: d.certifications.filter(x => x.name).slice(0, 30).map(x => ({name: clip(x.name, 150), issuer: clip(x.issuer, 100), issued: x.issued || "", url: safeUrl(x.url)})),
+      email: USER.email || ""};
+    await FB.saveProviderProfile(USER.uid, data, !PED.exists);
+    const wasNew = !PED.exists;
+    PED.exists = true; PED.data = {...PED.data, ...data, approved: PED.data.approved || false}; PED.photo = null;
+    toast(wasNew ? "Profile created" : "Profile saved");
+    if (wasNew) sendEmail("New provider profile to review", {Provider: data.name, Headline: data.headline, Email: USER.email || "", Review: location.origin + location.pathname + "#admin"}).catch(() => {});
+    go("provider", USER.uid);
+  } catch(er){ console.error(er); btn.disabled = false; btn.textContent = PED.exists ? "Save profile" : "Create profile"; showMsg(m, false, "Couldn't save your profile. Check your connection and try again."); }
+});
+
+/* ---- Admin: approve provider profiles ---- */
+function startProvAdmin(){
+  if (!FB || !isAdmin() || PADM2.unsub) return;
+  PADM2.unsub = () => {};
+  PADM2.unsub = FB.watchAllProviders(list => { PADM2.list = list.sort((a, b) => (a.approved === b.approved ? 0 : a.approved ? 1 : -1) || String(a.name).localeCompare(b.name)); refreshAdmin(); }, err => { console.error(err); PADM2.list = PADM2.list || []; refreshAdmin(); });
+}
+function providersAdminHTML(){
+  startProvAdmin();
+  if (!PADM2.list) return `<div class="empty">Loading profiles…</div>`;
+  if (!PADM2.list.length) return `<div class="empty">No provider profiles yet. Providers create one from <b>Your account → Provider profile</b>, or at <a href="#my-provider-profile" style="color:var(--link)">#my-provider-profile</a>.</div>`;
+  return `<p class="note" style="margin:0 0 12px">New profiles stay off the website until you approve them. To show a provider on a service, pick their profile in Admin → Services → Provider.</p>
+    <div class="ordlist">${PADM2.list.map(p => { const st = !p.published ? "Hidden by provider" : p.approved ? "Live" : "Waiting for approval";
+      return `<div class="prow2">${provAvatar(p, 48)}<div class="pinfo"><b>${esc(p.name)}</b><span class="note">${esc(p.headline || "")}</span><span class="note">${esc(p.email || "")} · ${servicesOf(p.id).length} service(s) · <b>${st}</b></span></div>
+        <div class="pact"><a class="btn ghost small" href="#provider-${esc(p.id)}">View</a>${p.approved ? `<button class="btn ghost small" type="button" data-papprove="0" data-uid="${esc(p.id)}">Hide</button>` : `<button class="btn small" type="button" data-papprove="1" data-uid="${esc(p.id)}">Approve</button>`}</div></div>`; }).join("")}</div>`;
 }
 
 /* ---- My orders ---- */
@@ -2482,6 +2792,7 @@ function startAdmin(){
   ADM.unsubO = FB.watchAllOrders(list => { ADM.orders = list; refreshAdmin(); }, err => { console.error(err); ADM.error = err.code || String(err); refreshAdmin(true); });
   ADM.unsubU = FB.watchUsers(list => { ADM.users = list; refreshAdmin(); }, err => console.error(err));
   ADM.unsubB = FB.watchAllBookings(list => { ADM.bookings = list; refreshAdmin(); }, err => console.error(err));
+  startProvAdmin();
 }
 function refreshAdmin(force){
   if (current() !== "admin") return;
@@ -2495,7 +2806,7 @@ function adminView(){
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
   return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them.</p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested").length} new)` : ""}</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
+    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested").length} new)` : ""}</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers${PADM2.list && PADM2.list.some(p => !p.approved && p.published) ? ` (${PADM2.list.filter(p => !p.approved && p.published).length} to review)` : ""}</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
 }
@@ -2504,6 +2815,7 @@ function adminBody(){
   if (ADM.tab === "products") return productsAdminHTML();
   if (ADM.tab === "services") return servicesAdminHTML();
   if (ADM.tab === "bookings") return adminBookingsHTML();
+  if (ADM.tab === "providers") return providersAdminHTML();
   if (!ADM.orders || !ADM.users) return `<div class="empty">Loading…</div>`;
   return ADM.tab === "customers" ? customersHTML() : adminOrdersHTML();
 }
@@ -2612,7 +2924,7 @@ const priceTxt = s => s.price == null ? "Price on request" : s.price === 0 ? "Fr
 function fsToService(d){
   const group = d.classType === "group";
   return { id: d.id, title: d.title || "", category: d.category || "Other", providerName: d.providerName || "online.shop.on.ca",
-    providerType: d.providerType || "Individual", providerBio: d.providerBio || "", summary: d.summary || "", description: d.description || "",
+    providerType: d.providerType || "Individual", providerBio: d.providerBio || "", providerUid: d.providerUid || "", summary: d.summary || "", description: d.description || "",
     price: d.price == null || d.price === "" ? null : +d.price, priceUnit: d.priceUnit || "session", duration: +d.duration || 60,
     format: d.format || "online", platform: d.platform || "", location: d.location || "", classType: group ? "group" : "1-on-1",
     capacity: group ? Math.max(2, +d.capacity || 6) : 1, level: d.level || "All levels", availability: d.availability || {},
@@ -2677,7 +2989,7 @@ function serviceCards(list){
       <div class="sb">
         <span class="cat">${esc(s.category)}</span>
         <h3><a href="#service-${esc(s.id)}">${esc(s.title)}</a></h3>
-        <span class="prov">by ${esc(s.providerName)}</span>
+        <span class="prov">by ${s.providerUid && PROVIDERS.find(x => x.id === s.providerUid) ? `<a href="#provider-${esc(s.providerUid)}">${esc(s.providerName)}</a>` : esc(s.providerName)}</span>
         ${s.summary ? `<p class="desc">${esc(s.summary)}</p>` : ""}
         ${fmtChips(s)}
         <div class="foot"><span class="svcprice">${priceTxt(s)}</span><a class="btn small" href="#service-${esc(s.id)}">Book a time</a></div>
@@ -2704,6 +3016,7 @@ function servicesView(){
       </div></div>
     ${filterFootHTML("services")}
     <div id="results">${resultsHTML("services")}</div>`}
+    ${providersSectionHTML()}
     <div class="tiles" style="margin-top:28px">
       <div class="tile"><h2>Online classes</h2><p>Join from home on your computer, tablet or phone. Your meeting link comes with your confirmation.</p></div>
       <div class="tile"><h2>In person</h2><p>Meet in Richmond Hill or, for some services, at your home or office. The exact place is confirmed with your booking.</p></div>
@@ -2729,7 +3042,9 @@ function serviceView(){
         ${s.summary ? `<p class="note" style="font-size:1.02rem;margin-top:6px">${esc(s.summary)}</p>` : ""}
         <div style="margin-top:10px">${fmtChips(s)}</div>
         <button class="btn mobilebook" type="button" data-tobook>${svgI("calendar").replace("<svg", '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"')}See open times &amp; book · ${s.price == null ? "on request" : s.price === 0 ? "Free" : money(s.price)}</button></div>
-      <div class="provider"><div class="av">${esc(initials(s.providerName))}</div><div><b>${esc(s.providerName)}</b> <span class="note">· ${esc(s.providerType)}</span>${s.providerBio ? `<p>${esc(s.providerBio)}</p>` : ""}</div></div>
+      ${(() => { const pp = s.providerUid ? PROVIDERS.find(x => x.id === s.providerUid) : null;
+        return pp ? `<a class="provider provlink" href="#provider-${esc(pp.id)}">${provAvatar(pp, 52)}<div><b>${esc(pp.name)}</b>${pp.headline ? `<p style="color:var(--fg)">${esc(pp.headline)}</p>` : ""}${pp.location ? `<p>${esc(pp.location)}</p>` : ""}<span class="pgo">View full profile: experience, education &amp; certifications ›</span></div></a>`
+          : `<div class="provider"><div class="av">${esc(initials(s.providerName))}</div><div><b>${esc(s.providerName)}</b> <span class="note">· ${esc(s.providerType)}</span>${s.providerBio ? `<p>${esc(s.providerBio)}</p>` : ""}</div></div>`; })()}
       <section><h2 style="margin-bottom:10px">How the classes work</h2>
         <div class="howgrid">${how.map(([i, l, v]) => `<div class="howitem">${svgI(i)}<div><b>${l}</b><span>${esc(v)}</span></div></div>`).join("")}</div></section>
       ${s.description ? `<section class="itemdesc"><h2>About this service</h2>${descHTML(s.description)}</section>` : ""}
@@ -3011,7 +3326,8 @@ function serviceFormHTML(){
       <label>Provider name<input name="providerName" required value="${esc(d.providerName || "")}"></label>
       <label>Provider is<select name="providerType">${opt("Individual", d.providerType)}${opt("Company", d.providerType)}</select></label>
     </div>
-    <label>About the provider <small>(experience, qualifications)</small><textarea name="providerBio" style="min-height:80px">${esc(d.providerBio || "")}</textarea></label>
+    <label>Provider profile <small>(links this service to a provider's profile page; approve profiles in the Providers tab)</small><select name="providerUid"><option value="">No profile linked</option>${(PADM2.list || []).filter(p => p.approved).map(p => `<option value="${esc(p.id)}"${d.providerUid === p.id ? " selected" : ""}>${esc(p.name)}${p.headline ? " · " + esc(p.headline.slice(0, 50)) : ""}</option>`).join("")}</select></label>
+    <label>About the provider <small>(short note, shown when no profile is linked)</small><textarea name="providerBio" style="min-height:80px">${esc(d.providerBio || "")}</textarea></label>
     <h3>Price and sessions</h3>
     <div class="row">
       <label>Price (CAD) <small>(0 = free, empty = on request)</small><input name="price" type="number" min="0" step="0.01" value="${d.price ?? ""}"></label>
@@ -3099,7 +3415,7 @@ document.addEventListener("submit", async e => {
       const old = isNew ? null : rawService(id), {refs, thumb} = await persistPhotos(old);
       const group = d.classType === "group";
       const data = {title: d.title.trim(), category: (d.category || "").trim() || "Other", level: d.level, summary: (d.summary || "").trim(), description: (d.description || "").trim(),
-        providerName: d.providerName.trim(), providerType: d.providerType, providerBio: (d.providerBio || "").trim(),
+        providerName: d.providerName.trim(), providerType: d.providerType, providerBio: (d.providerBio || "").trim(), providerUid: d.providerUid || "",
         price: d.price === "" ? null : +d.price, priceUnit: d.priceUnit, duration: +d.duration, classType: group ? "group" : "1-on-1", capacity: group ? Math.max(2, parseInt(d.capacity, 10) || 6) : 1,
         format: d.format, platform: (d.platform || "").trim(), location: (d.location || "").trim(), availability,
         leadHours: Math.max(0, parseInt(d.leadHours, 10) || 0), horizonDays: Math.min(90, Math.max(1, parseInt(d.horizonDays, 10) || 21)),
@@ -3391,6 +3707,11 @@ function onFirebaseReady(api){
     useServices(list);
     if (current() === "admin") refreshAdmin(); else if (current() === "service") { const p = $("#bookPanel"); if (p) refreshBookPanel(); else render(); } else render();
   }, err => { console.error(err); servicesLoaded = true; render(); });
+  if (FB.watchPublicProviders) FB.watchPublicProviders(list => {
+    PROVIDERS = list.sort((a, b) => String(a.name).localeCompare(b.name)); providersLoaded = true;
+    if (["services", "service", "provider"].includes(current())) render();
+  }, err => { console.error(err); providersLoaded = true; if (current() === "provider") render(); });
+  else providersLoaded = true;
   FB.onAuth(async u => {
     const prevUid = USER && USER.uid;
     USER = u; PROFILE = null;
@@ -3408,6 +3729,7 @@ function onFirebaseReady(api){
       if (ADM.unsubO){ ADM.unsubO(); ADM.unsubO = null; } if (ADM.unsubU){ ADM.unsubU(); ADM.unsubU = null; }
       if (ADM.unsubB){ ADM.unsubB(); ADM.unsubB = null; } if (MY.unsubB){ MY.unsubB(); MY.unsubB = null; } MY.bookings = null;
       ADM.orders = ADM.users = ADM.bookings = null; ADM.error = null; ADM.notes = {};
+      PED = {uid:null, data:null, loading:false, exists:false, photo:null, saving:false}; if (PADM2.unsub){ PADM2.unsub(); PADM2.unsub = null; } PADM2.list = null;
     }
     authReady = true; updateAcct();
     if (u && afterLogin){ const v = afterLogin; afterLogin = null; authMode = "signin"; go(v === "account" ? "account" : v); if (v === "account" || v === "checkout") toast("You're signed in"); }
@@ -3569,7 +3891,15 @@ window.SHOP_FB = {
       return {stock: want === had ? null : want ? "taken" : "returned", soldOut};
     });
   },
-  saveNote: (id, text) => setDoc(doc(db, "adminNotes", id), {text, updatedAt: serverTimestamp()})
+  saveNote: (id, text) => setDoc(doc(db, "adminNotes", id), {text, updatedAt: serverTimestamp()}),
+  /* Provider profiles */
+  async getProviderProfile(uid){ const s = await getDoc(doc(db, "providers", uid)); return s.exists() ? s.data() : null; },
+  saveProviderProfile: (uid, data, isNew) => setDoc(doc(db, "providers", uid), {...data, ...(isNew ? {approved: false, createdAt: serverTimestamp()} : {}), updatedAt: serverTimestamp()}, {merge: true}),
+  watchPublicProviders: (cb, err) => onSnapshot(query(collection(db, "providers"), where("approved", "==", true), where("published", "==", true)), s => cb(s.docs.map(withId)), err),
+  watchAllProviders: (cb, err) => onSnapshot(collection(db, "providers"), s => cb(s.docs.map(withId)), err),
+  setProviderApproved: (uid, v) => updateDoc(doc(db, "providers", uid), {approved: v, updatedAt: serverTimestamp()}),
+  async saveProviderImage(uid, data){ const r = await addDoc(collection(db, "providerImages"), {uid, data, createdAt: serverTimestamp()}); return r.id; },
+  async getProviderImage(id){ const s = await getDoc(doc(db, "providerImages", id)); return s.exists() ? s.data().data : null; }
 };
 window.dispatchEvent(new Event("firebase-ready"));
 </script>
