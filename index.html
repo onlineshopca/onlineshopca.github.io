@@ -1252,6 +1252,10 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 .prow2{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:16px}
 .prow2 .pinfo{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}.prow2 .pact{display:flex;gap:8px;flex-wrap:wrap}
 @media (max-width:700px){.pcard{padding:20px}.pheadin{padding:0 20px 22px}.pheadin h1{font-size:24px}.pcover{height:110px}.prow2{flex-wrap:wrap}}
+
+.libox{display:flex;justify-content:flex-start;min-height:60px;overflow-x:auto}
+.libox .LI-simple-link{color:#0d2f75;font-weight:600;text-decoration:none}
+.libadge .phd{margin-bottom:12px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -2332,6 +2336,7 @@ function render(){
   const it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
   const navV = it ? it.condition : ["service", "booked", "provider"].includes(v) ? "services" : v;
   if (v === "service") afterServiceRender();
+  if (v === "provider") renderLinkedInBadges();
   document.querySelectorAll("header nav a, .tabbar a").forEach(a => (a.dataset.tab===navV || a.dataset.also===navV) ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
   document.title = it ? `${it.name} · online.shop.on.ca` : "online.shop.on.ca Store";
   ["new","used"].forEach(c => { const el = document.querySelector(`[data-count="${c}"]`); if (el) el.textContent = feedState[c]==="loading" ? "" : PRODUCTS.filter(p=>p.condition===c).length; });
@@ -2537,6 +2542,22 @@ function providerById(id){
   return null;
 }
 const servicesOf = id => SERVICES.filter(s => s.providerUid === id);
+const liVanity = u => { const m = /linkedin\.com\/in\/([A-Za-z0-9\-_%.]+)/i.exec(String(u || "")); return m ? decodeURIComponent(m[1]).replace(/[^A-Za-z0-9\-_.]/g, "") : ""; };
+/* LinkedIn's official profile badge: LinkedIn draws it and keeps it up to date */
+function liBadgeHTML(p){
+  const v = liVanity(p.linkedin); if (!v) return "";
+  return `<section class="pcard libadge"><div class="phd"><h2>On LinkedIn</h2><span class="pmuted">Live from LinkedIn · updates automatically</span></div>
+    <div class="libox"><div class="badge-base LI-profile-badge" data-locale="en_US" data-size="large" data-theme="light" data-type="HORIZONTAL" data-vanity="${esc(v)}" data-version="v1"><a class="badge-base__link LI-simple-link" href="https://www.linkedin.com/in/${esc(v)}?trk=profile-badge" target="_blank" rel="noopener">${esc(p.name)} on LinkedIn ↗</a></div></div></section>`;
+}
+let liLoading = false;
+function renderLinkedInBadges(){
+  if (!document.querySelector(".LI-profile-badge")) return;
+  if (window.LIRenderAll){ try { window.LIRenderAll(); } catch(_) {} return; }
+  if (liLoading) return; liLoading = true;
+  const sc = document.createElement("script"); sc.src = "https://platform.linkedin.com/badges/js/profile.js"; sc.async = true; sc.defer = true;
+  sc.onload = () => { if (window.LIRenderAll){ try { window.LIRenderAll(); } catch(_) {} } };
+  document.head.appendChild(sc);
+}
 
 /* ---- Cards on the Services page ---- */
 function providerCards(list){
@@ -2592,6 +2613,7 @@ function providerView(){
         ${web || li ? `<p class="plinks">${web ? `<a href="${esc(web)}" target="_blank" rel="noopener nofollow">Website ↗</a>` : ""}${li ? `<a href="${esc(li)}" target="_blank" rel="noopener nofollow">LinkedIn ↗</a>` : ""}</p>` : ""}
       </div>
     </section>
+    ${liBadgeHTML(p)}
     ${sec("About", p.about ? `<p class="pabout">${esc(p.about)}</p>` : "")}
     ${svcs.length ? `<section class="pcard" id="psvcs"><h2>Services</h2><div class="svcgrid">${serviceCards(svcs)}</div></section>` : ""}
     ${sec("Experience", exp ? `<ul class="plist">${exp}</ul>` : "")}
@@ -2662,7 +2684,7 @@ function providerFormHTML(){
     </section>
     <section class="panel"><h2>Links</h2>
       <div class="row"><label>Website<input name="website" type="url" value="${esc(d.website)}" placeholder="https://"></label>
-        <label>LinkedIn profile<input name="linkedin" type="url" value="${esc(d.linkedin)}" placeholder="https://www.linkedin.com/in/…"></label></div>
+        <label>LinkedIn profile <small>(shows a live LinkedIn badge on their page)</small><input name="linkedin" type="url" value="${esc(d.linkedin)}" placeholder="https://www.linkedin.com/in/…"></label></div>
       <label class="chk"><input type="checkbox" name="active"${d.active !== false ? " checked" : ""}> Show this profile on the website</label>
     </section>
     <div id="provMsg" hidden></div>
