@@ -3563,7 +3563,7 @@ function productFormHTML(){
       <label>Regular / market price (CAD)<input name="price" type="number" min="0" step="0.01" value="${d.price ?? ""}" placeholder="e.g. 269.99"></label>
       <label>Your price (CAD) <small>(empty = regular price)</small><input name="salePrice" type="number" min="0" step="0.01" value="${d.salePrice ?? ""}"></label>
     </div>
-    <button class="linkbtn" type="button" data-p20 style="justify-self:start">Set my price to 20% below the regular price</button>
+    <button class="linkbtn" type="button" data-p20 style="justify-self:start">Set my price: 20% below for brand new, 40% below for used</button>
     <div class="row">
       <label>Quantity available<input name="stock" type="number" min="0" step="1" required value="${d.stock ?? 1}"></label>
       <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" name="active" ${d.active !== false ? "checked" : ""}> Show on the website</label>
@@ -3613,7 +3613,7 @@ async function productClick(b){
   if (b.hasAttribute("data-pcancel")){ PADM.edit = null; PADM.photos = []; refreshAdmin(true); return true; }
   if (b.dataset.prm != null){ PADM.photos.splice(+b.dataset.prm, 1); $("#photoGrid").innerHTML = photoGridHTML(); return true; }
   if (b.dataset.pmain != null){ const [ph] = PADM.photos.splice(+b.dataset.pmain, 1); PADM.photos.unshift(ph); $("#photoGrid").innerHTML = photoGridHTML(); return true; }
-  if (b.hasAttribute("data-p20")){ const f = $("#productForm"), p = parseFloat(f.price.value); if (!(p > 0)) { toast("Enter the regular price first"); return true; } f.salePrice.value = (Math.round(p * 80) / 100).toFixed(2); return true; }
+  if (b.hasAttribute("data-p20")){ const f = $("#productForm"), p = parseFloat(f.price.value); if (!(p > 0)) { toast("Enter the regular price first"); return true; } const used = f.condition.value === "used"; f.salePrice.value = (Math.round(p * (used ? 60 : 80)) / 100).toFixed(2); toast(used ? "Set to 40% below (used)" : "Set to 20% below (brand new)"); return true; }
   if (b.dataset.pstep){ const id = b.dataset.pstep, d = rawProduct(id); if (!d) return true;
     const v = Math.max(0, (parseInt(d.stock, 10) || 0) + (+b.dataset.d));
     try { await FB.updateProduct(id, {stock: v}); toast(v === 0 ? "Now sold out" : `${v} available`); } catch(er){ console.error(er); toast("Couldn't update stock"); }
