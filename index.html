@@ -1257,6 +1257,14 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 .libox .LI-simple-link{color:#0d2f75;font-weight:600;text-decoration:none}
 .libadge .phd{margin-bottom:12px}
 .LI-profile-badge:has(iframe) > .LI-simple-link{display:none}
+
+.lipanel{border:1px solid rgba(13,47,117,.15)!important}
+.licard{display:flex;gap:14px;align-items:flex-start;padding:14px;border:1px solid rgba(0,0,0,.1);border-radius:14px;background:#fafafa}
+.licard img{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none}
+.licard .lit{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:14px}
+.licard .lit b{font-size:16px}.lisrc{font-size:12px;color:#6e6e73;text-transform:lowercase}
+.liact{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.licard.loading{opacity:.6}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -2662,6 +2670,10 @@ function providerFormHTML(){
   const photo = PED.photo || (d.photo ? imgSrc(d.photo) : "");
   return `<div class="sectionhead"><h2>${isNew ? "Add a provider profile" : "Edit " + esc(d.name || "profile")}</h2><button class="linkbtn" type="button" data-pcancel>Back to providers</button></div>
   <form id="provForm" class="pform" novalidate>
+    <section class="panel lipanel"><h2>Start with their LinkedIn</h2>
+      <label>LinkedIn profile link <small>(paste it and a preview pops up; the profile must be public on LinkedIn)</small><input name="linkedin" id="liUrl" type="url" value="${esc(d.linkedin)}" placeholder="https://www.linkedin.com/in/…" autocomplete="off"></label>
+      <div id="liPrev">${LIP.html || ""}</div>
+    </section>
     <section class="panel"><h2>Intro</h2>
       <div class="pphoto">${photo ? `<img src="${esc(photo)}" alt="Profile photo">` : `<span class="pav" style="width:96px;height:96px;font-size:34px">${esc(initials(d.name || "?"))}</span>`}
         <label class="btn ghost small">Upload photo<input type="file" id="provPhoto" accept="image/*" hidden></label>${photo ? `<button type="button" class="linkbtn" data-prphoto-rm>Remove photo</button>` : ""}</div>
@@ -2684,14 +2696,59 @@ function providerFormHTML(){
       <label>Languages <small>(separate with commas)</small><input name="languages" value="${esc((d.languages || []).join(", "))}" placeholder="e.g. English, Farsi, French"></label>
     </section>
     <section class="panel"><h2>Links</h2>
-      <div class="row"><label>Website<input name="website" type="url" value="${esc(d.website)}" placeholder="https://"></label>
-        <label>LinkedIn profile <small>(shows a live LinkedIn badge on their page)</small><input name="linkedin" type="url" value="${esc(d.linkedin)}" placeholder="https://www.linkedin.com/in/…"></label></div>
+      <label>Website<input name="website" type="url" value="${esc(d.website)}" placeholder="https://"></label>
       <label class="chk"><input type="checkbox" name="active"${d.active !== false ? " checked" : ""}> Show this profile on the website</label>
     </section>
     <div id="provMsg" hidden></div>
     <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit">${isNew ? "Add profile" : "Save profile"}</button>${!isNew ? `<button class="btn ghost" type="button" data-pdel="${esc(PED.id)}" style="color:var(--danger)!important">Delete profile</button>` : ""}</div>
   </form>`;
 }
+/* LinkedIn link preview (like the preview you get when you paste a link in a chat) */
+let LIP = {url:"", html:"", data:null, t:null};
+function liParse(j){
+  const d = (j && j.data) || {}, t = String(d.title || "").replace(/\s*\|\s*LinkedIn\s*$/i, "");
+  const i = t.indexOf(" - "), name = (i > 0 ? t.slice(0, i) : t).trim(), headline = i > 0 ? t.slice(i + 3).trim() : "";
+  return {name, headline, desc: String(d.description || "").trim(), image: d.image && d.image.url || ""};
+}
+function liCardHTML(x, url){
+  return `<div class="licard">
+    ${x.image ? `<img src="${esc(x.image)}" alt="" referrerpolicy="no-referrer">` : `<span class="pav" style="width:64px;height:64px;font-size:22px">${esc(initials(x.name || "?"))}</span>`}
+    <div class="lit"><span class="lisrc">linkedin.com</span><b>${esc(x.name || "LinkedIn profile")}</b>${x.headline ? `<span>${esc(x.headline)}</span>` : ""}${x.desc && x.desc !== x.headline ? `<span class="pmuted">${esc(x.desc.slice(0, 180))}${x.desc.length > 180 ? "…" : ""}</span>` : ""}
+      <div class="liact"><button type="button" class="btn small" data-liuse>Use name, headline &amp; photo</button><a class="linkbtn" href="${esc(url)}" target="_blank" rel="noopener">Open on LinkedIn ↗</a></div></div></div>`;
+}
+async function liPreview(url){
+  const box = $("#liPrev"); if (!box) return;
+  const u = safeUrl(url);
+  if (!liVanity(u)){ LIP = {url:"", html:"", data:null, t:null}; box.innerHTML = url.trim() ? `<p class="note">Paste a profile link that looks like https://www.linkedin.com/in/name</p>` : ""; return; }
+  if (u === LIP.url && LIP.html){ box.innerHTML = LIP.html; return; }
+  LIP.url = u; box.innerHTML = `<div class="licard loading"><span class="pav" style="width:64px;height:64px"></span><div class="lit"><span class="lisrc">linkedin.com</span><b>Loading preview…</b></div></div>`;
+  try {
+    const r = await fetch("https://api.microlink.io/?url=" + encodeURIComponent(u)), j = await r.json();
+    if (LIP.url !== u) return;
+    if (j.status !== "success" || !j.data || !j.data.title || /sign up|log in|join linkedin/i.test(j.data.title)) throw new Error("no-preview");
+    LIP.data = liParse(j); LIP.html = liCardHTML(LIP.data, u);
+    const f = $("#provForm");
+    if (f){ const n = f.querySelector('[name="name"]'), h = f.querySelector('[name="headline"]');   // fill empty boxes right away
+      if (n && !n.value.trim() && LIP.data.name) n.value = LIP.data.name;
+      if (h && !h.value.trim() && LIP.data.headline) h.value = LIP.data.headline; }
+  } catch(e){
+    if (LIP.url !== u) return;
+    LIP.data = null; LIP.html = `<div class="licard"><span class="pav" style="width:64px;height:64px;font-size:22px">in</span><div class="lit"><span class="lisrc">linkedin.com</span><b>No preview from LinkedIn</b><span class="pmuted">LinkedIn only shares previews of public profiles. Ask the provider to turn on public visibility (LinkedIn → Settings → Visibility → Edit your public profile), then paste the link again. You can still save the link.</span></div></div>`;
+  }
+  const b2 = $("#liPrev"); if (b2) b2.innerHTML = LIP.html;
+}
+document.addEventListener("input", e => { if (e.target.id !== "liUrl") return; clearTimeout(LIP.t); const v = e.target.value; LIP.t = setTimeout(() => liPreview(v), 600); });
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-liuse]"); if (!b || !LIP.data) return;
+  const f = $("#provForm"); if (!f) return;
+  if (LIP.data.name) f.querySelector('[name="name"]').value = LIP.data.name;
+  if (LIP.data.headline) f.querySelector('[name="headline"]').value = LIP.data.headline;
+  pedCollect();
+  if (LIP.data.image){ b.disabled = true; b.textContent = "Getting photo…";
+    try { const blob = await (await fetch(LIP.data.image)).blob(); PED.photo = await resizeImage(blob, 400, 0.85); }
+    catch(er){ console.error(er); toast("Couldn't copy the photo. Upload it instead."); } }
+  refreshAdmin(true); toast("Filled in from LinkedIn. Check the details, then save.");
+});
 function providersAdminHTML(){
   if (PED.id && PED.data) return providerFormHTML();
   return `<div class="sectionhead"><p class="note" style="margin:0">Add the people and companies who give your services, with their job history, education and certifications. Link a service to a profile in Admin → Services.</p><button class="btn small" type="button" data-pedit="new">+ Add provider</button></div>
@@ -2702,6 +2759,7 @@ function openProviderEditor(id){
   const src = id === "new" ? blankProvider() : ALL_PROVIDERS.find(x => x.id === id);
   if (!src) return;
   PED = {id, data: JSON.parse(JSON.stringify({...blankProvider(), ...src})), photo: null};
+  LIP = {url:"", html:"", data:null, t:null}; setTimeout(() => { const i = $("#liUrl"); if (i && i.value) liPreview(i.value); }, 50);
   ADM.tab = "providers";
   if (current() !== "admin") go("admin"); else { render(); window.scrollTo(0, 0); }
 }
