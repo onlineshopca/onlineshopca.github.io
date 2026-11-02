@@ -1303,6 +1303,22 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 .shelfnav button i{font-style:normal;color:#6e6e73;margin-left:4px}
 .shelfnav button:hover{background:#f5f5f7}
 @media (max-width:700px){.shelf{margin-top:20px}.shelf .hhead h2{font-size:1.3rem}}
+
+/* v61: search icon at the top on phones; bottom bar has 4 tabs; highlight stays inside the bar */
+@media (max-width:700px){
+  .gtools #searchBtn{display:grid!important}
+  .tabbar{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .tabbar a[aria-current="page"]{height:52px!important;min-height:52px!important;transform:none!important;margin:0 4px;border-radius:26px!important}
+  .gsearch .search{padding:12px 16px}
+  .gsearch .search .btn{padding:0 16px}
+}
+.gsearch{background:#fff!important;backdrop-filter:none!important;box-shadow:0 12px 30px rgba(13,22,51,.10)}
+/* v61: booking dates — selected day readable, no grey scroll bar */
+.daystrip{scrollbar-width:none}
+.daystrip::-webkit-scrollbar{display:none}
+.daystrip button[aria-pressed="true"]{background:#0d2f75!important;border-color:#0d2f75!important;color:#fff!important}
+.daystrip button[aria-pressed="true"] small,.daystrip button[aria-pressed="true"] b,.daystrip button[aria-pressed="true"] em{color:#fff!important}
+.daystrip button:disabled{opacity:.45}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1361,7 +1377,6 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
   <a href="#new-items" data-tab="new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="8" cy="8" r="1.6"/></svg>Brand New</a>
   <a href="#used-items" data-tab="used"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 0 1 14-3l2 2M20 15a8 8 0 0 1-14 3l-2-2"/><path d="M20 3v5h-5M4 21v-5h5"/></svg>Used</a>
   <a href="#services" data-tab="services"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Services</a>
-  <a href="#search" data-search data-tab="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7"/><path d="M16 16l5 5"/></svg>Search</a>
 </nav>
 <a class="bagbar" id="bagBar" href="#cart"><span class="bbic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2"/></svg></span><span class="bbtxt" id="bagTxt">Your bag is empty</span><span class="bbgo">Checkout ›</span></a>
 <div class="toast" id="toast" hidden></div>
@@ -1942,7 +1957,7 @@ function descHTML(d){
 }
 function filtered(cond){
   const q = query.trim().toLowerCase();
-  return PRODUCTS.filter(p => (!cond || p.condition===cond) && (!q || (p.name+" "+(p.desc||"")).toLowerCase().includes(q)));
+  return PRODUCTS.filter(p => (!cond || p.condition===cond) && (!q || [p.name, p.desc, p.brand, typeOf(p), p.grade].join(" ").toLowerCase().includes(q)));
 }
 
 const ITEMQ = {id: null, q: 1, added: false};
@@ -2167,7 +2182,7 @@ function validate(form){
 
 document.addEventListener("submit", async e => {
   const f = e.target;
-  if (f.id === "searchForm"){ e.preventDefault(); query = $("#q").value; toggleSearch(false); if (!["home","new","used"].includes(current())) go("home"); else render(); return; }
+  if (f.id === "searchForm"){ e.preventDefault(); query = $("#q").value; toggleSearch(false); if (!["home","new","used","services"].includes(current())) go("home"); else { render(); window.scrollTo(0,0); } return; }
   if (f.id === "orderForm"){
     e.preventDefault();
     const msg = $("#orderMsg"), err = validate(f);
@@ -2340,7 +2355,12 @@ document.addEventListener("click", e => {
 function toggleSearch(force){
   const p = $("#gsearch"), open = force != null ? force : p.hidden;
   p.hidden = !open; $("#searchBtn").setAttribute("aria-expanded", String(open));
-  if (open){ megaClose(); setTimeout(() => $("#q").focus(), 30); }
+  if (open){
+    const bar = $("#gbar"); p.style.top = Math.max(0, bar ? bar.getBoundingClientRect().bottom : 0) + "px";   // v61: open just under the top bar, whatever its height
+    const v = current(), ph = {new: "Search brand new items", used: "Search used items", services: "Search services"}[v] || "Search everything: new, used and services";
+    $("#q").placeholder = ph; $("#q").setAttribute("aria-label", ph);
+    megaClose(); setTimeout(() => $("#q").focus(), 30);
+  }
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#gsearch").hidden) toggleSearch(false); });
 
@@ -2471,7 +2491,8 @@ document.addEventListener("change", e => {
     $("#pminN").value = r.min ?? 0; $("#pmaxN").value = r.max ?? "";
   }
 });
-window.addEventListener("hashchange", () => { const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, v = viewFromHash(); if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
+window.addEventListener("hashchange", () => { const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, v = viewFromHash();
+  if (v !== currentView && ["home","new","used","services"].includes(v) && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
 /* =========================================================
    ACCOUNTS, ORDERS AND ADMIN (Firebase)
    ========================================================= */
