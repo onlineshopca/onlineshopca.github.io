@@ -1283,6 +1283,14 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 /* phone home: logo at top left, account icon at right */
 .storehead{justify-content:space-between!important;align-items:center!important}
 .storelogo{display:block;line-height:0}
+/* v59: phones — same top bar on every page: logo on the left, account icon on the right */
+@media (max-width:700px){
+  body[data-view="home"] header.gbar{display:block!important}
+  .storehead{display:none!important}
+  .gwrap{display:flex!important;flex-wrap:nowrap!important;justify-content:space-between!important;align-items:center!important}
+  .gbar .logo{order:0!important;flex:0 0 auto!important;margin-right:auto}
+  .gtools{display:flex!important;order:1!important;margin-left:auto;gap:4px}
+}
 /* v55: bigger top menu on computers only (phone bar unchanged) */
 @media (min-width:821px){.gtabs a{font-size:18px!important}.gicon{width:48px!important;height:48px!important}.gicon svg{width:24px!important;height:24px!important}}
 </style>
