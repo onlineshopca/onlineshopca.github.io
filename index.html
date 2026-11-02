@@ -1293,6 +1293,16 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 }
 /* v55: bigger top menu on computers only (phone bar unchanged) */
 @media (min-width:821px){.gtabs a{font-size:18px!important}.gicon{width:48px!important;height:48px!important}.gicon svg{width:24px!important;height:24px!important}}
+
+/* v60: category shelves on Brand New, Used and Services */
+.shelf{margin-top:28px;scroll-margin-top:110px}
+.shelf .hhead h2{font-size:1.5rem}
+.shelfnav{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 6px;margin-top:6px}
+.shelfnav::-webkit-scrollbar{display:none}
+.shelfnav button{font:inherit;cursor:pointer;flex:0 0 auto;white-space:nowrap;text-decoration:none;color:#1d1d1f;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:7px 12px;font-size:.88rem;font-weight:500}
+.shelfnav button i{font-style:normal;color:#6e6e73;margin-left:4px}
+.shelfnav button:hover{background:#f5f5f7}
+@media (max-width:700px){.shelf{margin-top:20px}.shelf .hhead h2{font-size:1.3rem}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1430,17 +1440,27 @@ function rowToItem(r, i){
     type: (r.product_type || "").split(">").pop().trim() || guessType(r.title + " " + (r.brand || "")), grade: "" };
 }
 /* Product types: set in Admin; older items get one guessed from their name */
-const TYPE_RULES = [
-  ["Vacuums", /vacuum|vacume|robot clean|stick vac/i], ["Air fryers", /air ?fryer/i], ["Toaster ovens", /\boven\b/i],
-  ["Toasters", /toaster/i], ["Kettles", /kettle/i], ["Blenders & food processors", /blender|food processor|nutri/i],
-  ["Juicers", /juic/i], ["Coffee & espresso", /coffee|espresso|nespresso|keurig/i], ["Personal care & grooming", /shaver|trimmer|razor|epilator|hair ?dryer|toothbrush|oral-b|sonicare|braun series|waterpik/i],
-  ["Headphones & speakers", /headphone|earbud|airpods|speaker|soundbar/i], ["Phones & tablets", /iphone|ipad|galaxy|tablet|phone/i],
-  ["Computers", /laptop|macbook|computer|monitor|keyboard|mouse/i], ["TVs", /\btv\b|television/i], ["Grills & outdoor cooking", /grill|smoker|bbq|barbecue|griddle/i], ["Kitchen & cookware", /pan\b|pot\b|knife|cookware|mixer|cooker|microwave/i],
-  ["Air purifiers & fans", /purifier|humidifier|\bfan\b|heater/i], ["Furniture", /chair|table|desk|sofa|couch|shelf|dresser|bed\b/i], ["Bikes & sports", /bike|bicycle|scooter|treadmill|dumbbell/i],
-  ["Books", /\bbook/i], ["Toys & games", /\btoy|lego|game|console|playstation|xbox|nintendo|puzzle/i]
+const TYPE_RULES = [   /* v60: first match wins, so the more specific shelves come first */
+  ["Fragrances", /eau de|parfum|cologne|fragrance|perfume/i],
+  ["Jewelry & gifts", /swarovski|crystal|pendant|necklace|jewel|bracelet|earring|figurine|ornament/i],
+  ["Personal care & grooming", /shaver|trimmer|razor|epilator|hair ?dryer|supersonic|straightener|curling|toothbrush|oral-b|sonicare|waterpik|braun series/i],
+  ["Health & fitness", /massage gun|percussion|fitness tracker|fitbit|body composition|smart scale|\bscale\b|sauna suit|twister bar|exerciser|dumbbell|kettlebell|treadmill|yoga|brain sensing|muse 2/i],
+  ["Headphones & audio", /headphone|earbud|earphone|airpods|powerbeats|headset|speakerphone|speaker|soundbar/i],
+  ["Computers & office", /laptop|macbook|computer|monitor|keyboard|mouse|webcam|power strip|desktop charger|usb hub|printer/i],
+  ["Cameras & photo", /\blens\b|camera|microphone|lavalier|\bmic\b|tripod|gimbal/i],
+  ["Phones, tablets & e-readers", /iphone|ipad|galaxy|tablet|\bphone\b|kindle|e-?reader/i],
+  ["TVs", /\btv\b|television/i],
+  ["Kitchen & cooking", /air ?fryer|\boven\b|toaster|kettle|blender|food processor|nutri|juic|coffee|espresso|nespresso|keurig|microwave|sodastream|sparkling water|grill|smoker|griddle|cookware|\bpan\b|mixer|cooker/i],
+  ["Air purifiers & humidifiers", /purifier|humidifier|\bfan\b|heater/i],
+  ["Home & cleaning", /vacuum|\bmop\b|spot cleaner|carpet|upholstery|steam iron|\biron\b|picture frame|\blamp\b/i],
+  ["Clothing & shoes", /\bshoe|sneaker|\bboots?\b|jacket|\bcoat\b|hoodie|pants|shirt|dress\b/i],
+  ["Sports & outdoors", /\bbike\b|bicycle|scooter|badminton|racquet|racket|tennis|golf|camping|swiss army|multi-?tool/i],
+  ["Toys, games & LEGO", /lego|\btoy|\bgame\b|console|playstation|xbox|nintendo|puzzle|speed cube|starry night/i],
+  ["Furniture", /chair|\btable\b|\bdesk\b|sofa|couch|shelf|dresser|\bbed\b/i],
+  ["Books", /\bbooks?\b|novel/i]
 ];
 const TYPE_LIST = TYPE_RULES.map(r => r[0]);
-function fixType(saved, guess){ return !saved || (saved === "Furniture" && guess === "Air purifiers & fans") ? guess : saved; }   // older saves guessed "Furniture" for purifiers
+function fixType(saved, guess){ return !saved || !TYPE_LIST.includes(saved) ? guess : saved; }   // v60: types from the old list are re-sorted into the new shelves   // older saves guessed "Furniture" for purifiers
 function guessType(name){ const r = TYPE_RULES.find(([, re]) => re.test(name || "")); return r ? r[0] : "Other"; }
 const GRADES = ["Like new", "Good", "Fair"];
 async function loadSheet(){
@@ -1625,7 +1645,7 @@ function rangeOf(cond){
 const FLT = { new:{types:[],brands:[],grades:[],sale:false,stock:false}, used:{types:[],brands:[],grades:[],sale:false,stock:false},
   services:{cats:[],provs:[],fmts:[],sizes:[],levels:[],min:null,max:null} };
 let fltOpen = false;
-const typeOf = p => p.type || guessType(p.name + " " + (p.brand || ""));
+const typeOf = p => (p.type && TYPE_LIST.includes(p.type)) ? p.type : guessType(p.name + " " + (p.brand || ""));
 const brandOf = p => (p.brand || "").trim();
 function inPrice(cond, p){ const {min, max, active} = rangeOf(cond); return !active || (p.price != null && p.price >= min && p.price <= max); }
 function facetList(cond, skip){          // everything that passes the other filters (so counts stay honest)
@@ -1796,15 +1816,28 @@ function listFor(cond){
   if (sortBy === "high") list = list.slice().sort((a,b)=>(b.price??-1)-(a.price??-1));
   return list;
 }
+/* v60: Brand New, Used and Services show one row per category, like the home page; every item is in its row */
+function shelvesHTML(list, catOf, cards, word){
+  const groups = new Map();
+  list.forEach(x => { const c = catOf(x) || "Other"; if (!groups.has(c)) groups.set(c, []); groups.get(c).push(x); });
+  const cats = [...groups.keys()].sort((a, b) => (a === "Other") - (b === "Other") || groups.get(b).length - groups.get(a).length || a.localeCompare(b));
+  const n = k => `${k} ${word}${k === 1 ? "" : "s"}`;
+  return `<p class="count">${n(list.length)} in ${cats.length} categor${cats.length === 1 ? "y" : "ies"}</p>
+    <nav class="shelfnav" aria-label="Jump to a category">${cats.map((c, i) => `<button type="button" data-shelf="shelf${i}">${esc(c)} <i>${groups.get(c).length}</i></button>`).join("")}</nav>
+    ${cats.map((c, i) => `<section class="hsec shelf" id="shelf${i}"><div class="hhead"><h2>${esc(c)}</h2><span>${n(groups.get(c).length)}</span></div>
+      <div class="homegrid">${cards(groups.get(c))}</div></section>`).join("")}`;
+}
 function resultsHTML(cond){
   if (cond === "services"){
     const list = listFor("services"), q = query.trim();
+    if (list.length && !activeFilters("services").length && !q) return shelvesHTML(list, s => s.category || "Other services", serviceCards, "service");
     return `<p class="count">${list.length} service${list.length === 1 ? "" : "s"}${q ? ` matching “${esc(q)}” <button class="linkbtn" data-clear>Clear search</button>` : ""}</p>
       ${list.length ? serviceGrid(list) : `<div class="empty">No services match these filters. <button class="linkbtn" type="button" data-fclear>Clear filters</button></div>`}`;
   }
   const f = FEEDS[cond], st = feedState[cond], ig = `https://www.instagram.com/${f.account}/`;
   if (st === "loading") return `<div class="empty">Loading items…</div>`;
   const list = listFor(cond);
+  if (list.length && !activeFilters(cond).length && !query.trim()) return shelvesHTML(list, typeOf, productCards, "item");
   return `<p class="count">${list.length} item${list.length===1?"":"s"}${query.trim()?` matching “${esc(query.trim())}”`:""}</p>
   ${list.length ? productGrid(list, {brand: true}) : activeFilters(cond).length ? `<div class="empty">No items match these filters. <button class="linkbtn" type="button" data-reset>Clear filters</button> to see everything.</div>` : `<div class="empty">No items here yet. Follow <a href="${ig}" target="_blank" rel="noopener">@${f.account}</a> for new posts.</div>`}`;
 }
@@ -2183,6 +2216,7 @@ document.addEventListener("submit", async e => {
 document.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.gstep){ stepGallery(b.closest(".gal"), +b.dataset.gstep); return; }
+  if (b.dataset.shelf){ const t = document.getElementById(b.dataset.shelf); if (t) t.scrollIntoView({behavior: "smooth", block: "start"}); return; }
   if (b.dataset.thumb != null){ const g = document.querySelector(".itemgal .gal"); if (g) stepGallery(g, +b.dataset.thumb - +g.dataset.i); return; }
   const inCard = !!b.closest(".cardact");
   if (b.dataset.add){ addToCart(b.dataset.add); refreshCards(b.dataset.add, "inc"); }
