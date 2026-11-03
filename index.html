@@ -1307,7 +1307,7 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 /* v61: search icon at the top on phones; bottom bar has 4 tabs; highlight stays inside the bar */
 @media (max-width:700px){
   .gtools #searchBtn{display:grid!important}
-  .tabbar{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+  .tabbar{grid-template-columns:repeat(6,minmax(0,1fr))!important}
   .tabbar a[aria-current="page"]{height:52px!important;min-height:52px!important;transform:none!important;margin:0 4px;border-radius:26px!important}
   .gsearch .search{padding:12px 16px}
   .gsearch .search .btn{padding:0 16px}
@@ -1493,6 +1493,166 @@ body .evfeat .evfshade{position:absolute;inset:0;background-image:linear-gradien
 }
 .evfeat .evph{place-items:start end;padding:22px}.evfeat .evph svg{width:70px;height:70px;opacity:.55}
 @media (max-width:700px){.evfeat .evph svg{display:none}}
+/* ---- v70 Dating ---- */
+.dtbar{display:flex;gap:10px;flex-wrap:wrap}
+.dtbar a.morefl{text-decoration:none}
+.dtbar .morefl svg{width:16px;height:16px}
+.dtbar a.morefl svg{fill:#e0245e;stroke:none}
+.dtnote{background:#fff7e6;border-radius:14px;padding:10px 14px;margin:12px 0;font-size:.92rem;color:#5a4300}
+.dtnote a{color:var(--link)}
+.dtgate,.dtintro{padding:28px}
+.dtintro{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;margin-top:16px}
+.dtintro h2{margin:0 0 8px}
+.dtintro .btn{margin-top:14px;display:inline-flex}
+.dtgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+.dtcard{background:#fff;border-radius:22px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .25s,opacity .25s}
+.dtcard.gone-like{transform:translateX(60px) rotate(6deg);opacity:0}
+.dtcard.gone-pass{transform:translateX(-60px) rotate(-6deg);opacity:0}
+.dtpic{position:relative;display:block;aspect-ratio:4/5;background:#eef0f4;color:#fff;text-decoration:none}
+.dtpic img{width:100%;height:100%;object-fit:cover;display:block}
+.dtpic::after{content:"";position:absolute;inset:auto 0 0 0;height:45%;background:linear-gradient(transparent,rgba(0,0,0,.6))}
+.dtcap{position:absolute;left:14px;right:14px;bottom:12px;z-index:1;display:grid}
+.dtcap b{font-size:1.2rem;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+.dtcap small{font-size:.86rem;opacity:.92}
+.dtnoimg{display:grid;place-items:center;width:100%;height:100%;font-size:3rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#e0245e,#0d2f75)}
+.dtbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.dtbody p{margin:0;color:#6e6e73;font-size:.9rem;line-height:1.4}
+.dtintent{align-self:flex-start;font-size:.75rem;font-weight:600;color:#0d2f75;background:#e7f1fb;border-radius:999px;padding:3px 10px}
+.dtacts{display:flex;justify-content:center;gap:18px;margin-top:auto;padding-top:4px}
+.dtacts button{width:52px;height:52px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .15s}
+.dtacts button:hover{transform:scale(1.08)}
+.dtacts button svg{width:24px;height:24px}
+.dtno svg{fill:none;stroke:#6e6e73;stroke-width:2.6;stroke-linecap:round}
+.dtyes{background:#e0245e!important;border-color:#e0245e!important}
+.dtyes svg{fill:#fff;stroke:none}
+.dtempty svg{fill:#e0245e;stroke:none}
+.dtperson{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:start;margin-top:8px}
+.dtgallery{position:sticky;top:calc(var(--hdrh,86px) + 12px)}
+.dtmain{border-radius:26px;overflow:hidden;aspect-ratio:4/5;background:#eef0f4;box-shadow:var(--shadow)}
+.dtmain img{width:100%;height:100%;object-fit:cover;display:block}
+.dtmain.dtnoimg.big{font-size:6rem}
+.dtthumbs{display:flex;gap:10px;margin-top:12px}
+.dtthumbs button{width:72px;height:72px;border-radius:14px;overflow:hidden;border:2px solid transparent;padding:0;cursor:pointer;background:#eef0f4}
+.dtthumbs button[aria-pressed="true"]{border-color:#0d2f75}
+.dtthumbs img{width:100%;height:100%;object-fit:cover}
+.dtpinfo{background:#fff;border-radius:26px;padding:28px;box-shadow:var(--shadow)}
+.dtpinfo h1{margin:0;font-size:clamp(1.8rem,3.4vw,2.6rem);letter-spacing:-.02em}
+.dtpcity{margin:4px 0 0;color:#6e6e73;font-size:1.05rem}
+.dtpacts{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:18px 0 6px}
+.dtpacts .btn{display:inline-flex;align-items:center;gap:8px;min-width:130px;justify-content:center}
+.dtpacts .btn svg{width:18px;height:18px}
+.dtbtnyes{background:#e0245e!important;border-color:#e0245e!important}
+.dtbtnyes svg{fill:#fff;stroke:none}
+.dtbtnno svg{fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+.dtstate{display:flex;align-items:center;gap:8px;margin:0;color:#1d1d1f;width:100%}
+.dtstate svg{width:18px;height:18px;fill:#e0245e;flex:none}
+.dtsect{border-top:1px solid var(--line);padding-top:16px;margin-top:16px}
+.dtsect h2{font-size:.8rem;letter-spacing:.07em;text-transform:uppercase;color:#6e6e73;margin:0 0 8px}
+.dtsect p{margin:0;line-height:1.55}
+.dtfacts{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:0}
+.dtfacts div{background:#f5f5f7;border-radius:12px;padding:8px 12px}
+.dtfacts dt{font-size:.78rem;color:#6e6e73}
+.dtfacts dd{margin:0;font-weight:500}
+.dtchips{display:flex;flex-wrap:wrap;gap:8px}
+.dtchips span{background:#f5f5f7;border-radius:999px;padding:6px 12px;font-size:.9rem}
+.dtsafety{display:flex;gap:18px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)}
+.dtsafety .linkbtn{color:#6e6e73}
+.dtform{padding:26px;display:grid;gap:16px;margin-top:16px}
+.dtform label{display:grid;gap:6px;font-weight:500;font-size:.92rem}
+.dtform label small{color:#6e6e73;font-weight:400}
+.dtform input:not([type=checkbox]):not([type=radio]),.dtform select,.dtform textarea{font:inherit;border:1px solid rgba(0,0,0,.15);border-radius:12px;padding:10px 12px;background:#fff;width:100%;box-sizing:border-box}
+.dtgrid2{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.dtage{display:flex;align-items:center;gap:8px;max-width:340px}
+.dtage select{flex:1;font:inherit;border:1px solid rgba(0,0,0,.15);border-radius:12px;padding:8px 10px;background:#fff}
+.dtage span{color:#6e6e73;font-size:.9rem}
+.dtcheck{display:flex!important;grid-template-columns:none!important;align-items:flex-start;gap:10px!important;font-weight:400!important}
+.dtcheck input{margin-top:3px;width:18px;height:18px;flex:none}
+.dtformfoot{display:flex;gap:16px;align-items:center}
+.dtphotos{display:flex;gap:12px;flex-wrap:wrap}
+.dtph,.dtphadd{position:relative;width:118px;aspect-ratio:4/5;border-radius:16px;overflow:hidden;background:#f5f5f7}
+.dtph img{width:100%;height:100%;object-fit:cover;display:block}
+.dtphx{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:18px;line-height:1;cursor:pointer}
+.dtmainlbl,.dtphmain{position:absolute;left:6px;bottom:6px;font-size:.72rem;font-weight:600;border-radius:999px;padding:3px 8px;background:rgba(255,255,255,.92);color:#1d1d1f;border:0;cursor:pointer;font-family:inherit}
+.dtmainlbl{background:#0d2f75;color:#fff;cursor:default}
+.dtphadd{display:grid;place-content:center;justify-items:center;border:2px dashed rgba(0,0,0,.18);cursor:pointer;color:#0d2f75;box-sizing:border-box}
+.dtphadd span{font-size:2rem;line-height:1}
+.dtphadd small{font-size:.8rem}
+.dtdanger{padding:20px 26px;margin-top:16px}
+.dtdanger h2{font-size:1rem;margin:0 0 6px}
+.dtdanger p{margin:6px 0}
+.dtmatch{position:fixed;inset:0;z-index:200;background:rgba(13,22,51,.55);display:grid;place-items:center;padding:16px}
+.dtmbox{background:#fff;border-radius:26px;padding:28px;max-width:400px;width:100%;text-align:center;display:grid;gap:12px;justify-items:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.dtmbox h2{margin:4px 0 0;font-size:1.8rem;color:#e0245e}
+.dtmbox p{margin:0;color:#6e6e73}
+.dtmbox .btn{width:100%;justify-content:center;display:flex}
+.dtmpics{display:flex}
+.dtmpics img,.dtmpics .dtnoimg{width:96px;height:96px;border-radius:50%;object-fit:cover;border:4px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:2rem}
+.dtmpics > :last-child{margin-left:-18px}
+.dtrep{text-align:left;justify-items:stretch}
+.dtrep h2{color:#1d1d1f;font-size:1.3rem}
+.dtrepopts{display:grid;gap:8px}
+.dtrepopts label{display:flex;gap:8px;align-items:center}
+.dtrep textarea{font:inherit;border:1px solid rgba(0,0,0,.15);border-radius:12px;padding:10px}
+.dtmlist{padding:6px;margin-top:16px}
+.dtmrow{display:flex;align-items:center;gap:14px;padding:12px;border-radius:16px;text-decoration:none;color:inherit}
+.dtmrow:hover{background:#f5f5f7}
+.dtmrow img,.dtmrow .dtnoimg{width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none;font-size:1.4rem}
+.dtmtxt{display:grid;min-width:0;flex:1}
+.dtmtxt small{color:#6e6e73;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dtmrow.unread b,.dtmrow.unread small{color:#1d1d1f;font-weight:700}
+.dtmwhen{display:grid;justify-items:end;gap:6px;font-size:.8rem;color:#6e6e73}
+.dtdot{width:10px;height:10px;border-radius:50%;background:#e0245e;display:inline-block}
+a[data-tab="dating"].hasdot{position:relative}
+a[data-tab="dating"].hasdot::after{content:"";position:absolute;top:4px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:#e0245e}
+.gtabs a[data-tab="dating"].hasdot::after{top:2px;right:-8px}
+.dtchat{padding:0;margin-top:12px;display:flex;flex-direction:column;height:calc(100vh - var(--hdrh,86px) - 120px);min-height:420px;overflow:hidden}
+.dtchead{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.dtback{font-size:2rem;line-height:1;text-decoration:none;color:#0d2f75;padding:0 4px}
+.dtcwho{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;flex:1;min-width:0}
+.dtcwho img,.dtcwho .dtnoimg{width:40px;height:40px;border-radius:50%;object-fit:cover;flex:none;font-size:1.1rem}
+.dtcmenu{display:flex;gap:14px}
+.dtcmenu .linkbtn{color:#6e6e73;font-size:.9rem}
+#dtChatState .dtnote{margin:10px 16px 0}
+.dtmsgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:6px;background:#fafafa}
+.dtday{align-self:center;font-size:.76rem;color:#6e6e73;margin:10px 0 4px}
+.dtmsg{max-width:75%;align-self:flex-start;display:grid;gap:2px}
+.dtmsg span{background:#fff;border:1px solid var(--line);border-radius:18px 18px 18px 6px;padding:9px 13px;line-height:1.4;overflow-wrap:anywhere}
+.dtmsg.mine{align-self:flex-end;justify-items:end}
+.dtmsg.mine span{background:#0d2f75;color:#fff;border-color:#0d2f75;border-radius:18px 18px 6px 18px}
+.dtmsg small{font-size:.7rem;color:#8e8e93;padding:0 6px}
+.dtsend{display:flex;gap:10px;padding:12px 16px;border-top:1px solid var(--line)}
+.dtsend input{flex:1;font:inherit;border:1px solid rgba(0,0,0,.15);border-radius:999px;padding:10px 16px}
+.dttip{margin:0;padding:0 16px 12px;font-size:.78rem;color:#8e8e93;text-align:center}
+@media (max-width:820px){
+  .dtgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .dtcard{border-radius:18px}
+  .dtcap{left:10px;right:10px;bottom:8px}
+  .dtcap b{font-size:1rem}
+  .dtbody{padding:10px}
+  .dtbody p{display:none}
+  .dtintent{font-size:.68rem;padding:2px 8px}
+  .dtacts{gap:12px}
+  .dtacts button{width:44px;height:44px}
+  .dtacts button svg{width:20px;height:20px}
+  .dtperson{grid-template-columns:1fr;gap:16px}
+  .dtgallery{position:static}
+  .dtpinfo{padding:20px}
+  .dtintro{grid-template-columns:1fr;padding:22px;gap:16px}
+  .dtgrid2{grid-template-columns:1fr}
+  .dtform{padding:18px}
+  .dtph,.dtphadd{width:calc(50% - 6px)}
+  .dtchat{height:calc(100vh - 70px - 170px);margin-left:-4px;margin-right:-4px}
+  .dtcmenu{gap:10px}
+  .dtcmenu .linkbtn{font-size:.8rem}
+}
+body .dtnoimg{background-image:linear-gradient(135deg,#e0245e,#0d2f75)!important}
+body .dtpic::after{background-image:linear-gradient(transparent,rgba(0,0,0,.6))!important}
+body[data-view="dating"] .bagbar,body[data-view="person"] .bagbar,body[data-view="matches"] .bagbar,body[data-view="chat"] .bagbar,body[data-view="datingprofile"] .bagbar{display:none!important}
+@media (max-width:820px){
+  .dtbar{flex-wrap:nowrap;gap:8px}
+  .dtbar .morefl{padding-left:12px;padding-right:12px;font-size:.88rem;white-space:nowrap}
+  .dtchat{height:calc(100dvh - 70px - 150px)}
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1506,6 +1666,7 @@ body .evfeat .evfshade{position:absolute;inset:0;background-image:linear-gradien
       <a href="#used-items" data-tab="used" data-menu="used">Used</a>
       <a href="#services" data-tab="services" data-menu="services">Services</a>
       <a href="#events" data-tab="events">Events</a>
+      <a href="#dating" data-tab="dating">Dating</a>
       <a href="#contact-us" data-tab="contact" data-menu="support">Support</a>
       <a href="#admin" data-tab="admin" id="navAdmin" hidden>Admin</a>
     </nav>
@@ -1541,7 +1702,7 @@ body .evfeat .evfshade{position:absolute;inset:0;background-image:linear-gradien
 
 <footer><div class="wrap">
   <nav class="footnav" aria-label="Footer">
-    <div><b>Shop</b><a href="#new-items">Brand New</a><a href="#used-items">Used</a><a href="#services">Services &amp; classes</a><a href="#events">Events</a></div>
+    <div><b>Shop</b><a href="#new-items">Brand New</a><a href="#used-items">Used</a><a href="#services">Services &amp; classes</a><a href="#events">Events</a><a href="#dating">Dating</a></div>
     <div><b>Account</b><a href="#account">Sign in</a><a href="#my-orders">My orders &amp; bookings</a><a href="#cart">Bag</a></div>
     <div><b>Help</b><a href="#contact-us">Contact us</a><a href="#contact-us">Pickup &amp; delivery</a><a href="#contact-us">Sell us an item</a></div>
     <div><b>Follow</b><a href="https://www.instagram.com/online.shop.on.ca/" target="_blank" rel="noopener">@online.shop.on.ca</a><a href="https://www.instagram.com/online.shop.Used.on.ca/" target="_blank" rel="noopener">@online.shop.Used.on.ca</a></div>
@@ -1554,6 +1715,7 @@ body .evfeat .evfshade{position:absolute;inset:0;background-image:linear-gradien
   <a href="#used-items" data-tab="used"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 0 1 14-3l2 2M20 15a8 8 0 0 1-14 3l-2-2"/><path d="M20 3v5h-5M4 21v-5h5"/></svg>Used</a>
   <a href="#services" data-tab="services"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Services</a>
   <a href="#events" data-tab="events"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12"/></svg>Events</a>
+  <a href="#dating" data-tab="dating"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.8 1.3-1.7 2.9-2.8 4.9-2.8 3.5 0 5.7 3.4 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>Dating</a>
 </nav>
 <a class="bagbar" id="bagBar" href="#cart"><span class="bbic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2"/></svg></span><span class="bbtxt" id="bagTxt">Your bag is empty</span><span class="bbgo">Checkout ›</span></a>
 <div class="toast" id="toast" hidden></div>
@@ -2154,6 +2316,11 @@ const views = {
       <div class="homegrid evhome">${EVENTS.slice(0, 4).map(evCardHTML).join("")}${viewAll("svc", "#events", EVENTS.length + " upcoming", "View all events")}</div></section>` : ""}`;
   },
   events(){ return eventsView(); },
+  dating(){ return datingView(); },
+  person(){ return personView(); },
+  matches(){ return matchesView(); },
+  chat(){ return chatView(); },
+  datingprofile(){ return datingProfileView(); },
   event(){ return eventView(); },
   new(){ return listView("new"); },
   used(){ return listView("used"); },
@@ -2356,7 +2523,7 @@ function validate(form){
 
 document.addEventListener("submit", async e => {
   const f = e.target;
-  if (f.id === "searchForm"){ e.preventDefault(); query = $("#q").value; toggleSearch(false); if (!["home","new","used","services","events"].includes(current())) go("home", null, true); else { render(); window.scrollTo(0,0); } return; }
+  if (f.id === "searchForm"){ e.preventDefault(); query = $("#q").value; toggleSearch(false); if (!["home","new","used","services","events","dating"].includes(current())) go("home", null, true); else { render(); window.scrollTo(0,0); } return; }
   if (f.id === "orderForm"){
     e.preventDefault();
     const msg = $("#orderMsg"), err = validate(f);
@@ -2531,7 +2698,7 @@ function toggleSearch(force){
   p.hidden = !open; $("#searchBtn").setAttribute("aria-expanded", String(open));
   if (open){
     
-    const v = current(), ph = {new: "Search brand new items", used: "Search used items", services: "Search services", events: "Search events"}[v] || "Search everything: items, services and events";
+    const v = current(), ph = {new: "Search brand new items", used: "Search used items", services: "Search services", events: "Search events", dating: "Search people by name, city or interest"}[v] || "Search everything: items, services and events";
     $("#q").placeholder = ph; $("#q").setAttribute("aria-label", ph);
     megaClose(); setTimeout(() => $("#q").focus(), 30);
   }
@@ -2550,16 +2717,18 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events"};
+const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
-let itemId = null, serviceId = null, providerId = null, eventId = null, PROVIDERS = [], providersLoaded = false;
+let itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, PROVIDERS = [], providersLoaded = false;
 function viewFromHash(){
   const h = decodeURIComponent(location.hash.slice(1));
   if (h.startsWith("item-")){ itemId = h.slice(5); return "item"; }
   if (h.startsWith("service-")){ serviceId = h.slice(8); return "service"; }
   if (h.startsWith("provider-")){ providerId = h.slice(9); return "provider"; }
   if (h.startsWith("event-")){ eventId = h.slice(6); return "event"; }
+  if (h.startsWith("person-")){ personId = h.slice(7); DT.gi = 0; return "person"; }
+  if (h.startsWith("chat-")){ chatId = h.slice(5); return "chat"; }
   return VIEW_OF[h] || "home";
 }
 let currentView = viewFromHash();
@@ -2571,8 +2740,10 @@ function go(v, id, keepQuery){
   if (v === "service" && id != null && id !== serviceId){ serviceId = id; resetBooking(); }
   if (v === "provider" && id != null) providerId = id;
   if (v === "event" && id != null) eventId = id;
+  if (v === "person" && id != null){ personId = id; DT.gi = 0; }
+  if (v === "chat" && id != null) chatId = id;
   currentView = v; render(); window.scrollTo(0,0);
-  const slug = v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : SLUG[v];
+  const slug = v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : SLUG[v];
   try { if (location.hash.slice(1) !== slug) location.hash = slug; } catch(_) {}
 }
 document.addEventListener("click", e => {
@@ -2583,6 +2754,8 @@ document.addEventListener("click", e => {
   if (h.startsWith("service-")){ e.preventDefault(); go("service", decodeURIComponent(h.slice(8))); return; }
   if (h.startsWith("provider-")){ e.preventDefault(); go("provider", decodeURIComponent(h.slice(9))); return; }
   if (h.startsWith("event-")){ e.preventDefault(); go("event", decodeURIComponent(h.slice(6))); return; }
+  if (h.startsWith("person-")){ e.preventDefault(); go("person", decodeURIComponent(h.slice(7))); return; }
+  if (h.startsWith("chat-")){ e.preventDefault(); go("chat", decodeURIComponent(h.slice(5))); return; }
   const v = VIEW_OF[h];
   if (!v) return;
   e.preventDefault(); go(v);
@@ -2610,11 +2783,14 @@ function render(){
   document.body.dataset.view = v;
   if (v !== render.last) fltOpen = false;   // the panel closes when you change page
   render.last = v;
-  document.body.classList.toggle("fltopen", !!((FLT[v] || v === "events") && fltOpen));
+  document.body.classList.toggle("fltopen", !!((FLT[v] || v === "events" || v === "dating") && fltOpen));
+  if (v !== "chat" && DT.chat.unsub){ DT.chat.unsub(); DT.chat = {id: null, msgs: null, unsub: null}; }
+  if (v !== "datingprofile" && DT.form && !DT.busy){ DT.form = null; DT.err = ""; }
+  if (!["datingprofile", "chat"].includes(v)) DT.delArm = false;
   $("#view").innerHTML = views[v]();
   if (priceRange[v]) syncPriceUI(v);
   const it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
-  const navV = it ? it.condition : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : v;
+  const navV = it ? it.condition : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : ["person", "matches", "chat", "datingprofile"].includes(v) ? "dating" : v;
   if (v === "service") afterServiceRender();
   if (v === "provider") renderLinkedInBadges();
   document.querySelectorAll("header nav a, .tabbar a").forEach(a => (a.dataset.tab===navV || a.dataset.also===navV) ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
@@ -2625,11 +2801,14 @@ function render(){
   if (v === "provider"){ const pp = providerById(providerId); if (pp) document.title = `${pp.name} · online.shop.on.ca`; }
   if (v === "event"){ const ee = eventById(eventId); if (ee) document.title = `${ee.title} · online.shop.on.ca`; }
   if (v === "events") document.title = "Events · online.shop.on.ca";
+  if (DT_VIEWS.includes(v)) document.title = (v === "person" && dtProfile(personId) ? dtProfile(personId).name : {dating: "Dating", matches: "Matches", chat: "Chat", datingprofile: "My dating profile", person: "Dating"}[v]) + " · online.shop.on.ca";
   const trail = v === "item" ? (it ? [[it.condition === "new" ? "Brand new items" : "Used items", it.condition === "new" ? "#new-items" : "#used-items"], [it.name]] : [["Item"]])
     : {new:[["Brand new items"]], used:[["Used items"]], contact:[["Contact us"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["My orders & bookings"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
          service:[["Services","#services"],[(SERVICES.find(s=>s.id===serviceId)||{}).title || "Service"]],
          provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]],
-         events:[["Events"]], event:[["Events","#events"],[(eventById(eventId)||{}).title || "Event"]]}[v];
+         events:[["Events"]], event:[["Events","#events"],[(eventById(eventId)||{}).title || "Event"]],
+         dating:[["Dating"]], person:[["Dating","#dating"],[(dtProfile(personId)||{}).name || "Profile"]], matches:[["Dating","#dating"],["Matches"]],
+         chat:[["Dating","#dating"],["Matches","#matches"],["Chat"]], datingprofile:[["Dating","#dating"],["My profile"]]}[v];
   const cr = $("#crumbs");
   if (trail){ cr.innerHTML = `<li><a href="#home">Home</a></li>` + trail.map(([t,h])=> h?`<li><a href="${h}">${esc(t)}</a></li>`:`<li aria-current="page">${esc(t)}</li>`).join(""); cr.hidden = false; }
   else cr.hidden = true;
@@ -2672,8 +2851,8 @@ document.addEventListener("change", e => {
     $("#pminN").value = r.min ?? 0; $("#pmaxN").value = r.max ?? "";
   }
 });
-window.addEventListener("hashchange", () => { const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, prevEv = eventId, v = viewFromHash();
-  if (v !== currentView && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
+window.addEventListener("hashchange", () => { const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, prevEv = eventId, prevPer = personId, prevChat = chatId, v = viewFromHash();
+  if (v !== currentView && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv) || (v === "person" && personId !== prevPer) || (v === "chat" && chatId !== prevChat)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
 /* =========================================================
    ACCOUNTS, ORDERS AND ADMIN (Firebase)
    ========================================================= */
@@ -3564,6 +3743,496 @@ document.addEventListener("submit", async ev => {
   } catch (err) { console.error(err); msg.textContent = "Couldn't save: " + (err.code || err.message); btn.disabled = false; }
 });
 
+/* ---- Dating (v70): profiles, like or pass, matches and chat ---- */
+const DT = {uid: null, me: undefined, people: null, extra: {}, acts: {}, blockedMe: new Set(), matches: null, unsubM: null, loading: false, failedAt: 0, peopleAt: 0,
+  photos: {}, gi: 0, chat: {id: null, msgs: null, unsub: null}, form: null, busy: false, err: "", f: null, sort: "new", delArm: false, adm: null, rep: null};
+const DT_GENDERS = ["Woman", "Man", "Non-binary"];
+const DT_SHOW = {Women: ["Woman"], Men: ["Man"], Everyone: ["Woman", "Man", "Non-binary"]};
+const DT_INTENTS = ["Long-term relationship", "Something casual", "New friends", "Not sure yet"];
+const DT_INTERESTS = ["Music", "Travel", "Food", "Coffee", "Cooking", "Fitness", "Sports", "Outdoors", "Movies", "Reading", "Gaming", "Art", "Photography", "Dancing", "Pets", "Tech", "Fashion", "Volunteering"];
+const DT_HEART = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.8 1.3-1.7 2.9-2.8 4.9-2.8 3.5 0 5.7 3.4 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>`;
+const DT_X = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
+const DT_VIEWS = ["dating", "person", "matches", "chat", "datingprofile"];
+const tsMs = t => !t ? 0 : t.toMillis ? t.toMillis() : t.seconds ? t.seconds * 1000 : typeof t === "number" ? t : 0;
+const dtCity = c => String(c || "").trim().replace(/\s+/g, " ").replace(/\b\w/g, m => m.toUpperCase());
+const dtAgeFrom = dob => { if (!dob) return null; const b = new Date(dob + "T12:00:00"), n = new Date(); let a = n.getFullYear() - b.getFullYear(); if (n.getMonth() < b.getMonth() || (n.getMonth() === b.getMonth() && n.getDate() < b.getDate())) a--; return a; };
+
+function dtReset(){
+  if (DT.unsubM) DT.unsubM(); if (DT.chat.unsub) DT.chat.unsub();
+  Object.assign(DT, {uid: null, me: undefined, people: null, extra: {}, acts: {}, blockedMe: new Set(), matches: null, unsubM: null, loading: false, failedAt: 0, peopleAt: 0,
+    photos: {}, gi: 0, chat: {id: null, msgs: null, unsub: null}, form: null, busy: false, err: "", f: null, delArm: false});
+}
+function dtGate(next){
+  if (!authReady) return `<div class="empty">${fbFailed ? "We couldn't connect. Check your connection and refresh the page." : "Loading…"}</div>`;
+  if (!USER) return needSignIn(next, "Sign in to start dating", "Create a free dating profile, like the people you're interested in, and chat when it's mutual.");
+  if (!USER.emailVerified) return `<div class="panel dtgate"><h2>Confirm your email first</h2><p class="note">To keep the dating section safe, only members with a confirmed email can join. We sent a link to ${esc(USER.email || "your email")}.</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap"><button class="btn small" type="button" data-recheck>I've confirmed it</button><button class="linkbtn" type="button" data-resend>Send the link again</button></div></div>`;
+  if (!FB) return `<div class="empty">We couldn't connect. Check your connection and refresh the page.</div>`;
+  return "";
+}
+async function dtEnsure(force){
+  if (!authReady || !USER || !USER.emailVerified || !FB) return;
+  if (DT.uid !== USER.uid){ dtReset(); DT.uid = USER.uid; }
+  if (DT.loading) return;
+  if (!force && DT.me !== undefined && DT.people && Date.now() - DT.peopleAt < 120000) return;
+  if (!force && DT.failedAt && Date.now() - DT.failedAt < 30000) return;
+  DT.loading = true;
+  try {
+    const [me, people, acts, blk] = await Promise.all([FB.dtGetMe(USER.uid), FB.dtPeople(), FB.dtMyActs(USER.uid), FB.dtBlockedMe(USER.uid).catch(() => [])]);
+    DT.me = me; DT.people = people; DT.peopleAt = Date.now(); DT.failedAt = 0; DT.err = "";
+    DT.acts = Object.fromEntries(acts.map(a => [a.to, a.kind]));
+    DT.blockedMe = new Set(blk.map(a => a.from));
+    if (me && !DT.f) dtDefaultFilters();
+    if (me && !DT.unsubM) DT.unsubM = FB.dtWatchMatches(USER.uid, l => { DT.matches = l; dtOnMatches(); }, e => { console.error(e); DT.matches = []; dtOnMatches(); });
+  } catch (e) {
+    console.error(e); DT.failedAt = Date.now(); DT.err = e && e.code === "permission-denied" ? "perm" : "load";
+    if (DT.me === undefined) DT.me = null; if (!DT.people) DT.people = [];
+  }
+  DT.loading = false;
+  if (DT_VIEWS.includes(current())) render();
+}
+function dtDefaultFilters(){
+  const me = DT.me || {};
+  DT.f = {show: [...(me.showMe || [])], ageMin: me.ageMin || 18, ageMax: me.ageMax || 99, intents: [], cities: [], interests: [], photos: false};
+}
+const dtFltCount = () => !DT.f ? 0 : (DT.f.show.length && DT.f.show.length < 3 && DT.f.show.join() !== ((DT.me && DT.me.showMe) || []).join() ? 1 : 0) + (DT.f.ageMin > 18 || DT.f.ageMax < 99 ? 1 : 0) + DT.f.intents.length + DT.f.cities.length + DT.f.interests.length + (DT.f.photos ? 1 : 0);
+function dtVisible(skip){
+  const me = DT.me, F = DT.f, q = query.trim().toLowerCase();
+  if (!me || !F) return [];
+  const l = (DT.people || []).filter(p => p.uid !== USER.uid && p.active !== false && !DT.acts[p.uid] && !DT.blockedMe.has(p.uid)
+    && (!(p.showMe || []).length || p.showMe.includes(me.gender))
+    && (!p.ageMin || me.age >= p.ageMin) && (!p.ageMax || me.age <= p.ageMax)
+    && (skip === "show" || !F.show.length || F.show.includes(p.gender))
+    && (skip === "age" || (p.age >= F.ageMin && p.age <= F.ageMax))
+    && (skip === "intents" || !F.intents.length || F.intents.includes(p.intent))
+    && (skip === "cities" || !F.cities.length || F.cities.includes(dtCity(p.city)))
+    && (skip === "interests" || !F.interests.length || (p.interests || []).some(i => F.interests.includes(i)))
+    && (!F.photos || p.photoCount > 0)
+    && (!q || [p.name, p.city, p.bio, p.intent, (p.interests || []).join(" ")].join(" ").toLowerCase().includes(q)));
+  if (DT.sort === "young") l.sort((a, b) => a.age - b.age);
+  else if (DT.sort === "old") l.sort((a, b) => b.age - a.age);
+  else if (DT.sort === "active") l.sort((a, b) => tsMs(b.updatedAt) - tsMs(a.updatedAt));
+  else l.sort((a, b) => tsMs(b.createdAt) - tsMs(a.createdAt));
+  return l;
+}
+const dtProfile = uid => (DT.people || []).find(p => p.uid === uid) || DT.extra[uid] || (DT.me && DT.me.uid === uid ? DT.me : null);
+async function dtFetchProfile(uid){
+  if (DT.extra[uid] !== undefined) return;
+  DT.extra[uid] = null;
+  try { const p = await FB.dtGetMe(uid); DT.extra[uid] = p || false; } catch (e) { DT.extra[uid] = false; }
+  if (DT_VIEWS.includes(current())) render();
+}
+async function dtLoadPhotos(p){
+  if (!p || DT.photos[p.uid] || !p.photoCount) return;
+  DT.photos[p.uid] = "loading";
+  const out = [];
+  for (let i = 0; i < Math.min(4, p.photoCount); i++){ try { const d = await FB.dtGetPhoto(p.uid, i); if (d) out.push(d); } catch (_) {} }
+  DT.photos[p.uid] = out;
+  if (current() === "person" && personId === p.uid){ const g = $("#dtGallery"); if (g) g.outerHTML = dtGalleryHTML(p); }
+  if (current() === "datingprofile" && DT.form && !DT.form.photosLoaded && p.uid === USER.uid){ DT.form.photos = out.map(data => ({data})); DT.form.photosLoaded = true; const s = $("#dtPhotos"); if (s) s.innerHTML = dtPhotoStrip(); }
+}
+function dtMatchWith(uid){ return (DT.matches || []).find(m => m.status !== "closed" && m.users.includes(uid)); }
+const dtOther = m => m.users.find(u => u !== USER.uid);
+const dtIsUnread = m => m.status !== "closed" && m.lastFrom && m.lastFrom !== USER.uid && tsMs(m.lastAt) > ((m.seen || {})[USER.uid] || 0);
+const dtUnread = () => (DT.matches || []).filter(dtIsUnread).length;
+function dtOnMatches(){
+  const n = dtUnread();
+  document.querySelectorAll('a[data-tab="dating"]').forEach(a => a.classList.toggle("hasdot", n > 0));
+  const b = $("#dtMatchBadge"); if (b) b.textContent = n || "";
+  const v = current();
+  if (v === "matches") render();
+  if (v === "chat"){ const m = (DT.matches || []).find(x => x.id === chatId); const h = $("#dtChatState"); if (h && m) h.innerHTML = dtChatStateHTML(m); if (m && dtIsUnread(m)) FB.dtSeen(m.id, USER.uid).catch(() => {}); }
+  if (v === "person"){ const box = $("#dtPActs"); const p = dtProfile(personId); if (box && p) box.innerHTML = dtPersonActs(p); }
+}
+
+/* list */
+function dtHero(){
+  return `<section class="pagehero lhero dating"><div class="phtext"><h1>Dating</h1><p>Meet people near you. Like someone, and if they like you back, it's a match and you can chat.</p></div>
+    <label class="sortlbl hsort">Sort by
+      <select data-dts="sort"><option value="new">Newest</option><option value="active"${DT.sort === "active" ? " selected" : ""}>Recently active</option><option value="young"${DT.sort === "young" ? " selected" : ""}>Age: youngest first</option><option value="old"${DT.sort === "old" ? " selected" : ""}>Age: oldest first</option></select>
+    </label></section>`;
+}
+function datingView(){
+  const gate = dtGate("dating"); if (gate) return dtHero() + gate;
+  dtEnsure();
+  if (DT.me === undefined) return dtHero() + `<div class="empty">Loading people…</div>`;
+  if (DT.err === "perm") return dtHero() + `<div class="empty">The dating section isn't switched on yet. Please check back soon.</div>`;
+  if (!DT.me) return dtHero() + `<div class="panel dtintro">
+      <div><h2>Create your dating profile</h2><p class="note">It takes about two minutes. Add a few photos, say a little about yourself, and choose who you'd like to meet.</p>
+      <a class="btn" href="#dating-profile">Create my profile</a></div>
+      <ul class="bullets"><li><b>18+ only.</b> Everyone confirms they're at least 18.</li><li><b>Chat only when it's mutual.</b> Nobody can message you unless you both liked each other.</li><li><b>You're in control.</b> Pause or delete your profile, and block or report anyone, any time.</li><li><b>We only show your city,</b> never your address, email or phone.</li></ul></div>`;
+  const n = dtVisible().length, un = dtUnread();
+  return dtHero() + `<div class="qbar" id="qbar"><div class="qrow qonly dtbar">
+      <button type="button" class="morefl" id="fltBtn" data-fopen aria-expanded="${fltOpen}" aria-controls="fltPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>More filters <span class="fltbadge" id="fltBadge">${dtFltCount() || ""}</span></button>
+      <a class="morefl" href="#matches">${DT_HEART}Matches <span class="fltbadge" id="dtMatchBadge">${un || ""}</span></a>
+      <a class="morefl" href="#dating-profile">My profile</a>
+    </div></div>
+    <div class="fltback" id="fltBack" data-fclose ${fltOpen ? "" : "hidden"}></div>
+    <section class="fltpanel" id="fltPanel" role="dialog" aria-label="Filter people" ${fltOpen ? "" : "hidden"}>
+      <div class="flthead"><h2>More filters</h2><button type="button" class="fltx" data-fclose aria-label="Close filters">×</button></div>
+      <div class="fltbody" id="dtPanel">${dtPanelHTML()}</div>
+      <div class="fltfoot" id="dtFoot">${dtFootHTML(n)}</div>
+    </section>
+    ${DT.me.active === false ? `<div class="dtnote">Your profile is paused, so others can't see you. <a href="#dating-profile">Turn it back on</a></div>` : ""}
+    <div id="dtResults">${dtResultsHTML()}</div>`;
+}
+const dtFootHTML = n => `<button type="button" class="linkbtn" data-dtclear ${dtFltCount() ? "" : "disabled"}>Clear all</button><button type="button" class="btn" data-fclose>Show ${n} ${n === 1 ? "person" : "people"}</button>`;
+function dtPanelHTML(){
+  const F = DT.f;
+  const opt = (k, v, label, on, cnt) => `<button type="button" class="fopt${cnt === 0 ? " zero" : ""}" data-dtf="${k}" data-v="${esc(v)}" aria-pressed="${on}">${esc(label)}${cnt != null ? ` <i>${cnt}</i>` : ""}</button>`;
+  const sec = (title, inner) => inner ? `<div class="fsec"><h3>${title}</h3><div class="fopts" role="group" aria-label="${title}">${inner}</div></div>` : "";
+  const cnt = (skip, fn) => { const m = {}; dtVisible(skip).forEach(p => [].concat(fn(p)).forEach(v => { if (v) m[v] = (m[v] || 0) + 1; })); return m; };
+  const cG = cnt("show", p => p.gender), cI = cnt("intents", p => p.intent), cC = cnt("cities", p => dtCity(p.city)), cT = cnt("interests", p => p.interests || []);
+  const cities = [...new Set([...Object.keys(cC), ...F.cities])].sort();
+  const ages = []; for (let a = 18; a <= 99; a++) ages.push(a);
+  const ageSel = (k, val) => `<select data-dts="${k}" aria-label="${k === "ageMin" ? "Youngest" : "Oldest"}">${ages.map(a => `<option${a === val ? " selected" : ""}>${a}</option>`).join("")}</select>`;
+  return sec("Show me", DT_GENDERS.map(g => opt("show", g, g === "Woman" ? "Women" : g === "Man" ? "Men" : "Non-binary people", F.show.includes(g), cG[g] || 0)).join(""))
+    + `<div class="fsec"><h3>Age</h3><div class="dtage">${ageSel("ageMin", F.ageMin)}<span>to</span>${ageSel("ageMax", F.ageMax)}</div></div>`
+    + sec("Looking for", DT_INTENTS.map(i => opt("intents", i, i, F.intents.includes(i), cI[i] || 0)).join(""))
+    + sec("City", cities.map(c => opt("cities", c, c, F.cities.includes(c), cC[c] || 0)).join(""))
+    + sec("Interests", DT_INTERESTS.filter(i => cT[i] || F.interests.includes(i)).map(i => opt("interests", i, i, F.interests.includes(i), cT[i] || 0)).join(""))
+    + sec("Photos", opt("photos", "1", "Has photos", F.photos));
+}
+function dtResultsHTML(){
+  const list = dtVisible(), n = list.length, passed = Object.values(DT.acts).filter(k => k === "pass").length;
+  let html = `<p class="count">${n} ${n === 1 ? "person" : "people"}${query.trim() ? ` matching “${esc(query.trim())}” <button class="linkbtn" data-clear>Clear search</button>` : ""}</p>`;
+  if (!n) return html + `<div class="evempty dtempty">${DT_HEART}<b>${(DT.people || []).length > 1 ? "You've seen everyone who fits your filters" : "You're one of the first here"}</b>
+    <span>${(DT.people || []).length > 1 ? "Try widening your filters, or check back later as new people join." : "New people are joining. Check back soon."}</span>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">${dtFltCount() ? `<button type="button" class="btn small" data-fopen>Change filters</button>` : ""}${passed ? `<button type="button" class="btn ghost small" data-dtresetpass>See people you passed again</button>` : ""}</div></div>`;
+  return html + `<div class="dtgrid">${list.map(dtCard).join("")}</div>`;
+}
+function dtCard(p){
+  return `<article class="dtcard" data-person="${esc(p.uid)}">
+    <a class="dtpic" href="#person-${esc(p.uid)}" aria-label="View ${esc(p.name)}'s profile">${p.thumb ? `<img src="${esc(p.thumb)}" alt="" loading="lazy">` : `<span class="dtnoimg">${esc((p.name || "?").charAt(0).toUpperCase())}</span>`}
+      <span class="dtcap"><b>${esc(p.name)}, ${p.age}</b>${p.city ? `<small>${esc(dtCity(p.city))}</small>` : ""}</span></a>
+    <div class="dtbody">${p.intent ? `<span class="dtintent">${esc(p.intent)}</span>` : ""}${p.bio ? `<p>${esc(p.bio.length > 90 ? p.bio.slice(0, 88) + "…" : p.bio)}</p>` : ""}
+      <div class="dtacts"><button type="button" class="dtno" data-dtact="pass" data-uid="${esc(p.uid)}" aria-label="Pass on ${esc(p.name)}">${DT_X}</button><button type="button" class="dtyes" data-dtact="like" data-uid="${esc(p.uid)}" aria-label="Like ${esc(p.name)}">${DT_HEART}</button></div>
+    </div></article>`;
+}
+function dtRefresh(){
+  const r = $("#dtResults"); if (!r){ render(); return; }
+  r.innerHTML = dtResultsHTML();
+  const pnl = $("#dtPanel"), top = pnl ? pnl.scrollTop : 0; if (pnl){ pnl.innerHTML = dtPanelHTML(); pnl.scrollTop = top; }
+  const f = $("#dtFoot"); if (f) f.innerHTML = dtFootHTML(dtVisible().length);
+  const bd = $("#fltBadge"); if (bd) bd.textContent = dtFltCount() || "";
+}
+async function dtAct(uid, kind){
+  const p = dtProfile(uid); if (!p || DT.busy) return;
+  const prev = DT.acts[uid]; DT.acts[uid] = kind;
+  const card = document.querySelector(`.dtcard[data-person="${CSS.escape(uid)}"]`);
+  if (card){ card.classList.add(kind === "like" ? "gone-like" : "gone-pass"); setTimeout(() => { if (current() === "dating") dtRefresh(); }, 260); }
+  else if (current() === "person"){ const box = $("#dtPActs"); if (box) box.innerHTML = dtPersonActs(p); }
+  try {
+    const m = await FB.dtAct(USER.uid, uid, kind);
+    if (m) dtShowMatch(p, m);
+    else if (kind === "like" && current() === "person") toast(`You liked ${p.name}`);
+  } catch (e) { console.error(e); if (prev) DT.acts[uid] = prev; else delete DT.acts[uid]; toast("That didn't go through. Please try again."); if (current() === "dating") dtRefresh(); else render(); }
+}
+function dtShowMatch(p, id){
+  const old = $("#dtMatch"); if (old) old.remove();
+  const me = DT.me || {};
+  const ph = x => x && x.thumb ? `<img src="${esc(x.thumb)}" alt="">` : `<span class="dtnoimg">${esc(((x && x.name) || "?").charAt(0).toUpperCase())}</span>`;
+  const d = document.createElement("div"); d.className = "dtmatch"; d.id = "dtMatch"; d.setAttribute("role", "dialog"); d.setAttribute("aria-label", "It's a match");
+  d.innerHTML = `<div class="dtmbox"><div class="dtmpics">${ph(me)}${ph(p)}</div><h2>It's a match!</h2><p>You and ${esc(p.name)} like each other.</p>
+    <a class="btn" href="#chat-${esc(id)}" data-dtmclose>Send a message</a><button type="button" class="linkbtn" data-dtmclose>Keep looking</button></div>`;
+  document.body.appendChild(d);
+}
+
+/* person page */
+function personView(){
+  const gate = dtGate("dating"); if (gate) return gate;
+  dtEnsure();
+  if (DT.me === undefined) return `<div class="empty">Loading…</div>`;
+  const p = dtProfile(personId);
+  if (!p){ if (DT.extra[personId] === undefined) dtFetchProfile(personId); return DT.extra[personId] === false ? `<div class="empty">This profile isn't available anymore. <a href="#dating" style="color:var(--link)">Back to Dating</a></div>` : `<div class="empty">Loading…</div>`; }
+  if (DT.blockedMe.has(p.uid) || DT.acts[p.uid] === "block") return `<div class="empty">This profile isn't available. <a href="#dating" style="color:var(--link)">Back to Dating</a></div>`;
+  dtLoadPhotos(p);
+  const self = p.uid === USER.uid;
+  const facts = [p.intent && ["Looking for", p.intent], p.city && ["Lives in", dtCity(p.city)], p.height && ["Height", p.height + " cm"], p.languages && ["Speaks", p.languages], p.work && ["Work", p.work]].filter(Boolean);
+  return `<article class="dtperson">
+    ${dtGalleryHTML(p)}
+    <div class="dtpinfo">
+      ${self ? `<div class="dtnote">This is how other people see your profile. <a href="#dating-profile">Edit it</a></div>` : ""}
+      <h1>${esc(p.name)}, ${p.age}</h1>
+      ${p.city ? `<p class="dtpcity">${esc(dtCity(p.city))}</p>` : ""}
+      ${self ? "" : `<div class="dtpacts" id="dtPActs">${dtPersonActs(p)}</div>`}
+      ${p.bio ? `<section class="dtsect"><h2>About me</h2><p>${esc(p.bio).replace(/\n/g, "<br>")}</p></section>` : ""}
+      ${facts.length ? `<section class="dtsect"><h2>Basics</h2><dl class="dtfacts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></section>` : ""}
+      ${(p.interests || []).length ? `<section class="dtsect"><h2>Interests</h2><div class="dtchips">${p.interests.map(i => `<span>${esc(i)}</span>`).join("")}</div></section>` : ""}
+      ${self ? "" : `<div class="dtsafety"><button type="button" class="linkbtn" data-dtreport="${esc(p.uid)}">Report</button><button type="button" class="linkbtn" data-dtblock="${esc(p.uid)}">Block ${esc(p.name)}</button></div>`}
+      <a class="linkbtn" href="#dating" style="margin-top:6px;display:inline-block">← Back to Dating</a>
+    </div></article>`;
+}
+function dtGalleryHTML(p){
+  const ph = Array.isArray(DT.photos[p.uid]) && DT.photos[p.uid].length ? DT.photos[p.uid] : p.thumb ? [p.thumb] : [];
+  const i = Math.min(DT.gi, Math.max(0, ph.length - 1));
+  return `<div class="dtgallery" id="dtGallery">${ph.length ? `<div class="dtmain"><img src="${esc(ph[i])}" alt="${esc(p.name)}, photo ${i + 1}"></div>
+    ${ph.length > 1 ? `<div class="dtthumbs">${ph.map((u, k) => `<button type="button" data-dtimg="${k}" aria-label="Photo ${k + 1}" aria-pressed="${k === i}"><img src="${esc(u)}" alt=""></button>`).join("")}</div>` : ""}`
+    : `<div class="dtmain dtnoimg big">${esc((p.name || "?").charAt(0).toUpperCase())}</div>`}</div>`;
+}
+function dtPersonActs(p){
+  const m = dtMatchWith(p.uid), a = DT.acts[p.uid];
+  if (m) return `<p class="dtstate">${DT_HEART}You and ${esc(p.name)} matched.</p><a class="btn" href="#chat-${esc(m.id)}">Send a message</a>`;
+  if (a === "like") return `<p class="dtstate">${DT_HEART}You liked ${esc(p.name)}. If they like you back, it's a match.</p>`;
+  const pass = `<button type="button" class="btn ghost dtbtnno" data-dtact="pass" data-uid="${esc(p.uid)}">${DT_X}Pass</button>`, like = `<button type="button" class="btn dtbtnyes" data-dtact="like" data-uid="${esc(p.uid)}">${DT_HEART}Like</button>`;
+  if (a === "pass") return `<p class="dtstate">You passed on ${esc(p.name)}.</p>${like}`;
+  return pass + like;
+}
+
+/* profile form */
+function datingProfileView(){
+  const gate = dtGate("datingprofile"); if (gate) return gate;
+  dtEnsure();
+  if (DT.me === undefined) return `<div class="empty">Loading…</div>`;
+  const me = DT.me || {}, isNew = !DT.me;
+  if (!DT.form){ const have = !isNew && Array.isArray(DT.photos[me.uid]) ? DT.photos[me.uid] : null;
+    DT.form = {photos: have ? have.map(data => ({data})) : [], photosLoaded: isNew || !me.photoCount || !!have, interests: [...(me.interests || [])]}; if (!isNew && !have) dtLoadPhotos(me); }
+  const dob = (PROFILE && PROFILE.dob) || "";
+  const show = me.showLabel || "", sel = (v, cur) => v === cur ? " selected" : "";
+  const max = new Date(); max.setFullYear(max.getFullYear() - 18);
+  const ages = []; for (let a = 18; a <= 99; a++) ages.push(a);
+  return `<section class="pagehero lhero"><div class="phtext"><h1>${isNew ? "Create your dating profile" : "My dating profile"}</h1><p>${isNew ? "Tell people a little about yourself. Only your first name, age and city are shown, never your email or phone." : "Changes show to others as soon as you save."}</p></div></section>
+  <form class="panel dtform" id="dtForm" novalidate>
+    <div class="fsec"><h3>Photos <small>up to 4 · the first one is your main photo</small></h3><div class="dtphotos" id="dtPhotos">${dtPhotoStrip()}</div></div>
+    <div class="dtgrid2">
+      <label>First name<input name="name" required maxlength="40" autocomplete="given-name" value="${esc(me.name || (PROFILE && PROFILE.name ? PROFILE.name.split(" ")[0] : ""))}"></label>
+      <label>Date of birth<input name="dob" type="date" required max="${max.toISOString().slice(0, 10)}" value="${esc(dob)}"><small>Only your age is shown.</small></label>
+      <label>I am<select name="gender" required><option value="">Choose</option>${DT_GENDERS.map(g => `<option${sel(g, me.gender)}>${g}</option>`).join("")}</select></label>
+      <label>Show me<select name="show" required><option value="">Choose</option>${Object.keys(DT_SHOW).map(k => `<option${sel(k, show)}>${k}</option>`).join("")}</select></label>
+      <label>Ages I'd like to meet<span class="dtage"><select name="ageMin">${ages.map(a => `<option${a === (me.ageMin || 18) ? " selected" : ""}>${a}</option>`).join("")}</select><span>to</span><select name="ageMax">${ages.map(a => `<option${a === (me.ageMax || 99) ? " selected" : ""}>${a}</option>`).join("")}</select></span></label>
+      <label>Looking for<select name="intent" required><option value="">Choose</option>${DT_INTENTS.map(i => `<option${sel(i, me.intent)}>${i}</option>`).join("")}</select></label>
+      <label>City<input name="city" required maxlength="40" placeholder="e.g. Richmond Hill" value="${esc(me.city || (PROFILE && PROFILE.city) || "")}"></label>
+      <label>Height in cm <small>(optional)</small><input name="height" type="number" min="120" max="230" inputmode="numeric" value="${me.height || ""}"></label>
+      <label>Languages <small>(optional)</small><input name="languages" maxlength="60" placeholder="e.g. English, Farsi" value="${esc(me.languages || "")}"></label>
+      <label>Work <small>(optional)</small><input name="work" maxlength="60" value="${esc(me.work || "")}"></label>
+    </div>
+    <label>About me<textarea name="bio" rows="4" maxlength="600" placeholder="A few lines about you and what you enjoy">${esc(me.bio || "")}</textarea></label>
+    <div class="fsec"><h3>Interests <small>pick up to 8</small></h3><div class="fopts" id="dtInts">${dtIntsHTML()}</div></div>
+    ${isNew ? "" : `<label class="dtcheck"><input type="checkbox" name="active"${me.active === false ? "" : " checked"}> Show my profile to other people</label>`}
+    <label class="dtcheck"><input type="checkbox" name="adult" required${me.adult ? " checked" : ""}> I'm 18 or older, I'll be respectful, and I understand that people I report can be removed.</label>
+    <p class="formerr" id="dtErr" ${DT.err && DT.err !== "perm" && DT.err !== "load" ? "" : "hidden"}>${esc(DT.err || "")}</p>
+    <div class="dtformfoot"><button class="btn" type="submit" ${DT.busy ? "disabled" : ""}>${DT.busy ? "Saving…" : isNew ? "Create my profile" : "Save changes"}</button><a class="linkbtn" href="#dating">Cancel</a></div>
+  </form>
+  ${isNew ? "" : `<section class="panel dtdanger"><h2>More options</h2>
+    ${Object.values(DT.acts).some(k => k === "pass") ? `<p><button type="button" class="linkbtn" data-dtresetpass>See people you passed again</button></p>` : ""}
+    <p><button type="button" class="linkbtn" data-dtdelete style="color:var(--danger)">${DT.delArm ? "Click again to delete your dating profile for good" : "Delete my dating profile"}</button></p></section>`}`;
+}
+const dtIntsHTML = () => DT_INTERESTS.map(i => `<button type="button" class="fopt" data-dtint="${esc(i)}" aria-pressed="${DT.form.interests.includes(i)}">${esc(i)}</button>`).join("");
+function dtPhotoStrip(){
+  const f = DT.form;
+  if (!f.photosLoaded) return `<span class="note">Loading your photos…</span>`;
+  return f.photos.map((ph, i) => `<div class="dtph"><img src="${esc(ph.data)}" alt="Photo ${i + 1}">${i === 0 ? `<span class="dtmainlbl">Main</span>` : `<button type="button" class="dtphmain" data-dtphmain="${i}">Make main</button>`}<button type="button" class="dtphx" data-dtphx="${i}" aria-label="Remove photo ${i + 1}">×</button></div>`).join("")
+    + (f.photos.length < 4 ? `<label class="dtphadd"><input type="file" accept="image/*" multiple id="dtPhIn" hidden><span>+</span><small>Add photo</small></label>` : "");
+}
+async function dtShrink(src, max, q, cap){
+  const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
+  const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+  const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+  let url = c.toDataURL("image/jpeg", q); while (url.length > cap && q > 0.35){ q -= 0.08; url = c.toDataURL("image/jpeg", q); }
+  return url;
+}
+async function dtAddPhotos(files){
+  const f = DT.form;
+  for (const file of [...files].slice(0, 4 - f.photos.length)){
+    if (!/^image\//.test(file.type)) continue;
+    try { const raw = await new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = no; r.readAsDataURL(file); });
+      f.photos.push({data: await dtShrink(raw, 1000, 0.75, 240000), isNew: true}); f.changed = true; }
+    catch (e) { toast("That photo couldn't be added. Try a JPG or PNG."); }
+  }
+  const s = $("#dtPhotos"); if (s) s.innerHTML = dtPhotoStrip();
+}
+async function dtSave(form){
+  const fd = new FormData(form), g = k => String(fd.get(k) || "").trim(), err = $("#dtErr");
+  const say = t => { DT.err = t; if (err){ err.textContent = t; err.hidden = false; err.scrollIntoView({block: "center", behavior: "smooth"}); } };
+  const age = dtAgeFrom(g("dob"));
+  if (!g("name")) return say("Please enter your first name.");
+  if (age == null) return say("Please enter your date of birth.");
+  if (age < 18) return say("You must be 18 or older to use the dating section.");
+  if (age > 100) return say("Please check your date of birth.");
+  if (!g("gender") || !g("show") || !g("intent")) return say("Please choose who you are, who you'd like to see, and what you're looking for.");
+  if (!g("city")) return say("Please enter your city.");
+  if (!fd.get("adult")) return say("Please confirm you're 18 or older and agree to be respectful.");
+  if (!DT.form.photosLoaded) return say("Your photos are still loading. Try again in a moment.");
+  let ageMin = +g("ageMin") || 18, ageMax = +g("ageMax") || 99; if (ageMin > ageMax) [ageMin, ageMax] = [ageMax, ageMin];
+  const isNew = !DT.me, ph = DT.form.photos, uid = USER.uid;
+  DT.busy = true; DT.err = ""; const btn = form.querySelector('button[type="submit"]'); if (btn){ btn.disabled = true; btn.textContent = "Saving…"; }
+  try {
+    const thumb = ph.length ? await dtShrink(ph[0].data, 420, 0.7, 45000) : "";
+    const data = {name: g("name").split(" ")[0].slice(0, 40), age, gender: g("gender"), showLabel: g("show"), showMe: DT_SHOW[g("show")], ageMin, ageMax, intent: g("intent"),
+      city: dtCity(g("city")), height: +g("height") || null, languages: g("languages"), work: g("work"), bio: g("bio").slice(0, 600), interests: DT.form.interests.slice(0, 8),
+      active: isNew ? true : !!fd.get("active"), adult: true, thumb, photoCount: ph.length};
+    if (isNew || DT.form.changed){
+      for (let i = 0; i < ph.length; i++) await FB.dtSavePhoto(uid, i, ph[i].data);
+      for (let i = ph.length; i < 4; i++) await FB.dtDelPhoto(uid, i).catch(() => {});
+    }
+    await FB.dtSaveMe(uid, data, isNew);
+    FB.saveProfile(uid, {dob: g("dob")}).catch(() => {}); if (PROFILE) PROFILE.dob = g("dob");
+    DT.me = {...(DT.me || {}), ...data, uid, createdAt: (DT.me && DT.me.createdAt) || {seconds: Date.now() / 1000}, updatedAt: {seconds: Date.now() / 1000}};
+    DT.photos[uid] = ph.map(p => p.data); DT.form = null; DT.busy = false; DT.f = null; dtDefaultFilters();
+    if (!DT.unsubM) DT.unsubM = FB.dtWatchMatches(uid, l => { DT.matches = l; dtOnMatches(); }, e => { console.error(e); DT.matches = []; });
+    toast(isNew ? "Your dating profile is ready" : "Profile saved"); go("dating");
+  } catch (e) {
+    console.error(e); DT.busy = false;
+    say(e && e.code === "permission-denied" ? "The dating section isn't switched on yet, so your profile couldn't be saved." : "Your profile couldn't be saved. Check your connection and try again.");
+    if (btn){ btn.disabled = false; btn.textContent = isNew ? "Create my profile" : "Save changes"; }
+  }
+}
+
+/* matches and chat */
+function matchesView(){
+  const gate = dtGate("matches"); if (gate) return gate;
+  dtEnsure();
+  if (DT.me === undefined || (DT.me && DT.matches === null)) return `<div class="empty">Loading your matches…</div>`;
+  if (!DT.me) return `<div class="empty">Create your dating profile first. <a href="#dating-profile" style="color:var(--link)">Create my profile</a></div>`;
+  const list = DT.matches.filter(m => m.status !== "closed" && !DT.blockedMe.has(dtOther(m)) && DT.acts[dtOther(m)] !== "block").sort((a, b) => tsMs(b.lastAt) - tsMs(a.lastAt));
+  list.forEach(m => { if (!dtProfile(dtOther(m))) dtFetchProfile(dtOther(m)); });
+  const row = m => { const o = dtProfile(dtOther(m)) || {name: "…"}, un = dtIsUnread(m);
+    return `<a class="dtmrow${un ? " unread" : ""}" href="#chat-${esc(m.id)}">${o.thumb ? `<img src="${esc(o.thumb)}" alt="">` : `<span class="dtnoimg">${esc((o.name || "?").charAt(0).toUpperCase())}</span>`}
+      <span class="dtmtxt"><b>${esc(o.name || "…")}</b><small>${m.lastText ? (m.lastFrom === USER.uid ? "You: " : "") + esc(m.lastText) : "New match! Say hello."}</small></span>
+      <span class="dtmwhen">${tsMs(m.lastAt) ? dtWhen(tsMs(m.lastAt)) : ""}${un ? `<i class="dtdot" aria-label="Unread"></i>` : ""}</span></a>`; };
+  return `<section class="pagehero lhero"><div class="phtext"><h1>Matches</h1><p>People who liked you back. Say hello!</p></div></section>
+    ${list.length ? `<div class="panel dtmlist">${list.map(row).join("")}</div>` : `<div class="evempty dtempty">${DT_HEART}<b>No matches yet</b><span>When someone you liked likes you back, they'll show up here.</span><a class="btn small" href="#dating">Find people</a></div>`}`;
+}
+function dtWhen(ms){
+  const d = new Date(ms), n = new Date();
+  if (d.toDateString() === n.toDateString()) return d.toLocaleTimeString("en-CA", {hour: "numeric", minute: "2-digit"});
+  if (n - d < 6 * 86400000) return d.toLocaleDateString("en-CA", {weekday: "short"});
+  return d.toLocaleDateString("en-CA", {month: "short", day: "numeric"});
+}
+function dtChatStateHTML(m){ return m.status === "closed" ? `<p class="dtnote">This conversation has ended.</p>` : ""; }
+function chatView(){
+  const gate = dtGate("matches"); if (gate) return gate;
+  dtEnsure();
+  if (DT.me === undefined || DT.matches === null) return `<div class="empty">Loading…</div>`;
+  const m = DT.matches.find(x => x.id === chatId);
+  if (!m) return `<div class="empty">This conversation isn't available. <a href="#matches" style="color:var(--link)">Back to Matches</a></div>`;
+  const ou = dtOther(m), o = dtProfile(ou); if (!o) dtFetchProfile(ou);
+  if (DT.chat.id !== m.id){
+    if (DT.chat.unsub) DT.chat.unsub();
+    DT.chat = {id: m.id, msgs: null, unsub: FB.dtWatchMsgs(m.id, l => { DT.chat.msgs = l; const box = $("#dtMsgs"); if (box && current() === "chat"){ box.innerHTML = dtMsgsHTML(); box.scrollTop = box.scrollHeight; } }, e => { console.error(e); DT.chat.msgs = []; })};
+  }
+  if (dtIsUnread(m)) FB.dtSeen(m.id, USER.uid).catch(() => {});
+  const nm = (o && o.name) || "…";
+  setTimeout(() => { const box = $("#dtMsgs"); if (box) box.scrollTop = box.scrollHeight; }, 0);
+  return `<section class="dtchat panel">
+    <header class="dtchead"><a class="dtback" href="#matches" aria-label="Back to Matches">‹</a>
+      <a class="dtcwho" href="#person-${esc(ou)}">${o && o.thumb ? `<img src="${esc(o.thumb)}" alt="">` : `<span class="dtnoimg">${esc(nm.charAt(0).toUpperCase())}</span>`}<b>${esc(nm)}</b></a>
+      <span class="dtcmenu"><button type="button" class="linkbtn" data-dtreport="${esc(ou)}">Report</button><button type="button" class="linkbtn" data-dtunmatch="${esc(m.id)}">${DT.delArm === m.id ? "Click again to unmatch" : "Unmatch"}</button></span></header>
+    <div id="dtChatState">${dtChatStateHTML(m)}</div>
+    <div class="dtmsgs" id="dtMsgs" aria-live="polite">${dtMsgsHTML()}</div>
+    ${m.status === "closed" ? "" : `<form class="dtsend" id="dtSend"><input id="dtText" maxlength="2000" autocomplete="off" placeholder="Message ${esc(nm)}" aria-label="Message"><button class="btn" type="submit">Send</button></form>`}
+    <p class="dttip">Keep chats on this site until you trust someone. Never send money, and meet in a public place.</p>
+  </section>`;
+}
+function dtMsgsHTML(){
+  const l = DT.chat.msgs;
+  if (!l) return `<p class="note" style="text-align:center">Loading messages…</p>`;
+  if (!l.length) return `<p class="note" style="text-align:center">You matched! Say hello.</p>`;
+  let last = "";
+  return l.map(x => { const ms = tsMs(x.at) || Date.now(), day = new Date(ms).toDateString(), sep = day !== last ? `<div class="dtday">${new Date(ms).toLocaleDateString("en-CA", {weekday: "long", month: "short", day: "numeric"})}</div>` : ""; last = day;
+    return sep + `<div class="dtmsg${x.from === USER.uid ? " mine" : ""}"><span>${esc(x.text).replace(/\n/g, "<br>")}</span><small>${new Date(ms).toLocaleTimeString("en-CA", {hour: "numeric", minute: "2-digit"})}</small></div>`; }).join("");
+}
+
+/* admin */
+function datingAdminHTML(){
+  if (!DT.adm){ DT.adm = "loading"; Promise.all([FB.dtAllProfiles(), FB.dtReports().catch(() => [])]).then(([p, r]) => { DT.adm = {profiles: p, reports: r}; if (current() === "admin") refreshAdmin(); }).catch(e => { console.error(e); DT.adm = {profiles: [], reports: [], err: true}; if (current() === "admin") refreshAdmin(); }); }
+  if (DT.adm === "loading") return `<div class="empty">Loading dating profiles…</div>`;
+  const P = DT.adm.profiles.slice().sort((a, b) => tsMs(b.createdAt) - tsMs(a.createdAt)), R = DT.adm.reports, nameOf = uid => (P.find(p => p.uid === uid) || {}).name || uid.slice(0, 6);
+  return `${DT.adm.err ? `<p class="formerr">Couldn't load the dating data. Make sure the new database rules are published.</p>` : ""}
+    <div class="admintools"><span class="note">${P.length} dating profile${P.length === 1 ? "" : "s"} · ${R.length} report${R.length === 1 ? "" : "s"}</span><button class="btn small ghost" type="button" data-dtadmreload>Refresh</button></div>
+    <h3 style="margin:18px 0 8px">Reports</h3>
+    ${R.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th>Date</th><th>About</th><th>From</th><th>Reason</th><th></th></tr></thead><tbody>${R.map(r => `<tr><td>${tsMs(r.at) ? new Date(tsMs(r.at)).toLocaleDateString("en-CA") : ""}</td><td><a href="#person-${esc(r.about)}">${esc(nameOf(r.about))}</a></td><td>${esc(nameOf(r.from))}</td><td>${esc(r.reason || "")}${r.text ? `<br><small>${esc(r.text)}</small>` : ""}</td><td style="white-space:nowrap"><button class="linkbtn" type="button" data-dtadmdel="${esc(r.about)}" style="color:var(--danger)">Remove profile</button> <button class="linkbtn" type="button" data-dtadmdismiss="${esc(r.id)}">Dismiss</button></td></tr>`).join("")}</tbody></table></div>` : `<p class="note">No reports.</p>`}
+    <h3 style="margin:18px 0 8px">Profiles</h3>
+    ${P.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th></th><th>Name</th><th>Age</th><th>City</th><th>Joined</th><th>Shown</th><th></th></tr></thead><tbody>${P.map(p => `<tr><td>${p.thumb ? `<img src="${esc(p.thumb)}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:8px">` : ""}</td><td><a href="#person-${esc(p.uid)}">${esc(p.name)}</a></td><td>${p.age}</td><td>${esc(dtCity(p.city))}</td><td>${tsMs(p.createdAt) ? new Date(tsMs(p.createdAt)).toLocaleDateString("en-CA") : ""}</td><td>${p.active === false ? "Paused" : "Yes"}</td><td><button class="linkbtn" type="button" data-dtadmdel="${esc(p.uid)}" style="color:var(--danger)">${DT.delArm === "adm" + p.uid ? "Click again to remove" : "Remove"}</button></td></tr>`).join("")}</tbody></table></div>` : `<p class="note">No dating profiles yet.</p>`}`;
+}
+function dtReportForm(uid){
+  const p = dtProfile(uid) || {name: "this person"}, old = $("#dtMatch"); if (old) old.remove();
+  const d = document.createElement("div"); d.className = "dtmatch"; d.id = "dtMatch"; d.setAttribute("role", "dialog"); d.setAttribute("aria-label", "Report");
+  d.innerHTML = `<form class="dtmbox dtrep" id="dtRepForm" data-uid="${esc(uid)}"><h2>Report ${esc(p.name)}</h2><p class="note">Reports are private. ${esc(p.name)} won't know you reported them.</p>
+    <div class="dtrepopts">${["Fake profile or scam", "Inappropriate photos", "Rude or harassing messages", "Under 18", "Something else"].map((r, i) => `<label><input type="radio" name="reason" value="${r}"${i ? "" : " checked"}> ${r}</label>`).join("")}</div>
+    <textarea name="text" rows="3" maxlength="500" placeholder="Anything else we should know? (optional)"></textarea>
+    <label class="dtcheck"><input type="checkbox" name="block" checked> Also block ${esc(p.name)}</label>
+    <div style="display:flex;gap:12px;align-items:center"><button class="btn" type="submit">Send report</button><button type="button" class="linkbtn" data-dtmclose>Cancel</button></div></form>`;
+  document.body.appendChild(d);
+}
+async function dtBlock(uid, silent){
+  try {
+    DT.acts[uid] = "block"; await FB.dtAct(USER.uid, uid, "block");
+    const m = dtMatchWith(uid); if (m) await FB.dtClose(m.id, USER.uid);
+    if (!silent) toast("Blocked. You won't see each other anymore.");
+    go(current() === "chat" || current() === "matches" ? "matches" : "dating");
+  } catch (e) { console.error(e); toast("That didn't go through. Please try again."); }
+}
+
+/* clicks, inputs and forms for dating */
+document.addEventListener("click", async ev => {
+  const t = ev.target;
+  if (t.closest("[data-dtmclose]")){ const d = $("#dtMatch"); if (d) d.remove(); if (t.closest("a")) return; return; }
+  if (t.classList && t.classList.contains("dtmatch")){ t.remove(); return; }
+  const b = t.closest("button"); if (!b) return;
+  if (b.dataset.dtact){ dtAct(b.dataset.uid, b.dataset.dtact); return; }
+  if (b.dataset.dtf){
+    const F = DT.f, k = b.dataset.dtf, v = b.dataset.v; if (!F) return;
+    if (k === "photos") F.photos = !F.photos;
+    else F[k] = F[k].includes(v) ? F[k].filter(x => x !== v) : [...F[k], v];
+    dtRefresh(); return;
+  }
+  if (b.hasAttribute("data-dtclear")){ DT.f = {show: [], ageMin: 18, ageMax: 99, intents: [], cities: [], interests: [], photos: false}; dtRefresh(); return; }
+  if (b.dataset.dtimg != null){ DT.gi = +b.dataset.dtimg; const p = dtProfile(personId), g = $("#dtGallery"); if (p && g) g.outerHTML = dtGalleryHTML(p); return; }
+  if (b.dataset.dtint){ const i = b.dataset.dtint, L = DT.form.interests; if (L.includes(i)) DT.form.interests = L.filter(x => x !== i); else if (L.length < 8) L.push(i); else toast("You can pick up to 8"); $("#dtInts").innerHTML = dtIntsHTML(); return; }
+  if (b.dataset.dtphx != null){ DT.form.photos.splice(+b.dataset.dtphx, 1); DT.form.changed = true; $("#dtPhotos").innerHTML = dtPhotoStrip(); return; }
+  if (b.dataset.dtphmain != null){ const i = +b.dataset.dtphmain, [x] = DT.form.photos.splice(i, 1); DT.form.photos.unshift(x); DT.form.changed = true; $("#dtPhotos").innerHTML = dtPhotoStrip(); return; }
+  if (b.hasAttribute("data-dtresetpass")){
+    const ids = Object.entries(DT.acts).filter(([, k]) => k === "pass").map(([u]) => u);
+    b.disabled = true; try { await Promise.all(ids.map(u => FB.dtUndoPass(USER.uid, u))); ids.forEach(u => delete DT.acts[u]); toast(`${ids.length} ${ids.length === 1 ? "person is" : "people are"} back in your list`); go("dating"); } catch (e) { console.error(e); toast("That didn't go through. Please try again."); b.disabled = false; }
+    return;
+  }
+  if (b.hasAttribute("data-dtdelete")){
+    if (!DT.delArm){ DT.delArm = true; b.textContent = "Click again to delete your dating profile for good"; return; }
+    b.disabled = true; try { await FB.dtDeleteProfile(USER.uid); if (DT.unsubM) DT.unsubM(); DT.unsubM = null; DT.me = null; DT.matches = null; DT.form = null; DT.delArm = false; toast("Your dating profile was deleted"); go("dating"); } catch (e) { console.error(e); toast("That didn't go through. Please try again."); b.disabled = false; }
+    return;
+  }
+  if (b.dataset.dtunmatch){
+    if (DT.delArm !== b.dataset.dtunmatch){ DT.delArm = b.dataset.dtunmatch; b.textContent = "Click again to unmatch"; return; }
+    DT.delArm = false; const m = (DT.matches || []).find(x => x.id === b.dataset.dtunmatch); if (m) dtBlock(dtOther(m)); return;
+  }
+  if (b.dataset.dtblock){ if (b.dataset.armed){ dtBlock(b.dataset.dtblock); } else { b.dataset.armed = "1"; b.textContent = "Click again to block"; } return; }
+  if (b.dataset.dtreport){ dtReportForm(b.dataset.dtreport); return; }
+  if (b.hasAttribute("data-dtadmreload")){ DT.adm = null; refreshAdmin(); return; }
+  if (b.dataset.dtadmdel){
+    const uid = b.dataset.dtadmdel;
+    if (DT.delArm !== "adm" + uid){ DT.delArm = "adm" + uid; b.textContent = "Click again to remove"; return; }
+    DT.delArm = false; try { await FB.dtDeleteProfile(uid); DT.adm.profiles = DT.adm.profiles.filter(p => p.uid !== uid); toast("Profile removed"); refreshAdmin(); } catch (e) { console.error(e); toast("Couldn't remove it. Check the database rules."); }
+    return;
+  }
+  if (b.dataset.dtadmdismiss){ try { await FB.dtDelReport(b.dataset.dtadmdismiss); DT.adm.reports = DT.adm.reports.filter(r => r.id !== b.dataset.dtadmdismiss); refreshAdmin(); } catch (e) { toast("Couldn't dismiss it."); } return; }
+});
+document.addEventListener("change", e => {
+  if (e.target.id === "dtPhIn"){ dtAddPhotos(e.target.files); return; }
+  const s = e.target.closest("[data-dts]"); if (!s) return;
+  const k = s.dataset.dts;
+  if (k === "sort"){ DT.sort = s.value; if ($("#dtResults")) $("#dtResults").innerHTML = dtResultsHTML(); return; }
+  if (DT.f){ DT.f[k] = +s.value; if (DT.f.ageMin > DT.f.ageMax){ if (k === "ageMin") DT.f.ageMax = DT.f.ageMin; else DT.f.ageMin = DT.f.ageMax; } dtRefresh(); }
+});
+document.addEventListener("submit", async ev => {
+  const f = ev.target;
+  if (f.id === "dtForm"){ ev.preventDefault(); if (!DT.busy) dtSave(f); return; }
+  if (f.id === "dtSend"){
+    ev.preventDefault(); const inp = $("#dtText"), text = inp.value.trim(); if (!text || !DT.chat.id) return;
+    inp.value = ""; try { await FB.dtSend(DT.chat.id, USER.uid, text); } catch (e) { console.error(e); inp.value = text; toast("Your message wasn't sent. Please try again."); }
+    return;
+  }
+  if (f.id === "dtRepForm"){
+    ev.preventDefault(); const fd = new FormData(f), uid = f.dataset.uid, btn = f.querySelector('button[type="submit"]'); btn.disabled = true;
+    try { await FB.dtReport({from: USER.uid, about: uid, reason: String(fd.get("reason") || ""), text: String(fd.get("text") || "").slice(0, 500)});
+      const d = $("#dtMatch"); if (d) d.remove(); toast("Thanks. We'll review your report.");
+      if (fd.get("block")) dtBlock(uid, true);
+    } catch (e) { console.error(e); btn.disabled = false; toast("Your report wasn't sent. Please try again."); }
+  }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape"){ const d = $("#dtMatch"); if (d) d.remove(); } });
+
 /* ---- My orders ---- */
 function startMyOrders(){
   if (!FB || !USER || MY.unsub) return;
@@ -3617,7 +4286,7 @@ function adminView(){
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
   return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them.</p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
+    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
 }
@@ -3628,6 +4297,7 @@ function adminBody(){
   if (ADM.tab === "bookings") return adminBookingsHTML();
   if (ADM.tab === "providers") return providersAdminHTML();
   if (ADM.tab === "events") return eventsAdminHTML();
+  if (ADM.tab === "dating") return datingAdminHTML();
   if (!ADM.orders || !ADM.users) return `<div class="empty">Loading…</div>`;
   return ADM.tab === "customers" ? customersHTML() : adminOrdersHTML();
 }
@@ -4543,6 +5213,7 @@ function onFirebaseReady(api){
       if (ADM.unsubO){ ADM.unsubO(); ADM.unsubO = null; } if (ADM.unsubU){ ADM.unsubU(); ADM.unsubU = null; }
       if (ADM.unsubB){ ADM.unsubB(); ADM.unsubB = null; } if (MY.unsubB){ MY.unsubB(); MY.unsubB = null; } MY.bookings = null;
       ADM.orders = ADM.users = ADM.bookings = null; ADM.error = null; ADM.notes = {};
+      dtReset(); DT.adm = null;
       PED = {id:null, data:null, photo:null};
     }
     authReady = true; updateAcct();
@@ -4578,7 +5249,7 @@ function loadFromSheet(){   // used only when the product database is empty or c
    the database's security rules decide who can read or change what. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect, sendPasswordResetEmail, sendEmailVerification, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, writeBatch, collection, query, where, orderBy, onSnapshot, runTransaction, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, writeBatch, collection, query, where, orderBy, onSnapshot, getDocs, limit, runTransaction, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyCjz0UoLyWjWeIhtP8mNJhCGpWmTBw4MLw",
@@ -4689,6 +5360,40 @@ window.SHOP_FB = {
       tx.update(bref, {status: "Cancelled", updatedAt: serverTimestamp(), history: arrayUnion({status: "Cancelled", by: "customer", at: new Date().toISOString()})});
     });
   },
+  /* v70 dating */
+  async dtGetMe(uid){ const s = await getDoc(doc(db, "dating", uid)); return s.exists() ? withId(s) : null; },
+  dtSaveMe: (uid, data, isNew) => setDoc(doc(db, "dating", uid), {...data, uid, ...(isNew ? {createdAt: serverTimestamp()} : {}), updatedAt: serverTimestamp()}, {merge: true}),
+  dtSavePhoto: (uid, i, data) => setDoc(doc(db, "datingPhotos", uid + "_" + i), {uid, i, data}),
+  dtDelPhoto: (uid, i) => deleteDoc(doc(db, "datingPhotos", uid + "_" + i)),
+  async dtGetPhoto(uid, i){ const s = await getDoc(doc(db, "datingPhotos", uid + "_" + i)); return s.exists() ? s.data().data : null; },
+  dtPeople: async () => (await getDocs(query(collection(db, "dating"), where("active", "==", true), limit(500)))).docs.map(withId),
+  dtAllProfiles: async () => (await getDocs(collection(db, "dating"))).docs.map(withId),
+  dtMyActs: async uid => (await getDocs(query(collection(db, "likes"), where("from", "==", uid)))).docs.map(withId),
+  dtBlockedMe: async uid => (await getDocs(query(collection(db, "likes"), where("to", "==", uid), where("kind", "==", "block")))).docs.map(withId),
+  async dtAct(me, other, kind){
+    await setDoc(doc(db, "likes", me + "_" + other), {from: me, to: other, kind, at: serverTimestamp()});
+    if (kind !== "like") return null;
+    const back = await getDoc(doc(db, "likes", other + "_" + me));
+    if (!back.exists() || back.data().kind !== "like") return null;
+    const users = [me, other].sort(), id = users.join("_"), ref = doc(db, "matches", id);
+    const m = await getDoc(ref);
+    if (m.exists()){ if (m.data().status === "closed") return null; return id; }
+    try { await setDoc(ref, {users, status: "open", createdAt: serverTimestamp(), lastAt: serverTimestamp(), lastText: "", lastFrom: "", seen: {}}); } catch (e) { if (!(await getDoc(ref)).exists()) throw e; }
+    return id;
+  },
+  dtUndoPass: (me, other) => deleteDoc(doc(db, "likes", me + "_" + other)),
+  dtWatchMatches: (uid, cb, err) => onSnapshot(query(collection(db, "matches"), where("users", "array-contains", uid)), s => cb(s.docs.map(withId)), err),
+  dtWatchMsgs: (id, cb, err) => onSnapshot(query(collection(db, "matches", id, "messages"), orderBy("at", "asc"), limit(300)), s => cb(s.docs.map(d => ({id: d.id, ...d.data({serverTimestamps: "estimate"})}))), err),
+  async dtSend(id, me, text){
+    await addDoc(collection(db, "matches", id, "messages"), {from: me, text, at: serverTimestamp()});
+    await updateDoc(doc(db, "matches", id), {lastText: text.slice(0, 120), lastFrom: me, lastAt: serverTimestamp(), ["seen." + me]: Date.now() + 5000});
+  },
+  dtSeen: (id, me) => updateDoc(doc(db, "matches", id), {["seen." + me]: Date.now() + 5000}),
+  dtClose: (id, me) => updateDoc(doc(db, "matches", id), {status: "closed", closedBy: me}),
+  dtReport: r => addDoc(collection(db, "reports"), {...r, at: serverTimestamp()}),
+  dtReports: async () => (await getDocs(query(collection(db, "reports"), orderBy("at", "desc")))).docs.map(withId),
+  dtDelReport: id => deleteDoc(doc(db, "reports", id)),
+  async dtDeleteProfile(uid){ for (let i = 0; i < 4; i++){ try { await deleteDoc(doc(db, "datingPhotos", uid + "_" + i)); } catch (_) {} } await deleteDoc(doc(db, "dating", uid)); },
   /* v65 events: each ticket takes one place in the event's counter (the database rules allow +1 at a time, never past the event's capacity) */
   watchSlotsIn: (ids, cb, err) => onSnapshot(query(collection(db, "slots"), where("serviceId", "in", ids)), s => { const m = {}; s.docs.forEach(d => m[d.id] = d.data().count || 0); cb(m); }, err),
   async reserveTickets(b, qty, capacity){
