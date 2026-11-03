@@ -2609,7 +2609,7 @@ function render(){
   document.body.dataset.view = v;
   if (v !== render.last) fltOpen = false;   // the panel closes when you change page
   render.last = v;
-  document.body.classList.toggle("fltopen", !!(FLT[v] && fltOpen));
+  document.body.classList.toggle("fltopen", !!((FLT[v] || v === "events") && fltOpen));
   $("#view").innerHTML = views[v]();
   if (priceRange[v]) syncPriceUI(v);
   const it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
@@ -3232,29 +3232,41 @@ function evFeatHTML(e){
 }
 const evChip = (k, v, label, on, extra) => `<button type="button" class="evchip" data-evf="${k}" data-v="${esc(v)}" aria-pressed="${on}">${extra || ""}${esc(label)}</button>`;
 function eventsView(){
-  if (!eventsLoaded && !fbFailed) return `<section class="evhero"><div><span class="eyebrow">Events</span><h1>Find something to do</h1></div></section><div class="empty">Loading events…</div>`;
+  const sort = `<label class="sortlbl hsort">Sort by
+        <select data-evs="sort"><option value="soon">Soonest first</option><option value="price"${EVF.sort === "price" ? " selected" : ""}>Lowest price</option></select>
+      </label>`;
+  const hero = `<section class="pagehero lhero events"><div class="phtext"><h1>Events</h1><p>Concerts, classes, meetups and more, in person or online. Reserve a spot or get tickets.</p></div>${EVENTS.length ? sort : ""}</section>`;
+  if (!eventsLoaded && !fbFailed) return hero + `<div class="empty">Loading events…</div>`;
+  const n = evFiltered().length;
+  return hero + `<div class="qbar" id="qbar"><div class="qrow qonly"><button type="button" class="morefl" id="fltBtn" data-fopen aria-expanded="${fltOpen}" aria-controls="fltPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>More filters <span class="fltbadge" id="fltBadge">${evFltCount() || ""}</span></button></div></div>
+  <div class="fltback" id="fltBack" data-fclose ${fltOpen ? "" : "hidden"}></div>
+  <section class="fltpanel" id="fltPanel" role="dialog" aria-label="Filter events" ${fltOpen ? "" : "hidden"}>
+    <div class="flthead"><h2>More filters</h2><button type="button" class="fltx" data-fclose aria-label="Close filters">×</button></div>
+    <div class="fltbody" id="evPanel">${evPanelHTML()}</div>
+    <div class="fltfoot" id="evFoot">${evFootHTML(n)}</div>
+  </section>
+  <div id="evResults">${evResultsHTML()}</div>`;
+}
+const evFltCount = () => (EVF.when !== "any") + EVF.cats.length + (EVF.price !== "any") + (EVF.format !== "any") + (!!EVF.city);
+const evFootHTML = n => `<button type="button" class="linkbtn" data-evclear ${evFltCount() ? "" : "disabled"}>Clear all</button><button type="button" class="btn" data-fclose>Show ${n} event${n === 1 ? "" : "s"}</button>`;
+function evPanelHTML(){
+  const opt = (k, v, label, on, cnt) => `<button type="button" class="fopt${cnt === 0 ? " zero" : ""}" data-evf="${k}" data-v="${esc(v)}" aria-pressed="${on}">${esc(label)}${cnt != null ? ` <i>${cnt}</i>` : ""}</button>`;
+  const sec = (title, inner) => inner ? `<div class="fsec"><h3>${title}</h3><div class="fopts" role="group" aria-label="${title}">${inner}</div></div>` : "";
   const when = [["any", "Any time"], ["today", "Today"], ["tomorrow", "Tomorrow"], ["weekend", "This weekend"], ["week", "This week"], ["month", "Next 30 days"]];
   const cats = EV_CATS.map(c => [c, evFiltered("cats").filter(e => e.category === c).length]).filter(([c, n]) => n || EVF.cats.includes(c));
   const cities = [...new Set(EVENTS.filter(e => e.format !== "online" && e.city).map(e => e.city))].sort();
-  return `<section class="evhero">
-      <div class="evhtext"><span class="eyebrow">Events</span><h1>Find something to do</h1>
-        <p>Live music, classes, meetups, markets and more around Richmond Hill, Toronto and online. Reserve a spot or get tickets in a few taps.</p>
-        <form class="evsearch" id="evSearch" role="search"><span>${svgI("calendar")}</span><input id="evQ" type="search" placeholder="Search events, places or organizers" value="${esc(query)}" aria-label="Search events"><button class="btn" type="submit">Search</button></form>
-      </div>
-      <div class="evhart" aria-hidden="true">${TICKET_SVG}</div>
-    </section>
-    <div class="evfilters" id="evFilters">
-      <div class="evrow" role="group" aria-label="When">${when.map(([v, l]) => evChip("when", v, l, EVF.when === v)).join("")}</div>
-      ${cats.length ? `<div class="evrow" role="group" aria-label="Category">${evChip("cat", "", "All", !EVF.cats.length)}${cats.map(([c, n]) => evChip("cat", c, `${c} ${n}`, EVF.cats.includes(c), evIcon(c))).join("")}</div>` : ""}
-      <div class="evrow evsel">
-        <label><span>Price</span><select data-evs="price"><option value="any">Any price</option><option value="free"${EVF.price === "free" ? " selected" : ""}>Free</option><option value="paid"${EVF.price === "paid" ? " selected" : ""}>Paid</option></select></label>
-        <label><span>Format</span><select data-evs="format"><option value="any">In person or online</option><option value="in-person"${EVF.format === "in-person" ? " selected" : ""}>In person</option><option value="online"${EVF.format === "online" ? " selected" : ""}>Online</option></select></label>
-        <label><span>Where</span><select data-evs="city"><option value="">Anywhere</option>${cities.map(c => `<option${EVF.city === c ? " selected" : ""}>${esc(c)}</option>`).join("")}<option${EVF.city === "Online" ? " selected" : ""}>Online</option></select></label>
-        <label><span>Sort</span><select data-evs="sort"><option value="soon">Soonest first</option><option value="price"${EVF.sort === "price" ? " selected" : ""}>Lowest price</option></select></label>
-        ${evActive() ? `<button type="button" class="linkbtn" data-evclear>Clear all</button>` : ""}
-      </div>
-    </div>
-    <div id="evResults">${evResultsHTML()}</div>`;
+  return sec("When", when.map(([v, l]) => opt("when", v, l, EVF.when === v)).join(""))
+    + sec("Category", cats.map(([c, n]) => opt("cat", c, c, EVF.cats.includes(c), n)).join(""))
+    + sec("Price", [["any", "Any price"], ["free", "Free"], ["paid", "Paid"]].map(([v, l]) => opt("price", v, l, EVF.price === v)).join(""))
+    + sec("How it's held", [["any", "In person or online"], ["in-person", "In person"], ["online", "Online"]].map(([v, l]) => opt("format", v, l, EVF.format === v)).join(""))
+    + sec("Where", [["", "Anywhere"], ...cities.map(c => [c, c]), ["Online", "Online"]].map(([v, l]) => opt("city", v, l, EVF.city === v)).join(""));
+}
+function evRefresh(){
+  const r = $("#evResults"); if (!r){ render(); return; }
+  r.innerHTML = evResultsHTML();
+  const pnl = $("#evPanel"), top = pnl ? pnl.scrollTop : 0; if (pnl){ pnl.innerHTML = evPanelHTML(); pnl.scrollTop = top; }
+  const f = $("#evFoot"); if (f) f.innerHTML = evFootHTML(evFiltered().length);
+  const bd = $("#fltBadge"); if (bd) bd.textContent = evFltCount() || "";
 }
 function evResultsHTML(){
   const list = evFiltered();
@@ -3360,9 +3372,10 @@ document.addEventListener("click", async ev => {
     const k = b.dataset.evf, v = b.dataset.v;
     if (k === "when") EVF.when = v;
     if (k === "cat") EVF.cats = !v ? [] : EVF.cats.includes(v) ? EVF.cats.filter(x => x !== v) : [...EVF.cats, v];
-    render(); return;
+    if (k === "price" || k === "format" || k === "city") EVF[k] = v;
+    evRefresh(); return;
   }
-  if (b.hasAttribute("data-evclear")){ Object.assign(EVF, {when: "any", cats: [], price: "any", format: "any", city: "", sort: "soon"}); query = ""; const qi = $("#q"); if (qi) qi.value = ""; render(); return; }
+  if (b.hasAttribute("data-evclear")){ const inPanel = !!b.closest("#fltPanel"); Object.assign(EVF, {when: "any", cats: [], price: "any", format: "any", city: ""}); if (!inPanel){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (inPanel) evRefresh(); else render(); return; }
   if (b.dataset.evq != null){
     const e = eventById(eventId); if (!e) return;
     const i = +b.dataset.evq, left = evLeft(e), max = left == null ? 10 : Math.min(10, left), n = Object.values(EVQ.qty).reduce((a, x) => a + x, 0);
@@ -3384,7 +3397,6 @@ document.addEventListener("change", e => {
 });
 document.addEventListener("submit", async ev => {
   const f = ev.target;
-  if (f.id === "evSearch"){ ev.preventDefault(); query = $("#evQ").value; const qi = $("#q"); if (qi) qi.value = query; render(); return; }
   if (f.id !== "evForm") return;
   ev.preventDefault();
   const e = eventById(eventId); if (!e || !USER || !FB || EVQ.busy) return;
