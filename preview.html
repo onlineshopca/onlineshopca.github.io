@@ -1307,7 +1307,7 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 /* v61: search icon at the top on phones; bottom bar has 4 tabs; highlight stays inside the bar */
 @media (max-width:700px){
   .gtools #searchBtn{display:grid!important}
-  .tabbar{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+  .tabbar{grid-template-columns:repeat(7,minmax(0,1fr))!important}
   .tabbar a[aria-current="page"]{height:52px!important;min-height:52px!important;transform:none!important;margin:0 4px;border-radius:26px!important}
   .gsearch .search{padding:12px 16px}
   .gsearch .search .btn{padding:0 16px}
@@ -1653,6 +1653,137 @@ body[data-view="dating"] .bagbar,body[data-view="person"] .bagbar,body[data-view
   .dtbar .morefl{padding-left:12px;padding-right:12px;font-size:.88rem;white-space:nowrap}
   .dtchat{height:calc(100dvh - 70px - 150px)}
 }
+/* ---- v71 Homes ---- */
+.hmbar .hmmaptog{display:none}
+.hmbar .hmpost{background:#0d2f75!important;color:#fff!important;border-color:#0d2f75!important}
+.hmbar [data-hmsaved] svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2}
+.hmbar [data-hmsaved][aria-pressed="true"]{background:#fdecf2!important;border-color:#e0245e!important;color:#e0245e!important}
+.hmbar [data-hmsaved][aria-pressed="true"] svg{fill:#e0245e;stroke:#e0245e}
+.hmsplit{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;align-items:start;margin-top:4px}
+.hmmapwrap{position:sticky;top:calc(var(--hdrh,86px) + 12px);height:calc(100vh - var(--hdrh,86px) - 36px);min-height:420px;border-radius:24px;overflow:hidden;box-shadow:var(--shadow);background:#e8eef3}
+.hmmap{position:absolute;inset:0}
+.hmmapfail{display:grid;place-items:center;height:100%;color:#6e6e73;padding:20px;text-align:center}
+.hmmove{position:absolute;z-index:500;top:12px;left:56px;background:#fff;border-radius:999px;padding:7px 14px;font-size:.85rem;box-shadow:0 2px 10px rgba(0,0,0,.15);display:flex;gap:8px;align-items:center;cursor:pointer}
+.hmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.hmcard{position:relative;background:#fff;border-radius:20px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s}
+.hmcard.hot,.hmcard:hover{box-shadow:0 0 0 2px #0d2f75,var(--shadow)}
+.hmpic{position:relative;display:block;aspect-ratio:4/3;background:#eef0f4}
+.hmpic img{width:100%;height:100%;object-fit:cover;display:block}
+.hmnoimg{display:grid;place-items:center;width:100%;height:100%;color:#9aa3b2}
+.hmnoimg svg{width:40%;height:40%;fill:none;stroke:currentColor;stroke-width:1.4}
+.hmnoimg.sm{width:72px;height:54px;border-radius:10px;background:#eef0f4;flex:none}
+.hmdeal{position:absolute;left:10px;top:10px;font-size:.72rem;font-weight:700;letter-spacing:.03em;border-radius:999px;padding:4px 10px;background:#fff;color:#0d2f75}
+.hmdeal.sale{background:#0d2f75;color:#fff}
+.hmdeal.rent{background:#0e7a4f;color:#fff}
+.hmdeal.room{background:#7a4b0e;color:#fff}
+.hmdeal.inline{position:static;display:inline-block}
+.hmheart{position:absolute;right:10px;top:10px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.94);display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.hmheart svg{width:20px;height:20px;fill:none;stroke:#1d1d1f;stroke-width:2}
+.hmheart[aria-pressed="true"] svg,.hmacts [aria-pressed="true"] svg{fill:#e0245e;stroke:#e0245e}
+.hmbody{display:grid;gap:4px;padding:12px 14px 14px;text-decoration:none;color:inherit}
+.hmprice{font-size:1.3rem;font-weight:700;letter-spacing:-.01em}
+.hmfacts{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.88rem;color:#3a3a3c}
+.hmfacts span{display:inline-flex;align-items:center;gap:4px}
+.hmfacts svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.hmfacts.big{font-size:1rem;gap:8px 18px;margin:10px 0}
+.hmfacts.big svg{width:20px;height:20px}
+.hmaddr{color:#3a3a3c;font-size:.9rem}
+.hmaddr.big{display:flex;align-items:center;gap:6px;font-size:1rem;margin:4px 0 0;flex-wrap:wrap}
+.hmaddr.big svg{width:18px;height:18px;fill:none;stroke:#0d2f75;stroke-width:2}
+.hmaddr small{color:#6e6e73}
+.hmtype{color:#6e6e73;font-size:.82rem}
+.hmpin{background:none;border:0}
+.hmpin span{display:inline-block;transform:translate(-50%,-100%);white-space:nowrap;background:#0d2f75;color:#fff;font:700 12px/1 Inter,system-ui,sans-serif;padding:6px 8px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.3);position:relative}
+.hmpin span::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:inherit;border-top-color:#0d2f75}
+.hmpin.rent span{background:#0e7a4f}.hmpin.rent span::after{border-top-color:#0e7a4f}
+.hmpin.room span{background:#7a4b0e}.hmpin.room span::after{border-top-color:#7a4b0e}
+.leaflet-marker-icon.hmpin:hover{z-index:9999!important}
+.hmpop{display:grid;gap:3px;text-decoration:none;color:#1d1d1f;width:200px}
+.hmpop img{width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:4px}
+.hmpop small{color:#6e6e73}
+.hmpage{margin-top:8px}
+.hmgal{margin-bottom:18px}
+.hmgmain{position:relative;border-radius:26px;overflow:hidden;aspect-ratio:16/9;max-height:560px;width:100%;background:#eef0f4;box-shadow:var(--shadow)}
+.hmgmain img{width:100%;height:100%;object-fit:cover;display:block}
+.hmgnav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.92);font-size:28px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.hmgnav.prev{left:14px}.hmgnav.next{right:14px}
+.hmgcount{position:absolute;right:14px;bottom:14px;background:rgba(0,0,0,.6);color:#fff;border-radius:999px;padding:4px 10px;font-size:.8rem}
+.hmlayout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.hmmain{background:#fff;border-radius:26px;padding:28px;box-shadow:var(--shadow)}
+.hmbig{font-size:clamp(2rem,4vw,2.8rem);margin:8px 0 0;letter-spacing:-.02em}
+.hmtitle{font-size:1.2rem;font-weight:500;margin:4px 0 0;color:#3a3a3c}
+.hmacts{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}
+.hmacts .btn{display:inline-flex;align-items:center;gap:8px}
+.hmacts svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
+.hmmini{height:280px;border-radius:18px;overflow:hidden;margin-top:6px;background:#e8eef3}
+.hmside{position:sticky;top:calc(var(--hdrh,86px) + 12px)}
+.hmcontact{background:#fff;border-radius:26px;padding:22px;box-shadow:var(--shadow);display:grid;gap:10px}
+.hmcontact h2{margin:0;font-size:1.15rem}
+.hmcontact .note{margin:0}
+.hmcform{display:grid;gap:10px}
+.hmcform textarea{font:inherit;border:1px solid rgba(0,0,0,.15);border-radius:14px;padding:10px 12px;resize:vertical}
+.hmsafe{background:#f5f5f7;border-radius:14px;padding:10px 12px;font-size:.85rem;color:#3a3a3c}
+.hmcalcgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.hmcalcgrid label{display:grid;gap:4px;font-size:.85rem;color:#6e6e73}
+.hmcalcgrid select,.hmcalcgrid input{font:inherit;border:1px solid rgba(0,0,0,.15);border-radius:10px;padding:8px 10px;background:#fff;color:#1d1d1f}
+.hmcalcout{font-size:1.1rem;margin:12px 0 4px}
+.hmform .fopts .hmradio{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.hmform .hmradio input{margin:0}
+.hmform .hmradio:has(input:checked){background:#e7f1fb;border-color:#0d2f75;color:#0d2f75;font-weight:600}
+.dtph.hmph,.dtphadd.hmph{width:150px;aspect-ratio:4/3}
+.hmh2{margin:26px 0 10px;font-size:1.2rem}
+.hmrows{padding:6px}
+.hmrow{display:flex;align-items:center;gap:14px;padding:12px;border-radius:16px}
+.hmrow + .hmrow{border-top:1px solid var(--line)}
+.hmrow > img{width:72px;height:54px;object-fit:cover;border-radius:10px;flex:none}
+.hmrowtxt{display:grid;gap:2px;flex:1;min-width:0}
+.hmrowtxt a{color:inherit;text-decoration:none}
+.hmrowtxt small{color:#6e6e73}
+.hmrowacts{display:flex;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+.hmst{justify-self:start;font-size:.74rem;font-weight:700;border-radius:999px;padding:2px 9px;margin-top:2px}
+.hmst.wait{background:#fff4d6;color:#7a5600}.hmst.live{background:#e5f4e4;color:#1d6b2a}.hmst.no{background:#fbebeb;color:#9b1c1c}.hmst.closed{background:#eee;color:#555}
+.hmchwho{display:grid;min-width:0}
+.hmchwho small{color:#6e6e73;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pagehero .btn{align-self:center}
+body[data-view="homes"] .bagbar,body[data-view="listing"] .bagbar,body[data-view="listhome"] .bagbar,body[data-view="mylistings"] .bagbar,body[data-view="hchat"] .bagbar{display:none!important}
+a[data-tab="homes"].hasdot{position:relative}
+a[data-tab="homes"].hasdot::after{content:"";position:absolute;top:4px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:#e0245e}
+.gtabs a[data-tab="homes"].hasdot::after{top:2px;right:-8px}
+@media (max-width:1100px){.hmsplit{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.hmgrid{grid-template-columns:1fr 1fr}}
+@media (max-width:820px){
+  .hmbar{overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .hmbar::-webkit-scrollbar{display:none}
+  .hmbar .hmmaptog{display:inline-flex}
+  .hmsplit{grid-template-columns:1fr}
+  .hmmapwrap{display:none;position:relative;top:0;height:calc(100dvh - 300px);min-height:360px}
+  .hmsplit.showmap .hmmapwrap{display:block}
+  .hmsplit.showmap .hmlist{display:none}
+  .hmgrid{grid-template-columns:1fr;gap:12px}
+  .hmcard{flex-direction:row;border-radius:18px}
+  .hmpic{width:42%;aspect-ratio:auto;min-height:130px;flex:none}
+  .hmdeal{left:6px;top:6px;font-size:.62rem;padding:3px 7px}
+  .hmheart{width:32px;height:32px;right:8px;top:8px}
+  .hmheart svg{width:17px;height:17px}
+  .hmbody{padding:10px 12px;align-content:center}
+  .hmprice{font-size:1.1rem;padding-right:34px}
+  .hmfacts{font-size:.8rem;gap:2px 8px}
+  .hmaddr{font-size:.82rem}
+  .hmlayout{grid-template-columns:1fr;gap:14px}
+  .hmmain{padding:20px}
+  .hmside{position:static}
+  .hmgmain{border-radius:18px;aspect-ratio:4/3}
+  .hmcalcgrid{grid-template-columns:1fr 1fr}
+  .dtph.hmph,.dtphadd.hmph{width:calc(50% - 6px)}
+  .hmrow{flex-wrap:wrap}
+  .hmrowacts{width:100%;justify-content:flex-start}
+  .tabbar a{font-size:.62rem!important}
+}
+.hmmove input{width:16px!important;height:16px!important;margin:0!important;flex:none}
+.hmmove{white-space:nowrap}
+.hmform .hmradio input{width:18px!important;height:18px!important;flex:none;padding:0!important}
+.hmdrag{background:none;border:0}
+.hmdrag svg{width:36px;height:36px;fill:#e0245e;stroke:#fff;stroke-width:1.5;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.hmdrag svg circle{fill:#fff;stroke:none}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1667,6 +1798,7 @@ body[data-view="dating"] .bagbar,body[data-view="person"] .bagbar,body[data-view
       <a href="#services" data-tab="services" data-menu="services">Services</a>
       <a href="#events" data-tab="events">Events</a>
       <a href="#dating" data-tab="dating">Dating</a>
+      <a href="#homes" data-tab="homes">Homes</a>
       <a href="#contact-us" data-tab="contact" data-menu="support">Support</a>
       <a href="#admin" data-tab="admin" id="navAdmin" hidden>Admin</a>
     </nav>
@@ -1702,7 +1834,7 @@ body[data-view="dating"] .bagbar,body[data-view="person"] .bagbar,body[data-view
 
 <footer><div class="wrap">
   <nav class="footnav" aria-label="Footer">
-    <div><b>Shop</b><a href="#new-items">Brand New</a><a href="#used-items">Used</a><a href="#services">Services &amp; classes</a><a href="#events">Events</a><a href="#dating">Dating</a></div>
+    <div><b>Shop</b><a href="#new-items">Brand New</a><a href="#used-items">Used</a><a href="#services">Services &amp; classes</a><a href="#events">Events</a><a href="#dating">Dating</a><a href="#homes">Homes</a></div>
     <div><b>Account</b><a href="#account">Sign in</a><a href="#my-orders">My orders &amp; bookings</a><a href="#cart">Bag</a></div>
     <div><b>Help</b><a href="#contact-us">Contact us</a><a href="#contact-us">Pickup &amp; delivery</a><a href="#contact-us">Sell us an item</a></div>
     <div><b>Follow</b><a href="https://www.instagram.com/online.shop.on.ca/" target="_blank" rel="noopener">@online.shop.on.ca</a><a href="https://www.instagram.com/online.shop.Used.on.ca/" target="_blank" rel="noopener">@online.shop.Used.on.ca</a></div>
@@ -1711,11 +1843,12 @@ body[data-view="dating"] .bagbar,body[data-view="person"] .bagbar,body[data-view
 </div></footer>
 <nav class="tabbar" aria-label="Mobile">
   <a href="#home" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
-  <a href="#new-items" data-tab="new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="8" cy="8" r="1.6"/></svg>Brand New</a>
+  <a href="#new-items" data-tab="new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="8" cy="8" r="1.6"/></svg>New</a>
   <a href="#used-items" data-tab="used"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 0 1 14-3l2 2M20 15a8 8 0 0 1-14 3l-2-2"/><path d="M20 3v5h-5M4 21v-5h5"/></svg>Used</a>
   <a href="#services" data-tab="services"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Services</a>
   <a href="#events" data-tab="events"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12"/></svg>Events</a>
   <a href="#dating" data-tab="dating"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.8 1.3-1.7 2.9-2.8 4.9-2.8 3.5 0 5.7 3.4 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>Dating</a>
+  <a href="#homes" data-tab="homes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5M5 9v11h5v-6h4v6h5V9"/></svg>Homes</a>
 </nav>
 <a class="bagbar" id="bagBar" href="#cart"><span class="bbic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2"/></svg></span><span class="bbtxt" id="bagTxt">Your bag is empty</span><span class="bbgo">Checkout ›</span></a>
 <div class="toast" id="toast" hidden></div>
@@ -2321,6 +2454,11 @@ const views = {
   matches(){ return matchesView(); },
   chat(){ return chatView(); },
   datingprofile(){ return datingProfileView(); },
+  homes(){ return homesView(); },
+  listing(){ return listingView(); },
+  listhome(){ return listHomeView(); },
+  mylistings(){ return myListingsView(); },
+  hchat(){ return hchatView(); },
   event(){ return eventView(); },
   new(){ return listView("new"); },
   used(){ return listView("used"); },
@@ -2523,7 +2661,7 @@ function validate(form){
 
 document.addEventListener("submit", async e => {
   const f = e.target;
-  if (f.id === "searchForm"){ e.preventDefault(); query = $("#q").value; toggleSearch(false); if (!["home","new","used","services","events","dating"].includes(current())) go("home", null, true); else { render(); window.scrollTo(0,0); } return; }
+  if (f.id === "searchForm"){ e.preventDefault(); query = $("#q").value; toggleSearch(false); if (!["home","new","used","services","events","dating","homes"].includes(current())) go("home", null, true); else { render(); window.scrollTo(0,0); } return; }
   if (f.id === "orderForm"){
     e.preventDefault();
     const msg = $("#orderMsg"), err = validate(f);
@@ -2698,7 +2836,7 @@ function toggleSearch(force){
   p.hidden = !open; $("#searchBtn").setAttribute("aria-expanded", String(open));
   if (open){
     
-    const v = current(), ph = {new: "Search brand new items", used: "Search used items", services: "Search services", events: "Search events", dating: "Search people by name, city or interest"}[v] || "Search everything: items, services and events";
+    const v = current(), ph = {new: "Search brand new items", used: "Search used items", services: "Search services", events: "Search events", dating: "Search people by name, city or interest", homes: "Search homes by city, street or type"}[v] || "Search everything: items, services and events";
     $("#q").placeholder = ph; $("#q").setAttribute("aria-label", ph);
     megaClose(); setTimeout(() => $("#q").focus(), 30);
   }
@@ -2717,10 +2855,10 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile"};
+const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
-let itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, PROVIDERS = [], providersLoaded = false;
+let itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
 function viewFromHash(){
   const h = decodeURIComponent(location.hash.slice(1));
   if (h.startsWith("item-")){ itemId = h.slice(5); return "item"; }
@@ -2729,6 +2867,8 @@ function viewFromHash(){
   if (h.startsWith("event-")){ eventId = h.slice(6); return "event"; }
   if (h.startsWith("person-")){ personId = h.slice(7); DT.gi = 0; return "person"; }
   if (h.startsWith("chat-")){ chatId = h.slice(5); return "chat"; }
+  if (h.startsWith("listing-")){ listingId = h.slice(8); HM.gi = 0; return "listing"; }
+  if (h.startsWith("hchat-")){ hchatId = h.slice(6); return "hchat"; }
   return VIEW_OF[h] || "home";
 }
 let currentView = viewFromHash();
@@ -2742,8 +2882,10 @@ function go(v, id, keepQuery){
   if (v === "event" && id != null) eventId = id;
   if (v === "person" && id != null){ personId = id; DT.gi = 0; }
   if (v === "chat" && id != null) chatId = id;
+  if (v === "listing" && id != null){ listingId = id; HM.gi = 0; }
+  if (v === "hchat" && id != null) hchatId = id;
   currentView = v; render(); window.scrollTo(0,0);
-  const slug = v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : SLUG[v];
+  const slug = v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : v === "listing" ? "listing-" + listingId : v === "hchat" ? "hchat-" + hchatId : SLUG[v];
   try { if (location.hash.slice(1) !== slug) location.hash = slug; } catch(_) {}
 }
 document.addEventListener("click", e => {
@@ -2756,6 +2898,8 @@ document.addEventListener("click", e => {
   if (h.startsWith("event-")){ e.preventDefault(); go("event", decodeURIComponent(h.slice(6))); return; }
   if (h.startsWith("person-")){ e.preventDefault(); go("person", decodeURIComponent(h.slice(7))); return; }
   if (h.startsWith("chat-")){ e.preventDefault(); go("chat", decodeURIComponent(h.slice(5))); return; }
+  if (h.startsWith("listing-")){ e.preventDefault(); go("listing", decodeURIComponent(h.slice(8))); return; }
+  if (h.startsWith("hchat-")){ e.preventDefault(); go("hchat", decodeURIComponent(h.slice(6))); return; }
   const v = VIEW_OF[h];
   if (!v) return;
   e.preventDefault(); go(v);
@@ -2783,14 +2927,20 @@ function render(){
   document.body.dataset.view = v;
   if (v !== render.last) fltOpen = false;   // the panel closes when you change page
   render.last = v;
-  document.body.classList.toggle("fltopen", !!((FLT[v] || v === "events" || v === "dating") && fltOpen));
+  document.body.classList.toggle("fltopen", !!((FLT[v] || v === "events" || v === "dating" || v === "homes") && fltOpen));
+  if (v !== "hchat" && HM.chat.unsub){ HM.chat.unsub(); HM.chat = {id: null, msgs: null, unsub: null}; }
+  if (v !== "listhome" && HM.form && !HM.busy){ HM.form = null; HM.editId = null; }
+  if (v !== "mylistings" && v !== "admin") HM.arm = "";
+  if (HM.map){ try { HM.map.remove(); } catch (_) {} HM.map = null; }
+  if (HM.mini){ try { HM.mini.remove(); } catch (_) {} HM.mini = null; }
   if (v !== "chat" && DT.chat.unsub){ DT.chat.unsub(); DT.chat = {id: null, msgs: null, unsub: null}; }
   if (v !== "datingprofile" && DT.form && !DT.busy){ DT.form = null; DT.err = ""; }
   if (!["datingprofile", "chat"].includes(v)) DT.delArm = false;
   $("#view").innerHTML = views[v]();
+  if (HM_VIEWS.includes(v)) hmAfterRender(v);
   if (priceRange[v]) syncPriceUI(v);
   const it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
-  const navV = it ? it.condition : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : ["person", "matches", "chat", "datingprofile"].includes(v) ? "dating" : v;
+  const navV = it ? it.condition : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : ["person", "matches", "chat", "datingprofile"].includes(v) ? "dating" : ["listing", "listhome", "mylistings", "hchat"].includes(v) ? "homes" : v;
   if (v === "service") afterServiceRender();
   if (v === "provider") renderLinkedInBadges();
   document.querySelectorAll("header nav a, .tabbar a").forEach(a => (a.dataset.tab===navV || a.dataset.also===navV) ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
@@ -2801,6 +2951,7 @@ function render(){
   if (v === "provider"){ const pp = providerById(providerId); if (pp) document.title = `${pp.name} · online.shop.on.ca`; }
   if (v === "event"){ const ee = eventById(eventId); if (ee) document.title = `${ee.title} · online.shop.on.ca`; }
   if (v === "events") document.title = "Events · online.shop.on.ca";
+  if (HM_VIEWS.includes(v)){ const hh = v === "listing" && ((HM.list || []).find(x => x.id === listingId) || HM.extra[listingId]); document.title = (hh ? hh.title : {homes: "Homes", listing: "Home", listhome: "List your home", mylistings: "My listings", hchat: "Messages"}[v]) + " · online.shop.on.ca"; }
   if (DT_VIEWS.includes(v)) document.title = (v === "person" && dtProfile(personId) ? dtProfile(personId).name : {dating: "Dating", matches: "Matches", chat: "Chat", datingprofile: "My dating profile", person: "Dating"}[v]) + " · online.shop.on.ca";
   const trail = v === "item" ? (it ? [[it.condition === "new" ? "Brand new items" : "Used items", it.condition === "new" ? "#new-items" : "#used-items"], [it.name]] : [["Item"]])
     : {new:[["Brand new items"]], used:[["Used items"]], contact:[["Contact us"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["My orders & bookings"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
@@ -2808,7 +2959,9 @@ function render(){
          provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]],
          events:[["Events"]], event:[["Events","#events"],[(eventById(eventId)||{}).title || "Event"]],
          dating:[["Dating"]], person:[["Dating","#dating"],[(dtProfile(personId)||{}).name || "Profile"]], matches:[["Dating","#dating"],["Matches"]],
-         chat:[["Dating","#dating"],["Matches","#matches"],["Chat"]], datingprofile:[["Dating","#dating"],["My profile"]]}[v];
+         chat:[["Dating","#dating"],["Matches","#matches"],["Chat"]], datingprofile:[["Dating","#dating"],["My profile"]],
+         homes:[["Homes"]], listing:[["Homes","#homes"],[(((HM.list || []).find(x => x.id === listingId) || HM.extra[listingId] || {}).city) || "Listing"]], listhome:[["Homes","#homes"],["List your home"]],
+         mylistings:[["Homes","#homes"],["My listings"]], hchat:[["Homes","#homes"],["My listings","#my-listings"],["Messages"]]}[v];
   const cr = $("#crumbs");
   if (trail){ cr.innerHTML = `<li><a href="#home">Home</a></li>` + trail.map(([t,h])=> h?`<li><a href="${h}">${esc(t)}</a></li>`:`<li aria-current="page">${esc(t)}</li>`).join(""); cr.hidden = false; }
   else cr.hidden = true;
@@ -2851,8 +3004,8 @@ document.addEventListener("change", e => {
     $("#pminN").value = r.min ?? 0; $("#pmaxN").value = r.max ?? "";
   }
 });
-window.addEventListener("hashchange", () => { const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, prevEv = eventId, prevPer = personId, prevChat = chatId, v = viewFromHash();
-  if (v !== currentView && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv) || (v === "person" && personId !== prevPer) || (v === "chat" && chatId !== prevChat)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
+window.addEventListener("hashchange", () => { const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, prevEv = eventId, prevPer = personId, prevChat = chatId, prevLst = listingId, prevHc = hchatId, v = viewFromHash();
+  if (v !== currentView && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv) || (v === "person" && personId !== prevPer) || (v === "chat" && chatId !== prevChat) || (v === "listing" && listingId !== prevLst) || (v === "hchat" && hchatId !== prevHc)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
 /* =========================================================
    ACCOUNTS, ORDERS AND ADMIN (Firebase)
    ========================================================= */
@@ -4136,23 +4289,23 @@ function dtMsgsHTML(){
 
 /* admin */
 function datingAdminHTML(){
-  if (!DT.adm){ DT.adm = "loading"; Promise.all([FB.dtAllProfiles(), FB.dtReports().catch(() => [])]).then(([p, r]) => { DT.adm = {profiles: p, reports: r}; if (current() === "admin") refreshAdmin(); }).catch(e => { console.error(e); DT.adm = {profiles: [], reports: [], err: true}; if (current() === "admin") refreshAdmin(); }); }
+  if (!DT.adm){ DT.adm = "loading"; Promise.all([FB.dtAllProfiles(), FB.dtReports().catch(() => [])]).then(([p, r]) => { DT.adm = {profiles: p, reports: r.filter(x => !String(x.about).startsWith("home:"))}; if (current() === "admin") refreshAdmin(); }).catch(e => { console.error(e); DT.adm = {profiles: [], reports: [], err: true}; if (current() === "admin") refreshAdmin(); }); }
   if (DT.adm === "loading") return `<div class="empty">Loading dating profiles…</div>`;
   const P = DT.adm.profiles.slice().sort((a, b) => tsMs(b.createdAt) - tsMs(a.createdAt)), R = DT.adm.reports, nameOf = uid => (P.find(p => p.uid === uid) || {}).name || uid.slice(0, 6);
   return `${DT.adm.err ? `<p class="formerr">Couldn't load the dating data. Make sure the new database rules are published.</p>` : ""}
     <div class="admintools"><span class="note">${P.length} dating profile${P.length === 1 ? "" : "s"} · ${R.length} report${R.length === 1 ? "" : "s"}</span><button class="btn small ghost" type="button" data-dtadmreload>Refresh</button></div>
     <h3 style="margin:18px 0 8px">Reports</h3>
-    ${R.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th>Date</th><th>About</th><th>From</th><th>Reason</th><th></th></tr></thead><tbody>${R.map(r => `<tr><td>${tsMs(r.at) ? new Date(tsMs(r.at)).toLocaleDateString("en-CA") : ""}</td><td><a href="#person-${esc(r.about)}">${esc(nameOf(r.about))}</a></td><td>${esc(nameOf(r.from))}</td><td>${esc(r.reason || "")}${r.text ? `<br><small>${esc(r.text)}</small>` : ""}</td><td style="white-space:nowrap"><button class="linkbtn" type="button" data-dtadmdel="${esc(r.about)}" style="color:var(--danger)">Remove profile</button> <button class="linkbtn" type="button" data-dtadmdismiss="${esc(r.id)}">Dismiss</button></td></tr>`).join("")}</tbody></table></div>` : `<p class="note">No reports.</p>`}
+    ${R.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th>Date</th><th>About</th><th>From</th><th>Reason</th><th></th></tr></thead><tbody>${R.map(r => `<tr><td>${tsMs(r.at) ? new Date(tsMs(r.at)).toLocaleDateString("en-CA") : ""}</td><td>${String(r.about).startsWith("home:") ? `<a href="#listing-${esc(r.about.slice(5))}">Home listing</a>` : `<a href="#person-${esc(r.about)}">${esc(nameOf(r.about))}</a>`}</td><td>${esc(nameOf(r.from))}</td><td>${esc(r.reason || "")}${r.text ? `<br><small>${esc(r.text)}</small>` : ""}</td><td style="white-space:nowrap">${String(r.about).startsWith("home:") ? "" : `<button class="linkbtn" type="button" data-dtadmdel="${esc(r.about)}" style="color:var(--danger)">Remove profile</button> `}<button class="linkbtn" type="button" data-dtadmdismiss="${esc(r.id)}">Dismiss</button></td></tr>`).join("")}</tbody></table></div>` : `<p class="note">No reports.</p>`}
     <h3 style="margin:18px 0 8px">Profiles</h3>
     ${P.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th></th><th>Name</th><th>Age</th><th>City</th><th>Joined</th><th>Shown</th><th></th></tr></thead><tbody>${P.map(p => `<tr><td>${p.thumb ? `<img src="${esc(p.thumb)}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:8px">` : ""}</td><td><a href="#person-${esc(p.uid)}">${esc(p.name)}</a></td><td>${p.age}</td><td>${esc(dtCity(p.city))}</td><td>${tsMs(p.createdAt) ? new Date(tsMs(p.createdAt)).toLocaleDateString("en-CA") : ""}</td><td>${p.active === false ? "Paused" : "Yes"}</td><td><button class="linkbtn" type="button" data-dtadmdel="${esc(p.uid)}" style="color:var(--danger)">${DT.delArm === "adm" + p.uid ? "Click again to remove" : "Remove"}</button></td></tr>`).join("")}</tbody></table></div>` : `<p class="note">No dating profiles yet.</p>`}`;
 }
 function dtReportForm(uid){
-  const p = dtProfile(uid) || {name: "this person"}, old = $("#dtMatch"); if (old) old.remove();
+  const isHome = String(uid).startsWith("home:"), p = isHome ? {name: "this listing"} : dtProfile(uid) || {name: "this person"}, old = $("#dtMatch"); if (old) old.remove();
   const d = document.createElement("div"); d.className = "dtmatch"; d.id = "dtMatch"; d.setAttribute("role", "dialog"); d.setAttribute("aria-label", "Report");
-  d.innerHTML = `<form class="dtmbox dtrep" id="dtRepForm" data-uid="${esc(uid)}"><h2>Report ${esc(p.name)}</h2><p class="note">Reports are private. ${esc(p.name)} won't know you reported them.</p>
-    <div class="dtrepopts">${["Fake profile or scam", "Inappropriate photos", "Rude or harassing messages", "Under 18", "Something else"].map((r, i) => `<label><input type="radio" name="reason" value="${r}"${i ? "" : " checked"}> ${r}</label>`).join("")}</div>
+  d.innerHTML = `<form class="dtmbox dtrep" id="dtRepForm" data-uid="${esc(uid)}"><h2>Report ${esc(p.name)}</h2><p class="note">Reports are private. ${isHome ? "The lister won't know who reported it." : esc(p.name) + " won't know you reported them."}</p>
+    <div class="dtrepopts">${(isHome ? ["Scam or fake listing", "Wrong price or details", "Already sold or rented", "Inappropriate photos", "Something else"] : ["Fake profile or scam", "Inappropriate photos", "Rude or harassing messages", "Under 18", "Something else"]).map((r, i) => `<label><input type="radio" name="reason" value="${r}"${i ? "" : " checked"}> ${r}</label>`).join("")}</div>
     <textarea name="text" rows="3" maxlength="500" placeholder="Anything else we should know? (optional)"></textarea>
-    <label class="dtcheck"><input type="checkbox" name="block" checked> Also block ${esc(p.name)}</label>
+    ${isHome ? "" : `<label class="dtcheck"><input type="checkbox" name="block" checked> Also block ${esc(p.name)}</label>`}
     <div style="display:flex;gap:12px;align-items:center"><button class="btn" type="submit">Send report</button><button type="button" class="linkbtn" data-dtmclose>Cancel</button></div></form>`;
   document.body.appendChild(d);
 }
@@ -4225,6 +4378,7 @@ document.addEventListener("submit", async ev => {
   }
   if (f.id === "dtRepForm"){
     ev.preventDefault(); const fd = new FormData(f), uid = f.dataset.uid, btn = f.querySelector('button[type="submit"]'); btn.disabled = true;
+    if (!USER){ toast("Please sign in to send a report"); return; }
     try { await FB.dtReport({from: USER.uid, about: uid, reason: String(fd.get("reason") || ""), text: String(fd.get("text") || "").slice(0, 500)});
       const d = $("#dtMatch"); if (d) d.remove(); toast("Thanks. We'll review your report.");
       if (fd.get("block")) dtBlock(uid, true);
@@ -4232,6 +4386,546 @@ document.addEventListener("submit", async ev => {
   }
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape"){ const d = $("#dtMatch"); if (d) d.remove(); } });
+
+/* ---- Homes (v71): homes for sale, for rent and rooms, on a map ---- */
+const HM = {list: null, loading: false, failedAt: 0, at: 0, extra: {}, mine: null, photos: {}, gi: 0, f: null, sort: "new", move: true, bounds: null, mapView: false,
+  map: null, layer: null, pins: {}, mini: null, form: null, busy: false, err: "", threads: null, unsubT: null, tuid: null, chat: {id: null, msgs: null, unsub: null}, adm: null, arm: ""};
+const HM_DEALS = {sale: "For sale", rent: "For rent", room: "Room for rent"};
+const HM_TYPES = ["Detached house", "Semi-detached house", "Townhouse", "Condo apartment", "Apartment", "Basement apartment", "Room"];
+const HM_FEATS = ["Laundry in unit", "Air conditioning", "Dishwasher", "Furnished", "Utilities included", "Internet included", "Pets allowed", "Private entrance", "Private bathroom", "Balcony", "Backyard", "Garage", "Gym", "Pool", "Near transit", "Near schools"];
+const HM_PRICES = [0, 500, 750, 1000, 1250, 1500, 2000, 2500, 3000, 4000, 5000, 200000, 400000, 500000, 600000, 700000, 800000, 900000, 1000000, 1250000, 1500000, 2000000, 3000000];
+const HM_VIEWS = ["homes", "listing", "listhome", "mylistings", "hchat"];
+const HM_PIN = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>`;
+const HM_BED = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18V7M3 13h18v5M21 18v-3a3 3 0 0 0-3-3h-7v1"/><circle cx="7" cy="10.5" r="1.6"/></svg>`;
+const HM_BATH = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4zM6 12V6a2 2 0 0 1 3.5-1.3M7 19l-1 2M17 19l1 2"/></svg>`;
+const HM_CAR = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M4 16h16v2H4zM5 11h14"/><circle cx="8" cy="14" r=".8"/><circle cx="16" cy="14" r=".8"/></svg>`;
+const hmMoney = n => "$" + Math.round(n).toLocaleString("en-CA");
+const hmShort = h => { const p = +h.price || 0; return h.deal === "sale" ? (p >= 1e6 ? "$" + (p / 1e6).toFixed(p >= 1e7 ? 0 : 2).replace(/\.?0+$/, "") + "M" : "$" + Math.round(p / 1000) + "K") : hmMoney(p); };
+const hmPriceTxt = h => hmMoney(+h.price || 0) + (h.deal === "sale" ? "" : "/mo");
+const hmWhere = h => [h.showStreet && h.street, h.city].filter(Boolean).join(", ") || "Location on request";
+const hmSaved = () => (PROFILE && Array.isArray(PROFILE.savedHomes)) ? PROFILE.savedHomes : [];
+
+async function hmEnsure(force){
+  if (!FB) return;
+  if (HM.loading) return;
+  if (!force && HM.list && Date.now() - HM.at < 120000) return;
+  if (!force && HM.failedAt && Date.now() - HM.failedAt < 30000) return;
+  HM.loading = true;
+  try { HM.list = await FB.hmApproved(); HM.at = Date.now(); HM.failedAt = 0; HM.err = ""; }
+  catch (e) { console.error(e); HM.failedAt = Date.now(); HM.err = e && e.code === "permission-denied" ? "perm" : "load"; if (!HM.list) HM.list = []; }
+  HM.loading = false;
+  if (HM_VIEWS.includes(current())) render();
+}
+function hmEnsureThreads(){
+  if (!USER || !FB){ return; }
+  if (HM.tuid === USER.uid && HM.unsubT) return;
+  if (HM.unsubT) HM.unsubT(); HM.tuid = USER.uid; HM.threads = null;
+  HM.unsubT = FB.hmWatchThreads(USER.uid, l => { HM.threads = l; hmOnThreads(); }, e => { console.error(e); HM.threads = []; hmOnThreads(); });
+}
+const hmIsUnread = t => t.lastFrom && t.lastFrom !== USER.uid && tsMs(t.lastAt) > ((t.seen || {})[USER.uid] || 0);
+const hmUnread = () => (HM.threads || []).filter(hmIsUnread).length;
+function hmOnThreads(){
+  const n = hmUnread();
+  document.querySelectorAll('a[data-tab="homes"]').forEach(a => a.classList.toggle("hasdot", n > 0));
+  const b = $("#hmMsgBadge"); if (b) b.textContent = n || "";
+  const v = current();
+  if (v === "mylistings") render();
+  if (v === "hchat"){ const t = (HM.threads || []).find(x => x.id === hchatId); if (t && hmIsUnread(t)) FB.hmSeen(t.id, USER.uid).catch(() => {}); }
+}
+function hmDefaultFilters(){ HM.f = {deals: [], types: [], min: 0, max: 0, beds: 0, baths: 0, parking: 0, feats: [], cities: [], photos: false, saved: false}; }
+const hmFltCount = () => !HM.f ? 0 : HM.f.deals.length + HM.f.types.length + (HM.f.min ? 1 : 0) + (HM.f.max ? 1 : 0) + (HM.f.beds ? 1 : 0) + (HM.f.baths ? 1 : 0) + (HM.f.parking ? 1 : 0) + HM.f.feats.length + HM.f.cities.length + (HM.f.photos ? 1 : 0);
+function hmFiltered(skip, noBounds){
+  if (!HM.f) hmDefaultFilters();
+  const F = HM.f, q = query.trim().toLowerCase(), sv = hmSaved(), B = HM.bounds;
+  const l = (HM.list || []).filter(h => (skip === "deals" || !F.deals.length || F.deals.includes(h.deal))
+    && (skip === "types" || !F.types.length || F.types.includes(h.type))
+    && (!F.min || h.price >= F.min) && (!F.max || h.price <= F.max)
+    && (!F.beds || (h.beds || 0) >= F.beds) && (!F.baths || (h.baths || 0) >= F.baths) && (!F.parking || (h.parking || 0) >= F.parking)
+    && (skip === "feats" || !F.feats.length || F.feats.every(x => (h.features || []).includes(x)))
+    && (skip === "cities" || !F.cities.length || F.cities.includes(dtCity(h.city)))
+    && (!F.photos || h.photoCount > 0) && (!F.saved || sv.includes(h.id))
+    && (!q || [h.title, h.city, h.showStreet ? h.street : "", h.type, HM_DEALS[h.deal], h.description, (h.features || []).join(" "), h.postal].join(" ").toLowerCase().includes(q))
+    && (noBounds || !HM.move || !B || h.lat == null || (h.lat >= B.s && h.lat <= B.n && h.lng >= B.w && h.lng <= B.e)));
+  if (HM.sort === "low") l.sort((a, b) => a.price - b.price);
+  else if (HM.sort === "high") l.sort((a, b) => b.price - a.price);
+  else l.sort((a, b) => tsMs(b.approvedAt || b.createdAt) - tsMs(a.approvedAt || a.createdAt));
+  return l;
+}
+
+/* map */
+let hmLeafletP = null;
+function hmLeaflet(){
+  if (window.L && L.map) return Promise.resolve(window.L);
+  if (hmLeafletP) return hmLeafletP;
+  hmLeafletP = new Promise((ok, no) => {
+    const css = document.createElement("link"); css.rel = "stylesheet"; css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"; document.head.appendChild(css);
+    const s = document.createElement("script"); s.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"; s.onload = () => ok(window.L); s.onerror = () => { hmLeafletP = null; no(new Error("map")); }; document.head.appendChild(s);
+  });
+  return hmLeafletP;
+}
+const HM_TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", HM_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+async function hmInitMap(){
+  const el = $("#hmMap"); if (!el) return;
+  let L; try { L = await hmLeaflet(); } catch (e) { el.innerHTML = `<div class="hmmapfail">The map couldn't load. Check your connection.</div>`; return; }
+  if (!document.body.contains(el)) return;
+  if (HM.map){ try { HM.map.remove(); } catch (_) {} }
+  const map = L.map(el, {zoomControl: true, scrollWheelZoom: true}); HM.map = map;
+  L.tileLayer(HM_TILES, {maxZoom: 19, attribution: HM_ATTR}).addTo(map);
+  HM.layer = L.layerGroup().addTo(map);
+  const pts = hmFiltered(null, true).filter(h => h.lat != null);
+  if (HM.view) map.setView(HM.view.c, HM.view.z);
+  else if (pts.length) map.fitBounds(L.latLngBounds(pts.map(h => [h.lat, h.lng])).pad(0.2), {maxZoom: 14});
+  else map.setView([43.8828, -79.4403], 10);
+  map.on("moveend", () => { if (!el.offsetWidth) return; const b = map.getBounds(); HM.bounds = {n: b.getNorth(), s: b.getSouth(), e: b.getEast(), w: b.getWest()}; HM.view = {c: map.getCenter(), z: map.getZoom()}; if (HM.move) hmRefresh(true); });
+  if (el.offsetWidth){ const b = map.getBounds(); HM.bounds = {n: b.getNorth(), s: b.getSouth(), e: b.getEast(), w: b.getWest()}; } else if (!HM.mapSeen) HM.bounds = null;
+  hmDrawPins(); if (HM.move) hmRefresh(true);
+  setTimeout(() => map.invalidateSize(), 50);
+}
+function hmDrawPins(){
+  if (!HM.map || !HM.layer) return;
+  HM.layer.clearLayers(); HM.pins = {};
+  hmFiltered(null, true).filter(h => h.lat != null).forEach(h => {
+    const icon = L.divIcon({className: "hmpin " + h.deal, html: `<span>${esc(hmShort(h))}</span>`, iconSize: null});
+    const m = L.marker([h.lat, h.lng], {icon, title: h.title, riseOnHover: true}).addTo(HM.layer);
+    m.bindPopup(`<a class="hmpop" href="#listing-${esc(h.id)}">${h.thumb ? `<img src="${esc(h.thumb)}" alt="">` : ""}<b>${esc(hmPriceTxt(h))}</b><span>${esc(h.title)}</span><small>${esc(hmWhere(h))}</small></a>`, {maxWidth: 240});
+    m.on("mouseover", () => { const c = document.querySelector(`.hmcard[data-hid="${CSS.escape(h.id)}"]`); if (c) c.classList.add("hot"); });
+    m.on("mouseout", () => { const c = document.querySelector(`.hmcard[data-hid="${CSS.escape(h.id)}"]`); if (c) c.classList.remove("hot"); });
+    HM.pins[h.id] = m;
+  });
+}
+async function hmMiniMap(id, lat, lng, drag){
+  const el = $("#" + id); if (!el) return;
+  let L; try { L = await hmLeaflet(); } catch (e) { el.innerHTML = `<div class="hmmapfail">The map couldn't load.</div>`; return; }
+  if (!document.body.contains(el)) return;
+  if (HM.mini){ try { HM.mini.remove(); } catch (_) {} }
+  const has = lat != null, map = L.map(el, {scrollWheelZoom: false}); HM.mini = map;
+  L.tileLayer(HM_TILES, {maxZoom: 19, attribution: HM_ATTR}).addTo(map);
+  map.setView(has ? [lat, lng] : [43.8828, -79.4403], has ? 15 : 10);
+  if (has){
+    if (drag){ const m = L.marker([lat, lng], {draggable: true, icon: L.divIcon({className: "hmdrag", html: HM_PIN, iconSize: [36, 36], iconAnchor: [18, 34]})}).addTo(map); m.on("dragend", () => { const p = m.getLatLng(); HM.form.lat = p.lat; HM.form.lng = p.lng; const s = $("#hmPinNote"); if (s) s.textContent = "Pin moved. We'll use this spot."; }); }
+    else L.circle([lat, lng], {radius: 120, color: "#0d2f75", fillColor: "#0d2f75", fillOpacity: .25, weight: 2}).addTo(map);
+  }
+  setTimeout(() => map.invalidateSize(), 50);
+}
+async function hmGeocode(q){
+  const r = await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ca&q=" + encodeURIComponent(q), {headers: {"Accept-Language": "en"}});
+  const j = await r.json(); return j && j[0] ? {lat: +j[0].lat, lng: +j[0].lon} : null;
+}
+
+/* list page */
+function hmHero(){
+  return `<section class="pagehero lhero homes"><div class="phtext"><h1>Homes</h1><p>Houses, condos, apartments and rooms for sale and for rent, posted by people in your area.</p></div>
+    <label class="sortlbl hsort">Sort by
+      <select data-hms="sort"><option value="new">Newest</option><option value="low"${HM.sort === "low" ? " selected" : ""}>Price: low to high</option><option value="high"${HM.sort === "high" ? " selected" : ""}>Price: high to low</option></select>
+    </label></section>`;
+}
+function homesView(){
+  hmEnsure(); if (USER) hmEnsureThreads();
+  if (!HM.f) hmDefaultFilters();
+  if (!HM.list) return hmHero() + `<div class="empty">${fbFailed ? "We couldn't connect. Check your connection and refresh the page." : "Loading homes…"}</div>`;
+  if (HM.err === "perm") return hmHero() + `<div class="empty">The Homes section isn't switched on yet. Please check back soon.</div>`;
+  const n = hmFiltered().length, un = USER ? hmUnread() : 0;
+  return hmHero() + `<div class="qbar" id="qbar"><div class="qrow qonly dtbar hmbar">
+      <button type="button" class="morefl" id="fltBtn" data-fopen aria-expanded="${fltOpen}" aria-controls="fltPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>More filters <span class="fltbadge" id="fltBadge">${hmFltCount() || ""}</span></button>
+      <button type="button" class="morefl hmmaptog" data-hmmaptog aria-pressed="${HM.mapView}">${HM.mapView ? "List" : "Map"}</button>
+      <button type="button" class="morefl" data-hmsaved aria-pressed="${HM.f.saved}">${DT_HEART}Saved</button>
+      <a class="morefl" href="#my-listings">My listings <span class="fltbadge" id="hmMsgBadge">${un || ""}</span></a>
+      <a class="morefl hmpost" href="#list-your-home">+ List your home</a>
+    </div></div>
+    <div class="fltback" id="fltBack" data-fclose ${fltOpen ? "" : "hidden"}></div>
+    <section class="fltpanel" id="fltPanel" role="dialog" aria-label="Filter homes" ${fltOpen ? "" : "hidden"}>
+      <div class="flthead"><h2>More filters</h2><button type="button" class="fltx" data-fclose aria-label="Close filters">×</button></div>
+      <div class="fltbody" id="hmPanel">${hmPanelHTML()}</div>
+      <div class="fltfoot" id="hmFoot">${hmFootHTML(n)}</div>
+    </section>
+    <div class="hmsplit${HM.mapView ? " showmap" : ""}" id="hmSplit">
+      <div class="hmlist" id="hmResults">${hmResultsHTML()}</div>
+      <div class="hmmapwrap"><div id="hmMap" class="hmmap"></div>
+        <label class="hmmove"><input type="checkbox" data-hmmove${HM.move ? " checked" : ""}> Search as I move the map</label></div>
+    </div>`;
+}
+const hmFootHTML = n => `<button type="button" class="linkbtn" data-hmclear ${hmFltCount() ? "" : "disabled"}>Clear all</button><button type="button" class="btn" data-fclose>Show ${n} home${n === 1 ? "" : "s"}</button>`;
+function hmPanelHTML(){
+  const F = HM.f;
+  const opt = (k, v, label, on, cnt) => `<button type="button" class="fopt${cnt === 0 ? " zero" : ""}" data-hmf="${k}" data-v="${esc(String(v))}" aria-pressed="${on}">${esc(label)}${cnt != null ? ` <i>${cnt}</i>` : ""}</button>`;
+  const sec = (title, inner) => inner ? `<div class="fsec"><h3>${title}</h3><div class="fopts" role="group" aria-label="${title}">${inner}</div></div>` : "";
+  const cnt = (skip, fn) => { const m = {}; hmFiltered(skip, true).forEach(h => [].concat(fn(h)).forEach(v => { if (v) m[v] = (m[v] || 0) + 1; })); return m; };
+  const cD = cnt("deals", h => h.deal), cT = cnt("types", h => h.type), cF = cnt("feats", h => h.features || []), cC = cnt("cities", h => dtCity(h.city));
+  const cities = [...new Set([...Object.keys(cC), ...F.cities])].sort();
+  const pSel = (k, val) => `<select data-hms="${k}" aria-label="${k === "min" ? "Lowest price" : "Highest price"}"><option value="0">${k === "min" ? "No min" : "No max"}</option>${HM_PRICES.slice(1).map(p => `<option value="${p}"${p === val ? " selected" : ""}>${hmMoney(p)}</option>`).join("")}</select>`;
+  const plus = (k, label, max) => { const o = [0]; for (let i = 1; i <= max; i++) o.push(i); return sec(label, o.map(i => opt(k, i, i ? i + "+" : "Any", F[k] === i)).join("")); };
+  return sec("Listing type", Object.entries(HM_DEALS).map(([k, l]) => opt("deals", k, l, F.deals.includes(k), cD[k] || 0)).join(""))
+    + sec("Home type", HM_TYPES.map(t => opt("types", t, t, F.types.includes(t), cT[t] || 0)).join(""))
+    + `<div class="fsec"><h3>Price <small>monthly for rentals</small></h3><div class="dtage hmprice">${pSel("min", F.min)}<span>to</span>${pSel("max", F.max)}</div></div>`
+    + plus("beds", "Bedrooms", 5) + plus("baths", "Bathrooms", 4) + plus("parking", "Parking", 3)
+    + sec("City", cities.map(c => opt("cities", c, c, F.cities.includes(c), cC[c] || 0)).join(""))
+    + sec("Features", HM_FEATS.filter(x => cF[x] || F.feats.includes(x)).map(x => opt("feats", x, x, F.feats.includes(x), cF[x] || 0)).join(""))
+    + sec("Photos", opt("photos", "1", "Has photos", F.photos));
+}
+function hmResultsHTML(){
+  const list = hmFiltered(), n = list.length, all = (HM.list || []).length, inMap = HM.move && HM.bounds;
+  let html = `<p class="count">${n} home${n === 1 ? "" : "s"}${inMap ? " in this map area" : ""}${query.trim() ? ` matching “${esc(query.trim())}” <button class="linkbtn" data-clear>Clear search</button>` : ""}</p>`;
+  if (!n) return html + `<div class="evempty dtempty">${HM_PIN}<b>${all ? "No homes match" : "No homes listed yet"}</b><span>${all ? (inMap ? "Try zooming out or moving the map, or change your filters." : "Try changing your filters.") : "Be the first to list a home, apartment or room."}</span>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">${hmFltCount() ? `<button type="button" class="btn small ghost" data-hmclear>Clear filters</button>` : ""}${HM.f.saved ? `<button type="button" class="btn small ghost" data-hmsaved>Show all homes</button>` : ""}<a class="btn small" href="#list-your-home">List your home</a></div></div>`;
+  return html + `<div class="hmgrid">${list.map(hmCard).join("")}</div>`;
+}
+function hmCard(h){
+  const saved = hmSaved().includes(h.id);
+  return `<article class="hmcard" data-hid="${esc(h.id)}">
+    <a class="hmpic" href="#listing-${esc(h.id)}" aria-label="${esc(h.title)}">${h.thumb ? `<img src="${esc(h.thumb)}" alt="" loading="lazy">` : `<span class="hmnoimg">${HM_PIN}</span>`}<span class="hmdeal ${h.deal}">${HM_DEALS[h.deal]}</span></a>
+    <button type="button" class="hmheart" data-hmsave="${esc(h.id)}" aria-pressed="${saved}" aria-label="${saved ? "Remove from saved" : "Save this home"}">${DT_HEART}</button>
+    <a class="hmbody" href="#listing-${esc(h.id)}">
+      <b class="hmprice">${esc(hmPriceTxt(h))}</b>
+      <span class="hmfacts">${h.beds != null ? `<span>${HM_BED}${h.deal === "room" ? "Room" : h.beds + " bd"}</span>` : ""}${h.baths ? `<span>${HM_BATH}${h.baths} ba</span>` : ""}${h.parking ? `<span>${HM_CAR}${h.parking}</span>` : ""}${h.sqft ? `<span>${Number(h.sqft).toLocaleString("en-CA")} sq ft</span>` : ""}</span>
+      <span class="hmaddr">${esc(hmWhere(h))}</span>
+      <span class="hmtype">${esc(h.type || "")}</span>
+    </a></article>`;
+}
+function hmRefresh(fromMap){
+  const r = $("#hmResults"); if (!r){ if (!fromMap) render(); return; }
+  r.innerHTML = hmResultsHTML();
+  if (!fromMap) hmDrawPins();
+  const pnl = $("#hmPanel"), top = pnl ? pnl.scrollTop : 0; if (pnl){ pnl.innerHTML = hmPanelHTML(); pnl.scrollTop = top; }
+  const f = $("#hmFoot"); if (f) f.innerHTML = hmFootHTML(hmFiltered().length);
+  const bd = $("#fltBadge"); if (bd) bd.textContent = hmFltCount() || "";
+}
+async function hmToggleSave(id){
+  if (!USER){ toast("Sign in to save homes"); afterLogin = "homes"; authMode = "signin"; go("account"); return; }
+  const cur = hmSaved(), next = cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id];
+  if (PROFILE) PROFILE.savedHomes = next; else PROFILE = {savedHomes: next};
+  document.querySelectorAll(`[data-hmsave="${CSS.escape(id)}"]`).forEach(b => { const on = next.includes(id); b.setAttribute("aria-pressed", on); b.setAttribute("aria-label", on ? "Remove from saved" : "Save this home"); const t = b.querySelector(".hmsavetxt"); if (t) t.textContent = on ? "Saved" : "Save"; });
+  toast(next.includes(id) ? "Saved. Find it under Saved." : "Removed from saved");
+  try { await FB.hmSetSaved(USER.uid, next); } catch (e) { console.error(e); toast("That didn't save. Please try again."); }
+  if (HM.f && HM.f.saved && current() === "homes") hmRefresh();
+}
+
+/* listing page */
+function listingView(){
+  const h = (HM.list || []).find(x => x.id === listingId) || HM.extra[listingId] || ((HM.mine || []).find(x => x.id === listingId));
+  if (!h){
+    if (FB && HM.extra[listingId] === undefined){ HM.extra[listingId] = null; FB.hmGet(listingId).then(x => { HM.extra[listingId] = x || false; if (current() === "listing") render(); }).catch(() => { HM.extra[listingId] = false; if (current() === "listing") render(); }); }
+    return HM.extra[listingId] === false ? `<div class="empty">This listing isn't available anymore. <a href="#homes" style="color:var(--link)">See all homes</a></div>` : `<div class="empty">Loading…</div>`;
+  }
+  hmLoadPhotos(h);
+  const own = USER && h.uid === USER.uid, saved = hmSaved().includes(h.id);
+  const facts = [["Listing", HM_DEALS[h.deal]], ["Home type", h.type], h.deal !== "room" && h.beds != null && ["Bedrooms", h.beds], h.baths && ["Bathrooms", h.baths], h.parking != null && ["Parking", h.parking || "None"], h.sqft && ["Size", Number(h.sqft).toLocaleString("en-CA") + " sq ft"], h.available && ["Available", new Date(h.available + "T12:00:00").toLocaleDateString("en-CA", {month: "long", day: "numeric", year: "numeric"})], ["Listed", tsMs(h.approvedAt || h.createdAt) ? new Date(tsMs(h.approvedAt || h.createdAt)).toLocaleDateString("en-CA", {month: "short", day: "numeric", year: "numeric"}) : ""]].filter(x => x && x[1] !== "" && x[1] != null);
+  const status = own && h.status !== "approved" ? `<div class="dtnote">${h.status === "pending" ? "Waiting for approval. Only you can see this listing for now." : h.status === "rejected" ? "This listing wasn't approved." + (h.adminNote ? " Note: " + esc(h.adminNote) : "") : "This listing is closed."}</div>` : "";
+  return `<article class="hmpage">
+    ${hmGalleryHTML(h)}
+    <div class="hmlayout">
+      <div class="hmmain">
+        ${status}
+        <span class="hmdeal ${h.deal} inline">${HM_DEALS[h.deal]}</span>
+        <h1 class="hmbig">${esc(hmPriceTxt(h))}</h1>
+        <h2 class="hmtitle">${esc(h.title)}</h2>
+        <p class="hmaddr big">${HM_PIN}${esc(hmWhere(h))}${h.showStreet ? "" : " <small>(exact address shared by the lister)</small>"}</p>
+        <div class="hmfacts big">${h.beds != null ? `<span>${HM_BED}${h.deal === "room" ? "Room" : h.beds + " bedroom" + (h.beds == 1 ? "" : "s")}</span>` : ""}${h.baths ? `<span>${HM_BATH}${h.baths} bath${h.baths == 1 ? "" : "s"}</span>` : ""}${h.parking ? `<span>${HM_CAR}${h.parking} parking</span>` : ""}</div>
+        <div class="hmacts"><button type="button" class="btn ghost" data-hmsave="${esc(h.id)}" aria-pressed="${saved}">${DT_HEART}<span class="hmsavetxt">${saved ? "Saved" : "Save"}</span></button><button type="button" class="btn ghost" data-hmshare>Share</button></div>
+        ${h.description ? `<section class="dtsect"><h2>About this home</h2><div class="itemdesc">${descHTML(h.description)}</div></section>` : ""}
+        <section class="dtsect"><h2>Details</h2><dl class="dtfacts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(String(v))}</dd></div>`).join("")}</dl></section>
+        ${(h.features || []).length ? `<section class="dtsect"><h2>Features</h2><div class="dtchips">${h.features.map(x => `<span>${esc(x)}</span>`).join("")}</div></section>` : ""}
+        ${h.lat != null ? `<section class="dtsect"><h2>Location</h2><div id="hmMini" class="hmmini"></div></section>` : ""}
+        ${h.deal === "sale" ? hmMortgageHTML(h) : ""}
+      </div>
+      <aside class="hmside">${hmContactHTML(h)}</aside>
+    </div></article>`;
+}
+function hmGalleryHTML(h){
+  const ph = Array.isArray(HM.photos[h.id]) && HM.photos[h.id].length ? HM.photos[h.id] : h.thumb ? [h.thumb] : [];
+  const i = Math.min(HM.gi, Math.max(0, ph.length - 1));
+  if (!ph.length) return `<div class="hmgal" id="hmGal"><div class="hmgmain hmnoimg">${HM_PIN}</div></div>`;
+  return `<div class="hmgal" id="hmGal"><div class="hmgmain"><img src="${esc(ph[i])}" alt="Photo ${i + 1} of ${ph.length}">${ph.length > 1 ? `<button type="button" class="hmgnav prev" data-hmg="${(i - 1 + ph.length) % ph.length}" aria-label="Previous photo">‹</button><button type="button" class="hmgnav next" data-hmg="${(i + 1) % ph.length}" aria-label="Next photo">›</button><span class="hmgcount">${i + 1} / ${ph.length}</span>` : ""}</div>
+    ${ph.length > 1 ? `<div class="dtthumbs">${ph.map((u, k) => `<button type="button" data-hmg="${k}" aria-label="Photo ${k + 1}" aria-pressed="${k === i}"><img src="${esc(u)}" alt=""></button>`).join("")}</div>` : ""}</div>`;
+}
+async function hmLoadPhotos(h){
+  if (!h || HM.photos[h.id] || !h.photoCount || !FB) return;
+  HM.photos[h.id] = "loading"; const out = [];
+  for (let i = 0; i < Math.min(8, h.photoCount); i++){ try { const d = await FB.hmGetPhoto(h.id, i); if (d) out.push(d); } catch (_) {} }
+  HM.photos[h.id] = out;
+  if (current() === "listing" && listingId === h.id){ const g = $("#hmGal"); if (g) g.outerHTML = hmGalleryHTML(h); }
+  if (current() === "listhome" && HM.form && HM.form.id === h.id && !HM.form.photosLoaded){ HM.form.photos = out.map(data => ({data})); HM.form.photosLoaded = true; const s = $("#hmPhotos"); if (s) s.innerHTML = hmPhotoStrip(); }
+}
+function hmMortgageHTML(h){
+  return `<section class="dtsect hmcalc" id="hmCalc"><h2>Mortgage estimate</h2>
+    <div class="hmcalcgrid"><label>Down payment<select data-hmc="down">${[5, 10, 15, 20, 25, 35].map(d => `<option value="${d}"${d === 20 ? " selected" : ""}>${d}%</option>`).join("")}</select></label>
+      <label>Interest rate<input data-hmc="rate" type="number" step="0.05" min="0" max="20" value="4.5"></label>
+      <label>Amortization<select data-hmc="years">${[15, 20, 25, 30].map(y => `<option${y === 25 ? " selected" : ""}>${y}</option>`).join("")}</select></label></div>
+    <p class="hmcalcout" id="hmCalcOut" data-price="${+h.price || 0}">${hmCalc(+h.price || 0, 20, 4.5, 25)}</p>
+    <p class="note">A rough estimate only, not including taxes, insurance or fees. Ask a mortgage professional for real numbers.</p></section>`;
+}
+function hmCalc(price, down, rate, years){
+  const P = price * (1 - down / 100), r = Math.pow(1 + rate / 200, 1 / 6) - 1, n = years * 12;   // Canadian: compounded semi-annually
+  const m = r > 0 ? P * r / (1 - Math.pow(1 + r, -n)) : P / n;
+  return `About <b>${hmMoney(m)}/month</b> on a ${hmMoney(P)} mortgage`;
+}
+function hmContactHTML(h){
+  const own = USER && h.uid === USER.uid;
+  if (own) return `<div class="hmcontact"><h2>Your listing</h2><p class="note">People who contact you show up in My listings.</p><a class="btn" href="#list-your-home" data-hmedit="${esc(h.id)}">Edit listing</a><a class="btn ghost" href="#my-listings">My listings</a></div>`;
+  return `<div class="hmcontact"><h2>Contact ${esc(h.ownerName || "the lister")}</h2>
+    ${!USER ? `<p class="note">Sign in to send a message. Your email and phone stay private.</p>${googleBtn("listing")}<div style="display:grid;gap:8px"><button class="btn" type="button" data-auth="signin" data-next="listing">Sign in with email</button><button class="btn ghost" type="button" data-auth="signup" data-next="listing" style="color:var(--fg)">Create account</button></div>`
+      : !USER.emailVerified ? `<p class="note">Confirm your email address first, then you can send a message.</p><button class="btn small" type="button" data-recheck>I've confirmed it</button>`
+      : h.status !== "approved" ? `<p class="note">This listing isn't open for messages.</p>`
+      : `<form id="hmContact" class="hmcform"><textarea id="hmCText" rows="4" maxlength="2000" required>Hi ${esc(h.ownerName || "")}, is this ${h.deal === "sale" ? "home" : "place"} still available? I'd like to know more.</textarea><button class="btn" type="submit">Send message</button></form><p class="note">Replies show up in My listings → Messages.</p>`}
+    <div class="hmsafe"><b>Stay safe:</b> see the place in person before paying anything, and never send a deposit by gift card or wire transfer.</div>
+    <button type="button" class="linkbtn" data-hmreport="${esc(h.id)}" style="color:#6e6e73;margin-top:8px">Report this listing</button></div>`;
+}
+
+/* post or edit a listing */
+function listHomeView(){
+  if (!authReady) return `<div class="empty">Loading…</div>`;
+  if (!USER) return needSignIn("listhome", "Sign in to list your home", "List a home, apartment or room for sale or for rent. It's free.");
+  if (!USER.emailVerified) return `<div class="panel dtgate"><h2>Confirm your email first</h2><p class="note">To keep listings real, only members with a confirmed email can post. We sent a link to ${esc(USER.email || "your email")}.</p><div style="display:flex;gap:14px;flex-wrap:wrap"><button class="btn small" type="button" data-recheck>I've confirmed it</button><button class="linkbtn" type="button" data-resend>Send the link again</button></div></div>`;
+  if (!HM.form){ const edit = HM.editId && ((HM.mine || []).find(x => x.id === HM.editId) || (HM.list || []).find(x => x.id === HM.editId)); hmStartForm(edit && edit.uid === USER.uid ? edit : null); }
+  const F = HM.form, h = F.data, sel = (a, b) => a === b ? " selected" : "", isNew = !F.id;
+  return `<section class="pagehero lhero"><div class="phtext"><h1>${isNew ? "List your home" : "Edit your listing"}</h1><p>${isNew ? "Free to post. We check each listing before it goes live, usually within a day." : "After you save, your listing is checked again before it shows."}</p></div></section>
+  <form class="panel dtform hmform" id="hmForm" novalidate>
+    <div class="fsec"><h3>Listing type</h3><div class="fopts" role="radiogroup" aria-label="Listing type">${Object.entries(HM_DEALS).map(([k, l]) => `<label class="fopt hmradio"><input type="radio" name="deal" value="${k}"${h.deal === k ? " checked" : ""}> ${l}</label>`).join("")}</div></div>
+    <div class="fsec"><h3>Photos <small>up to 8 · the first one is the main photo</small></h3><div class="dtphotos" id="hmPhotos">${hmPhotoStrip()}</div></div>
+    <label>Title<input name="title" required maxlength="100" placeholder="e.g. Bright 2-bedroom condo near Yonge and 16th" value="${esc(h.title || "")}"></label>
+    <div class="dtgrid2">
+      <label>Price <small id="hmPriceHint">${h.deal === "sale" ? "asking price" : "per month"}</small><input name="price" type="number" min="0" step="1" inputmode="numeric" required value="${h.price != null ? h.price : ""}"></label>
+      <label>Home type<select name="type" required><option value="">Choose</option>${HM_TYPES.map(t => `<option${sel(t, h.type)}>${t}</option>`).join("")}</select></label>
+      <label>Bedrooms<select name="beds">${[0, 1, 2, 3, 4, 5, 6].map(b => `<option value="${b}"${b === (h.beds ?? 1) ? " selected" : ""}>${b === 0 ? "Studio / none" : b === 6 ? "6+" : b}</option>`).join("")}</select></label>
+      <label>Bathrooms<select name="baths">${[1, 1.5, 2, 2.5, 3, 3.5, 4, 5].map(b => `<option value="${b}"${b === (h.baths ?? 1) ? " selected" : ""}>${b}</option>`).join("")}</select></label>
+      <label>Parking spots<select name="parking">${[0, 1, 2, 3, 4].map(b => `<option value="${b}"${b === (h.parking ?? 0) ? " selected" : ""}>${b === 4 ? "4+" : b}</option>`).join("")}</select></label>
+      <label>Size in sq ft <small>(optional)</small><input name="sqft" type="number" min="50" max="20000" inputmode="numeric" value="${h.sqft || ""}"></label>
+      <label>Available from <small>(optional)</small><input name="available" type="date" value="${esc(h.available || "")}"></label>
+      <label>Your first name <small>shown on the listing</small><input name="ownerName" required maxlength="40" value="${esc(h.ownerName || (PROFILE && PROFILE.name ? PROFILE.name.split(" ")[0] : ""))}"></label>
+    </div>
+    <div class="fsec"><h3>Address</h3>
+      <div class="dtgrid2"><label>Street address<input name="street" maxlength="100" autocomplete="street-address" placeholder="e.g. 123 Main Street, Unit 4" value="${esc(h.street || "")}"></label>
+      <label>City<input name="city" required maxlength="40" placeholder="e.g. Richmond Hill" value="${esc(h.city || "")}"></label>
+      <label>Postal code<input name="postal" maxlength="7" autocomplete="postal-code" placeholder="L4C 1A1" value="${esc(h.postal || "")}"></label></div>
+      <label class="dtcheck"><input type="checkbox" name="showStreet"${h.showStreet ? " checked" : ""}> Show my street address on the listing. If unchecked, people only see the city and an approximate area on the map.</label>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="button" class="btn small ghost" data-hmfind>Find on map</button><span class="note" id="hmPinNote">${F.lat != null ? "Drag the pin if it's not quite right." : "We'll find the spot from the address."}</span></div>
+      <div id="hmFormMap" class="hmmini"${F.lat != null ? "" : " hidden"}></div>
+    </div>
+    <label>Description<textarea name="description" rows="6" maxlength="3000" placeholder="What's great about it, what's included, who it suits, and any rules">${esc(h.description || "")}</textarea></label>
+    <div class="fsec"><h3>Features</h3><div class="fopts" id="hmFeats">${hmFeatsHTML()}</div></div>
+    <label class="dtcheck"><input type="checkbox" name="ok" required${F.id ? " checked" : ""}> This listing is real, I'm allowed to rent or sell this place, and the photos are of this place.</label>
+    <p class="formerr" id="hmErr" hidden></p>
+    <div class="dtformfoot"><button class="btn" type="submit">${isNew ? "Send for approval" : "Save and send for approval"}</button><a class="linkbtn" href="${isNew ? "#homes" : "#my-listings"}">Cancel</a></div>
+  </form>`;
+}
+function hmStartForm(edit){
+  const d = edit ? {...edit} : {deal: "rent", showStreet: false, features: []};
+  HM.form = {id: edit ? edit.id : null, data: d, feats: [...(d.features || [])], photos: [], photosLoaded: !edit || !edit.photoCount, lat: edit ? edit.lat : null, lng: edit ? edit.lng : null, changed: false, located: edit ? (edit.street || edit.city || "") : ""};
+  if (edit && edit.photoCount){ if (Array.isArray(HM.photos[edit.id])){ HM.form.photos = HM.photos[edit.id].map(data => ({data})); HM.form.photosLoaded = true; } else hmLoadPhotos(edit); }
+}
+const hmFeatsHTML = () => HM_FEATS.map(x => `<button type="button" class="fopt" data-hmfeat="${esc(x)}" aria-pressed="${HM.form.feats.includes(x)}">${esc(x)}</button>`).join("");
+function hmPhotoStrip(){
+  const f = HM.form;
+  if (!f.photosLoaded) return `<span class="note">Loading photos…</span>`;
+  return f.photos.map((ph, i) => `<div class="dtph hmph"><img src="${esc(ph.data)}" alt="Photo ${i + 1}">${i === 0 ? `<span class="dtmainlbl">Main</span>` : `<button type="button" class="dtphmain" data-hmphmain="${i}">Make main</button>`}<button type="button" class="dtphx" data-hmphx="${i}" aria-label="Remove photo ${i + 1}">×</button></div>`).join("")
+    + (f.photos.length < 8 ? `<label class="dtphadd hmph"><input type="file" accept="image/*" multiple id="hmPhIn" hidden><span>+</span><small>Add photos</small></label>` : "");
+}
+async function hmAddPhotos(files){
+  const f = HM.form;
+  for (const file of [...files].slice(0, 8 - f.photos.length)){
+    if (!/^image\//.test(file.type)) continue;
+    try { const raw = await new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = no; r.readAsDataURL(file); });
+      f.photos.push({data: await dtShrink(raw, 1400, 0.75, 300000)}); f.changed = true; } catch (e) { toast("That photo couldn't be added. Try a JPG or PNG."); }
+  }
+  const s = $("#hmPhotos"); if (s) s.innerHTML = hmPhotoStrip();
+}
+function hmAddrQuery(form){ const fd = new FormData(form), g = k => String(fd.get(k) || "").trim(); return [g("street"), g("city"), g("postal"), "Ontario", "Canada"].filter(Boolean).join(", "); }
+async function hmFind(form, quiet){
+  const q = hmAddrQuery(form), note = $("#hmPinNote");
+  if (!String(new FormData(form).get("city") || "").trim()){ if (!quiet && note) note.textContent = "Enter at least the city first."; return false; }
+  if (note) note.textContent = "Finding it on the map…";
+  try {
+    let p = await hmGeocode(q);
+    if (!p){ const fd = new FormData(form); p = await hmGeocode([fd.get("postal"), fd.get("city"), "Ontario, Canada"].filter(Boolean).join(", ")); }
+    if (!p){ if (note) note.textContent = "We couldn't find that address. Check the spelling, or add the postal code."; return false; }
+    HM.form.lat = p.lat; HM.form.lng = p.lng; HM.form.located = q;
+    const m = $("#hmFormMap"); if (m){ m.hidden = false; hmMiniMap("hmFormMap", p.lat, p.lng, true); }
+    if (note) note.textContent = "Found it. Drag the pin if it's not quite right.";
+    return true;
+  } catch (e) { if (note) note.textContent = "The map search isn't responding. Try again in a moment."; return false; }
+}
+async function hmSave(form){
+  const fd = new FormData(form), g = k => String(fd.get(k) || "").trim(), err = $("#hmErr");
+  const say = t => { if (err){ err.textContent = t; err.hidden = false; err.scrollIntoView({block: "center", behavior: "smooth"}); } };
+  const deal = g("deal"), price = Math.round(+g("price"));
+  if (!HM_DEALS[deal]) return say("Choose whether it's for sale, for rent, or a room for rent.");
+  if (!g("title")) return say("Please add a title.");
+  if (!(price > 0)) return say("Please enter the price.");
+  if (!g("type")) return say("Please choose the home type.");
+  if (!g("city")) return say("Please enter the city.");
+  if (!g("ownerName")) return say("Please enter your first name.");
+  if (!fd.get("ok")) return say("Please confirm the listing is real and you're allowed to list it.");
+  if (!HM.form.photosLoaded) return say("Your photos are still loading. Try again in a moment.");
+  if (HM.form.lat == null || HM.form.located !== hmAddrQuery(form)){ const ok = await hmFind(form, true); if (!ok && HM.form.lat == null) return say("We couldn't find that address on the map. Check it, or add the postal code, then try again."); }
+  if (HM.busy) return; HM.busy = true;
+  const btn = form.querySelector('button[type="submit"]'), label = btn.textContent; btn.disabled = true; btn.textContent = "Saving…";
+  try {
+    const show = !!fd.get("showStreet"), ph = HM.form.photos, isNew = !HM.form.id, id = HM.form.id || FB.hmNewId();
+    const lat = show ? HM.form.lat : Math.round(HM.form.lat * 500) / 500, lng = show ? HM.form.lng : Math.round(HM.form.lng * 500) / 500;
+    const thumb = ph.length ? await dtShrink(ph[0].data, 520, 0.7, 60000) : "";
+    const data = {uid: USER.uid, status: "pending", deal, type: g("type"), title: g("title").slice(0, 100), price, beds: +g("beds"), baths: +g("baths"), parking: +g("parking"), sqft: +g("sqft") || null,
+      available: g("available"), ownerName: g("ownerName").split(" ")[0].slice(0, 40), street: show ? g("street").slice(0, 100) : "", showStreet: show, city: dtCity(g("city")), postal: g("postal").toUpperCase().slice(0, 7),
+      lat, lng, description: g("description").slice(0, 3000), features: HM.form.feats.slice(0, 20), thumb, photoCount: ph.length};
+    await FB.hmSave(id, data, isNew);
+    if (isNew || HM.form.changed){
+      for (let i = 0; i < ph.length; i++) await FB.hmSavePhoto(id, i, ph[i].data, USER.uid);
+      for (let i = ph.length; i < 8; i++) await FB.hmDelPhoto(id, i).catch(() => {});
+      HM.photos[id] = ph.map(p => p.data);
+    }
+    HM.form = null; HM.editId = null; HM.busy = false; HM.mine = null; HM.list = HM.list ? HM.list.filter(x => x.id !== id) : HM.list;
+    toast(isNew ? "Sent for approval. We'll check it soon." : "Saved. It's being checked again."); go("mylistings");
+  } catch (e) {
+    console.error(e); HM.busy = false; btn.disabled = false; btn.textContent = label;
+    say(e && e.code === "permission-denied" ? "The Homes section isn't switched on yet, so your listing couldn't be saved." : "Your listing couldn't be saved. Check your connection and try again.");
+  }
+}
+
+/* my listings and messages */
+function myListingsView(){
+  if (!authReady) return `<div class="empty">Loading…</div>`;
+  if (!USER) return needSignIn("mylistings", "Your listings and messages", "Sign in to see the homes you've listed and your messages.");
+  hmEnsureThreads();
+  if (HM.mine === null && FB){ HM.mine = "loading"; FB.hmMine(USER.uid).then(l => { HM.mine = l; if (current() === "mylistings") render(); }).catch(e => { console.error(e); HM.mine = []; if (current() === "mylistings") render(); }); }
+  const mine = Array.isArray(HM.mine) ? HM.mine.slice().sort((a, b) => tsMs(b.updatedAt) - tsMs(a.updatedAt)) : null;
+  const st = {pending: ["Waiting for approval", "wait"], approved: ["Live", "live"], rejected: ["Not approved", "no"], closed: ["Closed", "closed"]};
+  const row = h => { const [l, c] = st[h.status] || ["", ""];
+    return `<div class="hmrow">${h.thumb ? `<img src="${esc(h.thumb)}" alt="">` : `<span class="hmnoimg sm">${HM_PIN}</span>`}
+      <div class="hmrowtxt"><a href="#listing-${esc(h.id)}"><b>${esc(h.title)}</b></a><small>${esc(hmPriceTxt(h))} · ${HM_DEALS[h.deal]} · ${esc(h.city || "")}</small><span class="hmst ${c}">${l}</span>${h.status === "rejected" && h.adminNote ? `<small>Note: ${esc(h.adminNote)}</small>` : ""}</div>
+      <div class="hmrowacts"><button type="button" class="linkbtn" data-hmedit="${esc(h.id)}">Edit</button>
+        ${h.status === "approved" ? `<button type="button" class="linkbtn" data-hmclose="${esc(h.id)}">${HM.arm === "c" + h.id ? "Click again to close" : h.deal === "sale" ? "Mark sold" : "Mark rented"}</button>` : h.status === "closed" ? `<button type="button" class="linkbtn" data-hmreopen="${esc(h.id)}">Relist</button>` : ""}
+        <button type="button" class="linkbtn" data-hmdel="${esc(h.id)}" style="color:var(--danger)">${HM.arm === "d" + h.id ? "Click again to delete" : "Delete"}</button></div></div>`; };
+  const T = (HM.threads || []).slice().sort((a, b) => tsMs(b.lastAt) - tsMs(a.lastAt));
+  const trow = t => { const other = t.users.find(u => u !== USER.uid), un = hmIsUnread(t), mineHome = t.owner === USER.uid;
+    return `<a class="dtmrow${un ? " unread" : ""}" href="#hchat-${esc(t.id)}">${t.thumb ? `<img src="${esc(t.thumb)}" alt="">` : `<span class="dtnoimg">${esc(((t.names || {})[other] || "?").charAt(0).toUpperCase())}</span>`}
+      <span class="dtmtxt"><b>${esc((t.names || {})[other] || "Someone")} · ${esc(t.homeTitle || "")}</b><small>${mineHome ? "About your listing · " : ""}${t.lastText ? (t.lastFrom === USER.uid ? "You: " : "") + esc(t.lastText) : "No messages yet"}</small></span>
+      <span class="dtmwhen">${tsMs(t.lastAt) ? dtWhen(tsMs(t.lastAt)) : ""}${un ? `<i class="dtdot" aria-label="Unread"></i>` : ""}</span></a>`; };
+  return `<section class="pagehero lhero"><div class="phtext"><h1>My listings</h1><p>Your homes and your messages with buyers, renters and listers.</p></div><a class="btn" href="#list-your-home">+ List your home</a></section>
+    <h2 class="hmh2">Messages</h2>
+    ${HM.threads === null ? `<div class="empty">Loading messages…</div>` : T.length ? `<div class="panel dtmlist">${T.map(trow).join("")}</div>` : `<div class="empty">No messages yet.</div>`}
+    <h2 class="hmh2">My homes</h2>
+    ${!mine ? `<div class="empty">Loading your listings…</div>` : mine.length ? `<div class="panel hmrows">${mine.map(row).join("")}</div>` : `<div class="empty">You haven't listed anything yet. <a href="#list-your-home" style="color:var(--link)">List your home</a></div>`}`;
+}
+function hchatView(){
+  if (!authReady) return `<div class="empty">Loading…</div>`;
+  if (!USER) return needSignIn("mylistings", "Sign in to see your messages", "");
+  hmEnsureThreads();
+  if (HM.threads === null) return `<div class="empty">Loading…</div>`;
+  const t = HM.threads.find(x => x.id === hchatId);
+  if (!t) return `<div class="empty">This conversation isn't available. <a href="#my-listings" style="color:var(--link)">Back to My listings</a></div>`;
+  const other = t.users.find(u => u !== USER.uid), nm = (t.names || {})[other] || "Someone";
+  if (HM.chat.id !== t.id){
+    if (HM.chat.unsub) HM.chat.unsub();
+    HM.chat = {id: t.id, msgs: null, unsub: FB.hmWatchMsgs(t.id, l => { HM.chat.msgs = l; const box = $("#dtMsgs"); if (box && current() === "hchat"){ box.innerHTML = hmMsgsHTML(); box.scrollTop = box.scrollHeight; } }, e => { console.error(e); HM.chat.msgs = []; })};
+  }
+  if (hmIsUnread(t)) FB.hmSeen(t.id, USER.uid).catch(() => {});
+  setTimeout(() => { const box = $("#dtMsgs"); if (box) box.scrollTop = box.scrollHeight; }, 0);
+  return `<section class="dtchat panel">
+    <header class="dtchead"><a class="dtback" href="#my-listings" aria-label="Back to My listings">‹</a>
+      <a class="dtcwho" href="#listing-${esc(t.homeId)}">${t.thumb ? `<img src="${esc(t.thumb)}" alt="">` : `<span class="dtnoimg">${esc(nm.charAt(0).toUpperCase())}</span>`}<span class="hmchwho"><b>${esc(nm)}</b><small>${esc(t.homeTitle || "")}</small></span></a></header>
+    <div class="dtmsgs" id="dtMsgs" aria-live="polite">${hmMsgsHTML()}</div>
+    <form class="dtsend" id="hmSend"><input id="hmText" maxlength="2000" autocomplete="off" placeholder="Message ${esc(nm)}" aria-label="Message"><button class="btn" type="submit">Send</button></form>
+    <p class="dttip">Keep messages on this site. See a place in person before paying, and never pay by gift card or wire transfer.</p></section>`;
+}
+function hmMsgsHTML(){
+  const l = HM.chat.msgs;
+  if (!l) return `<p class="note" style="text-align:center">Loading messages…</p>`;
+  if (!l.length) return `<p class="note" style="text-align:center">No messages yet.</p>`;
+  let last = "";
+  return l.map(x => { const ms = tsMs(x.at) || Date.now(), day = new Date(ms).toDateString(), sep = day !== last ? `<div class="dtday">${new Date(ms).toLocaleDateString("en-CA", {weekday: "long", month: "short", day: "numeric"})}</div>` : ""; last = day;
+    return sep + `<div class="dtmsg${x.from === USER.uid ? " mine" : ""}"><span>${esc(x.text).replace(/\n/g, "<br>")}</span><small>${new Date(ms).toLocaleTimeString("en-CA", {hour: "numeric", minute: "2-digit"})}</small></div>`; }).join("");
+}
+
+/* admin */
+function homesAdminHTML(){
+  if (!HM.adm){ HM.adm = "loading"; Promise.all([FB.hmAll(), FB.dtReports().catch(() => [])]).then(([l, r]) => { HM.adm = {list: l, reports: r.filter(x => String(x.about).startsWith("home:"))}; if (current() === "admin") refreshAdmin(); }).catch(e => { console.error(e); HM.adm = {list: [], reports: [], err: true}; if (current() === "admin") refreshAdmin(); }); }
+  if (HM.adm === "loading") return `<div class="empty">Loading listings…</div>`;
+  const all = HM.adm.list.slice().sort((a, b) => tsMs(b.updatedAt) - tsMs(a.updatedAt)), pend = all.filter(h => h.status === "pending");
+  const R = (h, p) => `<tr><td>${h.thumb ? `<img src="${esc(h.thumb)}" alt="" style="width:56px;height:42px;object-fit:cover;border-radius:8px">` : ""}</td><td><a href="#listing-${esc(h.id)}">${esc(h.title)}</a><br><small>${HM_DEALS[h.deal]} · ${esc(h.type || "")} · ${esc(h.city || "")}</small></td><td>${esc(hmPriceTxt(h))}</td><td>${esc(h.ownerName || "")}</td><td>${tsMs(h.updatedAt) ? new Date(tsMs(h.updatedAt)).toLocaleDateString("en-CA") : ""}</td><td>${esc(h.status)}</td>
+    <td style="white-space:nowrap">${p ? `<button class="linkbtn" type="button" data-hmadm="approved" data-id="${esc(h.id)}">Approve</button> <button class="linkbtn" type="button" data-hmadm="rejected" data-id="${esc(h.id)}">Reject</button> ` : h.status === "approved" ? `<button class="linkbtn" type="button" data-hmadm="rejected" data-id="${esc(h.id)}">Take down</button> ` : ""}<button class="linkbtn" type="button" data-hmadmdel="${esc(h.id)}" style="color:var(--danger)">${HM.arm === "a" + h.id ? "Click again" : "Delete"}</button></td></tr>`;
+  const T = (rows, p) => `<div class="tablewrap"><table class="ctable"><thead><tr><th></th><th>Listing</th><th>Price</th><th>By</th><th>Updated</th><th>Status</th><th></th></tr></thead><tbody>${rows.map(h => R(h, p)).join("")}</tbody></table></div>`;
+  return `${HM.adm.err ? `<p class="formerr">Couldn't load listings. Make sure the new database rules are published.</p>` : ""}
+    <div class="admintools"><span class="note">${pend.length} waiting · ${all.filter(h => h.status === "approved").length} live · customers see them at <a href="#homes">Homes</a></span><button class="btn small ghost" type="button" data-hmadmreload>Refresh</button></div>
+    ${HM.adm.reports.length ? `<h3 style="margin:18px 0 8px">Reports</h3><div class="tablewrap"><table class="ctable"><thead><tr><th>Date</th><th>Listing</th><th>Reason</th><th></th></tr></thead><tbody>${HM.adm.reports.map(r => `<tr><td>${tsMs(r.at) ? new Date(tsMs(r.at)).toLocaleDateString("en-CA") : ""}</td><td><a href="#listing-${esc(r.about.slice(5))}">${esc((all.find(h => h.id === r.about.slice(5)) || {}).title || "Listing")}</a></td><td>${esc(r.reason || "")}${r.text ? `<br><small>${esc(r.text)}</small>` : ""}</td><td><button class="linkbtn" type="button" data-hmrepdis="${esc(r.id)}">Dismiss</button></td></tr>`).join("")}</tbody></table></div>` : ""}
+    <h3 style="margin:18px 0 8px">Waiting for approval</h3>${pend.length ? T(pend, true) : `<p class="note">Nothing waiting.</p>`}
+    <h3 style="margin:18px 0 8px">All listings</h3>${all.length ? T(all.filter(h => h.status !== "pending"), false) : `<p class="note">No listings yet.</p>`}`;
+}
+function hmAfterRender(v){
+  if (v === "homes" && $("#hmMap")) hmInitMap();
+  else if (v === "listing"){ const h = (HM.list || []).find(x => x.id === listingId) || HM.extra[listingId] || (Array.isArray(HM.mine) && HM.mine.find(x => x.id === listingId)); if (h && h.lat != null && $("#hmMini")) hmMiniMap("hmMini", h.lat, h.lng, false); }
+  else if (v === "listhome" && HM.form && HM.form.lat != null && $("#hmFormMap")) hmMiniMap("hmFormMap", HM.form.lat, HM.form.lng, true);
+}
+
+/* clicks, inputs and forms for homes */
+document.addEventListener("click", async ev => {
+  const b = ev.target.closest("button, a[data-hmedit]"); if (!b) return;
+  if (b.dataset.hmf){
+    const F = HM.f, k = b.dataset.hmf, v = b.dataset.v;
+    if (["beds", "baths", "parking"].includes(k)) F[k] = +v;
+    else if (k === "photos") F.photos = !F.photos;
+    else F[k] = F[k].includes(v) ? F[k].filter(x => x !== v) : [...F[k], v];
+    hmRefresh(); return;
+  }
+  if (b.hasAttribute("data-hmclear")){ const s = HM.f.saved; hmDefaultFilters(); HM.f.saved = s; hmRefresh(); return; }
+  if (b.hasAttribute("data-hmsaved")){ if (!USER){ hmToggleSave(""); return; } HM.f.saved = !HM.f.saved; document.querySelectorAll("[data-hmsaved]").forEach(x => x.setAttribute("aria-pressed", HM.f.saved)); hmRefresh(); return; }
+  if (b.hasAttribute("data-hmmaptog")){ HM.mapView = !HM.mapView; const s = $("#hmSplit"); if (s) s.classList.toggle("showmap", HM.mapView); b.textContent = HM.mapView ? "List" : "Map"; b.setAttribute("aria-pressed", HM.mapView); if (HM.mapView) HM.mapSeen = true;
+    if (HM.map) setTimeout(() => { HM.map.invalidateSize(); if (HM.mapView){ if (!HM.view){ const pts = hmFiltered(null, true).filter(h => h.lat != null); if (pts.length) HM.map.fitBounds(L.latLngBounds(pts.map(h => [h.lat, h.lng])).pad(0.2), {maxZoom: 14}); } const bb = HM.map.getBounds(); HM.bounds = {n: bb.getNorth(), s: bb.getSouth(), e: bb.getEast(), w: bb.getWest()}; hmRefresh(true); } }, 60); return; }
+  if (b.dataset.hmsave != null){ ev.preventDefault(); hmToggleSave(b.dataset.hmsave); return; }
+  if (b.dataset.hmg != null){ HM.gi = +b.dataset.hmg; const h = (HM.list || []).find(x => x.id === listingId) || HM.extra[listingId] || (Array.isArray(HM.mine) && HM.mine.find(x => x.id === listingId)), g = $("#hmGal"); if (h && g) g.outerHTML = hmGalleryHTML(h); return; }
+  if (b.hasAttribute("data-hmshare")){ const url = location.origin + location.pathname + "#listing-" + listingId; try { if (navigator.share){ await navigator.share({url}); return; } await navigator.clipboard.writeText(url); toast("Link copied"); } catch (_) {} return; }
+  if (b.dataset.hmedit){ ev.preventDefault(); HM.editId = b.dataset.hmedit; HM.form = null; go("listhome"); return; }
+  if (b.dataset.hmfeat){ const x = b.dataset.hmfeat, L = HM.form.feats; HM.form.feats = L.includes(x) ? L.filter(y => y !== x) : [...L, x]; $("#hmFeats").innerHTML = hmFeatsHTML(); return; }
+  if (b.dataset.hmphx != null){ HM.form.photos.splice(+b.dataset.hmphx, 1); HM.form.changed = true; $("#hmPhotos").innerHTML = hmPhotoStrip(); return; }
+  if (b.dataset.hmphmain != null){ const [x] = HM.form.photos.splice(+b.dataset.hmphmain, 1); HM.form.photos.unshift(x); HM.form.changed = true; $("#hmPhotos").innerHTML = hmPhotoStrip(); return; }
+  if (b.hasAttribute("data-hmfind")){ hmFind($("#hmForm")); return; }
+  if (b.dataset.hmclose || b.dataset.hmdel || b.dataset.hmreopen){
+    const id = b.dataset.hmclose || b.dataset.hmdel || b.dataset.hmreopen, kind = b.dataset.hmclose ? "c" : b.dataset.hmdel ? "d" : "r";
+    if (kind !== "r" && HM.arm !== kind + id){ HM.arm = kind + id; render(); return; }
+    HM.arm = "";
+    try { if (kind === "d") await FB.hmDelete(id); else await FB.hmSetStatus(id, kind === "c" ? "closed" : "pending"); HM.mine = null; HM.list = HM.list ? HM.list.filter(x => x.id !== id) : HM.list; toast(kind === "d" ? "Listing deleted" : kind === "c" ? "Listing closed" : "Sent for approval again"); render(); }
+    catch (e) { console.error(e); toast("That didn't go through. Please try again."); }
+    return;
+  }
+  if (b.dataset.hmreport){ dtReportForm("home:" + b.dataset.hmreport); return; }
+  if (b.dataset.hmrepdis){ try { await FB.dtDelReport(b.dataset.hmrepdis); HM.adm.reports = HM.adm.reports.filter(r => r.id !== b.dataset.hmrepdis); refreshAdmin(); } catch (e) { toast("Couldn't dismiss it."); } return; }
+  if (b.hasAttribute("data-hmadmreload")){ HM.adm = null; refreshAdmin(); return; }
+  if (b.dataset.hmadm){
+    const id = b.dataset.id, s = b.dataset.hmadm;
+    try { await FB.hmSetStatus(id, s, "", true); const h = HM.adm.list.find(x => x.id === id); if (h) h.status = s; HM.list = null; toast(s === "approved" ? "Approved. It's live now." : "Taken down"); refreshAdmin(); } catch (e) { console.error(e); toast("Couldn't update it. Check the database rules."); }
+    return;
+  }
+  if (b.dataset.hmadmdel){
+    const id = b.dataset.hmadmdel; if (HM.arm !== "a" + id){ HM.arm = "a" + id; refreshAdmin(); return; }
+    HM.arm = ""; try { await FB.hmDelete(id); HM.adm.list = HM.adm.list.filter(x => x.id !== id); HM.list = null; toast("Listing deleted"); refreshAdmin(); } catch (e) { console.error(e); toast("Couldn't delete it."); }
+  }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "hmPhIn"){ hmAddPhotos(t.files); return; }
+  if (t.hasAttribute && t.hasAttribute("data-hmmove")){ HM.move = t.checked; hmRefresh(true); return; }
+  if (t.name === "deal" && t.closest("#hmForm")){ const hint = $("#hmPriceHint"); if (hint) hint.textContent = t.value === "sale" ? "asking price" : "per month"; return; }
+  if (t.dataset && t.dataset.hmc){ const box = $("#hmCalc"); if (!box) return; const v = k => +box.querySelector(`[data-hmc="${k}"]`).value; const out = $("#hmCalcOut"); out.innerHTML = hmCalc(+out.dataset.price, v("down"), v("rate"), v("years")); return; }
+  const s = t.closest && t.closest("[data-hms]"); if (!s) return;
+  const k = s.dataset.hms;
+  if (k === "sort"){ HM.sort = s.value; if ($("#hmResults")) $("#hmResults").innerHTML = hmResultsHTML(); return; }
+  HM.f[k] = +s.value; if (HM.f.min && HM.f.max && HM.f.min > HM.f.max){ if (k === "min") HM.f.max = 0; else HM.f.min = 0; } hmRefresh();
+});
+document.addEventListener("input", e => { if (e.target.dataset && e.target.dataset.hmc === "rate"){ const box = $("#hmCalc"), out = $("#hmCalcOut"); if (!box || !out) return; const v = k => +box.querySelector(`[data-hmc="${k}"]`).value; out.innerHTML = hmCalc(+out.dataset.price, v("down"), v("rate"), v("years")); } });
+document.addEventListener("submit", async ev => {
+  const f = ev.target;
+  if (f.id === "hmForm"){ ev.preventDefault(); hmSave(f); return; }
+  if (f.id === "hmContact"){
+    ev.preventDefault(); const text = $("#hmCText").value.trim(); if (!text) return;
+    const h = (HM.list || []).find(x => x.id === listingId) || HM.extra[listingId]; if (!h) return;
+    const btn = f.querySelector("button"); btn.disabled = true; btn.textContent = "Sending…";
+    try { const myName = (PROFILE && PROFILE.name ? PROFILE.name.split(" ")[0] : "") || (USER.displayName || "").split(" ")[0] || "A member";
+      const id = await FB.hmOpenThread(h, USER.uid, myName); await FB.hmSend(id, USER.uid, text); toast("Message sent"); go("hchat", id); }
+    catch (e) { console.error(e); btn.disabled = false; btn.textContent = "Send message"; toast("Your message wasn't sent. Please try again."); }
+    return;
+  }
+  if (f.id === "hmSend"){
+    ev.preventDefault(); const inp = $("#hmText"), text = inp.value.trim(); if (!text || !HM.chat.id) return;
+    inp.value = ""; try { await FB.hmSend(HM.chat.id, USER.uid, text); } catch (e) { console.error(e); inp.value = text; toast("Your message wasn't sent. Please try again."); }
+  }
+});
 
 /* ---- My orders ---- */
 function startMyOrders(){
@@ -4286,7 +4980,7 @@ function adminView(){
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
   return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them.</p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
+    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
 }
@@ -4298,6 +4992,7 @@ function adminBody(){
   if (ADM.tab === "providers") return providersAdminHTML();
   if (ADM.tab === "events") return eventsAdminHTML();
   if (ADM.tab === "dating") return datingAdminHTML();
+  if (ADM.tab === "homes") return homesAdminHTML();
   if (!ADM.orders || !ADM.users) return `<div class="empty">Loading…</div>`;
   return ADM.tab === "customers" ? customersHTML() : adminOrdersHTML();
 }
@@ -5214,6 +5909,7 @@ function onFirebaseReady(api){
       if (ADM.unsubB){ ADM.unsubB(); ADM.unsubB = null; } if (MY.unsubB){ MY.unsubB(); MY.unsubB = null; } MY.bookings = null;
       ADM.orders = ADM.users = ADM.bookings = null; ADM.error = null; ADM.notes = {};
       dtReset(); DT.adm = null;
+      if (HM.unsubT) HM.unsubT(); HM.unsubT = null; HM.tuid = null; HM.threads = null; HM.mine = null; HM.adm = null; HM.form = null;
       PED = {id:null, data:null, photo:null};
     }
     authReady = true; updateAcct();
@@ -5360,6 +6056,31 @@ window.SHOP_FB = {
       tx.update(bref, {status: "Cancelled", updatedAt: serverTimestamp(), history: arrayUnion({status: "Cancelled", by: "customer", at: new Date().toISOString()})});
     });
   },
+  /* v71 homes */
+  hmApproved: async () => (await getDocs(query(collection(db, "homes"), where("status", "==", "approved"), limit(500)))).docs.map(withId),
+  hmMine: async uid => (await getDocs(query(collection(db, "homes"), where("uid", "==", uid)))).docs.map(withId),
+  hmAll: async () => (await getDocs(collection(db, "homes"))).docs.map(withId),
+  async hmGet(id){ const s = await getDoc(doc(db, "homes", id)); return s.exists() ? withId(s) : null; },
+  hmNewId: () => doc(collection(db, "homes")).id,
+  hmSave: (id, data, isNew) => setDoc(doc(db, "homes", id), {...data, ...(isNew ? {createdAt: serverTimestamp()} : {}), updatedAt: serverTimestamp()}, {merge: true}),
+  hmSetStatus: (id, status, note, adm) => updateDoc(doc(db, "homes", id), {status, ...(adm ? {adminNote: note || "", ...(status === "approved" ? {approvedAt: serverTimestamp()} : {})} : {}), updatedAt: serverTimestamp()}),
+  hmSavePhoto: (id, i, data, uid) => setDoc(doc(db, "homePhotos", id + "_" + i), {homeId: id, uid, i, data}),
+  hmDelPhoto: (id, i) => deleteDoc(doc(db, "homePhotos", id + "_" + i)),
+  async hmGetPhoto(id, i){ const s = await getDoc(doc(db, "homePhotos", id + "_" + i)); return s.exists() ? s.data().data : null; },
+  async hmDelete(id){ for (let i = 0; i < 8; i++){ try { await deleteDoc(doc(db, "homePhotos", id + "_" + i)); } catch (_) {} } await deleteDoc(doc(db, "homes", id)); },
+  hmSetSaved: (uid, ids) => setDoc(doc(db, "users", uid), {savedHomes: ids}, {merge: true}),
+  async hmOpenThread(h, me, myName){
+    const id = h.id + "_" + me, ref = doc(db, "threads", id), s = await getDoc(ref);
+    if (!s.exists()) await setDoc(ref, {homeId: h.id, owner: h.uid, users: [me, h.uid], names: {[me]: myName, [h.uid]: h.ownerName || "Lister"}, homeTitle: h.title || "", thumb: h.thumb || "", status: "open", createdAt: serverTimestamp(), lastAt: serverTimestamp(), lastText: "", lastFrom: "", seen: {}});
+    return id;
+  },
+  hmWatchThreads: (uid, cb, err) => onSnapshot(query(collection(db, "threads"), where("users", "array-contains", uid)), s => cb(s.docs.map(withId)), err),
+  hmWatchMsgs: (id, cb, err) => onSnapshot(query(collection(db, "threads", id, "messages"), orderBy("at", "asc"), limit(300)), s => cb(s.docs.map(d => ({id: d.id, ...d.data({serverTimestamps: "estimate"})}))), err),
+  async hmSend(id, me, text){
+    await addDoc(collection(db, "threads", id, "messages"), {from: me, text, at: serverTimestamp()});
+    await updateDoc(doc(db, "threads", id), {lastText: text.slice(0, 120), lastFrom: me, lastAt: serverTimestamp(), ["seen." + me]: Date.now() + 5000});
+  },
+  hmSeen: (id, me) => updateDoc(doc(db, "threads", id), {["seen." + me]: Date.now() + 5000}),
   /* v70 dating */
   async dtGetMe(uid){ const s = await getDoc(doc(db, "dating", uid)); return s.exists() ? withId(s) : null; },
   dtSaveMe: (uid, data, isNew) => setDoc(doc(db, "dating", uid), {...data, uid, ...(isNew ? {createdAt: serverTimestamp()} : {}), updatedAt: serverTimestamp()}, {merge: true}),
