@@ -2356,7 +2356,7 @@ function validate(form){
 
 document.addEventListener("submit", async e => {
   const f = e.target;
-  if (f.id === "searchForm"){ e.preventDefault(); query = $("#q").value; toggleSearch(false); if (!["home","new","used","services","events"].includes(current())) go("home"); else { render(); window.scrollTo(0,0); } return; }
+  if (f.id === "searchForm"){ e.preventDefault(); query = $("#q").value; toggleSearch(false); if (!["home","new","used","services","events"].includes(current())) go("home", null, true); else { render(); window.scrollTo(0,0); } return; }
   if (f.id === "orderForm"){
     e.preventDefault();
     const msg = $("#orderMsg"), err = validate(f);
@@ -2564,8 +2564,9 @@ function viewFromHash(){
 }
 let currentView = viewFromHash();
 function current(){ return views[currentView] ? currentView : "home"; }
-function go(v, id){
+function go(v, id, keepQuery){
   if (!views[v]) v = "home";
+  if (!keepQuery){ if (query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } const gs = $("#gsearch"); if (gs && !gs.hidden) toggleSearch(false); }
   if (v === "item") itemId = id;
   if (v === "service" && id != null && id !== serviceId){ serviceId = id; resetBooking(); }
   if (v === "provider" && id != null) providerId = id;
@@ -2672,7 +2673,7 @@ document.addEventListener("change", e => {
   }
 });
 window.addEventListener("hashchange", () => { const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, prevEv = eventId, v = viewFromHash();
-  if (v !== currentView && ["home","new","used","services","events"].includes(v) && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
+  if (v !== currentView && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
 /* =========================================================
    ACCOUNTS, ORDERS AND ADMIN (Firebase)
    ========================================================= */
@@ -3235,7 +3236,7 @@ function eventsView(){
   const sort = `<label class="sortlbl hsort">Sort by
         <select data-evs="sort"><option value="soon">Soonest first</option><option value="price"${EVF.sort === "price" ? " selected" : ""}>Lowest price</option></select>
       </label>`;
-  const hero = `<section class="pagehero lhero events"><div class="phtext"><h1>Events</h1><p>Concerts, classes, meetups and more, in person or online. Reserve a spot or get tickets.</p></div>${EVENTS.length ? sort : ""}</section>`;
+  const hero = `<section class="pagehero lhero events"><div class="phtext"><h1>Events</h1><p>Concerts, classes, meetups and more, in person or online. Reserve a spot or get tickets.</p></div>${sort}</section>`;
   if (!eventsLoaded && !fbFailed) return hero + `<div class="empty">Loading events…</div>`;
   const n = evFiltered().length;
   return hero + `<div class="qbar" id="qbar"><div class="qrow qonly"><button type="button" class="morefl" id="fltBtn" data-fopen aria-expanded="${fltOpen}" aria-controls="fltPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>More filters <span class="fltbadge" id="fltBadge">${evFltCount() || ""}</span></button></div></div>
