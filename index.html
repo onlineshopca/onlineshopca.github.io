@@ -1307,7 +1307,7 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 /* v61: search icon at the top on phones; bottom bar has 4 tabs; highlight stays inside the bar */
 @media (max-width:700px){
   .gtools #searchBtn{display:grid!important}
-  .tabbar{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .tabbar{grid-template-columns:repeat(5,minmax(0,1fr))!important}
   .tabbar a[aria-current="page"]{height:52px!important;min-height:52px!important;transform:none!important;margin:0 4px;border-radius:26px!important}
   .gsearch .search{padding:12px 16px}
   .gsearch .search .btn{padding:0 16px}
@@ -1347,6 +1347,152 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 #gbar .gsearch .search input:focus{background:#fff!important;border-color:#0d2f75!important;outline:none}
 #gbar .gsearch .search .btn{height:46px;border-radius:999px}
 @media (max-width:700px){#gbar .gsearch .search{padding:10px 16px 12px!important;gap:8px}#gbar .gsearch .search>svg{display:none}#gbar .gsearch .search input{height:44px}#gbar .gsearch .search .btn{height:44px;padding:0 16px}}
+
+/* v65: Events */
+.evhero{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;background:#fff;border-radius:28px;padding:36px 40px;box-shadow:0 1px 2px rgba(13,22,51,.04),0 10px 30px rgba(13,22,51,.07);margin-top:8px}
+.evhero h1{font-size:clamp(2rem,4.2vw,3.2rem);letter-spacing:-.025em;line-height:1.05;margin:6px 0 10px}
+.evhero p{color:#6e6e73;max-width:620px;font-size:1.05rem}
+.evhero .eyebrow{color:#0d2f75;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
+.evhart svg{width:150px;height:150px;fill:none;stroke:#0d2f75;stroke-width:1.1;opacity:.9;transform:rotate(-12deg)}
+.evsearch{display:flex;gap:8px;align-items:center;margin-top:18px;max-width:640px;background:#f5f5f7;border-radius:999px;padding:6px 6px 6px 16px}
+.evsearch>span svg{width:18px;height:18px;fill:none;stroke:#6e6e73;stroke-width:2}
+.evsearch input{flex:1;border:0!important;background:transparent!important;box-shadow:none!important;height:40px;font-size:1rem;padding:0 4px;min-width:0}
+.evsearch input:focus{outline:none}
+.evsearch .btn{height:42px;border-radius:999px;padding:0 20px}
+.evfilters{position:sticky;top:calc(var(--hdrh,86px));z-index:5;background:rgba(245,245,247,.92);backdrop-filter:saturate(1.6) blur(14px);-webkit-backdrop-filter:saturate(1.6) blur(14px);margin:16px -8px 0;padding:10px 8px;display:grid;gap:8px;border-bottom:1px solid rgba(0,0,0,.05)}
+.evrow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;align-items:center}
+.evrow::-webkit-scrollbar{display:none}
+.evchip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:.9rem;font-weight:500;white-space:nowrap;padding:8px 14px;border-radius:999px;border:1px solid rgba(0,0,0,.12);background:#fff;color:#1d1d1f;cursor:pointer}
+.evchip svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.evchip:hover{background:#f5f5f7}
+.evchip[aria-pressed="true"]{background:#1d1d1f;color:#fff;border-color:#1d1d1f}
+.evsel{gap:10px;flex-wrap:nowrap}
+.evsel label{flex:0 0 auto;display:flex;align-items:center;gap:6px;font-size:.82rem;color:#6e6e73}
+.evsel select{height:36px;border-radius:999px;padding:0 30px 0 12px;font-size:.88rem;background-color:#fff;border:1px solid rgba(0,0,0,.12);color:#1d1d1f}
+.evsec{margin-top:26px}
+.evsec>h2{font-size:1.45rem;margin:0 0 12px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.evday>h2{position:relative}
+.evday>h2 small{font-size:.95rem;font-weight:500;color:#6e6e73}
+.evgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.evcard{background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 1px 2px rgba(13,22,51,.05),0 8px 24px rgba(13,22,51,.07);display:flex;flex-direction:column;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.evcard:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(13,22,51,.06),0 16px 36px rgba(13,22,51,.12)}
+.evimg{position:relative;display:block;aspect-ratio:16/10;background:#eef1f7;overflow:hidden}
+.evimg img{width:100%;height:100%;object-fit:cover;display:block}
+.evph{display:grid;place-items:center;width:100%;height:100%}
+.evph svg{width:56px;height:56px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;opacity:.95}
+body .evph.c0{background-image:linear-gradient(135deg,#0d2f75,#3b6fd8)!important}body .evph.c1{background-image:linear-gradient(135deg,#b4235a,#f0628a)!important}body .evph.c2{background-image:linear-gradient(135deg,#0f6b5c,#3ac2a2)!important}
+body .evph.c3{background-image:linear-gradient(135deg,#5b2bb5,#9b6cf0)!important}body .evph.c4{background-image:linear-gradient(135deg,#c2410c,#f59e0b)!important}body .evph.c5{background-image:linear-gradient(135deg,#1e3a5f,#4b8bbe)!important}
+.evdate{position:absolute;left:12px;top:12px;background:#fff;border-radius:14px;padding:6px 10px;display:grid;justify-items:center;line-height:1.05;box-shadow:0 4px 14px rgba(0,0,0,.15);min-width:52px}
+.evdate small{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#b4235a}
+.evdate small:last-child{color:#6e6e73}
+.evdate b{font-size:1.45rem;color:#1d1d1f}
+.evprice{position:absolute;right:12px;bottom:12px;background:rgba(29,29,31,.82);color:#fff;font-size:.82rem;font-weight:600;padding:5px 11px;border-radius:999px;backdrop-filter:blur(6px)}
+.evprice.free{background:#1a7f37}
+.evbody{padding:14px 16px 16px;display:grid;gap:5px;align-content:start}
+.evcat{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#0d2f75}
+.evcat svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.evcat.light{color:#fff}
+.evbody h3{font-size:1.08rem;line-height:1.3;margin:2px 0}
+.evbody h3 a{color:#1d1d1f;text-decoration:none}
+.evline{display:flex;gap:7px;align-items:center;color:#6e6e73;font-size:.88rem;margin:0}
+.evline svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8}
+.evtag{justify-self:start;display:inline-block;font-size:.76rem;font-weight:700;padding:4px 10px;border-radius:999px;background:#f5f5f7;color:#1d1d1f;margin-top:4px}
+.evtag.hot{background:#fff1e6;color:#b45309}
+.evtag.sold{background:#fde8ea;color:#b4232f}
+.evfeats{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.evfeat{position:relative;display:block;min-height:300px;border-radius:26px;overflow:hidden;color:#fff;text-decoration:none;box-shadow:0 12px 34px rgba(13,22,51,.18)}
+.evfbg,.evfbg img,.evfbg .evph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+body .evfeat .evfshade{position:absolute;inset:0;background-image:linear-gradient(180deg,rgba(0,0,0,0) 20%,rgba(0,0,0,.8))!important}
+.evftext{position:absolute;left:0;right:0;bottom:0;padding:22px;display:grid;gap:4px}
+.evftext b{font-size:1.6rem;line-height:1.15;letter-spacing:-.015em}
+.evftext>span{font-size:.95rem;opacity:.92}
+.evfcta{display:flex!important;justify-content:space-between;align-items:center;margin-top:10px;opacity:1!important}
+.evfcta i{font-style:normal;font-weight:700;background:rgba(255,255,255,.18);padding:6px 12px;border-radius:999px}
+.evfcta em{font-style:normal;font-weight:600;background:#fff;color:#1d1d1f;padding:9px 16px;border-radius:999px}
+.evempty{display:grid;justify-items:center;gap:10px;text-align:center;background:#fff;border-radius:24px;padding:46px 20px;margin-top:20px;color:#6e6e73}
+.evempty svg{width:56px;height:56px;fill:none;stroke:#0d2f75;stroke-width:1.4}
+.evempty b{font-size:1.25rem;color:#1d1d1f}
+.evpage{margin-top:8px}
+.evcover{position:relative;border-radius:28px;overflow:hidden;height:min(46vw,420px);background:#0d2f75}
+.evcbg,.evcbg img,.evcbg .evph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(28px) saturate(1.3);transform:scale(1.15);opacity:.8}
+.evcimg{position:relative;display:block;height:100%;max-width:760px;margin:0 auto}
+.evcimg img{width:100%;height:100%;object-fit:cover;display:block}.evcimg .evph{width:100%;height:100%;display:grid}.evcimg .evph svg{width:96px;height:96px}
+.evlayout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:28px;margin-top:24px;align-items:start}
+.evmain h1{font-size:clamp(1.8rem,3.6vw,2.7rem);letter-spacing:-.02em;line-height:1.1;margin:8px 0 6px}
+.evsum{font-size:1.1rem;color:#6e6e73;margin:0 0 6px}
+.evfacts{display:grid;gap:14px;margin:18px 0;background:#fff;border-radius:22px;padding:18px 20px}
+.evfacts>div{display:flex;gap:14px;align-items:flex-start}
+.evfacts>div>svg{width:22px;height:22px;flex:none;fill:none;stroke:#0d2f75;stroke-width:1.8;margin-top:2px}
+.evfacts span{display:grid;gap:2px}
+.evfacts small{color:#6e6e73;font-size:.9rem}
+.evfacts a{font-size:.9rem;color:#0d2f75}
+.evjump{display:none}
+.evsect{margin-top:22px}
+.evsect h2{font-size:1.3rem;margin-bottom:10px}
+.evbox{position:sticky;top:calc(var(--hdrh,86px) + 16px);background:#fff;border-radius:24px;padding:20px;box-shadow:0 1px 2px rgba(13,22,51,.05),0 12px 32px rgba(13,22,51,.1);display:grid;gap:12px}
+.evbox h2{font-size:1.25rem;margin:0}
+.evleft{color:#b45309;font-weight:600;margin:0;font-size:.9rem}
+.evtix{display:grid;gap:10px}
+.evtrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border:1px solid rgba(0,0,0,.08);border-radius:16px}
+.evtrow>span:first-child{display:grid;gap:2px}
+.evtrow small{color:#6e6e73}
+.evtrow .stepper{width:120px;min-height:38px;border-width:1px}
+.evtrow .stepper button{border:0;background:transparent;font-size:1.2rem;cursor:pointer;height:38px}
+.evtrow .stepper button:disabled{opacity:.3;cursor:default}
+.evtrow .stepper output{text-align:center;font-weight:600}
+.evtotal{display:flex;justify-content:space-between;align-items:center;padding:4px 2px;font-size:1.05rem}
+.evtotal b{font-size:1.3rem}
+.evform{display:grid;gap:10px}
+.evform label{display:grid;gap:4px;font-size:.88rem;color:#6e6e73}
+.evform .btn{width:100%;justify-content:center;height:48px;border-radius:999px}
+.evdone{display:grid;gap:8px;justify-items:center;text-align:center}
+.evok{width:56px;height:56px;border-radius:50%;background:#1a7f37;color:#fff;display:grid;place-items:center;font-size:1.8rem;font-weight:700}
+.evtnum{font-size:1.6rem;font-weight:800;letter-spacing:.02em;margin:0;color:#0d2f75}
+.evdone .btn{width:100%;justify-content:center}
+.evmylist{display:grid;gap:12px}
+.evmyt{display:grid;grid-template-columns:150px 1fr;gap:14px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgba(13,22,51,.05),0 8px 22px rgba(13,22,51,.06)}
+.evmyimg{position:relative;display:block;min-height:130px;background:#eef1f7}
+.evmyimg img,.evmyimg .evph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.evmyimg>svg{width:40px;height:40px;margin:40px auto;display:block;fill:none;stroke:#0d2f75}
+.evmyb{padding:12px 14px 12px 0;display:grid;gap:4px;align-content:center}
+.evmyb b a{color:#1d1d1f;text-decoration:none}
+.evmya{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.evadmlist{display:grid;gap:10px}
+.evadmrow{display:grid;grid-template-columns:110px 1fr auto;gap:14px;align-items:center;background:#fff;border-radius:18px;padding:10px;border:1px solid rgba(0,0,0,.06)}
+.evadmimg{display:block;height:70px;border-radius:12px;overflow:hidden;background:#eef1f7}
+.evadmimg img,.evadmimg .evph{width:100%;height:100%;object-fit:cover}
+.evadmimg .evph svg{width:30px;height:30px}
+.evadmrow>span:nth-child(2){display:grid;gap:3px}
+.evadmrow small{color:#6e6e73}
+.evadmact{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.homegrid.evhome .evcard{height:100%}
+@media (max-width:900px){.evlayout{grid-template-columns:1fr}.evbox{position:static}.evjump{display:inline-flex;width:100%;justify-content:center;gap:8px;height:48px;border-radius:999px;margin-top:4px}.evjump svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8}}
+@media (max-width:700px){
+  .evhero{grid-template-columns:1fr;padding:24px 20px;border-radius:24px}
+  .evhart{display:none}
+  .evfilters{top:70px;margin:12px -16px 0;padding:10px 16px}
+  .evsel label span{display:none}
+  .evgrid{grid-template-columns:1fr;gap:14px}
+  .evcard{flex-direction:row;border-radius:20px}
+  .evcard .evimg{flex:0 0 132px;aspect-ratio:auto;min-height:150px}
+  .evcard .evprice{right:8px;bottom:8px;font-size:.74rem;padding:3px 8px}
+  .evcard .evdate{left:8px;top:8px;min-width:44px;padding:5px 8px;border-radius:12px}
+  .evcard .evdate b{font-size:1.15rem}
+  .evbody{padding:12px 14px}
+  .evbody h3{font-size:1rem}
+  .evline{font-size:.82rem}
+  .homegrid.evhome .evcard{flex-direction:column}
+  .homegrid.evhome .evcard .evimg{flex:none;aspect-ratio:16/10;min-height:0}
+  .evfeats{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:86%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:0 16px 6px}
+  .evfeats::-webkit-scrollbar{display:none}
+  .evfeat{min-height:260px;scroll-snap-align:start}
+  .evftext b{font-size:1.3rem}
+  .evcover{height:220px;border-radius:22px}
+  .evmyt{grid-template-columns:110px 1fr}
+  .evadmrow{grid-template-columns:70px 1fr}.evadmact{grid-column:1/-1;justify-content:flex-start}
+}
+.evfeat .evph{place-items:start end;padding:22px}.evfeat .evph svg{width:70px;height:70px;opacity:.55}
+@media (max-width:700px){.evfeat .evph svg{display:none}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1359,6 +1505,7 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
       <a href="#new-items" data-tab="new" data-menu="new">Brand New</a>
       <a href="#used-items" data-tab="used" data-menu="used">Used</a>
       <a href="#services" data-tab="services" data-menu="services">Services</a>
+      <a href="#events" data-tab="events">Events</a>
       <a href="#contact-us" data-tab="contact" data-menu="support">Support</a>
       <a href="#admin" data-tab="admin" id="navAdmin" hidden>Admin</a>
     </nav>
@@ -1394,7 +1541,7 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 
 <footer><div class="wrap">
   <nav class="footnav" aria-label="Footer">
-    <div><b>Shop</b><a href="#new-items">Brand New</a><a href="#used-items">Used</a><a href="#services">Services &amp; classes</a></div>
+    <div><b>Shop</b><a href="#new-items">Brand New</a><a href="#used-items">Used</a><a href="#services">Services &amp; classes</a><a href="#events">Events</a></div>
     <div><b>Account</b><a href="#account">Sign in</a><a href="#my-orders">My orders &amp; bookings</a><a href="#cart">Bag</a></div>
     <div><b>Help</b><a href="#contact-us">Contact us</a><a href="#contact-us">Pickup &amp; delivery</a><a href="#contact-us">Sell us an item</a></div>
     <div><b>Follow</b><a href="https://www.instagram.com/online.shop.on.ca/" target="_blank" rel="noopener">@online.shop.on.ca</a><a href="https://www.instagram.com/online.shop.Used.on.ca/" target="_blank" rel="noopener">@online.shop.Used.on.ca</a></div>
@@ -1406,6 +1553,7 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
   <a href="#new-items" data-tab="new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="8" cy="8" r="1.6"/></svg>Brand New</a>
   <a href="#used-items" data-tab="used"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 0 1 14-3l2 2M20 15a8 8 0 0 1-14 3l-2-2"/><path d="M20 3v5h-5M4 21v-5h5"/></svg>Used</a>
   <a href="#services" data-tab="services"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Services</a>
+  <a href="#events" data-tab="events"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12"/></svg>Events</a>
 </nav>
 <a class="bagbar" id="bagBar" href="#cart"><span class="bbic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2"/></svg></span><span class="bbtxt" id="bagTxt">Your bag is empty</span><span class="bbgo">Checkout ›</span></a>
 <div class="toast" id="toast" hidden></div>
@@ -1988,7 +2136,7 @@ const views = {
     const q = query.trim();
     if (q){ const svcs = SERVICES.filter(s => [s.title, s.summary, s.category, s.providerName, s.description].join(" ").toLowerCase().includes(q.toLowerCase())), items = filtered();
       return `<div class="sectionhead"><h1>Results for “${esc(q)}”</h1><button class="linkbtn" data-clear>Clear search</button></div>
-        ${items.length || !svcs.length ? productGrid(items) : ""}${svcs.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Services</h2></div>${serviceGrid(svcs)}` : ""}`; }
+        ${items.length || (!svcs.length && !EVENTS.some(e => evMatchQ(e, q.toLowerCase()))) ? productGrid(items) : ""}${svcs.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Services</h2></div>${serviceGrid(svcs)}` : ""}${(() => { const evs = EVENTS.filter(e => evMatchQ(e, q.toLowerCase())); return evs.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Events</h2></div><div class="evgrid">${evs.map(evCardHTML).join("")}</div>` : ""; })()}`; }
     const nNew = PRODUCTS.filter(p => p.condition === "new"), nUsed = PRODUCTS.filter(p => p.condition === "used"), loading = feedState.new === "loading";
     const soon = (icon, title, text) => `<div class="soon"><span class="soonic">${svgI(icon)}</span><b>${title}</b><span>${text}</span></div>`;
     return `
@@ -2001,8 +2149,12 @@ const views = {
         ${viewAll("used", "#used-items", nUsed.length ? nUsed.length + " item" + (nUsed.length === 1 ? "" : "s") : "Coming soon", "View all used")}</div></section>
     <section class="hsec"><div class="hhead"><h2>Services &amp; classes</h2><span>Learn with a local expert, online or in person.</span></div>
       <div class="homegrid">${SERVICES.length ? serviceCards(SERVICES.slice(0, 3)) : soon("monitor", "Services are coming soon", servicesLoaded || fbFailed ? "Computer lessons, online training and expert help. Tell us what you'd like to learn." : "Loading services…")}
-        ${viewAll("svc", "#services", SERVICES.length ? "Book a time" : "Online or in person", "View all services")}</div></section>`;
+        ${viewAll("svc", "#services", SERVICES.length ? "Book a time" : "Online or in person", "View all services")}</div></section>
+    ${EVENTS.length ? `<section class="hsec"><div class="hhead"><h2>Events</h2><span>Things to do around Richmond Hill, Toronto and online.</span></div>
+      <div class="homegrid evhome">${EVENTS.slice(0, 4).map(evCardHTML).join("")}${viewAll("svc", "#events", EVENTS.length + " upcoming", "View all events")}</div></section>` : ""}`;
   },
+  events(){ return eventsView(); },
+  event(){ return eventView(); },
   new(){ return listView("new"); },
   used(){ return listView("used"); },
   cart(){
@@ -2204,7 +2356,7 @@ function validate(form){
 
 document.addEventListener("submit", async e => {
   const f = e.target;
-  if (f.id === "searchForm"){ e.preventDefault(); query = $("#q").value; toggleSearch(false); if (!["home","new","used","services"].includes(current())) go("home"); else { render(); window.scrollTo(0,0); } return; }
+  if (f.id === "searchForm"){ e.preventDefault(); query = $("#q").value; toggleSearch(false); if (!["home","new","used","services","events"].includes(current())) go("home"); else { render(); window.scrollTo(0,0); } return; }
   if (f.id === "orderForm"){
     e.preventDefault();
     const msg = $("#orderMsg"), err = validate(f);
@@ -2379,7 +2531,7 @@ function toggleSearch(force){
   p.hidden = !open; $("#searchBtn").setAttribute("aria-expanded", String(open));
   if (open){
     
-    const v = current(), ph = {new: "Search brand new items", used: "Search used items", services: "Search services"}[v] || "Search everything: new, used and services";
+    const v = current(), ph = {new: "Search brand new items", used: "Search used items", services: "Search services", events: "Search events"}[v] || "Search everything: items, services and events";
     $("#q").placeholder = ph; $("#q").setAttribute("aria-label", ph);
     megaClose(); setTimeout(() => $("#q").focus(), 30);
   }
@@ -2398,15 +2550,16 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent"};
+const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
-let itemId = null, serviceId = null, providerId = null, PROVIDERS = [], providersLoaded = false;
+let itemId = null, serviceId = null, providerId = null, eventId = null, PROVIDERS = [], providersLoaded = false;
 function viewFromHash(){
   const h = decodeURIComponent(location.hash.slice(1));
   if (h.startsWith("item-")){ itemId = h.slice(5); return "item"; }
   if (h.startsWith("service-")){ serviceId = h.slice(8); return "service"; }
   if (h.startsWith("provider-")){ providerId = h.slice(9); return "provider"; }
+  if (h.startsWith("event-")){ eventId = h.slice(6); return "event"; }
   return VIEW_OF[h] || "home";
 }
 let currentView = viewFromHash();
@@ -2416,8 +2569,9 @@ function go(v, id){
   if (v === "item") itemId = id;
   if (v === "service" && id != null && id !== serviceId){ serviceId = id; resetBooking(); }
   if (v === "provider" && id != null) providerId = id;
+  if (v === "event" && id != null) eventId = id;
   currentView = v; render(); window.scrollTo(0,0);
-  const slug = v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : SLUG[v];
+  const slug = v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : SLUG[v];
   try { if (location.hash.slice(1) !== slug) location.hash = slug; } catch(_) {}
 }
 document.addEventListener("click", e => {
@@ -2427,6 +2581,7 @@ document.addEventListener("click", e => {
   if (h.startsWith("item-")){ e.preventDefault(); go("item", decodeURIComponent(h.slice(5))); return; }
   if (h.startsWith("service-")){ e.preventDefault(); go("service", decodeURIComponent(h.slice(8))); return; }
   if (h.startsWith("provider-")){ e.preventDefault(); go("provider", decodeURIComponent(h.slice(9))); return; }
+  if (h.startsWith("event-")){ e.preventDefault(); go("event", decodeURIComponent(h.slice(6))); return; }
   const v = VIEW_OF[h];
   if (!v) return;
   e.preventDefault(); go(v);
@@ -2458,7 +2613,7 @@ function render(){
   $("#view").innerHTML = views[v]();
   if (priceRange[v]) syncPriceUI(v);
   const it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
-  const navV = it ? it.condition : ["service", "booked", "provider"].includes(v) ? "services" : v;
+  const navV = it ? it.condition : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : v;
   if (v === "service") afterServiceRender();
   if (v === "provider") renderLinkedInBadges();
   document.querySelectorAll("header nav a, .tabbar a").forEach(a => (a.dataset.tab===navV || a.dataset.also===navV) ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
@@ -2467,10 +2622,13 @@ function render(){
   { const el = document.querySelector('[data-count="services"]'); if (el) el.textContent = SERVICES.length || ""; }
   if (v === "service"){ const s = SERVICES.find(x => x.id === serviceId); if (s) document.title = `${s.title} · online.shop.on.ca`; }
   if (v === "provider"){ const pp = providerById(providerId); if (pp) document.title = `${pp.name} · online.shop.on.ca`; }
+  if (v === "event"){ const ee = eventById(eventId); if (ee) document.title = `${ee.title} · online.shop.on.ca`; }
+  if (v === "events") document.title = "Events · online.shop.on.ca";
   const trail = v === "item" ? (it ? [[it.condition === "new" ? "Brand new items" : "Used items", it.condition === "new" ? "#new-items" : "#used-items"], [it.name]] : [["Item"]])
     : {new:[["Brand new items"]], used:[["Used items"]], contact:[["Contact us"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["My orders & bookings"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
          service:[["Services","#services"],[(SERVICES.find(s=>s.id===serviceId)||{}).title || "Service"]],
-         provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]]}[v];
+         provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]],
+         events:[["Events"]], event:[["Events","#events"],[(eventById(eventId)||{}).title || "Event"]]}[v];
   const cr = $("#crumbs");
   if (trail){ cr.innerHTML = `<li><a href="#home">Home</a></li>` + trail.map(([t,h])=> h?`<li><a href="${h}">${esc(t)}</a></li>`:`<li aria-current="page">${esc(t)}</li>`).join(""); cr.hidden = false; }
   else cr.hidden = true;
@@ -2513,8 +2671,8 @@ document.addEventListener("change", e => {
     $("#pminN").value = r.min ?? 0; $("#pmaxN").value = r.max ?? "";
   }
 });
-window.addEventListener("hashchange", () => { const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, v = viewFromHash();
-  if (v !== currentView && ["home","new","used","services"].includes(v) && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
+window.addEventListener("hashchange", () => { const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, prevEv = eventId, v = viewFromHash();
+  if (v !== currentView && ["home","new","used","services","events"].includes(v) && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); } });
 /* =========================================================
    ACCOUNTS, ORDERS AND ADMIN (Firebase)
    ========================================================= */
@@ -2936,6 +3094,463 @@ document.addEventListener("submit", async e => {
   } catch(er){ console.error(er); btn.disabled = false; btn.textContent = PED.id === "new" ? "Add profile" : "Save profile"; showMsg(m, false, "Couldn't save the profile. Check your connection and try again."); }
 });
 
+/* ---- Events (v65): listing with filters, event pages, tickets (reserve and pay later, or pay by card through a Stripe link), admin ---- */
+let ALL_EVENTS = [], EVENTS = [], eventsLoaded = false, EV_SOLD = {}, EV_UNSUB = [], EV_SOLD_KEY = "";
+const EV_CATS = ["Music & concerts", "Food & drink", "Business & networking", "Tech & digital", "Arts & culture", "Classes & workshops", "Family & kids", "Sports & fitness", "Community", "Culture & heritage", "Nightlife", "Other"];
+const EVI = {
+  "Music & concerts": '<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
+  "Food & drink": '<path d="M5 3v8a3 3 0 0 0 6 0V3M8 3v18M17 3c-2 2-2 6 0 8v10"/>',
+  "Business & networking": '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
+  "Tech & digital": '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/>',
+  "Arts & culture": '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.3"/><circle cx="12" cy="7.5" r="1.3"/><circle cx="16" cy="10" r="1.3"/><path d="M12 21c-1.5-2 0-4 2-4h2a4 4 0 0 0 4-4"/>',
+  "Classes & workshops": '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/>',
+  "Family & kids": '<circle cx="8" cy="6" r="2.5"/><circle cx="17" cy="8" r="2"/><path d="M4 21v-6a4 4 0 0 1 8 0v6M14 21v-5a3 3 0 0 1 6 0v5"/>',
+  "Sports & fitness": '<circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18M5.6 5.6c3.5 3.5 3.5 9.3 0 12.8M18.4 5.6c-3.5 3.5-3.5 9.3 0 12.8"/>',
+  "Community": '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5c3 0 5 1.5 5.5 4.5"/>',
+  "Culture & heritage": '<path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M2 10l10-7 10 7z"/>',
+  "Nightlife": '<path d="M20 15A8 8 0 1 1 9 4a6.5 6.5 0 0 0 11 11z"/>',
+  "Other": '<path d="M12 2l3 6.5 7 .9-5.1 4.8 1.3 7L12 17.8 5.8 21.2l1.3-7L2 9.4l7-.9z"/>'
+};
+const evIcon = c => `<svg viewBox="0 0 24 24" aria-hidden="true">${EVI[c] || EVI.Other}</svg>`;
+const TICKET_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg>';
+
+function fsToEvent(d){
+  const tickets = (Array.isArray(d.tickets) ? d.tickets : []).filter(t => t && (t.name || t.price != null)).map((t, i) => ({i, name: String(t.name || "General admission"), price: Math.max(0, +t.price || 0), stripe: String(t.stripe || "").trim()}));
+  if (!tickets.length) tickets.push({i: 0, name: "General admission", price: 0, stripe: ""});
+  const prices = tickets.map(t => t.price);
+  return {id: d.id, title: String(d.title || "Untitled event"), category: EV_CATS.includes(d.category) ? d.category : "Other",
+    startMs: +d.startMs || 0, endMs: +d.endMs || (+d.startMs || 0) + 2 * 3600000, venue: d.venue || "", address: d.address || "", city: d.city || "",
+    format: d.format === "online" ? "online" : "in-person", onlineInfo: d.onlineInfo || "", cover: d.cover || "", summary: d.summary || "", description: d.description || "",
+    organizer: d.organizer || "online.shop.on.ca", capacity: Math.max(1, +d.capacity || 100), tickets, minPrice: Math.min(...prices), maxPrice: Math.max(...prices),
+    free: Math.max(...prices) === 0, featured: !!d.featured, active: d.active !== false, sample: !!d.sample};
+}
+function useEvents(list){
+  ALL_EVENTS = list; eventsLoaded = true;
+  const now = Date.now();
+  let evs = list.map(fsToEvent).filter(e => e.active);
+  if (!evs.length && /[?&]demo\b/.test(location.search)) evs = sampleEvents();
+  EVENTS = evs.filter(e => e.endMs >= now || e.sample).sort((a, b) => a.startMs - b.startMs);
+  watchEventSold();
+}
+function eventById(id){ const d = ALL_EVENTS.find(x => x.id === id); return d ? fsToEvent(d) : EVENTS.find(e => e.id === id) || null; }
+function watchEventSold(){
+  if (!FB || !FB.watchSlotsIn) return;
+  const ids = EVENTS.filter(e => !e.sample).map(e => e.id), key = ids.join(",");
+  if (key === EV_SOLD_KEY) return;
+  EV_SOLD_KEY = key; EV_UNSUB.forEach(u => { try { u(); } catch(_) {} }); EV_UNSUB = [];
+  for (let i = 0; i < ids.length; i += 10) EV_UNSUB.push(FB.watchSlotsIn(ids.slice(i, i + 10), m => {
+    Object.entries(m).forEach(([k, v]) => { if (k.startsWith("ev_")) EV_SOLD[k.slice(3)] = v; });
+    if (["events", "event", "home"].includes(current())) { const box = $("#evResults"); if (box && current() === "events") box.innerHTML = evResultsHTML(); else if (current() !== "event" || !EVQ.done) render(); }
+  }, err => console.error(err)));
+}
+const evLeft = e => e.sample ? null : (EV_SOLD[e.id] == null ? e.capacity : Math.max(0, e.capacity - EV_SOLD[e.id]));
+function sampleEvents(){   // shown only on the preview page (?demo) while there are no real events yet
+  const t = Date.now(), day = 86400000, at = (dd, h) => { const p = tzParts(t + dd * day); return torontoMs(`${p.y}-${String(p.m).padStart(2, "0")}-${String(p.d).padStart(2, "0")}`, `${String(h).padStart(2, "0")}:00`); };
+  const mk = (i, o) => ({id: "SAMPLE" + i, sample: true, active: true, capacity: 80, organizer: "online.shop.on.ca", summary: "Sample event for the preview.", description: "This is a sample so you can see how events look. Real events you add in Admin replace these.", ...o});
+  return [
+    mk(1, {title: "Persian Night: Live Music & Dinner", category: "Culture & heritage", startMs: at(4, 19), venue: "Richmond Hill Centre for the Performing Arts", city: "Richmond Hill", featured: true, tickets: [{name: "General", price: 45}, {name: "VIP table", price: 85}]}),
+    mk(2, {title: "Intro to Excel: Free Workshop", category: "Classes & workshops", startMs: at(1, 18), format: "online", tickets: [{name: "Free spot", price: 0}]}),
+    mk(3, {title: "Small Business Networking Breakfast", category: "Business & networking", startMs: at(2, 8), venue: "Downtown Markham", city: "Markham", tickets: [{name: "Ticket", price: 15}]}),
+    mk(4, {title: "Saturday Farmers Market", category: "Food & drink", startMs: at(5, 9), venue: "Mill Pond Park", city: "Richmond Hill", tickets: [{name: "Free entry", price: 0}]}),
+    mk(5, {title: "Family Movie Afternoon", category: "Family & kids", startMs: at(6, 14), venue: "Community Centre", city: "Vaughan", tickets: [{name: "Child", price: 5}, {name: "Adult", price: 8}]}),
+    mk(6, {title: "Toronto Tech Meetup: AI for Small Shops", category: "Tech & digital", startMs: at(9, 18), venue: "MaRS Discovery District", city: "Toronto", featured: true, tickets: [{name: "Ticket", price: 0}]}),
+    mk(7, {title: "Morning Run Club", category: "Sports & fitness", startMs: at(0, 23), venue: "Lake Wilcox", city: "Richmond Hill", tickets: [{name: "Join", price: 0}]}),
+    mk(8, {title: "Jazz on the Patio", category: "Music & concerts", startMs: at(12, 20), venue: "Distillery District", city: "Toronto", tickets: [{name: "General", price: 30}]})
+  ].map(fsToEvent);
+}
+
+/* dates in Toronto time */
+const evKey = ms => { const p = tzParts(ms); return `${p.y}-${String(p.m).padStart(2, "0")}-${String(p.d).padStart(2, "0")}`; };
+const evFmt = (ms, o) => new Date(ms).toLocaleString("en-CA", {timeZone: TZ, ...o});
+const evTime = ms => evFmt(ms, {hour: "numeric", minute: "2-digit"}).replace(/\s/g, " ");
+const evDayLong = ms => evFmt(ms, {weekday: "long", month: "long", day: "numeric"});
+const evDayShort = ms => evFmt(ms, {weekday: "short", month: "short", day: "numeric"});
+function evDayLabel(ms){
+  const k = evKey(ms), today = evKey(Date.now()), tom = evKey(Date.now() + 86400000);
+  return k === today ? "Today" : k === tom ? "Tomorrow" : evFmt(ms, {weekday: "long"});
+}
+function evInWhen(e, w){
+  if (w === "any") return true;
+  const now = Date.now(), k = evKey(e.startMs), today = evKey(now);
+  if (w === "today") return k === today || (e.startMs <= now && e.endMs >= now);
+  if (w === "tomorrow") return k === evKey(now + 86400000);
+  if (w === "week") return e.startMs <= now + 7 * 86400000;
+  if (w === "month") return e.startMs <= now + 30 * 86400000;
+  if (w === "weekend"){
+    const wd = new Date(now).toLocaleString("en-CA", {timeZone: TZ, weekday: "short"}), idx = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].findIndex(x => wd.startsWith(x));
+    const toSat = idx === 0 ? -1 : 6 - idx, keys = [evKey(now + toSat * 86400000), evKey(now + (toSat + 1) * 86400000)];
+    if (idx === 5) keys.push(today);   // Friday evening counts
+    return keys.includes(k);
+  }
+  return true;
+}
+const EVF = {when: "any", cats: [], price: "any", format: "any", city: "", sort: "soon"};
+const evActive = () => EVF.when !== "any" || EVF.cats.length || EVF.price !== "any" || EVF.format !== "any" || EVF.city || query.trim();
+function evMatchQ(e, q){ return !q || [e.title, e.category, e.venue, e.city, e.organizer, e.summary, e.description].join(" ").toLowerCase().includes(q); }
+function evFiltered(skip){
+  const q = query.trim().toLowerCase();
+  let l = EVENTS.filter(e => (skip === "when" || evInWhen(e, EVF.when)) && (skip === "cats" || !EVF.cats.length || EVF.cats.includes(e.category))
+    && (EVF.price === "any" || (EVF.price === "free" ? e.free : !e.free)) && (EVF.format === "any" || e.format === EVF.format)
+    && (!EVF.city || (EVF.city === "Online" ? e.format === "online" : e.city === EVF.city)) && evMatchQ(e, q));
+  if (EVF.sort === "price") l = l.slice().sort((a, b) => a.minPrice - b.minPrice || a.startMs - b.startMs);
+  return l;
+}
+const evPriceTxt = e => e.free ? "Free" : e.minPrice === e.maxPrice ? money(e.minPrice) : (e.minPrice === 0 ? "Free – " + money(e.maxPrice) : "From " + money(e.minPrice));
+const evWhere = e => e.format === "online" ? "Online" : [e.venue, e.city].filter(Boolean).join(" · ") || "Location to be announced";
+function evCover(e, cls){
+  if (e.cover) return `<img class="${cls || ""}" src="${esc(imgSrc(e.cover, null, 1))}" data-ref="${esc(e.cover)}" alt="" loading="lazy">`;
+  return `<span class="evph c${EV_CATS.indexOf(e.category) % 6}">${evIcon(e.category)}</span>`;
+}
+function evDateBadge(ms){
+  return `<span class="evdate"><small>${evFmt(ms, {month: "short"})}</small><b>${evFmt(ms, {day: "numeric"})}</b><small>${evFmt(ms, {weekday: "short"})}</small></span>`;
+}
+function evAvail(e){
+  const l = evLeft(e);
+  if (l == null) return "";
+  if (l <= 0) return `<span class="evtag sold">Sold out</span>`;
+  if (l <= Math.max(5, Math.round(e.capacity * .15))) return `<span class="evtag hot">Only ${l} left</span>`;
+  return "";
+}
+function evCardHTML(e){
+  return `<article class="evcard" data-ev="${esc(e.id)}">
+    <a class="evimg" href="#event-${esc(e.id)}" aria-label="${esc(e.title)}">${evCover(e)}${evDateBadge(e.startMs)}<span class="evprice${e.free ? " free" : ""}">${evPriceTxt(e)}</span></a>
+    <div class="evbody">
+      <span class="evcat">${evIcon(e.category)}${esc(e.category)}</span>
+      <h3><a href="#event-${esc(e.id)}">${esc(e.title)}</a></h3>
+      <p class="evline">${svgI("clock")}${evDayShort(e.startMs)} · ${evTime(e.startMs)}</p>
+      <p class="evline">${svgI(e.format === "online" ? "video" : "pin")}${esc(evWhere(e))}</p>
+      ${evAvail(e)}${e.sample ? `<span class="evtag">Sample</span>` : ""}
+    </div></article>`;
+}
+function evFeatHTML(e){
+  return `<a class="evfeat" href="#event-${esc(e.id)}" data-ev="${esc(e.id)}">
+    <span class="evfbg">${evCover(e)}</span><span class="evfshade"></span>
+    <span class="evftext"><span class="evcat light">${evIcon(e.category)}${esc(e.category)}${e.sample ? " · Sample" : ""}</span>
+      <b>${esc(e.title)}</b>
+      <span>${evDayLong(e.startMs)} · ${evTime(e.startMs)}</span><span>${esc(evWhere(e))}</span>
+      <span class="evfcta"><i>${evPriceTxt(e)}</i><em>${e.free ? "Reserve a spot" : "Get tickets"} →</em></span></span></a>`;
+}
+const evChip = (k, v, label, on, extra) => `<button type="button" class="evchip" data-evf="${k}" data-v="${esc(v)}" aria-pressed="${on}">${extra || ""}${esc(label)}</button>`;
+function eventsView(){
+  if (!eventsLoaded && !fbFailed) return `<section class="evhero"><div><span class="eyebrow">Events</span><h1>Find something to do</h1></div></section><div class="empty">Loading events…</div>`;
+  const when = [["any", "Any time"], ["today", "Today"], ["tomorrow", "Tomorrow"], ["weekend", "This weekend"], ["week", "This week"], ["month", "Next 30 days"]];
+  const cats = EV_CATS.map(c => [c, evFiltered("cats").filter(e => e.category === c).length]).filter(([c, n]) => n || EVF.cats.includes(c));
+  const cities = [...new Set(EVENTS.filter(e => e.format !== "online" && e.city).map(e => e.city))].sort();
+  return `<section class="evhero">
+      <div class="evhtext"><span class="eyebrow">Events</span><h1>Find something to do</h1>
+        <p>Live music, classes, meetups, markets and more around Richmond Hill, Toronto and online. Reserve a spot or get tickets in a few taps.</p>
+        <form class="evsearch" id="evSearch" role="search"><span>${svgI("calendar")}</span><input id="evQ" type="search" placeholder="Search events, places or organizers" value="${esc(query)}" aria-label="Search events"><button class="btn" type="submit">Search</button></form>
+      </div>
+      <div class="evhart" aria-hidden="true">${TICKET_SVG}</div>
+    </section>
+    <div class="evfilters" id="evFilters">
+      <div class="evrow" role="group" aria-label="When">${when.map(([v, l]) => evChip("when", v, l, EVF.when === v)).join("")}</div>
+      ${cats.length ? `<div class="evrow" role="group" aria-label="Category">${evChip("cat", "", "All", !EVF.cats.length)}${cats.map(([c, n]) => evChip("cat", c, `${c} ${n}`, EVF.cats.includes(c), evIcon(c))).join("")}</div>` : ""}
+      <div class="evrow evsel">
+        <label><span>Price</span><select data-evs="price"><option value="any">Any price</option><option value="free"${EVF.price === "free" ? " selected" : ""}>Free</option><option value="paid"${EVF.price === "paid" ? " selected" : ""}>Paid</option></select></label>
+        <label><span>Format</span><select data-evs="format"><option value="any">In person or online</option><option value="in-person"${EVF.format === "in-person" ? " selected" : ""}>In person</option><option value="online"${EVF.format === "online" ? " selected" : ""}>Online</option></select></label>
+        <label><span>Where</span><select data-evs="city"><option value="">Anywhere</option>${cities.map(c => `<option${EVF.city === c ? " selected" : ""}>${esc(c)}</option>`).join("")}<option${EVF.city === "Online" ? " selected" : ""}>Online</option></select></label>
+        <label><span>Sort</span><select data-evs="sort"><option value="soon">Soonest first</option><option value="price"${EVF.sort === "price" ? " selected" : ""}>Lowest price</option></select></label>
+        ${evActive() ? `<button type="button" class="linkbtn" data-evclear>Clear all</button>` : ""}
+      </div>
+    </div>
+    <div id="evResults">${evResultsHTML()}</div>`;
+}
+function evResultsHTML(){
+  const list = evFiltered();
+  if (!EVENTS.length) return `<div class="evempty">${TICKET_SVG}<b>New events are coming soon</b><span>Check back shortly, or <a href="#contact-us">tell us</a> what you'd like to see.</span></div>`;
+  if (!list.length) return `<div class="evempty">${TICKET_SVG}<b>No events match these filters</b><button type="button" class="btn small" data-evclear>Clear filters</button></div>`;
+  const feat = !evActive() && EVF.sort === "soon" ? list.filter(e => e.featured).slice(0, 4) : [];
+  const n = list.length;
+  let html = `<p class="count">${n} event${n === 1 ? "" : "s"}${query.trim() ? ` matching “${esc(query.trim())}” <button class="linkbtn" data-clear>Clear search</button>` : ""}</p>`;
+  if (feat.length) html += `<section class="evsec"><h2>Featured</h2><div class="evfeats">${feat.map(evFeatHTML).join("")}</div></section>`;
+  if (EVF.sort === "price") return html + `<div class="evgrid">${list.map(evCardHTML).join("")}</div>`;
+  const now = Date.now(), B = [["Today", e => evInWhen(e, "today")], ["Tomorrow", e => evInWhen(e, "tomorrow")], ["This weekend", e => evInWhen(e, "weekend")], ["This week", e => evInWhen(e, "week")], ["Later this month", e => evInWhen(e, "month")], ["Coming up", () => true]];
+  const groups = B.map(([l]) => [l, []]); list.forEach(e => { const i = B.findIndex(([, f]) => f(e)); groups[i][1].push(e); });
+  const sub = {Today: evDayLong(now), Tomorrow: evDayLong(now + 86400000)};
+  groups.filter(([, evs]) => evs.length).forEach(([l, evs]) => {
+    html += `<section class="evsec evday"><h2><span>${l}</span><small>${sub[l] || evs.length + " event" + (evs.length === 1 ? "" : "s")}</small></h2><div class="evgrid">${evs.map(evCardHTML).join("")}</div></section>`; });
+  return html;
+}
+
+/* event page */
+const EVQ = {id: null, qty: {}, busy: false, done: null, err: ""};
+function evResetQ(id){ EVQ.id = id; EVQ.qty = {}; EVQ.busy = false; EVQ.done = null; EVQ.err = ""; }
+function eventView(){
+  const e = eventById(eventId);
+  if (!e) return eventsLoaded || fbFailed ? `<div class="empty">This event isn't available anymore. <a href="#events" style="color:var(--link)">See all events</a></div>` : `<div class="empty">Loading…</div>`;
+  if (EVQ.id !== e.id) evResetQ(e.id);
+  const past = e.endMs < Date.now(), maps = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([e.venue, e.address, e.city].filter(Boolean).join(", "));
+  return `<article class="evpage">
+    <div class="evcover"><span class="evcbg">${evCover(e)}</span><span class="evcimg">${evCover(e)}</span></div>
+    <div class="evlayout">
+      <div class="evmain">
+        <span class="evcat">${evIcon(e.category)}${esc(e.category)}${e.sample ? " · Sample" : ""}</span>
+        <h1>${esc(e.title)}</h1>
+        ${e.summary ? `<p class="evsum">${esc(e.summary)}</p>` : ""}
+        <div class="evfacts">
+          <div>${svgI("calendar")}<span><b>${evDayLong(e.startMs)}</b><small>${evTime(e.startMs)} – ${evTime(e.endMs)} (Toronto time)</small></span></div>
+          <div>${svgI(e.format === "online" ? "video" : "pin")}<span><b>${esc(e.format === "online" ? "Online event" : e.venue || "Location to be announced")}</b><small>${esc(e.format === "online" ? (e.onlineInfo ? "Joining details are sent with your ticket" : "Link sent with your ticket") : [e.address, e.city].filter(Boolean).join(", "))}</small>${e.format !== "online" && (e.venue || e.address) ? `<a href="${maps}" target="_blank" rel="noopener">Open in Google Maps</a>` : ""}</span></div>
+          <div>${svgI("user")}<span><b>Hosted by ${esc(e.organizer)}</b><small>Questions? <a href="#contact-us">Contact us</a></small></span></div>
+          <div>${TICKET_SVG}<span><b>${evPriceTxt(e)}</b><small>${e.free ? "Free, but please reserve so we know you're coming" : "Reserve now and pay later, or pay by card"}</small></span></div>
+        </div>
+        <button class="btn evjump" type="button" data-evjump>${TICKET_SVG}${past ? "This event has ended" : e.free ? "Reserve a spot" : "Get tickets"}</button>
+        <section class="evsect"><h2>About this event</h2><div class="itemdesc">${descHTML(e.description || e.summary)}</div></section>
+        <section class="evsect"><h2>Good to know</h2><ul class="bullets">
+          <li><b>Your ticket:</b> you get a ticket number right away. It's also in My orders &amp; bookings.</li>
+          <li><b>Paying:</b> ${e.free ? "this event is free." : `pay by card online, or by e-Transfer to ${esc(SHOP_EMAIL)} or at the door. Your spot is held when you reserve.`}</li>
+          <li><b>Plans changed?</b> Cancel from My orders &amp; bookings before the event starts and your spot goes to someone else.</li>
+        </ul></section>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px"><button type="button" class="btn ghost small" data-evshare>Share</button><button type="button" class="btn ghost small" data-evics="${esc(e.id)}">Add to calendar</button><a class="btn ghost small" href="#events">All events</a></div>
+      </div>
+      <aside class="evbox" id="evBox">${evBoxHTML(e)}</aside>
+    </div></article>`;
+}
+function evBoxHTML(e){
+  const left = evLeft(e), past = e.endMs < Date.now();
+  if (EVQ.done) return evDoneHTML(e);
+  if (past) return `<h2>Tickets</h2><p class="note">This event has ended.</p>`;
+  if (left === 0) return `<h2>Tickets</h2><div class="evtag sold" style="font-size:1rem">Sold out</div><p class="note" style="margin-top:8px">All spots are taken. <a href="#events">See other events</a></p>`;
+  const qty = i => EVQ.qty[i] || 0, n = e.tickets.reduce((a, t) => a + qty(t.i), 0), total = e.tickets.reduce((a, t) => a + qty(t.i) * t.price, 0);
+  const max = left == null ? 10 : Math.min(10, left);
+  const cardOK = n > 0 && total > 0 && e.tickets.filter(t => qty(t.i) && t.price > 0).every(t => /^https:\/\/(buy|checkout)\.stripe\.com\//.test(t.stripe));
+  return `<h2>${e.free ? "Reserve your spot" : "Tickets"}</h2>${left != null && left <= 20 ? `<p class="evleft">${left} spot${left === 1 ? "" : "s"} left</p>` : ""}
+    <div class="evtix">${e.tickets.map(t => `<div class="evtrow"><span><b>${esc(t.name)}</b><small>${t.price ? money(t.price) : "Free"}</small></span>
+      <span class="stepper"><button type="button" data-evq="${t.i}" data-d="-1" aria-label="Fewer ${esc(t.name)}" ${qty(t.i) ? "" : "disabled"}>−</button><output>${qty(t.i)}</output><button type="button" data-evq="${t.i}" data-d="1" aria-label="More ${esc(t.name)}" ${n >= max ? "disabled" : ""}>+</button></span></div>`).join("")}</div>
+    <div class="evtotal"><span>${n} ticket${n === 1 ? "" : "s"}</span><b>${total ? money(total) : n ? "Free" : "—"}</b></div>
+    ${e.sample ? `<p class="note">This is a sample event for the preview, so tickets can't be reserved.</p>` : !USER ? `<p class="note">Sign in to reserve, so your tickets are saved to your account.</p>
+      <div style="display:grid;gap:8px">${typeof googleBtn === "function" ? googleBtn("event") : ""}<button class="btn" type="button" data-auth="signin" data-next="event">Sign in with email</button><button class="btn ghost" type="button" data-auth="signup" data-next="event" style="color:var(--fg)">Create account</button></div>` : `
+      <form id="evForm" class="evform">
+        <label>Name<input name="name" required autocomplete="name" value="${esc((PROFILE && PROFILE.name) || USER.displayName || "")}"></label>
+        <label>Phone <small>(optional)</small><input name="phone" type="tel" autocomplete="tel" value="${esc((PROFILE && PROFILE.phone) || "")}"></label>
+        <p class="note" style="margin:0">Tickets go to ${esc(USER.email)}</p>
+        ${EVQ.err ? `<p class="evtag sold" role="alert">${esc(EVQ.err)}</p>` : ""}
+        <button class="btn" type="submit" name="pay" value="later" ${n && !EVQ.busy ? "" : "disabled"}>${EVQ.busy ? "Reserving…" : total ? `Reserve, pay later · ${money(total)}` : "Reserve free spot" + (n > 1 ? "s" : "")}</button>
+        ${total ? `<button class="btn ghost" type="submit" name="pay" value="card" ${cardOK && !EVQ.busy ? "" : "disabled"} style="color:var(--fg)">Pay by card · ${money(total)}</button>${n && !cardOK ? `<p class="note" style="margin:0">Card payment isn't set up for this ticket yet. Reserve now and pay later.</p>` : ""}` : ""}
+      </form>`}`;
+}
+function evDoneHTML(e){
+  const r = EVQ.done, stripe = r.payment === "card" ? r.items.filter(t => t.price > 0 && t.stripe) : [];
+  return `<div class="evdone"><span class="evok">✓</span><h2>${r.total ? "Tickets reserved" : "You're in!"}</h2>
+    <p class="evtnum">Ticket #T${r.number}</p>
+    <p class="note">${r.items.map(t => `${t.qty} × ${esc(t.name)}`).join(", ")} · ${evDayShort(e.startMs)}, ${evTime(e.startMs)}</p>
+    ${e.format === "online" && e.onlineInfo ? `<p class="note" style="color:var(--fg)"><b>How to join:</b> ${esc(e.onlineInfo)}</p>` : ""}
+    ${stripe.length ? `<p class="note" style="color:var(--fg)">Finish paying by card:</p>${stripe.map(t => `<a class="btn" href="${esc(stripeUrl(t.stripe, r.number, USER && USER.email))}" target="_blank" rel="noopener">Pay ${money(t.price * t.qty)} by card${stripe.length > 1 ? " · " + esc(t.name) : ""}</a>`).join("")}<p class="note">Opens Stripe's secure checkout. Choose quantity ${stripe.map(t => t.qty).join(" / ")} there.</p>`
+      : r.total ? `<p class="note" style="color:var(--fg)">Pay ${money(r.total)} by e-Transfer to ${esc(SHOP_EMAIL)} (message: T${r.number}) or at the door.</p>` : ""}
+    <div style="display:grid;gap:8px;margin-top:6px"><button class="btn ghost" type="button" data-evics="${esc(e.id)}" style="color:var(--fg)">Add to calendar</button><a class="btn ghost" href="#my-orders" style="color:var(--fg)">My tickets</a></div></div>`;
+}
+const stripeUrl = (u, num, email) => { try { const x = new URL(u); x.searchParams.set("client_reference_id", "T" + num); if (email) x.searchParams.set("prefilled_email", email); return x.href; } catch(_) { return u; } };
+function evICS(e, num){
+  const dt = ms => new Date(ms).toISOString().replace(/[-:]/g, "").replace(/\.\d+/, ""), tx = s => String(s || "").replace(/([,;\\])/g, "\\$1").replace(/\n/g, "\\n");
+  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//online.shop.on.ca//Events//EN", "BEGIN:VEVENT", `UID:${e.id}-${num || "x"}@online.shop.on.ca`, `DTSTAMP:${dt(Date.now())}`,
+    `DTSTART:${dt(e.startMs)}`, `DTEND:${dt(e.endMs)}`, `SUMMARY:${tx(e.title)}`, `DESCRIPTION:${tx((num ? `Ticket #T${num}. ` : "") + location.origin + "/#event-" + e.id)}`,
+    `LOCATION:${tx(e.format === "online" ? "Online" : [e.venue, e.address, e.city].filter(Boolean).join(", "))}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+  const url = URL.createObjectURL(new Blob([ics], {type: "text/calendar"})), a = document.createElement("a");
+  a.href = url; a.download = "event.ics"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+function refreshEvBox(){ const e = eventById(eventId), box = $("#evBox"); if (e && box) box.innerHTML = evBoxHTML(e); }
+
+/* clicks and inputs for events */
+document.addEventListener("click", async ev => {
+  const card = ev.target.closest("[data-ev]");
+  const b = ev.target.closest("button");
+  if (!b && card && !ev.target.closest("a")){ go("event", card.dataset.ev); return; }
+  if (!b) return;
+  if (b.dataset.evf){
+    const k = b.dataset.evf, v = b.dataset.v;
+    if (k === "when") EVF.when = v;
+    if (k === "cat") EVF.cats = !v ? [] : EVF.cats.includes(v) ? EVF.cats.filter(x => x !== v) : [...EVF.cats, v];
+    render(); return;
+  }
+  if (b.hasAttribute("data-evclear")){ Object.assign(EVF, {when: "any", cats: [], price: "any", format: "any", city: "", sort: "soon"}); query = ""; const qi = $("#q"); if (qi) qi.value = ""; render(); return; }
+  if (b.dataset.evq != null){
+    const e = eventById(eventId); if (!e) return;
+    const i = +b.dataset.evq, left = evLeft(e), max = left == null ? 10 : Math.min(10, left), n = Object.values(EVQ.qty).reduce((a, x) => a + x, 0);
+    const next = Math.max(0, (EVQ.qty[i] || 0) + (+b.dataset.d));
+    if (+b.dataset.d > 0 && n >= max) return;
+    EVQ.qty[i] = next; EVQ.err = ""; refreshEvBox(); return;
+  }
+  if (b.hasAttribute("data-evjump")){ const x = $("#evBox"); if (x) x.scrollIntoView({behavior: "smooth", block: "start"}); return; }
+  if (b.dataset.evics){ const e = eventById(b.dataset.evics); if (e) evICS(e, EVQ.done && EVQ.done.number); return; }
+  if (b.hasAttribute("data-evshare")){
+    const e = eventById(eventId), url = location.origin + location.pathname + "#event-" + eventId;
+    try { if (navigator.share){ await navigator.share({title: e ? e.title : "Event", url}); return; } await navigator.clipboard.writeText(url); toast("Link copied"); } catch(_) {}
+    return;
+  }
+});
+document.addEventListener("change", e => {
+  const s = e.target.closest("[data-evs]"); if (!s) return;
+  EVF[s.dataset.evs] = s.value; render();
+});
+document.addEventListener("submit", async ev => {
+  const f = ev.target;
+  if (f.id === "evSearch"){ ev.preventDefault(); query = $("#evQ").value; const qi = $("#q"); if (qi) qi.value = query; render(); return; }
+  if (f.id !== "evForm") return;
+  ev.preventDefault();
+  const e = eventById(eventId); if (!e || !USER || !FB || EVQ.busy) return;
+  const pay = (ev.submitter && ev.submitter.value) || "later";
+  const items = e.tickets.filter(t => EVQ.qty[t.i]).map(t => ({i: t.i, name: t.name, price: t.price, qty: EVQ.qty[t.i], stripe: t.stripe || ""}));
+  const qty = items.reduce((a, t) => a + t.qty, 0), total = items.reduce((a, t) => a + t.qty * t.price, 0);
+  if (!qty) return;
+  EVQ.busy = true; EVQ.err = ""; refreshEvBox();
+  const fd = new FormData(f);
+  const b = {kind: "event", uid: USER.uid, eventId: e.id, serviceId: e.id, serviceTitle: e.title, providerName: e.organizer, startMs: e.startMs, durationMin: Math.max(30, Math.round((e.endMs - e.startMs) / 60000)),
+    format: e.format === "online" ? "online" : "in-person", venue: e.venue, address: [e.address, e.city].filter(Boolean).join(", "), location: e.venue, items: items.map(({stripe, ...t}) => t), qty, total, payment: total ? pay : "free",
+    name: String(fd.get("name") || "").trim(), phone: String(fd.get("phone") || "").trim(), email: USER.email || "", slotKey: "ev_" + e.id};
+  try {
+    const r = await FB.reserveTickets(b, qty, e.capacity);
+    EVQ.done = {...b, items, number: r.number, id: r.id}; EVQ.busy = false; EVQ.qty = {};
+    refreshEvBox(); const box = $("#evBox"); if (box) box.scrollIntoView({behavior: "smooth", block: "start"});
+  } catch (err) {
+    console.error(err); EVQ.busy = false;
+    EVQ.err = String(err && err.message).includes("sold-out") ? "Sorry, there aren't enough spots left for that many tickets." : "We couldn't reserve your tickets. Check your connection and try again.";
+    refreshEvBox();
+  }
+});
+
+/* My tickets (in My orders & bookings) */
+function myTicketsHTML(){
+  if (!MY.bookings) return `<div class="empty">Loading your tickets…</div>`;
+  const t = MY.bookings.filter(b => b.kind === "event");
+  if (!t.length) return `<div class="empty">No event tickets yet. <a href="#events" style="color:var(--link)">Find an event</a></div>`;
+  const now = Date.now(), up = t.filter(b => b.startMs + b.durationMin * 60000 >= now && b.status !== "Cancelled"), past = t.filter(b => !up.includes(b)).reverse();
+  const card = b => {
+    const e = eventById(b.eventId), st = b.status === "Requested" ? (b.total ? "Reserved · not paid" : "Reserved") : b.status === "Confirmed" ? (b.total ? "Paid" : "Confirmed") : b.status;
+    const stripe = b.status === "Requested" && b.payment === "card" && e ? e.tickets.filter(x => x.stripe && (b.items || []).some(i => i.i === x.i && i.price > 0)) : [];
+    return `<div class="evmyt">
+      <a class="evmyimg" href="#event-${esc(b.eventId)}">${e ? evCover(e) : TICKET_SVG}${evDateBadge(b.startMs)}</a>
+      <div class="evmyb"><b><a href="#event-${esc(b.eventId)}">${esc(b.serviceTitle)}</a></b>
+        <span class="note">${evDayShort(b.startMs)} · ${evTime(b.startMs)} · ${esc(b.format === "online" ? "Online" : b.venue || b.address || "")}</span>
+        <span class="note">Ticket #T${b.number} · ${(b.items || []).map(i => `${i.qty} × ${esc(i.name)}`).join(", ")}${b.total ? " · " + money(b.total) : " · Free"}</span>
+        ${e && e.format === "online" && e.onlineInfo && b.status !== "Cancelled" ? `<span class="note" style="color:var(--fg)"><b>How to join:</b> ${esc(e.onlineInfo)}</span>` : ""}
+        <span>${pill(st)}</span>
+        <span class="evmya">${stripe.map(x => `<a class="btn small" href="${esc(stripeUrl(x.stripe, b.number, USER && USER.email))}" target="_blank" rel="noopener">Pay by card</a>`).join("")}
+          ${e ? `<button type="button" class="linkbtn" data-evics="${esc(e.id)}">Add to calendar</button>` : ""}
+          ${["Requested", "Confirmed"].includes(b.status) && b.startMs > now ? `<button type="button" class="linkbtn" data-evcancel="${esc(b.id)}" style="color:var(--danger)">Cancel</button>` : ""}</span></div></div>`;
+  };
+  return `${up.length ? `<div class="evmylist">${up.map(card).join("")}</div>` : `<div class="empty">No upcoming tickets. <a href="#events" style="color:var(--link)">Find an event</a></div>`}
+    ${past.length ? `<details style="margin-top:12px"><summary class="note" style="cursor:pointer">Past and cancelled (${past.length})</summary><div class="evmylist" style="margin-top:10px">${past.map(card).join("")}</div></details>` : ""}`;
+}
+document.addEventListener("click", async ev => {
+  const b = ev.target.closest("[data-evcancel]"); if (!b) return;
+  if (!confirmInline(b, "Click again to cancel")) return;
+  b.disabled = true;
+  try { await FB.cancelMyTicket(b.dataset.evcancel); toast("Ticket cancelled"); } catch (err) { console.error(err); toast("Couldn't cancel. Try again."); b.disabled = false; }
+});
+
+/* Admin: events */
+const EVADM = {edit: null, att: null, photo: null, q: ""};
+function nextEventId(){ const n = Math.max(0, ...ALL_EVENTS.map(d => parseInt(String(d.id).replace(/\D/g, ""), 10) || 0)); return "EV" + String(n + 1).padStart(3, "0"); }
+function eventsAdminHTML(){
+  if (EVADM.edit) return eventFormHTML();
+  if (EVADM.att) return attendeesHTML();
+  const now = Date.now(), list = ALL_EVENTS.map(fsToEvent).sort((a, b) => (a.endMs < now) - (b.endMs < now) || a.startMs - b.startMs);
+  const tix = id => (ADM.bookings || []).filter(x => x.kind === "event" && x.eventId === id && x.status !== "Cancelled");
+  return `<div class="admintools"><span class="note">${list.length} event${list.length === 1 ? "" : "s"} · customers see them at <a href="#events">Events</a></span><button class="btn small" type="button" data-evnew>+ Add event</button></div>
+    ${list.length ? `<div class="evadmlist">${list.map(e => { const t = tix(e.id), sold = t.reduce((a, x) => a + (x.qty || 1), 0), rev = t.reduce((a, x) => a + (x.total || 0), 0);
+      const st = !e.active ? "Hidden" : e.endMs < now ? "Ended" : "Live";
+      return `<div class="evadmrow"><span class="evadmimg">${evCover(e)}</span>
+        <span><b>${esc(e.title)}</b><small>${evDayShort(e.startMs)} · ${evTime(e.startMs)} · ${esc(evWhere(e))}</small><small>${pill(st)} ${sold}/${e.capacity} reserved${rev ? " · " + money(rev) + " in tickets" : ""}${e.featured ? " · Featured" : ""}</small></span>
+        <span class="evadmact"><button class="btn small ghost" type="button" data-evatt="${esc(e.id)}">Attendees (${t.length})</button><button class="btn small ghost" type="button" data-evedit="${esc(e.id)}">Edit</button><a class="btn small ghost" href="#event-${esc(e.id)}">View</a></span></div>`; }).join("")}</div>`
+    : `<div class="empty">No events yet. Click “Add event” to create your first one.</div>`}`;
+}
+function eventFormHTML(){
+  const isNew = EVADM.edit === "new", d = isNew ? {} : (ALL_EVENTS.find(x => x.id === EVADM.edit) || {}), e = fsToEvent({id: EVADM.edit, ...d});
+  const p = e.startMs ? tzParts(e.startMs) : null, pe = e.endMs ? tzParts(e.endMs) : null, pad = n => String(n).padStart(2, "0");
+  const date = p ? `${p.y}-${pad(p.m)}-${pad(p.d)}` : "", st = p ? `${pad(p.H)}:${pad(p.M)}` : "19:00", en = pe ? `${pad(pe.H)}:${pad(pe.M)}` : "21:00";
+  const tk = (isNew ? [{name: "General admission", price: 0, stripe: ""}] : (d.tickets || e.tickets)).concat([{}, {}, {}]).slice(0, 4);
+  const cover = EVADM.photo || (e.cover ? imgSrc(e.cover, null, 1) : "");
+  return `<form id="evAdmForm" class="panel" style="display:grid;gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">${isNew ? "New event" : "Edit event"}</h2><button type="button" class="linkbtn" data-evback>← Back to events</button></div>
+    <label>Event name<input name="title" required value="${esc(d.title || "")}" placeholder="e.g. Persian Night: Live Music & Dinner"></label>
+    <div class="pfs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+      <label>Category<select name="category">${EV_CATS.map(c => `<option${e.category === c ? " selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
+      <label>Date<input name="date" type="date" required value="${date}"></label>
+      <label>Starts<input name="start" type="time" required value="${st}"></label>
+      <label>Ends<input name="end" type="time" required value="${en}"></label>
+    </div>
+    <div class="pfs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+      <label>Format<select name="format"><option value="in-person">In person</option><option value="online"${e.format === "online" ? " selected" : ""}>Online</option></select></label>
+      <label>Venue<input name="venue" value="${esc(d.venue || "")}" placeholder="e.g. Mill Pond Park"></label>
+      <label>Street address<input name="address" value="${esc(d.address || "")}" placeholder="e.g. 10 Mill St"></label>
+      <label>City<input name="city" value="${esc(d.city || "Richmond Hill")}" list="evCities"></label>
+    </div>
+    <datalist id="evCities"><option>Richmond Hill</option><option>Toronto</option><option>Markham</option><option>Vaughan</option><option>Aurora</option><option>Newmarket</option><option>Mississauga</option></datalist>
+    <label>Online joining details <small>(only shown on tickets; for online events)</small><input name="onlineInfo" value="${esc(d.onlineInfo || "")}" placeholder="e.g. Zoom link sent the day before"></label>
+    <label>One-line summary<input name="summary" maxlength="160" value="${esc(d.summary || "")}" placeholder="Shown under the title"></label>
+    <label>Description <small>(start a line with • for bullet points)</small><textarea name="description" rows="7">${esc(d.description || "")}</textarea></label>
+    <div class="pfs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+      <label>Hosted by<input name="organizer" value="${esc(d.organizer || "online.shop.on.ca")}"></label>
+      <label>Total spots<input name="capacity" type="number" min="1" step="1" required value="${d.capacity || 100}"></label>
+      <label style="display:flex;gap:8px;align-items:center;margin-top:22px"><input type="checkbox" name="featured" ${d.featured ? "checked" : ""}> Feature at the top</label>
+      <label style="display:flex;gap:8px;align-items:center;margin-top:22px"><input type="checkbox" name="active" ${d.active === false ? "" : "checked"}> Show on the site</label>
+    </div>
+    <fieldset style="border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:10px"><legend style="padding:0 6px;font-weight:600">Tickets</legend>
+      <p class="note" style="margin:0">Price 0 = free. For card payments, paste a Stripe Payment Link for that ticket (from your Stripe dashboard → Payment links). Leave it empty and people reserve and pay later.</p>
+      ${tk.map((t, i) => `<div style="display:grid;grid-template-columns:2fr 1fr 3fr;gap:8px"><input name="tname${i}" placeholder="${i ? "Another ticket type (optional)" : "Ticket name"}" value="${esc(t.name || "")}"><input name="tprice${i}" type="number" min="0" step="0.01" placeholder="Price $" value="${t.name ? (+t.price || 0) : ""}"><input name="tstripe${i}" type="url" placeholder="https://buy.stripe.com/… (optional)" value="${esc(t.stripe || "")}"></div>`).join("")}
+    </fieldset>
+    <div style="display:grid;gap:8px"><b>Cover photo</b>
+      ${cover ? `<img src="${esc(cover)}" alt="" style="width:100%;max-width:420px;aspect-ratio:16/9;object-fit:cover;border-radius:14px">` : ""}
+      <label>Photo link<input name="coverUrl" type="url" placeholder="https://…" value="${esc(String(d.cover || "").startsWith("img:") ? "" : d.cover || "")}"></label>
+      <label>or upload a photo<input type="file" id="evPhoto" accept="image/*"></label></div>
+    <p id="evAdmMsg" class="note" hidden></p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between"><button class="btn" type="submit">${isNew ? "Create event" : "Save changes"}</button>${isNew ? "" : `<button class="btn ghost" type="button" data-evdel="${esc(EVADM.edit)}" style="color:var(--danger)">Delete event</button>`}</div>
+  </form>`;
+}
+function attendeesHTML(){
+  const e = eventById(EVADM.att); if (!e) { EVADM.att = null; return eventsAdminHTML(); }
+  const all = (ADM.bookings || []).filter(x => x.kind === "event" && x.eventId === e.id).sort((a, b) => (a.number || 0) - (b.number || 0));
+  const live = all.filter(x => x.status !== "Cancelled"), sold = live.reduce((a, x) => a + (x.qty || 1), 0);
+  const paid = live.filter(x => x.status !== "Requested").reduce((a, x) => a + (x.total || 0), 0), owed = live.filter(x => x.status === "Requested").reduce((a, x) => a + (x.total || 0), 0);
+  return `<div class="panel" style="display:grid;gap:12px">
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><div><h2 style="margin:0">${esc(e.title)}</h2><span class="note">${evDayShort(e.startMs)} · ${evTime(e.startMs)} · ${sold}/${e.capacity} reserved · ${money(paid)} paid${owed ? " · " + money(owed) + " still to pay" : ""}</span></div>
+      <span style="display:flex;gap:8px"><button type="button" class="btn small ghost" data-evcsv="${esc(e.id)}">Download list</button><button type="button" class="linkbtn" data-evback>← Back</button></span></div>
+    ${all.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th>#</th><th>Name</th><th>Contact</th><th>Tickets</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>
+      ${all.map(x => `<tr><td>T${x.number}</td><td>${esc(x.name || "")}</td><td>${esc(x.email || "")}${x.phone ? "<br>" + esc(x.phone) : ""}</td><td>${(x.items || []).map(i => `${i.qty} × ${esc(i.name)}`).join("<br>")}</td>
+        <td>${x.total ? money(x.total) : "Free"}<br><small class="note">${x.payment === "card" ? "Card" : x.payment === "free" ? "" : "Pay later"}</small></td><td>${pill(x.status === "Requested" ? (x.total ? "Not paid" : "Reserved") : x.status === "Confirmed" ? (x.total ? "Paid" : "Confirmed") : x.status)}</td>
+        <td style="white-space:nowrap">${x.status === "Requested" && x.total ? `<button class="linkbtn" type="button" data-evst="${x.id}" data-s="Confirmed">Mark paid</button> ` : ""}${["Requested", "Confirmed"].includes(x.status) ? `<button class="linkbtn" type="button" data-evst="${x.id}" data-s="Checked in">Check in</button> <button class="linkbtn" type="button" data-evst="${x.id}" data-s="Cancelled" style="color:var(--danger)">Cancel</button>` : x.status === "Cancelled" ? `<button class="linkbtn" type="button" data-evst="${x.id}" data-s="Requested">Restore</button>` : ""}</td></tr>`).join("")}
+    </tbody></table></div>` : `<div class="empty">No tickets yet.</div>`}</div>`;
+}
+document.addEventListener("click", async ev => {
+  const b = ev.target.closest("button"); if (!b || !isAdmin()) return;
+  if (b.hasAttribute("data-evnew")){ EVADM.edit = "new"; EVADM.photo = null; refreshAdmin(true); return; }
+  if (b.dataset.evedit){ EVADM.edit = b.dataset.evedit; EVADM.photo = null; refreshAdmin(true); return; }
+  if (b.dataset.evatt){ EVADM.att = b.dataset.evatt; refreshAdmin(true); return; }
+  if (b.hasAttribute("data-evback")){ EVADM.edit = EVADM.att = null; EVADM.photo = null; refreshAdmin(true); return; }
+  if (b.dataset.evdel){ if (!confirmInline(b, "Click again to delete")) return; try { const d = ALL_EVENTS.find(x => x.id === b.dataset.evdel) || {}; await FB.deleteService(b.dataset.evdel, String(d.cover || "").startsWith("img:") ? [d.cover.slice(4)] : []); EVADM.edit = null; toast("Event deleted"); refreshAdmin(true); } catch (err) { console.error(err); toast("Couldn't delete"); } return; }
+  if (b.dataset.evst){ b.disabled = true; try { await FB.setTicketStatus(b.dataset.evst, b.dataset.s); toast("Updated"); } catch (err) { console.error(err); toast(String(err.message).includes("sold-out") ? "No spots left to restore this ticket" : "Couldn't update"); b.disabled = false; } return; }
+  if (b.dataset.evcsv){
+    const e = eventById(b.dataset.evcsv), rows = (ADM.bookings || []).filter(x => x.kind === "event" && x.eventId === b.dataset.evcsv);
+    const q = s => `"${String(s ?? "").replace(/"/g, '""')}"`;
+    const csv = [["Ticket", "Name", "Email", "Phone", "Tickets", "Total", "Payment", "Status"].join(",")].concat(rows.map(x => [`T${x.number}`, x.name, x.email, x.phone, (x.items || []).map(i => `${i.qty} x ${i.name}`).join("; "), x.total || 0, x.payment, x.status].map(q).join(","))).join("\n");
+    const url = URL.createObjectURL(new Blob([csv], {type: "text/csv"})), a = document.createElement("a"); a.href = url; a.download = `attendees-${b.dataset.evcsv}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+    return;
+  }
+});
+document.addEventListener("change", async ev => {
+  if (ev.target.id !== "evPhoto" || !ev.target.files[0]) return;
+  try { EVADM.photo = await resizeImage(ev.target.files[0], 1600, .82); const f = $("#evAdmForm"); if (f){ const keep = Object.fromEntries(new FormData(f)); refreshAdmin(true); const g = $("#evAdmForm"); if (g) Object.entries(keep).forEach(([k, v]) => { const el = g.elements[k]; if (el && el.type !== "file" && el.type !== "checkbox") el.value = v; }); } } catch (err) { console.error(err); toast("Couldn't read that photo"); }
+});
+document.addEventListener("submit", async ev => {
+  if (ev.target.id !== "evAdmForm") return;
+  ev.preventDefault(); if (!isAdmin()) return;
+  const f = ev.target, g = n => String(f.elements[n] ? f.elements[n].value : "").trim(), msg = $("#evAdmMsg");
+  const isNew = EVADM.edit === "new", id = isNew ? nextEventId() : EVADM.edit, old = ALL_EVENTS.find(x => x.id === id) || {};
+  const startMs = torontoMs(g("date"), g("start")); let endMs = torontoMs(g("date"), g("end")); if (endMs <= startMs) endMs += 86400000;   // ends after midnight
+  const tickets = [0, 1, 2, 3].map(i => ({name: g("tname" + i), price: Math.round((+g("tprice" + i) || 0) * 100) / 100, stripe: g("tstripe" + i)})).filter(t => t.name);
+  if (!tickets.length){ msg.hidden = false; msg.textContent = "Add at least one ticket (price 0 for free)."; return; }
+  const btn = f.querySelector('button[type="submit"]'); btn.disabled = true; msg.hidden = false; msg.textContent = "Saving…";
+  try {
+    let cover = g("coverUrl") || (String(old.cover || "").startsWith("img:") ? old.cover : "");
+    if (EVADM.photo){ const imgId = await FB.saveImage(EVADM.photo); IMG[imgId] = EVADM.photo; cover = "img:" + imgId; }
+    const data = {kind: "event", title: g("title"), category: g("category"), startMs, endMs, format: g("format"), venue: g("venue"), address: g("address"), city: g("city"), onlineInfo: g("onlineInfo"),
+      summary: g("summary"), description: f.elements.description.value.trim(), organizer: g("organizer") || "online.shop.on.ca", capacity: Math.max(1, parseInt(g("capacity"), 10) || 100),
+      featured: f.elements.featured.checked, active: f.elements.active.checked, tickets, cover};
+    await FB.saveService(id, data, isNew);
+    EVADM.edit = null; EVADM.photo = null; toast(isNew ? "Event created" : "Saved"); refreshAdmin(true);
+  } catch (err) { console.error(err); msg.textContent = "Couldn't save: " + (err.code || err.message); btn.disabled = false; }
+});
+
 /* ---- My orders ---- */
 function startMyOrders(){
   if (!FB || !USER || MY.unsub) return;
@@ -2951,7 +3566,8 @@ function myOrdersView(){
   if (!USER) return needSignIn("orders", "Sign in to see your orders and bookings", "Your orders, bookings and their status show here after you sign in.");
   startMyOrders(); startMyBookings();
   return `<div class="sectionhead"><h1>My orders &amp; bookings</h1></div>
-    <h2 style="margin:6px 0 12px">Bookings</h2>${myBookingsHTML()}
+    <h2 style="margin:6px 0 12px">Event tickets</h2>${myTicketsHTML()}
+    <h2 style="margin:26px 0 12px">Bookings</h2>${myBookingsHTML()}
     <h2 style="margin:26px 0 12px">Orders</h2>${myOrdersList()}`;
 }
 function myOrdersList(){
@@ -2988,7 +3604,7 @@ function adminView(){
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
   return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them.</p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested").length} new)` : ""}</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
+    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
 }
@@ -2998,6 +3614,7 @@ function adminBody(){
   if (ADM.tab === "services") return servicesAdminHTML();
   if (ADM.tab === "bookings") return adminBookingsHTML();
   if (ADM.tab === "providers") return providersAdminHTML();
+  if (ADM.tab === "events") return eventsAdminHTML();
   if (!ADM.orders || !ADM.users) return `<div class="empty">Loading…</div>`;
   return ADM.tab === "customers" ? customersHTML() : adminOrdersHTML();
 }
@@ -3115,7 +3732,8 @@ function fsToService(d){
 }
 function useServices(all){
   useProviders(all.filter(d => d.kind === "provider"));
-  const list = all.filter(d => d.kind !== "provider");
+  useEvents(all.filter(d => d.kind === "event"));
+  const list = all.filter(d => d.kind !== "provider" && d.kind !== "event");
   ALL_SERVICES = list; servicesLoaded = true;
   SERVICES = list.map(fsToService).filter(s => s.active).sort((a,b) => (a.order - b.order) || a.title.localeCompare(b.title));
 }
@@ -3347,6 +3965,10 @@ function bookingCardHTML(b, admin){
 }
 function myBookingsHTML(){
   if (!MY.bookings) return `<div class="empty">Loading your bookings…</div>`;
+  const ALLB = MY.bookings; MY.bookings = ALLB.filter(b => b.kind !== "event");
+  try { return myBookingsInner(); } finally { MY.bookings = ALLB; }
+}
+function myBookingsInner(){
   if (!MY.bookings.length) return `<div class="empty">No bookings yet. <a href="#services" style="color:var(--link)">Browse services and classes</a></div>`;
   const now = Date.now(), up = MY.bookings.filter(b => b.startMs + b.durationMin*60000 >= now && !["Cancelled"].includes(b.status)), past = MY.bookings.filter(b => !up.includes(b)).reverse();
   return `${up.length ? `<div class="ordlist">${up.map(b => bookingCardHTML(b)).join("")}</div>` : `<div class="empty">No upcoming bookings. <a href="#services" style="color:var(--link)">Book a service</a></div>`}
@@ -3416,7 +4038,7 @@ document.addEventListener("submit", async e => {
 const BADM = {filter: "Upcoming", q: ""};
 function adminBookingsHTML(){
   if (!ADM.bookings) return `<div class="empty">Loading bookings…</div>`;
-  const now = Date.now(), all = ADM.bookings;
+  const now = Date.now(), all = ADM.bookings.filter(b => b.kind !== "event");
   const isUp = b => b.startMs + b.durationMin * 60000 >= now && ["Requested", "Confirmed"].includes(b.status);
   const F = {Upcoming: isUp, Requested: b => b.status === "Requested", Confirmed: b => b.status === "Confirmed" && isUp(b), Past: b => !isUp(b) && b.status !== "Cancelled", Cancelled: b => b.status === "Cancelled", All: () => true};
   const q = BADM.q.trim().toLowerCase();
@@ -4052,6 +4674,42 @@ window.SHOP_FB = {
       const sref = b.slotKey ? doc(db, "slots", b.slotKey) : null, sl = sref ? await tx.get(sref) : null;
       if (sl && sl.exists() && (sl.data().count || 0) > 0) tx.update(sref, {count: sl.data().count - 1});
       tx.update(bref, {status: "Cancelled", updatedAt: serverTimestamp(), history: arrayUnion({status: "Cancelled", by: "customer", at: new Date().toISOString()})});
+    });
+  },
+  /* v65 events: each ticket takes one place in the event's counter (the database rules allow +1 at a time, never past the event's capacity) */
+  watchSlotsIn: (ids, cb, err) => onSnapshot(query(collection(db, "slots"), where("serviceId", "in", ids)), s => { const m = {}; s.docs.forEach(d => m[d.id] = d.data().count || 0); cb(m); }, err),
+  async reserveTickets(b, qty, capacity){
+    const slotRef = doc(db, "slots", b.slotKey); let taken = 0;
+    const step = d => runTransaction(db, async tx => { const sl = await tx.get(slotRef), used = sl.exists() ? (sl.data().count || 0) : 0;
+      if (d > 0){ if (used >= capacity) throw new Error("sold-out"); if (sl.exists()) tx.update(slotRef, {count: used + 1}); else tx.set(slotRef, {serviceId: b.eventId, startMs: b.startMs, count: 1}); }
+      else if (sl.exists() && used > 0) tx.update(slotRef, {count: used - 1}); });
+    try {
+      for (let i = 0; i < qty; i++){ await step(1); taken++; }
+      const counter = doc(db, "counters", "tickets"), ref = doc(collection(db, "bookings"));
+      const number = await runTransaction(db, async tx => { const c = await tx.get(counter), n = c.exists() ? c.data().n + 1 : 1001; tx.set(counter, {n});
+        tx.set(ref, {...b, number: n, status: "Requested", createdAt: serverTimestamp(), updatedAt: serverTimestamp(), history: [{status: "Requested", at: new Date().toISOString(), by: "customer"}]}); return n; });
+      return {id: ref.id, number};
+    } catch (e) { for (let i = 0; i < taken; i++){ try { await step(-1); } catch(_) {} } throw e; }
+  },
+  async cancelMyTicket(id){
+    const bref = doc(db, "bookings", id), b = (await getDoc(bref)).data();
+    if (!["Requested", "Confirmed"].includes(b.status)) throw new Error("not-cancellable");
+    await updateDoc(bref, {status: "Cancelled", updatedAt: serverTimestamp(), history: arrayUnion({status: "Cancelled", by: "customer", at: new Date().toISOString()})});
+    const sref = doc(db, "slots", b.slotKey);
+    for (let i = 0; i < (b.qty || 1); i++){ try { await runTransaction(db, async tx => { const sl = await tx.get(sref); if (sl.exists() && (sl.data().count || 0) > 0) tx.update(sref, {count: sl.data().count - 1}); }); } catch(_) {} }
+  },
+  async setTicketStatus(id, status){
+    return runTransaction(db, async tx => {
+      const bref = doc(db, "bookings", id), b = (await tx.get(bref)).data(), q = b.qty || 1;
+      const was = b.status !== "Cancelled", now = status !== "Cancelled";
+      const sref = doc(db, "slots", b.slotKey), sl = was !== now ? await tx.get(sref) : null, ev = was !== now && now ? await tx.get(doc(db, "services", b.eventId)) : null;
+      if (was !== now){
+        const used = sl.exists() ? (sl.data().count || 0) : 0;
+        if (now){ const cap = ev.exists() ? (+ev.data().capacity || 0) : 0; if (used + q > cap) throw new Error("sold-out");
+          if (sl.exists()) tx.update(sref, {count: used + q}); else tx.set(sref, {serviceId: b.eventId, startMs: b.startMs, count: q}); }
+        else if (sl.exists()) tx.update(sref, {count: Math.max(0, used - q)});
+      }
+      tx.update(bref, {status, updatedAt: serverTimestamp(), history: arrayUnion({status, by: "admin", at: new Date().toISOString()})});
     });
   },
   /* Change an order's status; items come out of stock at "Ready for pickup" (or "Completed") and go back if it moves away from those */
