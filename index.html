@@ -1787,18 +1787,11 @@ function filterBarHTML(cond, what){
     <div class="flthead"><h2>More filters</h2><button type="button" class="fltx" data-fclose aria-label="Close filters">×</button></div>
     <div class="fltbody">
       <div id="fltLists">${fltLists(cond)}</div>`;
-  return `<div class="toolbar ft">
-    <button type="button" class="fltbtn" id="fltBtn" data-fopen aria-expanded="${fltOpen}" aria-controls="fltPanel">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
-      Filter <span class="fltbadge" id="fltBadge">${activeFilters(cond).length || ""}</span></button>
-    <label class="sortlbl">Sort by
-      <select id="sort"><option value="featured"${sortBy==="featured"?" selected":""}>Featured</option><option value="low"${sortBy==="low"?" selected":""}>Price: low to high</option><option value="high"${sortBy==="high"?" selected":""}>Price: high to low</option></select>
-    </label>
-  </div>
+  return `<div class="qbar" id="qbar"><div class="qrow qonly"><button type="button" class="morefl" id="fltBtn" data-fopen aria-expanded="${fltOpen}" aria-controls="fltPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>More filters <span class="fltbadge" id="fltBadge">${activeFilters(cond).length || ""}</span></button></div></div>
   <div class="fltchips" id="fltChips">${fltChipsHTML(cond)}</div>
   <div class="fltback" id="fltBack" data-fclose ${fltOpen ? "" : "hidden"}></div>
   <section class="fltpanel" id="fltPanel" role="dialog" aria-label="Filter ${what}" ${fltOpen ? "" : "hidden"}>
-    <div class="flthead"><h2>Filter</h2><button type="button" class="fltx" data-fclose aria-label="Close filters">×</button></div>
+    <div class="flthead"><h2>More filters</h2><button type="button" class="fltx" data-fclose aria-label="Close filters">×</button></div>
     <div class="fltbody">
       <div id="fltLists">${fltLists(cond)}</div>`;
 }
@@ -3191,12 +3184,12 @@ const ARROW = '<span class="arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><
 const viewAll = (cls, href, small, big) => `<a class="viewall ${cls}" href="${href}"><small>${small}</small><b>${big}</b>${ARROW}</a>`;
 function servicesView(){
   const F = FLT.services, n = activeFilters("services").length;
-  return `<section class="svchero"><div>
-      <span class="eyebrow" style="color:var(--accent)">Services &amp; classes</span>
-      <h1>Learn something new, or get expert help</h1>
-      <p>Computer lessons, online training and professional services from trusted local providers. Choose a service, pick an open time, and you're booked. No payment online: you pay the provider at or before your session.</p>
-      <div class="steps"><span><b>1</b>Choose a service</span><span><b>2</b>Pick a date &amp; time</span><span><b>3</b>Get your confirmation</span></div>
-    </div><div class="art">${svgI("monitor")}</div></section>
+  return `<section class="pagehero lhero services">
+      <div class="phtext"><h1>Services</h1><p>Classes and expert help, online or in person. Pick a time and pay at your session.</p></div>
+      ${SERVICES.length ? `<label class="sortlbl hsort">Sort by
+        <select id="sort"><option value="featured"${sortBy==="featured"?" selected":""}>Featured</option><option value="low"${sortBy==="low"?" selected":""}>Price: low to high</option><option value="high"${sortBy==="high"?" selected":""}>Price: high to low</option></select>
+      </label>` : ""}
+    </section>
     ${!SERVICES.length ? `<div class="empty">${servicesLoaded || fbFailed ? `New services are coming soon. <a href="#contact-us" style="color:var(--link)">Tell us what you'd like to learn</a>.` : "Loading services…"}</div>` : `
     ${filterBarHTML("services", "services")}
     <div class="fsec"><h3>Price</h3>
