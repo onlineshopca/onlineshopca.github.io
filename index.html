@@ -5284,9 +5284,21 @@ function mkContactHTML(d){
 }
 
 /* ---- admin: seller applications and member listings ---- */
+function mkAdmLoad(){
+  MK.adm = "loading"; const at = MK.admAt = Date.now();
+  const T = (pr, ms) => Promise.race([pr, new Promise((_, no) => setTimeout(() => no({code: "timeout"}), ms))]);
+  Promise.allSettled([T(FB.mkSellers(), 15000), T(FB.mkAll(), 15000), T(FB.dtReports(), 15000)]).then(([s, l, r]) => {
+    if (at !== MK.admAt) return;
+    const bad = [s, l].filter(x => x.status === "rejected").map(x => (x.reason && (x.reason.code || x.reason.message)) || "error");
+    if (bad.length) console.error("sellers admin", bad);
+    MK.adm = {sellers: s.status === "fulfilled" ? s.value : [], list: l.status === "fulfilled" ? l.value : [], reports: r.status === "fulfilled" ? r.value.filter(x => String(x.about).startsWith("market:")) : [], err: bad.length ? bad.join(", ") : ""};
+    refreshAdmin(true);
+  });
+  setTimeout(() => { if (at === MK.admAt && MK.adm === "loading") refreshAdmin(true); }, 16000);
+}
 function membersAdminHTML(){
-  if (!MK.adm){ MK.adm = "loading"; Promise.all([FB.mkSellers(), FB.mkAll(), FB.dtReports().catch(() => [])]).then(([s, l, r]) => { MK.adm = {sellers: s, list: l, reports: r.filter(x => String(x.about).startsWith("market:"))}; refreshAdmin(); }).catch(e => { console.error(e); MK.adm = {sellers: [], list: [], reports: [], err: true}; refreshAdmin(); }); }
-  if (MK.adm === "loading") return `<div class="empty">Loading…</div>`;
+  if (!MK.adm || (MK.adm === "loading" && Date.now() - (MK.admAt || 0) > 20000)) mkAdmLoad();
+  if (MK.adm === "loading") return `<div class="empty">Loading sellers…</div>`;
   const A = MK.adm, S = A.sellers.slice().sort((a, b) => (a.status === "pending" ? 0 : 1) - (b.status === "pending" ? 0 : 1) || tsMs(b.appliedAt) - tsMs(a.appliedAt));
   const srow = s => `<tr><td><b>${esc(s.name || "")}</b><br><small>${esc(s.email || "")}${s.phone ? " · " + esc(s.phone) : ""}</small></td><td>${esc(s.address || "")}</td><td>${ageOf(s.dob) != null ? ageOf(s.dob) : "?"}</td><td>${tsMs(s.appliedAt) ? new Date(tsMs(s.appliedAt)).toLocaleDateString("en-CA") : ""}</td><td><span class="hmst ${s.status === "approved" ? "live" : s.status === "pending" ? "wait" : "no"}">${esc(s.status)}</span></td>
     <td style="white-space:nowrap">${s.status !== "approved" ? `<button class="linkbtn" type="button" data-mkseller="approved" data-id="${esc(s.id)}">Approve</button> ` : ""}${s.status === "pending" ? `<button class="linkbtn" type="button" data-mkseller="rejected" data-id="${esc(s.id)}">Reject</button>` : s.status === "approved" ? `<button class="linkbtn" type="button" data-mkseller="suspended" data-id="${esc(s.id)}">Pause selling</button>` : ""}</td></tr>`;
@@ -5295,7 +5307,7 @@ function membersAdminHTML(){
     <td>${d.certified ? certBadge(true) : ""}</td>
     <td style="white-space:nowrap"><button class="linkbtn" type="button" data-mkcert="${d.certified ? "0" : "1"}" data-id="${esc(d.id)}">${d.certified ? "Remove badge" : "Certify ✓"}</button> ${d.status === "removed" ? `<button class="linkbtn" type="button" data-mkadmset="live" data-id="${esc(d.id)}">Put back</button>` : `<button class="linkbtn" type="button" data-mkadmset="removed" data-id="${esc(d.id)}">Take down</button>`} <button class="linkbtn" type="button" data-mkadmdel="${esc(d.id)}" style="color:var(--danger)">${MK.arm === "a" + d.id ? "Click again" : "Delete"}</button></td></tr>`;
   const pend = S.filter(s => s.status === "pending").length;
-  return `${A.err ? `<p class="formerr">Couldn't load. Make sure the new database rules are published.</p>` : ""}
+  return `${A.err ? `<p class="formerr">Couldn't load everything (${esc(A.err)}). Try Refresh. If it keeps happening, sign out and sign in again with the admin account.</p>` : ""}
     <div class="admintools"><span class="note">${pend} application${pend === 1 ? "" : "s"} waiting · ${S.filter(s => s.status === "approved").length} approved sellers · ${L.filter(d => d.status === "live").length} live listings</span><button class="btn small ghost" type="button" data-mkadmreload>Refresh</button></div>
     <h2 class="hmh2">Seller applications</h2>
     ${S.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th>Member</th><th>Address</th><th>Age</th><th>Applied</th><th>Status</th><th></th></tr></thead><tbody>${S.map(srow).join("")}</tbody></table></div>` : `<div class="empty">No applications yet.</div>`}
