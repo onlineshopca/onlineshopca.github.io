@@ -1836,6 +1836,11 @@ a[href="#dating"][data-tab="dating"],.footcols a[href="#dating"],footer a[href="
 .addrsug .addrsrc{font-size:11.5px;color:var(--muted);justify-content:flex-end;cursor:default;padding:4px 8px}
 .addrsug .addrnone{color:var(--muted);cursor:default}
 a.gicon.hasdot{position:relative}a.gicon.hasdot::after{content:"";position:absolute;top:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#e0245e;border:2px solid #fff}
+.addrrow{display:grid;grid-template-columns:1fr 140px;gap:12px;align-items:end}
+.addrrow3{display:grid;grid-template-columns:1fr 1fr 130px;gap:12px;align-items:end}
+@media (max-width:640px){.addrrow{grid-template-columns:1fr 100px}.addrrow3{grid-template-columns:1fr 1fr}.addrrow3>label:first-child{grid-column:1/-1}}
+@keyframes addrfill{0%{background:#e3f6ec}100%{background:transparent}}
+#profileForm .filled{animation:addrfill 1.4s ease-out}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -3171,13 +3176,17 @@ function accountView(){
           <label>Email <small>(sign-in address)</small><input value="${esc(USER.email || "")}" disabled></label>
           <label>Date of birth <small id="ageOut">${ageOf(pr.dob) != null ? "Age " + ageOf(pr.dob) : ""}</small><input name="dob" type="date" min="1900-01-01" max="${new Date().toLocaleDateString("en-CA")}" autocomplete="bday" value="${esc(pr.dob || "")}"></label>
         </div>
-        <div class="addrwrap"><label for="addrIn">Address <small>(start typing, then pick from the list)</small></label>
-          <input id="addrIn" name="address" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="addrList" placeholder="e.g. 10 Yonge Street, Richmond Hill" maxlength="160" value="${esc(pr.address || "")}">
-          <ul id="addrList" class="addrsug" role="listbox" aria-label="Address suggestions" hidden></ul>
-          <input type="hidden" name="lat" value="${pr.lat != null ? pr.lat : ""}"><input type="hidden" name="lng" value="${pr.lng != null ? pr.lng : ""}"></div>
-        <div class="row">
-          <label>City<input name="city" autocomplete="address-level2" value="${esc(pr.city || "")}"></label>
-          <span></span>
+        <div class="addrrow">
+          <div class="addrwrap"><label for="addrIn">Street address <small>(type it, then pick from the list)</small></label>
+            <input id="addrIn" name="street" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="addrList" placeholder="e.g. 10268 Yonge Street" maxlength="100" value="${esc(pr.street != null ? pr.street : pr.address || "")}">
+            <ul id="addrList" class="addrsug" role="listbox" aria-label="Address suggestions" hidden></ul></div>
+          <label>Unit / Apt <small>(optional)</small><input name="unit" maxlength="12" autocomplete="address-line2" value="${esc(pr.unit || "")}"></label>
+        </div>
+        <input type="hidden" name="lat" value="${pr.lat != null ? pr.lat : ""}"><input type="hidden" name="lng" value="${pr.lng != null ? pr.lng : ""}">
+        <div class="addrrow3">
+          <label>City<input name="city" autocomplete="address-level2" maxlength="40" value="${esc(pr.city || "")}"></label>
+          <label>Province<select name="province" autocomplete="address-level1"><option value=""></option>${PROVS.map(([c, n]) => `<option value="${c}"${(pr.province || "ON") === c ? " selected" : ""}>${n}</option>`).join("")}</select></label>
+          <label>Postal code<input name="postal" maxlength="7" autocomplete="postal-code" placeholder="L4C 3B2" value="${esc(pr.postal || "")}"></label>
         </div>
         <div id="profileMsg" hidden></div>
         <button class="btn" type="submit" style="justify-self:start">Save details</button>
@@ -5298,6 +5307,9 @@ function membersAdminHTML(){
 
 /* ---- address search for "Your details" (OpenStreetMap, free) ---- */
 const ADDR = {t: null, list: [], i: -1, seq: 0};
+const PROVS = [["AB", "Alberta"], ["BC", "British Columbia"], ["MB", "Manitoba"], ["NB", "New Brunswick"], ["NL", "Newfoundland and Labrador"], ["NS", "Nova Scotia"], ["NT", "Northwest Territories"], ["NU", "Nunavut"], ["ON", "Ontario"], ["PE", "Prince Edward Island"], ["QC", "Quebec"], ["SK", "Saskatchewan"], ["YT", "Yukon"]];
+const provCode = n => { n = String(n || "").trim().toLowerCase(); const x = PROVS.find(([c, m]) => c.toLowerCase() === n || m.toLowerCase() === n || (n === "québec" && c === "QC")); return x ? x[0] : ""; };
+const fmtPostal = p => { const x = String(p || "").toUpperCase().replace(/\s+/g, ""); return /^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(x) ? x.slice(0, 3) + " " + x.slice(3) : String(p || "").toUpperCase(); };
 function addrLabel(p){
   const street = [p.housenumber, p.street].filter(Boolean).join(" ");
   const first = street || p.name || "";
@@ -5307,9 +5319,9 @@ async function addrSearch(q){
   const seq = ++ADDR.seq, box = $("#addrList"), inp = $("#addrIn"); if (!box || !inp) return;
   if (q.length < 3){ box.hidden = true; inp.setAttribute("aria-expanded", "false"); return; }
   try {
-    const r = await fetch("https://photon.komoot.io/api/?limit=6&lang=en&lat=43.88&lon=-79.44&q=" + encodeURIComponent(q));
+    const r = await fetch("https://photon.komoot.io/api/?limit=8&lang=en&lat=43.88&lon=-79.44&layer=house&layer=street&q=" + encodeURIComponent(q));
     const j = await r.json(); if (seq !== ADDR.seq) return;
-    ADDR.list = (j.features || []).filter(f => (f.properties || {}).countrycode === "CA").map(f => ({label: addrLabel(f.properties), city: f.properties.city || f.properties.town || f.properties.village || f.properties.district || "", lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0]})).filter(x => x.label);
+    ADDR.list = (j.features || []).filter(f => (f.properties || {}).countrycode === "CA").map(f => { const p = f.properties; return {label: addrLabel(p), street: [p.housenumber, p.street].filter(Boolean).join(" ") || (p.street ? p.street : p.name || ""), city: p.city || p.town || p.village || p.district || "", state: p.state || "", postal: p.postcode || "", lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0]}; }).filter(x => x.label);
     ADDR.i = -1;
     box.innerHTML = ADDR.list.length ? ADDR.list.map((a, i) => `<li role="option" id="addrOpt${i}" data-addr="${i}" aria-selected="false">${HM_PIN}<span>${esc(a.label)}</span></li>`).join("") + `<li class="addrsrc" aria-hidden="true">Search by OpenStreetMap</li>` : `<li class="addrnone">No matches yet. Keep typing, or add the city.</li>`;
     box.hidden = false; inp.setAttribute("aria-expanded", "true");
@@ -5317,7 +5329,10 @@ async function addrSearch(q){
 }
 function addrPick(i){
   const a = ADDR.list[i], f = $("#profileForm"); if (!a || !f) return;
-  f.address.value = a.label; f.lat.value = a.lat; f.lng.value = a.lng; if (a.city) f.city.value = a.city;
+  f.street.value = a.street || a.label.split(",")[0]; f.lat.value = a.lat; f.lng.value = a.lng;
+  f.city.value = a.city || ""; f.postal.value = fmtPostal(a.postal || ""); const pc = provCode(a.state); if (pc) f.province.value = pc;
+  [f.city, f.province, f.postal].forEach(x => { x.classList.remove("filled"); void x.offsetWidth; x.classList.add("filled"); });
+  if (!a.postal) f.postal.focus(); else f.unit.focus();
   const box = $("#addrList"); box.hidden = true; $("#addrIn").setAttribute("aria-expanded", "false");
 }
 document.addEventListener("input", e => {
@@ -6347,7 +6362,11 @@ document.addEventListener("submit", async e => {
     const pm = $("#profileMsg"), err = validate(f); if (err) return showMsg(pm,false,err);
     const dob = (d.dob || "").trim(), age = ageOf(dob);
     if (dob && (age == null || new Date(dob) > new Date())) return showMsg(pm, false, "Please check your date of birth.");
-    const data = {name:d.name.trim(), phone:(d.phone||"").trim(), city:(d.city||"").trim(), address:(d.address||"").trim().slice(0, 160), dob, lat: d.lat ? +d.lat : null, lng: d.lng ? +d.lng : null};
+    const street = (d.street || "").trim().slice(0, 100), unit = (d.unit || "").trim().slice(0, 12), city = (d.city || "").trim().slice(0, 40), province = d.province || "", postal = fmtPostal((d.postal || "").trim()).slice(0, 7);
+    if (postal && !/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(postal)) return showMsg(pm, false, "Please check your postal code (like L4C 3B2).");
+    if (street && !city) return showMsg(pm, false, "Please add your city.");
+    const address = street ? [(unit ? unit + "-" : "") + street, city, province, postal].filter(Boolean).join(", ") : "";
+    const data = {name:d.name.trim(), phone:(d.phone||"").trim(), city, street, unit, province, postal, address, dob, lat: d.lat ? +d.lat : null, lng: d.lng ? +d.lng : null};
     try { await FB.saveProfile(USER.uid, data); PROFILE = {...(PROFILE||{}), ...data}; updateAcct(); showMsg(pm,true,"Details saved."); }
     catch(er){ console.error(er); showMsg(pm,false,"Couldn't save. Try again."); }
     return;
