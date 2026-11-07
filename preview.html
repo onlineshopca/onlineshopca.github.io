@@ -1801,6 +1801,41 @@ a[data-tab="homes"].hasdot::after{content:"";position:absolute;top:4px;right:cal
 }
 /* v75: dating archived, links hidden */
 a[href="#dating"][data-tab="dating"],.footcols a[href="#dating"],footer a[href="#dating"]{display:none!important}
+
+/* ===== v77: member selling ===== */
+.cert{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:#0a7a4f;font-size:14px;line-height:1;white-space:nowrap}
+.cert svg{width:20px;height:20px;flex:none}
+.cert .cb,.certnote .cb{fill:#12a46c;stroke:none}
+.cert .ck,.certnote .ck{fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.cert.sm{font-size:12px;gap:3px}.cert.sm svg{width:15px;height:15px}
+.cseller{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:12.5px;color:var(--muted);min-width:0}
+.cseller>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.svccard .cert{margin-left:8px;vertical-align:middle}
+.evby{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.certnote{display:flex;gap:12px;align-items:flex-start;background:#e9f7f0;border:1px solid #bfe6d3;border-radius:14px;padding:12px 14px;margin:14px 0}
+.certnote svg{width:28px;height:28px;flex:none}
+.certnote span{display:grid;gap:2px}.certnote small{color:#2d5a47;font-size:13.5px}
+.mktags{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mktags .hmdeal{color:#fff!important;position:static}.hmdeal.mknew{background:#0d2f75}.hmdeal.mkused{background:#7a4b12}.hmdeal.mkservice{background:#3c3c8c}.hmdeal.mkevent{background:#8c2f5a}
+.mkh1{font-size:clamp(1.5rem,3.2vw,2.1rem);margin:10px 0 4px}
+.mkprice{margin:0 0 6px;font-size:clamp(1.4rem,2.6vw,1.8rem)!important}
+.mkmember{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:-4px}
+.mkchecks{list-style:none;margin:6px 0 14px;padding:0;display:grid;gap:8px}
+.mkchecks li{display:flex;gap:10px;align-items:center}
+.mkchecks li span{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.mkchecks li.y span{background:#12a46c;color:#fff}.mkchecks li.n span{background:#e8e8ed;color:#6e6e73}.mkchecks li.n{color:var(--muted)}
+.mkok h2{display:flex;align-items:center;gap:10px}
+.mkokdot{width:28px;height:28px;border-radius:50%;background:#12a46c;color:#fff;display:grid;place-items:center;font-size:15px}
+.mknew{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
+.addrwrap{position:relative;display:grid;gap:6px}
+.addrwrap>label{font-weight:500}
+.addrsug{position:absolute;left:0;right:0;top:100%;z-index:30;margin:4px 0 0;padding:6px;list-style:none;background:var(--card,#fff);border:1px solid var(--line,#d2d2d7);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.14);max-height:320px;overflow:auto}
+.addrsug li{display:flex;gap:10px;align-items:center;padding:10px 10px;border-radius:10px;cursor:pointer;font-size:15px}
+.addrsug li svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;color:var(--muted)}
+.addrsug li[aria-selected="true"],.addrsug li[data-addr]:hover{background:#f0f4fb}
+.addrsug .addrsrc{font-size:11.5px;color:var(--muted);justify-content:flex-end;cursor:default;padding:4px 8px}
+.addrsug .addrnone{color:var(--muted);cursor:default}
+a.gicon.hasdot{position:relative}a.gicon.hasdot::after{content:"";position:absolute;top:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#e0245e;border:2px solid #fff}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1852,7 +1887,7 @@ a[href="#dating"][data-tab="dating"],.footcols a[href="#dating"],footer a[href="
 <footer><div class="wrap">
   <nav class="footnav" aria-label="Footer">
     <div><b>Shop</b><a href="#new-items">Brand New</a><a href="#used-items">Used</a><a href="#services">Services &amp; classes</a><a href="#events">Events</a><a href="#dating">Dating</a><a href="#homes">Homes</a></div>
-    <div><b>Account</b><a href="#account">Sign in</a><a href="#my-orders">My orders &amp; bookings</a><a href="#cart">Bag</a></div>
+    <div><b>Account</b><a href="#account">Sign in</a><a href="#selling">Sell on Nojan</a><a href="#my-orders">My orders &amp; bookings</a><a href="#cart">Bag</a></div>
     <div><b>Help</b><a href="#contact-us">Contact us</a><a href="#contact-us">Pickup &amp; delivery</a><a href="#contact-us">Sell us an item</a></div>
     <div><b>Follow</b><a href="https://www.instagram.com/online.shop.on.ca/" target="_blank" rel="noopener">@online.shop.on.ca</a><a href="https://www.instagram.com/online.shop.Used.on.ca/" target="_blank" rel="noopener">@online.shop.Used.on.ca</a></div>
   </nav>
@@ -1975,7 +2010,7 @@ async function loadSheet(){
     const rows = parseCSV(await res.text());
     const head = rows.shift().map(h => h.trim().toLowerCase().replace(/\s+/g, "_"));
     const items = rows.map(r => Object.fromEntries(head.map((h, j) => [h, r[j] || ""]))).map(rowToItem).filter(Boolean);
-    PRODUCTS = items;
+    PRODUCTS = items; if (typeof mkMerge === "function") mkMerge();
     feedState.new = feedState.used = "live";
   } catch(_) { feedState.new = feedState.used = "sample"; }
 }
@@ -1993,7 +2028,7 @@ function fsToItem(d){
 function useProducts(list){
   ALL_PRODUCTS = list;
   PRODUCTS = list.map(fsToItem).filter(p => p.active).sort((a,b) => (a.soldOut - b.soldOut) || (a.order - b.order) || a.pid.localeCompare(b.pid));
-  productSource = "db"; feedState.new = feedState.used = "live";
+  productSource = "db"; feedState.new = feedState.used = "live"; mkMerge();
   Object.keys(cart).forEach(id => { const p = PRODUCTS.find(x=>x.id===id); if (p) cart[id].snap = p; });
   saveCart();
 }
@@ -2071,6 +2106,7 @@ const unpricedNote = t => t.unpriced ? `<p class="note">${t.unpriced} item${t.un
 const TRASH = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
 const qtyOf = id => (cart[id] && cart[id].q) || 0;
 function cardAction(id){
+  if (String(id).startsWith("m-")) return `<a class="btn small addbtn" href="#item-${esc(id)}">View</a>`;
   const q = qtyOf(id);
   if (stockOf(id) <= 0) return `<button class="btn small addbtn" type="button" disabled>Sold out</button>`;
   if (!q) return `<button class="btn small addbtn" type="button" data-add="${id}">Add</button>`;
@@ -2090,7 +2126,7 @@ function refreshCards(id, focusKind){
     }
   });
 }
-function addToCart(id){ const p = PRODUCTS.find(x=>x.id===id); if (!p) return; const q = (cart[id]&&cart[id].q)||0;
+function addToCart(id){ const p = PRODUCTS.find(x=>x.id===id); if (!p || p.member) return; const q = (cart[id]&&cart[id].q)||0;
   if (q >= stockOf(id)){ toast(stockOf(id) <= 0 ? "Sorry, this item is sold out" : `Only ${stockOf(id)} available`); return; }
   cart[id] = {q:q+1, snap:p}; saveCart(); toast("Added to cart"); }
 function toast(t){ const el=$("#toast"); el.textContent=t; el.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>el.hidden=true,1800); }
@@ -2126,7 +2162,7 @@ function productCards(list, opts){
       <a class="piclink tile" href="#item-${esc(p.id)}" aria-label="View ${esc(p.name)}">${picHTML(p, false)}</a>
       <div class="body">
         <a class="name namelink" href="#item-${esc(p.id)}">${esc(p.name)}</a>
-        <span class="cbrand">${[p.condition === "used" && p.grade ? esc(p.grade) : "", showBrand && p.brand ? esc(p.brand) : "", stockTxt(p)].filter(Boolean).join(" · ")}</span>
+        <span class="cbrand">${[p.condition === "used" && p.grade ? esc(p.grade) : "", showBrand && p.brand ? esc(p.brand) : "", stockTxt(p)].filter(Boolean).join(" · ")}</span>${p.member ? `<span class="cseller">${p.certified ? certBadge(true) : ""}<span>by ${esc(p.seller)}${p.city ? " · " + esc(p.city) : ""}</span></span>` : ""}
         <div class="cfoot"><span class="cpwrap"><span class="cprice">${p.price == null ? "Ask for price" : money(p.price)}</span>${saveHST(p) > 0 ? `<span class="chst">Regular <s>${money(withHST(p.was))}</s> incl. HST</span><span class="csave">Save ${money(saveHST(p))}</span>` : ""}</span>
           <div class="cardact" data-act="${p.id}">${cardAction(p.id)}</div></div>
       </div></article>`; }).join("");
@@ -2476,6 +2512,8 @@ const views = {
   listhome(){ return listHomeView(); },
   mylistings(){ return myListingsView(); },
   hchat(){ return hchatView(); },
+  selling(){ return sellingView(); },
+  sell(){ return sellView(); },
   event(){ return eventView(); },
   new(){ return listView("new"); },
   used(){ return listView("used"); },
@@ -2553,6 +2591,7 @@ const views = {
     </div>`;
   },
   item(){
+    if (String(itemId).startsWith("m-")) return mkDetailView(String(itemId).slice(2));
     const p = PRODUCTS.find(x => x.id === itemId);
     if (!p){
       if (feedState.new === "loading") return `<div class="empty">Loading item…</div>`;
@@ -2872,7 +2911,7 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings"};
+const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
 let itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
@@ -2948,6 +2987,8 @@ function render(){
   if (v !== "hchat" && HM.chat.unsub){ HM.chat.unsub(); HM.chat = {id: null, msgs: null, unsub: null}; }
   if (v !== "listhome" && HM.form && !HM.busy){ HM.form = null; HM.editId = null; }
   if (v !== "mylistings" && v !== "admin") HM.arm = "";
+  if (v !== "selling" && v !== "admin") MK.arm = "";
+  if (v !== "sell" && MK.form && !MK.busy){ MK.form = null; MK.editId = null; }
   if (HM.map){ try { HM.map.remove(); } catch (_) {} HM.map = null; }
   if (HM.mini){ try { HM.mini.remove(); } catch (_) {} HM.mini = null; }
   if (v !== "chat" && DT.chat.unsub){ DT.chat.unsub(); DT.chat = {id: null, msgs: null, unsub: null}; }
@@ -2958,7 +2999,8 @@ function render(){
   if (v === "home") homeRowsInit();
   if (priceRange[v]) syncPriceUI(v);
   const it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
-  const navV = it ? it.condition : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : ["person", "matches", "chat", "datingprofile"].includes(v) ? "dating" : ["listing", "listhome", "mylistings", "hchat"].includes(v) ? "homes" : v;
+  const hct = v === "hchat" && (HM.threads || []).find(x => x.id === hchatId), mkt = hct && hct.marketId;
+  const navV = it ? it.condition : v === "hchat" && mkt ? "account" : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : ["person", "matches", "chat", "datingprofile"].includes(v) ? "dating" : ["listing", "listhome", "mylistings", "hchat"].includes(v) ? "homes" : v;
   if (v === "service") afterServiceRender();
   if (v === "provider") renderLinkedInBadges();
   document.querySelectorAll("header nav a, .tabbar a").forEach(a => (a.dataset.tab===navV || a.dataset.also===navV) ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
@@ -2969,6 +3011,8 @@ function render(){
   if (v === "provider"){ const pp = providerById(providerId); if (pp) document.title = `${pp.name} · Nojan`; }
   if (v === "event"){ const ee = eventById(eventId); if (ee) document.title = `${ee.title} · Nojan`; }
   if (v === "events") document.title = "Events · Nojan";
+  if (MK_VIEWS.includes(v)) document.title = (v === "sell" ? "New listing" : "Sell on Nojan") + " · Nojan";
+  { const mid = v === "item" && String(itemId).startsWith("m-") ? itemId : v === "service" && String(serviceId).startsWith("m-") ? serviceId : v === "event" && String(eventId).startsWith("m-") ? eventId : ""; const md = mid && mkFind(mid.slice(2)); if (md) document.title = md.title + " · Nojan"; }
   if (HM_VIEWS.includes(v)){ const hh = v === "listing" && ((HM.list || []).find(x => x.id === listingId) || HM.extra[listingId]); document.title = (hh ? hh.title : {homes: "Homes", listing: "Home", listhome: "List your home", mylistings: "My listings", hchat: "Messages"}[v]) + " · Nojan"; }
   if (DT_VIEWS.includes(v)) document.title = (v === "person" && dtProfile(personId) ? dtProfile(personId).name : {dating: "Dating", matches: "Matches", chat: "Chat", datingprofile: "My dating profile", person: "Dating"}[v]) + " · Nojan";
   const trail = v === "item" ? (it ? [[it.condition === "new" ? "Brand new items" : "Used items", it.condition === "new" ? "#new-items" : "#used-items"], [it.name]] : [["Item"]])
@@ -2979,7 +3023,8 @@ function render(){
          dating:[["Dating"]], person:[["Dating","#dating"],[(dtProfile(personId)||{}).name || "Profile"]], matches:[["Dating","#dating"],["Matches"]],
          chat:[["Dating","#dating"],["Matches","#matches"],["Chat"]], datingprofile:[["Dating","#dating"],["My profile"]],
          homes:[["Homes"]], listing:[["Homes","#homes"],[(((HM.list || []).find(x => x.id === listingId) || HM.extra[listingId] || {}).city) || "Listing"]], listhome:[["Homes","#homes"],["List your home"]],
-         mylistings:[["Homes","#homes"],["My listings"]], hchat:[["Homes","#homes"],["My listings","#my-listings"],["Messages"]]}[v];
+         mylistings:[["Homes","#homes"],["My listings"]], hchat: mkt ? [["Sell on Nojan","#selling"],["Messages"]] : [["Homes","#homes"],["My listings","#my-listings"],["Messages"]],
+         selling:[["Your account","#account"],["Sell on Nojan"]], sell:[["Sell on Nojan","#selling"],[MK.form && MK.form.id ? "Edit listing" : "New listing"]]}[v];
   const cr = $("#crumbs");
   if (trail){ cr.innerHTML = `<li><a href="#home">Home</a></li>` + trail.map(([t,h])=> h?`<li><a href="${h}">${esc(t)}</a></li>`:`<li aria-current="page">${esc(t)}</li>`).join(""); cr.hidden = false; }
   else cr.hidden = true;
@@ -3124,7 +3169,15 @@ function accountView(){
         </div>
         <div class="row">
           <label>Email <small>(sign-in address)</small><input value="${esc(USER.email || "")}" disabled></label>
+          <label>Date of birth <small id="ageOut">${ageOf(pr.dob) != null ? "Age " + ageOf(pr.dob) : ""}</small><input name="dob" type="date" min="1900-01-01" max="${new Date().toLocaleDateString("en-CA")}" autocomplete="bday" value="${esc(pr.dob || "")}"></label>
+        </div>
+        <div class="addrwrap"><label for="addrIn">Address <small>(start typing, then pick from the list)</small></label>
+          <input id="addrIn" name="address" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="addrList" placeholder="e.g. 10 Yonge Street, Richmond Hill" maxlength="160" value="${esc(pr.address || "")}">
+          <ul id="addrList" class="addrsug" role="listbox" aria-label="Address suggestions" hidden></ul>
+          <input type="hidden" name="lat" value="${pr.lat != null ? pr.lat : ""}"><input type="hidden" name="lng" value="${pr.lng != null ? pr.lng : ""}"></div>
+        <div class="row">
           <label>City<input name="city" autocomplete="address-level2" value="${esc(pr.city || "")}"></label>
+          <span></span>
         </div>
         <div id="profileMsg" hidden></div>
         <button class="btn" type="submit" style="justify-self:start">Save details</button>
@@ -3133,6 +3186,7 @@ function accountView(){
     <aside class="panel">
       <h2>Shortcuts</h2>
       <a class="btn" href="#my-orders">My orders</a>
+      <a class="btn ghost" href="#selling" style="color:var(--fg)">Sell on Nojan${(() => { mkEnsureSeller(); const m = MK.me; return m && m.status === "approved" ? " ✓" : m && m.status === "pending" ? " · waiting for approval" : ""; })()}</a>
       ${isAdmin() ? `<a class="btn ghost" href="#admin" style="color:var(--fg)">Admin: manage orders</a>` : ""}
       <a class="linkbtn" href="#cart" style="text-align:left">Go to cart</a>
       <p class="note">Signed in ${viaGoogle ? "with Google" : "with email"} as ${esc(USER.email || "")}.</p>
@@ -3490,7 +3544,7 @@ function useEvents(list){
 function eventById(id){ const d = ALL_EVENTS.find(x => x.id === id); return d ? fsToEvent(d) : EVENTS.find(e => e.id === id) || null; }
 function watchEventSold(){
   if (!FB || !FB.watchSlotsIn) return;
-  const ids = EVENTS.filter(e => !e.sample).map(e => e.id), key = ids.join(",");
+  const ids = EVENTS.filter(e => !e.sample && !e.member).map(e => e.id), key = ids.join(",");
   if (key === EV_SOLD_KEY) return;
   EV_SOLD_KEY = key; EV_UNSUB.forEach(u => { try { u(); } catch(_) {} }); EV_UNSUB = [];
   for (let i = 0; i < ids.length; i += 10) EV_UNSUB.push(FB.watchSlotsIn(ids.slice(i, i + 10), m => {
@@ -3498,7 +3552,7 @@ function watchEventSold(){
     if (["events", "event", "home"].includes(current())) { const box = $("#evResults"); if (box && current() === "events") box.innerHTML = evResultsHTML(); else if (current() !== "event" || !EVQ.done) render(); }
   }, err => console.error(err)));
 }
-const evLeft = e => e.sample ? null : (EV_SOLD[e.id] == null ? e.capacity : Math.max(0, e.capacity - EV_SOLD[e.id]));
+const evLeft = e => e.sample || e.member ? null : (EV_SOLD[e.id] == null ? e.capacity : Math.max(0, e.capacity - EV_SOLD[e.id]));
 function sampleEvents(){   // shown only on the preview page (?demo) while there are no real events yet
   const t = Date.now(), day = 86400000, at = (dd, h) => { const p = tzParts(t + dd * day); return torontoMs(`${p.y}-${String(p.m).padStart(2, "0")}-${String(p.d).padStart(2, "0")}`, `${String(h).padStart(2, "0")}:00`); };
   const mk = (i, o) => ({id: "SAMPLE" + i, sample: true, active: true, capacity: 80, organizer: "Nojan", summary: "Sample event for the preview.", description: "This is a sample so you can see how events look. Real events you add in Admin replace these.", ...o});
@@ -3574,7 +3628,7 @@ function evCardHTML(e){
       <h3><a href="#event-${esc(e.id)}">${esc(e.title)}</a></h3>
       <p class="evline">${svgI("clock")}${evDayShort(e.startMs)} · ${evTime(e.startMs)}</p>
       <p class="evline">${svgI(e.format === "online" ? "video" : "pin")}${esc(evWhere(e))}</p>
-      ${evAvail(e)}${e.sample ? `<span class="evtag">Sample</span>` : ""}
+      ${e.member ? `<p class="evline evby">${e.certified ? certBadge(true) : ""}by ${esc(e.organizer)}</p>` : ""}${evAvail(e)}${e.sample ? `<span class="evtag">Sample</span>` : ""}
     </div></article>`;
 }
 function evFeatHTML(e){
@@ -3644,6 +3698,7 @@ function evResultsHTML(){
 const EVQ = {id: null, qty: {}, busy: false, done: null, err: ""};
 function evResetQ(id){ EVQ.id = id; EVQ.qty = {}; EVQ.busy = false; EVQ.done = null; EVQ.err = ""; }
 function eventView(){
+  if (String(eventId).startsWith("m-")) return mkDetailView(String(eventId).slice(2));
   const e = eventById(eventId);
   if (!e) return eventsLoaded || fbFailed ? `<div class="empty">This event isn't available anymore. <a href="#events" style="color:var(--link)">See all events</a></div>` : `<div class="empty">Loading…</div>`;
   if (EVQ.id !== e.id) evResetQ(e.id);
@@ -4326,7 +4381,7 @@ function datingAdminHTML(){
     ${P.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th></th><th>Name</th><th>Age</th><th>City</th><th>Joined</th><th>Shown</th><th></th></tr></thead><tbody>${P.map(p => `<tr><td>${p.thumb ? `<img src="${esc(p.thumb)}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:8px">` : ""}</td><td><a href="#person-${esc(p.uid)}">${esc(p.name)}</a></td><td>${p.age}</td><td>${esc(dtCity(p.city))}</td><td>${tsMs(p.createdAt) ? new Date(tsMs(p.createdAt)).toLocaleDateString("en-CA") : ""}</td><td>${p.active === false ? "Paused" : "Yes"}</td><td><button class="linkbtn" type="button" data-dtadmdel="${esc(p.uid)}" style="color:var(--danger)">${DT.delArm === "adm" + p.uid ? "Click again to remove" : "Remove"}</button></td></tr>`).join("")}</tbody></table></div>` : `<p class="note">No dating profiles yet.</p>`}`;
 }
 function dtReportForm(uid){
-  const isHome = String(uid).startsWith("home:"), p = isHome ? {name: "this listing"} : dtProfile(uid) || {name: "this person"}, old = $("#dtMatch"); if (old) old.remove();
+  const isHome = /^(home|market):/.test(String(uid)), p = isHome ? {name: "this listing"} : dtProfile(uid) || {name: "this person"}, old = $("#dtMatch"); if (old) old.remove();
   const d = document.createElement("div"); d.className = "dtmatch"; d.id = "dtMatch"; d.setAttribute("role", "dialog"); d.setAttribute("aria-label", "Report");
   d.innerHTML = `<form class="dtmbox dtrep" id="dtRepForm" data-uid="${esc(uid)}"><h2>Report ${esc(p.name)}</h2><p class="note">Reports are private. ${isHome ? "The lister won't know who reported it." : esc(p.name) + " won't know you reported them."}</p>
     <div class="dtrepopts">${(isHome ? ["Scam or fake listing", "Wrong price or details", "Already sold or rented", "Inappropriate photos", "Something else"] : ["Fake profile or scam", "Inappropriate photos", "Rude or harassing messages", "Under 18", "Something else"]).map((r, i) => `<label><input type="radio" name="reason" value="${r}"${i ? "" : " checked"}> ${r}</label>`).join("")}</div>
@@ -4449,13 +4504,14 @@ function hmEnsureThreads(){
   HM.unsubT = FB.hmWatchThreads(USER.uid, l => { HM.threads = l; hmOnThreads(); }, e => { console.error(e); HM.threads = []; hmOnThreads(); });
 }
 const hmIsUnread = t => t.lastFrom && t.lastFrom !== USER.uid && tsMs(t.lastAt) > ((t.seen || {})[USER.uid] || 0);
-const hmUnread = () => (HM.threads || []).filter(hmIsUnread).length;
+const hmUnread = () => (HM.threads || []).filter(t => !t.marketId && hmIsUnread(t)).length;
 function hmOnThreads(){
   const n = hmUnread();
   document.querySelectorAll('a[data-tab="homes"]').forEach(a => a.classList.toggle("hasdot", n > 0));
   const b = $("#hmMsgBadge"); if (b) b.textContent = n || "";
   const v = current();
-  if (v === "mylistings") render();
+  if (v === "mylistings" || v === "selling") render();
+  const mn = (HM.threads || []).filter(t => t.marketId && hmIsUnread(t)).length; document.querySelectorAll('a[href="#account"].gicon, .acctbtn').forEach(a => a.classList.toggle("hasdot", mn > 0));
   if (v === "hchat"){ const t = (HM.threads || []).find(x => x.id === hchatId); if (t && hmIsUnread(t)) FB.hmSeen(t.id, USER.uid).catch(() => {}); }
 }
 function hmDefaultFilters(){ HM.f = {deals: [], types: [], min: 0, max: 0, beds: 0, baths: 0, parking: 0, feats: [], cities: [], photos: false, saved: false}; }
@@ -4819,7 +4875,7 @@ function myListingsView(){
       <div class="hmrowacts"><button type="button" class="linkbtn" data-hmedit="${esc(h.id)}">Edit</button>
         ${h.status === "approved" ? `<button type="button" class="linkbtn" data-hmclose="${esc(h.id)}">${HM.arm === "c" + h.id ? "Click again to close" : h.deal === "sale" ? "Mark sold" : "Mark rented"}</button>` : h.status === "closed" ? `<button type="button" class="linkbtn" data-hmreopen="${esc(h.id)}">Relist</button>` : ""}
         <button type="button" class="linkbtn" data-hmdel="${esc(h.id)}" style="color:var(--danger)">${HM.arm === "d" + h.id ? "Click again to delete" : "Delete"}</button></div></div>`; };
-  const T = (HM.threads || []).slice().sort((a, b) => tsMs(b.lastAt) - tsMs(a.lastAt));
+  const T = (HM.threads || []).filter(t => !t.marketId).sort((a, b) => tsMs(b.lastAt) - tsMs(a.lastAt));
   const trow = t => { const other = t.users.find(u => u !== USER.uid), un = hmIsUnread(t), mineHome = t.owner === USER.uid;
     return `<a class="dtmrow${un ? " unread" : ""}" href="#hchat-${esc(t.id)}">${t.thumb ? `<img src="${esc(t.thumb)}" alt="">` : `<span class="dtnoimg">${esc(((t.names || {})[other] || "?").charAt(0).toUpperCase())}</span>`}
       <span class="dtmtxt"><b>${esc((t.names || {})[other] || "Someone")} · ${esc(t.homeTitle || "")}</b><small>${mineHome ? "About your listing · " : ""}${t.lastText ? (t.lastFrom === USER.uid ? "You: " : "") + esc(t.lastText) : "No messages yet"}</small></span>
@@ -4836,7 +4892,7 @@ function hchatView(){
   hmEnsureThreads();
   if (HM.threads === null) return `<div class="empty">Loading…</div>`;
   const t = HM.threads.find(x => x.id === hchatId);
-  if (!t) return `<div class="empty">This conversation isn't available. <a href="#my-listings" style="color:var(--link)">Back to My listings</a></div>`;
+  if (!t) return `<div class="empty">This conversation isn't available. <a href="#selling" style="color:var(--link)">Back to Sell on Nojan</a></div>`;
   const other = t.users.find(u => u !== USER.uid), nm = (t.names || {})[other] || "Someone";
   if (HM.chat.id !== t.id){
     if (HM.chat.unsub) HM.chat.unsub();
@@ -4845,11 +4901,11 @@ function hchatView(){
   if (hmIsUnread(t)) FB.hmSeen(t.id, USER.uid).catch(() => {});
   setTimeout(() => { const box = $("#dtMsgs"); if (box) box.scrollTop = box.scrollHeight; }, 0);
   return `<section class="dtchat panel">
-    <header class="dtchead"><a class="dtback" href="#my-listings" aria-label="Back to My listings">‹</a>
-      <a class="dtcwho" href="#listing-${esc(t.homeId)}">${t.thumb ? `<img src="${esc(t.thumb)}" alt="">` : `<span class="dtnoimg">${esc(nm.charAt(0).toUpperCase())}</span>`}<span class="hmchwho"><b>${esc(nm)}</b><small>${esc(t.homeTitle || "")}</small></span></a></header>
+    <header class="dtchead"><a class="dtback" href="${t.marketId ? "#selling" : "#my-listings"}" aria-label="Back">‹</a>
+      <a class="dtcwho" href="#${t.marketId ? mkRoute({id: t.marketId, kind: t.mkind}) : "listing-" + esc(t.homeId)}">${t.thumb ? `<img src="${esc(t.thumb)}" alt="">` : `<span class="dtnoimg">${esc(nm.charAt(0).toUpperCase())}</span>`}<span class="hmchwho"><b>${esc(nm)}</b><small>${esc(t.homeTitle || "")}</small></span></a></header>
     <div class="dtmsgs" id="dtMsgs" aria-live="polite">${hmMsgsHTML()}</div>
     <form class="dtsend" id="hmSend"><input id="hmText" maxlength="2000" autocomplete="off" placeholder="Message ${esc(nm)}" aria-label="Message"><button class="btn" type="submit">Send</button></form>
-    <p class="dttip">Keep messages on this site. See a place in person before paying, and never pay by gift card or wire transfer.</p></section>`;
+    <p class="dttip">Keep messages on this site. ${t.marketId ? "Meet in a public place and check it before paying" : "See a place in person before paying"}, and never pay by gift card or wire transfer.</p></section>`;
 }
 function hmMsgsHTML(){
   const l = HM.chat.msgs;
@@ -4953,6 +5009,396 @@ document.addEventListener("submit", async ev => {
   }
 });
 
+/* ---- v77: approved members sell brand new and used items, services and events ---- */
+const MK = {list: null, me: "none", meUid: null, mine: null, photos: {}, extra: {}, form: null, busy: false, adm: null, arm: "", gi: 0, newKind: "used", editId: null};
+const MK_KINDS = {new: "Brand new item", used: "Used item", service: "Service", event: "Event"};
+const MK_VIEWS = ["selling", "sell"];
+const CERT_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true"><path class="cb" d="M12 1.8l2.5 1.9 3.1-.3 1 3 2.6 1.8-1.1 2.9 1.1 2.9-2.6 1.8-1 3-3.1-.3L12 22.2l-2.5-1.9-3.1.3-1-3-2.6-1.8 1.1-2.9-1.1-2.9 2.6-1.8 1-3 3.1.3z"/><path class="ck" d="M8.3 12.2l2.5 2.5 4.9-5"/></svg>`;
+const certBadge = small => `<span class="cert${small ? " sm" : ""}" title="Checked in person and certified by Nojan">${CERT_SVG}${small ? "Certified" : "Certified by Nojan"}</span>`;
+function ageOf(dob){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dob || ""); if (!m) return null;
+  const n = new Date(), a = n.getFullYear() - m[1] - ((n.getMonth() + 1 < +m[2] || (n.getMonth() + 1 === +m[2] && n.getDate() < +m[3])) ? 1 : 0);
+  return a >= 0 && a < 130 ? a : null;
+}
+const mkRoute = d => (d.kind === "service" ? "service-m-" : d.kind === "event" ? "event-m-" : "item-m-") + d.id;
+const mkPrice = d => d.price == null || d.price === "" ? (d.kind === "event" ? "Free" : "Ask for price") : +d.price === 0 ? "Free" : money(+d.price) + (d.kind === "service" && d.priceUnit && d.priceUnit !== "fixed" ? " / " + d.priceUnit : "");
+const mkFirst = () => (PROFILE && PROFILE.name ? PROFILE.name.trim().split(/\s+/)[0] : "") || (USER && USER.displayName ? USER.displayName.split(" ")[0] : "") || "A member";
+
+/* live listings from members are mixed into Brand New, Used, Services and Events */
+function mkToItem(d){
+  return {id: "m-" + d.id, pid: "m-" + d.id, mid: d.id, member: true, uid: d.uid, seller: d.ownerName || "A member", certified: !!d.certified,
+    name: d.title || "", desc: d.description || "", brand: d.brand || "", price: d.price == null || d.price === "" ? null : +d.price, condition: d.kind === "used" ? "used" : "new",
+    images: d.thumb ? [d.thumb] : [], thumb: d.thumb || "", stock: null, soldOut: false, active: true, order: 100000 + (tsMs(d.createdAt) ? -tsMs(d.createdAt) / 1e13 : 0),
+    type: fixType((d.type || "").trim(), guessType((d.title || "") + " " + (d.brand || ""))), grade: d.kind === "used" ? (d.grade || "") : "", city: d.city || ""};
+}
+function mkToService(d){
+  return {...fsToService({id: "m-" + d.id, title: d.title, category: d.category || "Other", providerName: d.ownerName || "A member", summary: String(d.description || "").split(/\n/)[0].slice(0, 160), description: d.description || "",
+    price: d.price, priceUnit: d.priceUnit || "session", format: d.format || "in-person", location: d.city || "", images: d.thumb ? [d.thumb] : [], thumb: d.thumb || "", order: 100000}), member: true, mid: d.id, uid: d.uid, certified: !!d.certified};
+}
+function mkToEvent(d){
+  return {...fsToEvent({id: "m-" + d.id, title: d.title, category: d.category, startMs: d.startMs, endMs: d.endMs, venue: d.venue || "", address: "", city: d.city || "", format: d.format, onlineInfo: "",
+    cover: d.thumb || "", summary: String(d.description || "").split(/\n/)[0].slice(0, 200), description: d.description || "", organizer: d.ownerName || "A member", tickets: [{name: "Entry", price: +d.price || 0}]}), member: true, mid: d.id, uid: d.uid, certified: !!d.certified};
+}
+function mkMerge(){
+  if (typeof PRODUCTS === "undefined") return;
+  PRODUCTS = PRODUCTS.filter(p => !p.member); SERVICES = SERVICES.filter(s => !s.member); EVENTS = EVENTS.filter(e => !e.member);
+  const L = MK.list || [], now = Date.now();
+  L.filter(d => d.kind === "new" || d.kind === "used").forEach(d => PRODUCTS.push(mkToItem(d)));
+  L.filter(d => d.kind === "service").forEach(d => SERVICES.push(mkToService(d)));
+  L.filter(d => d.kind === "event" && (+d.endMs || +d.startMs || 0) >= now).forEach(d => EVENTS.push(mkToEvent(d)));
+  EVENTS.sort((a, b) => a.startMs - b.startMs);
+}
+function mkStartWatch(){
+  if (!FB || MK.watching) return; MK.watching = true;
+  FB.mkWatchLive(l => { MK.list = l; mkMerge(); const v = current(); if (v === "admin") return; if (["home", "new", "used", "services", "events", "item", "service", "event"].includes(v)) render(); },
+    e => { console.error(e); MK.list = []; });
+}
+function mkFind(id){ return (MK.list || []).find(x => x.id === id) || MK.extra[id] || (Array.isArray(MK.mine) && MK.mine.find(x => x.id === id)) || null; }
+
+/* seller status */
+function mkEnsureSeller(){
+  if (!USER || !FB) return;
+  if (MK.meUid === USER.uid) return;
+  MK.meUid = USER.uid; MK.me = "loading";
+  FB.mkGetSeller(USER.uid).then(s => { MK.me = s || null; if ([...MK_VIEWS, "account"].includes(current())) render(); }).catch(e => { console.error(e); MK.me = null; if ([...MK_VIEWS, "account"].includes(current())) render(); });
+}
+const mkApproved = () => MK.me && MK.me !== "loading" && MK.me.status === "approved";
+function mkEnsureMine(force){
+  if (!USER || !FB || (MK.mine && MK.mine !== "loading" && !force) || MK.mine === "loading") return;
+  MK.mine = "loading";
+  FB.mkMine(USER.uid).then(l => { MK.mine = l; if (MK_VIEWS.includes(current())) render(); }).catch(e => { console.error(e); MK.mine = []; if (MK_VIEWS.includes(current())) render(); });
+}
+function mkChecks(){
+  const pr = PROFILE || {}, age = ageOf(pr.dob);
+  return [[!!USER.emailVerified, "Email address confirmed"], [!!(pr.name || "").trim(), "Full name"], [!!(pr.phone || "").trim(), "Phone number"], [!!(pr.address || "").trim(), "Home address"], [age != null && age >= 18, age != null && age < 18 ? "Date of birth (you must be 18 or older to sell)" : "Date of birth (18 or older)"]];
+}
+
+/* ---- Sell on Nojan: status, my listings and messages ---- */
+function sellingView(){
+  if (!authReady) return `<div class="empty">Loading…</div>`;
+  if (!USER) return needSignIn("selling", "Sign in to sell on Nojan", "Approved members can sell brand new and used items, offer services and list events.");
+  mkEnsureSeller(); hmEnsureThreads();
+  const s = MK.me, ok = mkApproved();
+  if (ok) mkEnsureMine();
+  let status;
+  if (s === "loading") status = `<div class="panel"><p class="note">Loading…</p></div>`;
+  else if (!s || s.status === "rejected"){
+    const C = mkChecks(), all = C.every(c => c[0]);
+    status = `<div class="panel mkapply"><h2>${s ? "Apply again" : "Become a seller"}</h2>
+      ${s && s.note ? `<p class="dtnote">Your last application wasn't approved. Note from Nojan: ${esc(s.note)}</p>` : s ? `<p class="dtnote">Your last application wasn't approved. You can update your details and apply again.</p>` : ""}
+      <p class="note">Once Nojan approves your account, you can list brand new and used items, services and events. Buyers message you here, like Facebook Marketplace.</p>
+      <ul class="mkchecks">${C.map(([y, t]) => `<li class="${y ? "y" : "n"}"><span>${y ? "✓" : "•"}</span>${t}</li>`).join("")}</ul>
+      ${all ? `<button class="btn" type="button" data-mkapply>Send application</button>` : `<a class="btn" href="#account">Complete your details</a><p class="note">Add the missing details on your account page, then come back here.</p>`}</div>`;
+  }
+  else if (s.status === "pending") status = `<div class="panel"><h2>Application sent</h2><p class="note">Nojan is reviewing your account. Once you're approved, you can start listing right here.</p></div>`;
+  else if (s.status === "suspended") status = `<div class="panel"><h2>Selling is paused</h2><p class="note">Your selling account is paused${s.note ? ": " + esc(s.note) : "."} <a href="#contact-us">Contact us</a> if you have questions.</p></div>`;
+  else status = `<div class="panel mkok"><h2><span class="mkokdot">✓</span> You're approved to sell</h2>
+      <div class="mknew"><button class="btn" type="button" data-mknew="used">+ Used item</button><button class="btn" type="button" data-mknew="new">+ Brand new item</button><button class="btn ghost" type="button" data-mknew="service" style="color:var(--fg)">+ Service</button><button class="btn ghost" type="button" data-mknew="event" style="color:var(--fg)">+ Event</button></div>
+      <p class="note">Your listings go live right away. Nojan can inspect an item in person and give it the ${certBadge(true)} badge.</p></div>`;
+  const st = {live: ["Live", "live"], sold: ["Sold", "closed"], hidden: ["Hidden", "wait"], removed: ["Taken down by Nojan", "no"]};
+  const mine = Array.isArray(MK.mine) ? MK.mine.slice().sort((a, b) => tsMs(b.updatedAt) - tsMs(a.updatedAt)) : null;
+  const row = d => { const [l, c] = st[d.status] || ["", ""];
+    return `<div class="hmrow">${d.thumb ? `<img src="${esc(d.thumb)}" alt="">` : `<span class="hmnoimg sm">${svgI("box")}</span>`}
+      <div class="hmrowtxt"><a href="#${mkRoute(d)}"><b>${esc(d.title)}</b></a><small>${MK_KINDS[d.kind]} · ${esc(mkPrice(d))}${d.kind === "event" && d.startMs ? " · " + evDayShort(+d.startMs) : ""}</small><span class="hmst ${c}">${l}</span>${d.certified ? certBadge(true) : ""}</div>
+      <div class="hmrowacts">${d.status !== "removed" ? `<button type="button" class="linkbtn" data-mkedit="${esc(d.id)}">Edit</button>` : ""}
+        ${d.status === "live" ? `<button type="button" class="linkbtn" data-mkset="sold" data-id="${esc(d.id)}">${d.kind === "event" || d.kind === "service" ? "End it" : "Mark sold"}</button><button type="button" class="linkbtn" data-mkset="hidden" data-id="${esc(d.id)}">Hide</button>` : d.status === "sold" || d.status === "hidden" ? `<button type="button" class="linkbtn" data-mkset="live" data-id="${esc(d.id)}">Make live again</button>` : ""}
+        <button type="button" class="linkbtn" data-mkdel="${esc(d.id)}" style="color:var(--danger)">${MK.arm === "d" + d.id ? "Click again to delete" : "Delete"}</button></div></div>`; };
+  const T = (HM.threads || []).filter(t => t.marketId).sort((a, b) => tsMs(b.lastAt) - tsMs(a.lastAt));
+  const trow = t => { const other = t.users.find(u => u !== USER.uid), un = hmIsUnread(t), mineL = t.owner === USER.uid;
+    return `<a class="dtmrow${un ? " unread" : ""}" href="#hchat-${esc(t.id)}">${t.thumb ? `<img src="${esc(t.thumb)}" alt="">` : `<span class="dtnoimg">${esc(((t.names || {})[other] || "?").charAt(0).toUpperCase())}</span>`}
+      <span class="dtmtxt"><b>${esc((t.names || {})[other] || "Someone")} · ${esc(t.homeTitle || "")}</b><small>${mineL ? "About your listing · " : ""}${t.lastText ? (t.lastFrom === USER.uid ? "You: " : "") + esc(t.lastText) : "No messages yet"}</small></span>
+      <span class="dtmwhen">${tsMs(t.lastAt) ? dtWhen(tsMs(t.lastAt)) : ""}${un ? `<i class="dtdot" aria-label="Unread"></i>` : ""}</span></a>`; };
+  return `<section class="pagehero lhero"><div class="phtext"><h1>Sell on Nojan</h1><p>Sell brand new and used items, offer services and list events. Chat with buyers right here.</p></div></section>
+    ${status}
+    <h2 class="hmh2">Messages</h2>
+    ${HM.threads === null ? `<div class="empty">Loading messages…</div>` : T.length ? `<div class="panel dtmlist">${T.map(trow).join("")}</div>` : `<div class="empty">No messages yet. When someone asks about a listing, or you message a seller, it shows up here.</div>`}
+    ${ok || (mine && mine.length) ? `<h2 class="hmh2">My listings</h2>${!mine ? `<div class="empty">Loading your listings…</div>` : mine.length ? `<div class="panel hmrows">${mine.map(row).join("")}</div>` : `<div class="empty">You haven't listed anything yet.</div>`}` : ""}`;
+}
+
+/* ---- add or edit a listing ---- */
+function mkStartForm(edit, kind){
+  const d = edit ? {...edit} : {kind: kind || "used", city: (PROFILE && PROFILE.city) || "", format: kind === "service" ? "in-person" : "in-person", priceUnit: "hour", grade: "Good"};
+  if (!edit && kind === "event"){ const t = new Date(Date.now() + 7 * 864e5); d.date = t.toLocaleDateString("en-CA", {timeZone: TZ}); d.start = "18:00"; d.end = "20:00"; }
+  if (edit && edit.kind === "event" && edit.startMs){ const p = ms => new Date(ms).toLocaleString("en-CA", {timeZone: TZ, hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"}).replace(",", ""); const [ds, ts] = p(+edit.startMs).split(" "); d.date = ds; d.start = ts.slice(0, 5); d.end = p(+edit.endMs || +edit.startMs + 72e5).split(" ")[1].slice(0, 5); }
+  MK.form = {id: edit ? edit.id : null, data: d, photos: [], photosLoaded: !edit || !edit.photoCount, changed: false, wasCert: !!(edit && edit.certified)};
+  if (edit && edit.photoCount){ if (Array.isArray(MK.photos[edit.id])){ MK.form.photos = MK.photos[edit.id].map(data => ({data})); MK.form.photosLoaded = true; } else mkLoadPhotos(edit); }
+}
+function mkPhotoStrip(){
+  const f = MK.form;
+  if (!f.photosLoaded) return `<span class="note">Loading photos…</span>`;
+  return f.photos.map((ph, i) => `<div class="dtph hmph"><img src="${esc(ph.data)}" alt="Photo ${i + 1}">${i === 0 ? `<span class="dtmainlbl">Main</span>` : `<button type="button" class="dtphmain" data-mkphmain="${i}">Make main</button>`}<button type="button" class="dtphx" data-mkphx="${i}" aria-label="Remove photo ${i + 1}">×</button></div>`).join("")
+    + (f.photos.length < 6 ? `<label class="dtphadd hmph"><input type="file" accept="image/*" multiple id="mkPhIn" hidden><span>+</span><small>Add photos</small></label>` : "");
+}
+async function mkAddPhotos(files){
+  const f = MK.form;
+  for (const file of [...files].slice(0, 6 - f.photos.length)){
+    if (!/^image\//.test(file.type)) continue;
+    try { const raw = await new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = no; r.readAsDataURL(file); });
+      f.photos.push({data: await dtShrink(raw, 1400, 0.75, 300000)}); f.changed = true; } catch (e) { toast("That photo couldn't be added. Try a JPG or PNG."); }
+  }
+  const s = $("#mkPhotos"); if (s) s.innerHTML = mkPhotoStrip();
+}
+async function mkLoadPhotos(d){
+  if (!d || MK.photos[d.id] || !d.photoCount || !FB) return;
+  MK.photos[d.id] = "loading"; const out = [];
+  for (let i = 0; i < Math.min(6, d.photoCount); i++){ try { const x = await FB.mkGetPhoto(d.id, i); if (x) out.push(x); } catch (_) {} }
+  MK.photos[d.id] = out;
+  const g = $("#mkGal"); if (g && MK.viewing === d.id) g.outerHTML = mkGalleryHTML(d);
+  if (current() === "sell" && MK.form && MK.form.id === d.id && !MK.form.photosLoaded){ MK.form.photos = out.map(data => ({data})); MK.form.photosLoaded = true; const s = $("#mkPhotos"); if (s) s.innerHTML = mkPhotoStrip(); }
+}
+function sellView(){
+  if (!authReady) return `<div class="empty">Loading…</div>`;
+  if (!USER) return needSignIn("selling", "Sign in to sell on Nojan", "");
+  mkEnsureSeller();
+  if (MK.me === "loading") return `<div class="empty">Loading…</div>`;
+  if (!mkApproved()) return `<div class="empty">Your account needs to be approved before you can list. <a href="#selling" style="color:var(--link)">Sell on Nojan</a></div>`;
+  if (!MK.form){ const e = MK.editId && mkFind(MK.editId); mkStartForm(e && e.uid === USER.uid ? e : null, MK.newKind); }
+  const F = MK.form, d = F.data, k = d.kind, sel = (a, b) => a === b ? " selected" : "", isNew = !F.id;
+  const word = {new: "item", used: "item", service: "service", event: "event"}[k];
+  const cats = k === "event" ? EV_CATS : k === "service" ? [...new Set([...SVC_CATS, ...SERVICES.map(s => s.category)])].filter(Boolean) : TYPE_LIST;
+  return `<section class="pagehero lhero"><div class="phtext"><h1>${isNew ? "New listing" : "Edit listing"}</h1><p>${isNew ? "It goes live as soon as you save." : "Changes show right away."}</p></div></section>
+  <form class="panel dtform hmform" id="mkForm" novalidate>
+    <div class="fsec"><h3>What are you listing?</h3><div class="fopts" role="radiogroup" aria-label="Listing type">${Object.entries(MK_KINDS).map(([v, l]) => `<label class="fopt hmradio"><input type="radio" name="kind" value="${v}"${k === v ? " checked" : ""}${isNew ? "" : " disabled"}> ${l}</label>`).join("")}</div></div>
+    ${F.wasCert ? `<p class="dtnote">This listing is ${certBadge(true)}. If you change it, the badge comes off until Nojan checks it again.</p>` : ""}
+    <div class="fsec"><h3>Photos <small>up to 6 · the first one is the main photo</small></h3><div class="dtphotos" id="mkPhotos">${mkPhotoStrip()}</div></div>
+    <label>Title<input name="title" required maxlength="100" placeholder="${k === "event" ? "e.g. Persian music night" : k === "service" ? "e.g. Home cleaning, 3 hours" : "e.g. iPhone 13, 128 GB, blue"}" value="${esc(d.title || "")}"></label>
+    <div class="dtgrid2">
+      <label>Price in $ <small>${k === "event" ? "per person · 0 if free" : k === "service" ? "" : "leave empty for “Ask for price”"}</small><input name="price" type="number" min="0" step="0.01" inputmode="decimal" value="${d.price != null ? d.price : ""}"></label>
+      ${k === "service" ? `<label>Price is<select name="priceUnit">${[["hour", "per hour"], ["session", "per session"], ["day", "per day"], ["fixed", "a fixed price"]].map(([v, l]) => `<option value="${v}"${sel(v, d.priceUnit)}>${l}</option>`).join("")}</select></label>` : ""}
+      <label>Category${k === "event" ? `<select name="category">${cats.map(c => `<option${sel(c, d.category)}>${esc(c)}</option>`).join("")}</select>` : `<input name="category" list="mkCats" maxlength="40" value="${esc(k === "service" ? d.category || "" : d.type || "")}" placeholder="Choose or type"><datalist id="mkCats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>`}</label>
+      ${k === "new" || k === "used" ? `<label>Brand <small>(optional)</small><input name="brand" maxlength="40" value="${esc(d.brand || "")}"></label>` : ""}
+      ${k === "used" ? `<label>Condition<select name="grade">${GRADES.map(g => `<option${sel(g, d.grade)}>${g}</option>`).join("")}</select></label>` : ""}
+      ${k === "service" || k === "event" ? `<label>${k === "event" ? "Where" : "Offered"}<select name="format"><option value="in-person"${sel("in-person", d.format)}>In person</option><option value="online"${sel("online", d.format)}>Online</option>${k === "service" ? `<option value="both"${sel("both", d.format)}>Online or in person</option>` : ""}</select></label>` : ""}
+      ${k === "event" ? `<label>Date<input name="date" type="date" required value="${esc(d.date || "")}"></label><label>Starts<input name="start" type="time" required value="${esc(d.start || "")}"></label><label>Ends<input name="end" type="time" value="${esc(d.end || "")}"></label><label>Venue <small>(name or address)</small><input name="venue" maxlength="100" value="${esc(d.venue || "")}"></label>` : ""}
+      <label>City<input name="city" required maxlength="40" placeholder="e.g. Richmond Hill" value="${esc(d.city || "")}"></label>
+    </div>
+    <label>Description<textarea name="description" rows="6" maxlength="3000" placeholder="${k === "event" ? "What happens, who it's for, what to bring" : k === "service" ? "What you offer, your experience, the area you cover" : "Details, size, what's included, any wear or damage"}">${esc(d.description || "")}</textarea></label>
+    <label class="dtcheck"><input type="checkbox" name="ok"${F.id ? " checked" : ""}> This ${word} is real, I'm allowed to ${k === "event" ? "host and list it" : k === "service" ? "offer it" : "sell it"}, and the photos are my own.</label>
+    <p class="formerr" id="mkErr" hidden></p>
+    <div class="dtformfoot"><button class="btn" type="submit">${isNew ? "Publish" : "Save changes"}</button><a class="linkbtn" href="#selling">Cancel</a></div>
+  </form>`;
+}
+function mkKeepForm(){ const f = $("#mkForm"); if (!f || !MK.form) return; const fd = new FormData(f); fd.forEach((v, k) => { if (k !== "ok" && k !== "kind") MK.form.data[k] = v; }); if (MK.form.data.category && MK.form.data.kind !== "service" && MK.form.data.kind !== "event") MK.form.data.type = MK.form.data.category; }
+async function mkSave(form){
+  const fd = new FormData(form), g = k => String(fd.get(k) || "").trim(), err = $("#mkErr"), F = MK.form, k = F.data.kind;
+  const say = t => { if (err){ err.textContent = t; err.hidden = false; err.scrollIntoView({block: "center", behavior: "smooth"}); } };
+  if (!g("title")) return say("Please add a title.");
+  const pr = g("price") === "" ? null : Math.round(+g("price") * 100) / 100;
+  if (pr != null && !(pr >= 0)) return say("Please enter a valid price.");
+  if (!g("city")) return say("Please enter the city.");
+  let startMs = null, endMs = null;
+  if (k === "event"){
+    if (!g("date") || !g("start")) return say("Please choose the date and start time.");
+    startMs = torontoMs(g("date"), g("start")); endMs = g("end") ? torontoMs(g("date"), g("end")) : startMs + 72e5; if (endMs <= startMs) endMs += 864e5;
+    if (endMs < Date.now()) return say("That date has already passed.");
+  }
+  if ((k === "new" || k === "used") && !F.photos.length) return say("Please add at least one photo of the item.");
+  if (!fd.get("ok")) return say("Please confirm the listing is real.");
+  if (!F.photosLoaded) return say("Your photos are still loading. Try again in a moment.");
+  if (MK.busy) return; MK.busy = true;
+  const btn = form.querySelector('button[type="submit"]'), label = btn.textContent; btn.disabled = true; btn.textContent = "Saving…";
+  try {
+    const isNew = !F.id, id = F.id || FB.mkNewId(), ph = F.photos;
+    const thumb = ph.length ? await dtShrink(ph[0].data, 520, 0.7, 60000) : "";
+    const cat = g("category").slice(0, 40);
+    const data = {uid: USER.uid, ownerName: mkFirst().slice(0, 40), kind: k, title: g("title").slice(0, 100), description: g("description").slice(0, 3000), price: pr, city: dtCity(g("city")).slice(0, 40), thumb, photoCount: ph.length,
+      brand: k === "new" || k === "used" ? g("brand").slice(0, 40) : "", type: k === "new" || k === "used" ? cat : "", grade: k === "used" ? g("grade") : "",
+      category: k === "service" || k === "event" ? cat || "Other" : "", priceUnit: k === "service" ? g("priceUnit") || "hour" : "", format: k === "service" || k === "event" ? g("format") || "in-person" : "",
+      startMs, endMs, venue: k === "event" ? g("venue").slice(0, 100) : "", certified: false};
+    if (isNew) data.status = "live";
+    await FB.mkSave(id, data, isNew);
+    if (isNew || F.changed){
+      for (let i = 0; i < ph.length; i++) await FB.mkSavePhoto(id, i, ph[i].data, USER.uid);
+      for (let i = ph.length; i < 6; i++) await FB.mkDelPhoto(id, i).catch(() => {});
+      MK.photos[id] = ph.map(p => p.data);
+    }
+    MK.form = null; MK.editId = null; MK.busy = false; MK.mine = null;
+    toast(isNew ? "Published. It's live now." : "Saved"); go("selling");
+  } catch (e) {
+    console.error(e); MK.busy = false; btn.disabled = false; btn.textContent = label;
+    say(e && e.code === "permission-denied" ? "Your listing couldn't be saved. Your selling account may not be approved yet." : "Your listing couldn't be saved. Check your connection and try again.");
+  }
+}
+
+/* ---- the page for one member listing (items, services and events) ---- */
+function mkGalleryHTML(d){
+  const ph = Array.isArray(MK.photos[d.id]) && MK.photos[d.id].length ? MK.photos[d.id] : d.thumb ? [d.thumb] : [];
+  const i = Math.min(MK.gi, Math.max(0, ph.length - 1));
+  if (!ph.length) return `<div class="hmgal" id="mkGal"><div class="hmgmain hmnoimg">${d.kind === "event" ? evIcon(d.category) : svgI("box")}</div></div>`;
+  return `<div class="hmgal mkgal" id="mkGal"><div class="hmgmain"><img src="${esc(ph[i])}" alt="Photo ${i + 1} of ${ph.length}">${ph.length > 1 ? `<button type="button" class="hmgnav prev" data-mkg="${(i - 1 + ph.length) % ph.length}" aria-label="Previous photo">‹</button><button type="button" class="hmgnav next" data-mkg="${(i + 1) % ph.length}" aria-label="Next photo">›</button><span class="hmgcount">${i + 1} / ${ph.length}</span>` : ""}</div>
+    ${ph.length > 1 ? `<div class="dtthumbs">${ph.map((u, k) => `<button type="button" data-mkg="${k}" aria-label="Photo ${k + 1}" aria-pressed="${k === i}"><img src="${esc(u)}" alt=""></button>`).join("")}</div>` : ""}</div>`;
+}
+function mkDetailView(id){
+  const d = mkFind(id);
+  if (!d){
+    if (FB && MK.extra[id] === undefined){ MK.extra[id] = null; FB.mkGet(id).then(x => { MK.extra[id] = x || false; render(); }).catch(() => { MK.extra[id] = false; render(); }); }
+    return MK.extra[id] === false || (!FB && fbFailed) ? `<div class="empty">This listing isn't available anymore. It may have sold. <a href="#home" style="color:var(--link)">Back to the home page</a></div>` : `<div class="empty">Loading…</div>`;
+  }
+  if (MK.viewing !== d.id){ MK.viewing = d.id; MK.gi = 0; }
+  mkLoadPhotos(d);
+  const own = USER && d.uid === USER.uid, k = d.kind;
+  const listed = tsMs(d.createdAt) ? new Date(tsMs(d.createdAt)).toLocaleDateString("en-CA", {month: "short", day: "numeric", year: "numeric"}) : "";
+  const facts = (k === "event" ? [["When", d.startMs ? evDayLong(+d.startMs) + " · " + evTime(+d.startMs) + (d.endMs ? " – " + evTime(+d.endMs) : "") : ""], ["Where", d.format === "online" ? "Online" : [d.venue, d.city].filter(Boolean).join(", ")], ["Category", d.category], ["Price", mkPrice(d)]]
+    : k === "service" ? [["Category", d.category], ["Offered", d.format === "both" ? "Online or in person" : d.format === "online" ? "Online" : "In person"], ["Area", d.city], ["Price", mkPrice(d)]]
+    : [["Condition", k === "new" ? "Brand new" : "Used" + (d.grade ? " · " + d.grade : "")], ["Brand", d.brand], ["Category", d.type], ["Location", d.city]]).concat([["Listed", listed]]).filter(x => x[1]);
+  const status = own && d.status !== "live" ? `<div class="dtnote">${d.status === "sold" ? "You marked this as sold, so only you can see it." : d.status === "hidden" ? "This listing is hidden. Only you can see it." : "Nojan took this listing down."}</div>` : !own && d.status !== "live" ? `<div class="dtnote">This listing is no longer available.</div>` : "";
+  const back = k === "event" ? "#events" : k === "service" ? "#services" : k === "used" ? "#used-items" : "#new-items";
+  return `<article class="hmpage mkpage">
+    ${mkGalleryHTML(d)}
+    <div class="hmlayout">
+      <div class="hmmain">
+        ${status}
+        <div class="mktags"><span class="hmdeal inline mk${k}">${MK_KINDS[k]}</span>${d.certified ? certBadge(false) : ""}</div>
+        <h1 class="hmtitle mkh1">${esc(d.title)}</h1>
+        <p class="hmbig mkprice">${esc(mkPrice(d))}</p>
+        ${k === "event" && d.startMs ? `<p class="hmaddr big">${svgI("calendar")}${evDayLong(+d.startMs)} · ${evTime(+d.startMs)}</p>` : ""}
+        <p class="hmaddr big">${HM_PIN}${esc(k === "event" && d.format === "online" ? "Online" : [k === "event" ? d.venue : "", d.city].filter(Boolean).join(", ") || "Location on request")}</p>
+        ${d.certified ? `<div class="certnote">${CERT_SVG}<span><b>Certified by Nojan</b><small>Nojan checked this ${k === "event" ? "event" : k === "service" ? "service" : "item"} in person and confirmed it's as described.</small></span></div>` : ""}
+        ${d.description ? `<section class="dtsect"><h2>About this ${k === "event" ? "event" : k === "service" ? "service" : "item"}</h2><div class="itemdesc">${descHTML(d.description)}</div></section>` : ""}
+        <section class="dtsect"><h2>Details</h2><dl class="dtfacts">${facts.map(([a, b]) => `<div><dt>${a}</dt><dd>${esc(String(b))}</dd></div>`).join("")}</dl></section>
+        <div class="hmacts"><button type="button" class="btn ghost" data-mkshare>Share</button><a class="btn ghost" href="${back}" style="color:var(--fg)">See more</a></div>
+      </div>
+      <aside class="hmside">${mkContactHTML(d)}</aside>
+    </div></article>`;
+}
+function mkContactHTML(d){
+  const own = USER && d.uid === USER.uid, who = d.kind === "event" ? "organizer" : d.kind === "service" ? "provider" : "seller";
+  if (own) return `<div class="hmcontact"><h2>Your listing</h2><p class="note">Messages about it show up on Sell on Nojan.</p><button class="btn" type="button" data-mkedit="${esc(d.id)}">Edit listing</button><a class="btn ghost" href="#selling" style="color:var(--fg)">Sell on Nojan</a></div>`;
+  return `<div class="hmcontact"><h2>${d.kind === "event" ? "Hosted by" : d.kind === "service" ? "Offered by" : "Sold by"} ${esc(d.ownerName || "a member")}</h2>
+    <p class="note mkmember">Nojan member${d.certified ? " · " + certBadge(true) : ""}</p>
+    ${!USER ? `<p class="note">Sign in to message the ${who}. Your email and phone stay private.</p>${googleBtn("account")}<div style="display:grid;gap:8px"><button class="btn" type="button" data-auth="signin" data-next="account">Sign in with email</button><button class="btn ghost" type="button" data-auth="signup" data-next="account" style="color:var(--fg)">Create account</button></div>`
+      : !USER.emailVerified ? `<p class="note">Confirm your email address first, then you can send a message.</p><button class="btn small" type="button" data-recheck>I've confirmed it</button>`
+      : d.status !== "live" ? `<p class="note">This listing isn't open for messages.</p>`
+      : `<form id="mkContact" class="hmcform"><textarea id="mkCText" rows="4" maxlength="2000" required>${d.kind === "event" ? `Hi ${esc(d.ownerName || "")}, are there still spots for this event?` : d.kind === "service" ? `Hi ${esc(d.ownerName || "")}, are you available for this? I'd like to know more.` : `Hi ${esc(d.ownerName || "")}, is this still available?`}</textarea><button class="btn" type="submit">Send message</button></form><p class="note">Replies show up on <a href="#selling">Sell on Nojan</a> → Messages.</p>`}
+    <div class="hmsafe"><b>Stay safe:</b> meet in a public place, check the ${d.kind === "event" ? "details" : d.kind === "service" ? "work" : "item"} before you pay, and never pay by gift card or wire transfer. Nojan isn't part of the payment for member listings${d.certified ? "" : " and hasn't checked this one"}.</div>
+    <button type="button" class="linkbtn" data-mkreport="${esc(d.id)}" style="color:#6e6e73;margin-top:8px">Report this listing</button></div>`;
+}
+
+/* ---- admin: seller applications and member listings ---- */
+function membersAdminHTML(){
+  if (!MK.adm){ MK.adm = "loading"; Promise.all([FB.mkSellers(), FB.mkAll(), FB.dtReports().catch(() => [])]).then(([s, l, r]) => { MK.adm = {sellers: s, list: l, reports: r.filter(x => String(x.about).startsWith("market:"))}; refreshAdmin(); }).catch(e => { console.error(e); MK.adm = {sellers: [], list: [], reports: [], err: true}; refreshAdmin(); }); }
+  if (MK.adm === "loading") return `<div class="empty">Loading…</div>`;
+  const A = MK.adm, S = A.sellers.slice().sort((a, b) => (a.status === "pending" ? 0 : 1) - (b.status === "pending" ? 0 : 1) || tsMs(b.appliedAt) - tsMs(a.appliedAt));
+  const srow = s => `<tr><td><b>${esc(s.name || "")}</b><br><small>${esc(s.email || "")}${s.phone ? " · " + esc(s.phone) : ""}</small></td><td>${esc(s.address || "")}</td><td>${ageOf(s.dob) != null ? ageOf(s.dob) : "?"}</td><td>${tsMs(s.appliedAt) ? new Date(tsMs(s.appliedAt)).toLocaleDateString("en-CA") : ""}</td><td><span class="hmst ${s.status === "approved" ? "live" : s.status === "pending" ? "wait" : "no"}">${esc(s.status)}</span></td>
+    <td style="white-space:nowrap">${s.status !== "approved" ? `<button class="linkbtn" type="button" data-mkseller="approved" data-id="${esc(s.id)}">Approve</button> ` : ""}${s.status === "pending" ? `<button class="linkbtn" type="button" data-mkseller="rejected" data-id="${esc(s.id)}">Reject</button>` : s.status === "approved" ? `<button class="linkbtn" type="button" data-mkseller="suspended" data-id="${esc(s.id)}">Pause selling</button>` : ""}</td></tr>`;
+  const L = A.list.slice().sort((a, b) => tsMs(b.updatedAt) - tsMs(a.updatedAt));
+  const lrow = d => `<tr><td>${d.thumb ? `<img src="${esc(d.thumb)}" alt="" style="width:56px;height:42px;object-fit:cover;border-radius:8px">` : ""}</td><td><a href="#${mkRoute(d)}">${esc(d.title)}</a><br><small>${MK_KINDS[d.kind]} · ${esc(d.city || "")}</small></td><td>${esc(mkPrice(d))}</td><td>${esc(d.ownerName || "")}</td><td>${esc(d.status)}</td>
+    <td>${d.certified ? certBadge(true) : ""}</td>
+    <td style="white-space:nowrap"><button class="linkbtn" type="button" data-mkcert="${d.certified ? "0" : "1"}" data-id="${esc(d.id)}">${d.certified ? "Remove badge" : "Certify ✓"}</button> ${d.status === "removed" ? `<button class="linkbtn" type="button" data-mkadmset="live" data-id="${esc(d.id)}">Put back</button>` : `<button class="linkbtn" type="button" data-mkadmset="removed" data-id="${esc(d.id)}">Take down</button>`} <button class="linkbtn" type="button" data-mkadmdel="${esc(d.id)}" style="color:var(--danger)">${MK.arm === "a" + d.id ? "Click again" : "Delete"}</button></td></tr>`;
+  const pend = S.filter(s => s.status === "pending").length;
+  return `${A.err ? `<p class="formerr">Couldn't load. Make sure the new database rules are published.</p>` : ""}
+    <div class="admintools"><span class="note">${pend} application${pend === 1 ? "" : "s"} waiting · ${S.filter(s => s.status === "approved").length} approved sellers · ${L.filter(d => d.status === "live").length} live listings</span><button class="btn small ghost" type="button" data-mkadmreload>Refresh</button></div>
+    <h2 class="hmh2">Seller applications</h2>
+    ${S.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th>Member</th><th>Address</th><th>Age</th><th>Applied</th><th>Status</th><th></th></tr></thead><tbody>${S.map(srow).join("")}</tbody></table></div>` : `<div class="empty">No applications yet.</div>`}
+    <h2 class="hmh2">Member listings</h2>
+    <p class="note">Click <b>Certify ✓</b> after you've checked an item, service or event in person. The ${certBadge(true)} badge then shows on its card and page. If the member edits it, the badge comes off.</p>
+    ${L.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th></th><th>Listing</th><th>Price</th><th>By</th><th>Status</th><th>Badge</th><th></th></tr></thead><tbody>${L.map(lrow).join("")}</tbody></table></div>` : `<div class="empty">No member listings yet.</div>`}
+    ${A.reports.length ? `<h2 class="hmh2">Reports</h2><div class="panel">${A.reports.map(r => `<p><a href="#item-m-${esc(String(r.about).slice(7))}">${esc(String(r.about).slice(7))}</a> · ${esc(r.reason || "")} ${r.text ? "· " + esc(r.text) : ""} <button class="linkbtn" type="button" data-mkrepdis="${esc(r.id)}">Dismiss</button></p>`).join("")}</div>` : ""}`;
+}
+
+/* ---- address search for "Your details" (OpenStreetMap, free) ---- */
+const ADDR = {t: null, list: [], i: -1, seq: 0};
+function addrLabel(p){
+  const street = [p.housenumber, p.street].filter(Boolean).join(" ");
+  const first = street || p.name || "";
+  return [first, p.city || p.town || p.village || p.district || (first !== p.name ? p.name : ""), p.state, p.postcode].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(", ");
+}
+async function addrSearch(q){
+  const seq = ++ADDR.seq, box = $("#addrList"), inp = $("#addrIn"); if (!box || !inp) return;
+  if (q.length < 3){ box.hidden = true; inp.setAttribute("aria-expanded", "false"); return; }
+  try {
+    const r = await fetch("https://photon.komoot.io/api/?limit=6&lang=en&lat=43.88&lon=-79.44&q=" + encodeURIComponent(q));
+    const j = await r.json(); if (seq !== ADDR.seq) return;
+    ADDR.list = (j.features || []).filter(f => (f.properties || {}).countrycode === "CA").map(f => ({label: addrLabel(f.properties), city: f.properties.city || f.properties.town || f.properties.village || f.properties.district || "", lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0]})).filter(x => x.label);
+    ADDR.i = -1;
+    box.innerHTML = ADDR.list.length ? ADDR.list.map((a, i) => `<li role="option" id="addrOpt${i}" data-addr="${i}" aria-selected="false">${HM_PIN}<span>${esc(a.label)}</span></li>`).join("") + `<li class="addrsrc" aria-hidden="true">Search by OpenStreetMap</li>` : `<li class="addrnone">No matches yet. Keep typing, or add the city.</li>`;
+    box.hidden = false; inp.setAttribute("aria-expanded", "true");
+  } catch (e) { if (seq === ADDR.seq){ box.hidden = true; inp.setAttribute("aria-expanded", "false"); } }
+}
+function addrPick(i){
+  const a = ADDR.list[i], f = $("#profileForm"); if (!a || !f) return;
+  f.address.value = a.label; f.lat.value = a.lat; f.lng.value = a.lng; if (a.city) f.city.value = a.city;
+  const box = $("#addrList"); box.hidden = true; $("#addrIn").setAttribute("aria-expanded", "false");
+}
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.id === "addrIn"){ const f = $("#profileForm"); if (f){ f.lat.value = ""; f.lng.value = ""; } clearTimeout(ADDR.t); ADDR.t = setTimeout(() => addrSearch(t.value.trim()), 280); return; }
+  if (t.name === "dob" && t.closest("#profileForm")){ const a = ageOf(t.value), o = $("#ageOut"); if (o) o.textContent = a != null ? "Age " + a : ""; }
+});
+document.addEventListener("keydown", e => {
+  if (e.target.id !== "addrIn") return;
+  const box = $("#addrList"); if (!box || box.hidden || !ADDR.list.length) return;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp"){ e.preventDefault(); ADDR.i = (ADDR.i + (e.key === "ArrowDown" ? 1 : -1) + ADDR.list.length) % ADDR.list.length;
+    box.querySelectorAll("[data-addr]").forEach((li, i) => li.setAttribute("aria-selected", i === ADDR.i)); e.target.setAttribute("aria-activedescendant", "addrOpt" + ADDR.i); }
+  else if (e.key === "Enter" && ADDR.i >= 0){ e.preventDefault(); addrPick(ADDR.i); }
+  else if (e.key === "Escape"){ box.hidden = true; e.target.setAttribute("aria-expanded", "false"); }
+});
+document.addEventListener("mousedown", e => { const li = e.target.closest("[data-addr]"); if (li){ e.preventDefault(); addrPick(+li.dataset.addr); return; } const box = $("#addrList"); if (box && !box.hidden && !e.target.closest(".addrwrap")) box.hidden = true; });
+
+/* ---- clicks, inputs and forms ---- */
+document.addEventListener("click", async ev => {
+  const b = ev.target.closest("button"); if (!b) return;
+  if (b.hasAttribute("data-mkapply")){
+    const pr = PROFILE || {}; b.disabled = true; b.textContent = "Sending…";
+    try { const data = {uid: USER.uid, status: "pending", name: pr.name || "", email: USER.email || "", phone: pr.phone || "", address: pr.address || "", city: pr.city || "", dob: pr.dob || "", note: ""};
+      await FB.mkApply(USER.uid, data, !MK.me); MK.me = {...data, id: USER.uid}; toast("Application sent"); render(); }
+    catch (e) { console.error(e); b.disabled = false; b.textContent = "Send application"; toast(e && e.code === "permission-denied" ? "Selling isn't switched on yet. Please try again later." : "That didn't go through. Please try again."); }
+    return;
+  }
+  if (b.dataset.mknew){ MK.newKind = b.dataset.mknew; MK.editId = null; MK.form = null; go("sell"); return; }
+  if (b.dataset.mkedit){ MK.editId = b.dataset.mkedit; MK.form = null; go("sell"); return; }
+  if (b.dataset.mkphx != null){ MK.form.photos.splice(+b.dataset.mkphx, 1); MK.form.changed = true; $("#mkPhotos").innerHTML = mkPhotoStrip(); return; }
+  if (b.dataset.mkphmain != null){ const [x] = MK.form.photos.splice(+b.dataset.mkphmain, 1); MK.form.photos.unshift(x); MK.form.changed = true; $("#mkPhotos").innerHTML = mkPhotoStrip(); return; }
+  if (b.dataset.mkg != null){ MK.gi = +b.dataset.mkg; const d = mkFind(MK.viewing), g = $("#mkGal"); if (d && g) g.outerHTML = mkGalleryHTML(d); return; }
+  if (b.hasAttribute("data-mkshare")){ const url = location.href; try { if (navigator.share){ await navigator.share({url}); return; } await navigator.clipboard.writeText(url); toast("Link copied"); } catch (_) {} return; }
+  if (b.dataset.mkreport){ dtReportForm("market:" + b.dataset.mkreport); return; }
+  if (b.dataset.mkset){
+    try { await FB.mkSetStatus(b.dataset.id, b.dataset.mkset); MK.mine = null; toast(b.dataset.mkset === "live" ? "It's live again" : b.dataset.mkset === "sold" ? "Marked as done" : "Hidden"); render(); }
+    catch (e) { console.error(e); toast("That didn't go through. Please try again."); } return;
+  }
+  if (b.dataset.mkdel){
+    const id = b.dataset.mkdel; if (MK.arm !== "d" + id){ MK.arm = "d" + id; render(); return; }
+    MK.arm = ""; try { await FB.mkDelete(id); MK.mine = null; toast("Listing deleted"); render(); } catch (e) { console.error(e); toast("Couldn't delete it."); } return;
+  }
+  if (b.hasAttribute("data-mkadmreload")){ MK.adm = null; refreshAdmin(); return; }
+  if (b.dataset.mkseller){
+    const id = b.dataset.id, s = b.dataset.mkseller, note = "";
+    try { await FB.mkSetSeller(id, s, note); const x = MK.adm.sellers.find(y => y.id === id); if (x) x.status = s; toast(s === "approved" ? "Approved. They can sell now." : s === "rejected" ? "Application rejected" : "Selling paused"); refreshAdmin(); }
+    catch (e) { console.error(e); toast("Couldn't update it. Check the database rules."); } return;
+  }
+  if (b.dataset.mkcert){
+    const id = b.dataset.id, on = b.dataset.mkcert === "1";
+    try { await FB.mkAdmin(id, {certified: on, certifiedAt: on ? Date.now() : null}); const x = MK.adm.list.find(y => y.id === id); if (x) x.certified = on; toast(on ? "Certified ✓" : "Badge removed"); refreshAdmin(); }
+    catch (e) { console.error(e); toast("Couldn't update it."); } return;
+  }
+  if (b.dataset.mkadmset){
+    const id = b.dataset.id, s = b.dataset.mkadmset;
+    try { await FB.mkAdmin(id, {status: s}); const x = MK.adm.list.find(y => y.id === id); if (x) x.status = s; toast(s === "removed" ? "Taken down" : "It's live again"); refreshAdmin(); }
+    catch (e) { console.error(e); toast("Couldn't update it."); } return;
+  }
+  if (b.dataset.mkadmdel){
+    const id = b.dataset.mkadmdel; if (MK.arm !== "a" + id){ MK.arm = "a" + id; refreshAdmin(); return; }
+    MK.arm = ""; try { await FB.mkDelete(id); MK.adm.list = MK.adm.list.filter(x => x.id !== id); toast("Listing deleted"); refreshAdmin(); } catch (e) { console.error(e); toast("Couldn't delete it."); } return;
+  }
+  if (b.dataset.mkrepdis){ try { await FB.dtDelReport(b.dataset.mkrepdis); MK.adm.reports = MK.adm.reports.filter(r => r.id !== b.dataset.mkrepdis); refreshAdmin(); } catch (e) { toast("Couldn't dismiss it."); } }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "mkPhIn"){ mkAddPhotos(t.files); return; }
+  if (t.name === "kind" && t.closest("#mkForm") && MK.form && !MK.form.id){ mkKeepForm(); MK.form.data.kind = t.value; MK.newKind = t.value; render(); }
+});
+document.addEventListener("submit", async ev => {
+  const f = ev.target;
+  if (f.id === "mkForm"){ ev.preventDefault(); mkSave(f); return; }
+  if (f.id === "mkContact"){
+    ev.preventDefault(); const text = $("#mkCText").value.trim(); if (!text) return;
+    const d = mkFind(MK.viewing); if (!d) return;
+    const btn = f.querySelector("button"); btn.disabled = true; btn.textContent = "Sending…";
+    try { const id = await FB.mkOpenThread(d, USER.uid, mkFirst()); await FB.hmSend(id, USER.uid, text); toast("Message sent"); go("hchat", id); }
+    catch (e) { console.error(e); btn.disabled = false; btn.textContent = "Send message"; toast("Your message wasn't sent. Please try again."); }
+  }
+});
+
 /* ---- My orders ---- */
 function startMyOrders(){
   if (!FB || !USER || MY.unsub) return;
@@ -5006,7 +5452,7 @@ function adminView(){
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
   return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them.</p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
+    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
 }
@@ -5019,6 +5465,7 @@ function adminBody(){
   if (ADM.tab === "events") return eventsAdminHTML();
   if (ADM.tab === "dating") return datingAdminHTML();
   if (ADM.tab === "homes") return homesAdminHTML();
+  if (ADM.tab === "members") return membersAdminHTML();
   if (!ADM.orders || !ADM.users) return `<div class="empty">Loading…</div>`;
   return ADM.tab === "customers" ? customersHTML() : adminOrdersHTML();
 }
@@ -5109,6 +5556,7 @@ const BOOK_TEXT = {
   "No-show": "We missed you at this session. Reply to this email to book another time."
 };
 const SICON = {
+  box: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="8" cy="8" r="1.6"/>',
   monitor:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
   video:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/>',
   pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
@@ -5140,6 +5588,7 @@ function useServices(all){
   const list = all.filter(d => d.kind !== "provider" && d.kind !== "event");
   ALL_SERVICES = list; servicesLoaded = true;
   SERVICES = list.map(fsToService).filter(s => s.active).sort((a,b) => (a.order - b.order) || a.title.localeCompare(b.title));
+  mkMerge();
 }
 
 /* Times are always shown and stored in Toronto time */
@@ -5193,12 +5642,12 @@ function serviceCards(list){
     <article class="svccard" data-svc="${esc(s.id)}">
       <div class="cover">${svcCover(s)}</div>
       <div class="sb">
-        <span class="cat">${esc(s.category)}</span>
+        <span class="cat">${esc(s.category)}</span>${s.certified ? certBadge(true) : ""}
         <h3><a href="#service-${esc(s.id)}">${esc(s.title)}</a></h3>
         <span class="prov">by ${s.providerUid && PROVIDERS.find(x => x.id === s.providerUid) ? `<a href="#provider-${esc(s.providerUid)}">${esc(s.providerName)}</a>` : esc(s.providerName)}</span>
         ${s.summary ? `<p class="desc">${esc(s.summary)}</p>` : ""}
         ${fmtChips(s)}
-        <div class="foot"><span class="svcprice">${priceTxt(s)}</span><a class="btn small" href="#service-${esc(s.id)}">Book a time</a></div>
+        <div class="foot"><span class="svcprice">${priceTxt(s)}</span><a class="btn small" href="#service-${esc(s.id)}">${s.member ? "View" : "Book a time"}</a></div>
       </div>
     </article>`).join("");
 }
@@ -5242,6 +5691,7 @@ function servicesView(){
     </div>`;
 }
 function serviceView(){
+  if (String(serviceId).startsWith("m-")) return mkDetailView(String(serviceId).slice(2));
   const s = SERVICES.find(x => x.id === serviceId);
   if (!s) return servicesLoaded ? `<div class="empty">This service isn't available anymore. <a href="#services" style="color:var(--link)">See all services</a></div>` : `<div class="empty">Loading…</div>`;
   const how = [
@@ -5895,7 +6345,9 @@ document.addEventListener("submit", async e => {
   if (f.id === "profileForm"){
     e.preventDefault();
     const pm = $("#profileMsg"), err = validate(f); if (err) return showMsg(pm,false,err);
-    const data = {name:d.name.trim(), phone:(d.phone||"").trim(), city:(d.city||"").trim()};
+    const dob = (d.dob || "").trim(), age = ageOf(dob);
+    if (dob && (age == null || new Date(dob) > new Date())) return showMsg(pm, false, "Please check your date of birth.");
+    const data = {name:d.name.trim(), phone:(d.phone||"").trim(), city:(d.city||"").trim(), address:(d.address||"").trim().slice(0, 160), dob, lat: d.lat ? +d.lat : null, lng: d.lng ? +d.lng : null};
     try { await FB.saveProfile(USER.uid, data); PROFILE = {...(PROFILE||{}), ...data}; updateAcct(); showMsg(pm,true,"Details saved."); }
     catch(er){ console.error(er); showMsg(pm,false,"Couldn't save. Try again."); }
     return;
@@ -5920,6 +6372,7 @@ document.addEventListener("submit", async e => {
 /* ---- Firebase connection (loaded by the module script at the end of the page) ---- */
 function onFirebaseReady(api){
   FB = api; fbFailed = false;
+  mkStartWatch();
   FB.watchProducts(list => {
     if (!list.length){ ALL_PRODUCTS = []; loadFromSheet(); if (current() === "admin") refreshAdmin(); return; }
     useProducts(list);
@@ -5948,6 +6401,7 @@ function onFirebaseReady(api){
       ADM.orders = ADM.users = ADM.bookings = null; ADM.error = null; ADM.notes = {};
       dtReset(); DT.adm = null;
       if (HM.unsubT) HM.unsubT(); HM.unsubT = null; HM.tuid = null; HM.threads = null; HM.mine = null; HM.adm = null; HM.form = null;
+      MK.meUid = null; MK.me = "none"; MK.mine = null; MK.form = null; MK.adm = null; MK.editId = null;
       PED = {id:null, data:null, photo:null};
     }
     authReady = true; updateAcct();
@@ -6124,6 +6578,28 @@ window.SHOP_FB = {
     await updateDoc(doc(db, "threads", id), {lastText: text.slice(0, 120), lastFrom: me, lastAt: serverTimestamp(), ["seen." + me]: Date.now() + 5000});
   },
   hmSeen: (id, me) => updateDoc(doc(db, "threads", id), {["seen." + me]: Date.now() + 5000}),
+  /* v77 member selling */
+  mkWatchLive: (cb, err) => onSnapshot(query(collection(db, "market"), where("status", "==", "live"), limit(1000)), s => cb(s.docs.map(withId)), err),
+  async mkGet(id){ const s = await getDoc(doc(db, "market", id)); return s.exists() ? withId(s) : null; },
+  mkMine: async uid => (await getDocs(query(collection(db, "market"), where("uid", "==", uid)))).docs.map(withId),
+  mkAll: async () => (await getDocs(collection(db, "market"))).docs.map(withId),
+  mkNewId: () => doc(collection(db, "market")).id,
+  mkSave: (id, data, isNew) => setDoc(doc(db, "market", id), {...data, ...(isNew ? {createdAt: serverTimestamp()} : {}), updatedAt: serverTimestamp()}, {merge: true}),
+  mkSetStatus: (id, status) => updateDoc(doc(db, "market", id), {status, updatedAt: serverTimestamp()}),
+  mkAdmin: (id, data) => updateDoc(doc(db, "market", id), {...data, updatedAt: serverTimestamp()}),
+  mkSavePhoto: (id, i, data, uid) => setDoc(doc(db, "marketPhotos", id + "_" + i), {mid: id, uid, i, data}),
+  mkDelPhoto: (id, i) => deleteDoc(doc(db, "marketPhotos", id + "_" + i)),
+  async mkGetPhoto(id, i){ const s = await getDoc(doc(db, "marketPhotos", id + "_" + i)); return s.exists() ? s.data().data : null; },
+  async mkDelete(id){ for (let i = 0; i < 6; i++){ try { await deleteDoc(doc(db, "marketPhotos", id + "_" + i)); } catch (_) {} } await deleteDoc(doc(db, "market", id)); },
+  async mkGetSeller(uid){ const s = await getDoc(doc(db, "sellers", uid)); return s.exists() ? withId(s) : null; },
+  mkApply: (uid, data, isNew) => setDoc(doc(db, "sellers", uid), {...data, appliedAt: serverTimestamp()}, {merge: !isNew}),
+  mkSellers: async () => (await getDocs(collection(db, "sellers"))).docs.map(withId),
+  mkSetSeller: (uid, status, note) => updateDoc(doc(db, "sellers", uid), {status, note: note || "", decidedAt: serverTimestamp()}),
+  async mkOpenThread(d, me, myName){
+    const id = "m" + d.id + "_" + me, ref = doc(db, "threads", id), s = await getDoc(ref);
+    if (!s.exists()) await setDoc(ref, {marketId: d.id, mkind: d.kind, owner: d.uid, users: [me, d.uid], names: {[me]: myName, [d.uid]: d.ownerName || "Seller"}, homeTitle: d.title || "", thumb: d.thumb || "", status: "open", createdAt: serverTimestamp(), lastAt: serverTimestamp(), lastText: "", lastFrom: "", seen: {}});
+    return id;
+  },
   /* v70 dating */
   async dtGetMe(uid){ const s = await getDoc(doc(db, "dating", uid)); return s.exists() ? withId(s) : null; },
   dtSaveMe: (uid, data, isNew) => setDoc(doc(db, "dating", uid), {...data, uid, ...(isNew ? {createdAt: serverTimestamp()} : {}), updatedAt: serverTimestamp()}, {merge: true}),
