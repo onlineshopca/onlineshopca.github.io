@@ -1307,7 +1307,7 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 /* v61: search icon at the top on phones; bottom bar has 4 tabs; highlight stays inside the bar */
 @media (max-width:700px){
   .gtools #searchBtn{display:grid!important}
-  .tabbar{grid-template-columns:repeat(7,minmax(0,1fr))!important}
+  .tabbar{grid-template-columns:repeat(6,minmax(0,1fr))!important}
   .tabbar a[aria-current="page"]{height:52px!important;min-height:52px!important;transform:none!important;margin:0 4px;border-radius:26px!important}
   .gsearch .search{padding:12px 16px}
   .gsearch .search .btn{padding:0 16px}
@@ -1799,6 +1799,8 @@ a[data-tab="homes"].hasdot::after{content:"";position:absolute;top:4px;right:cal
   .hgwrap .viewall{transition:transform .42s cubic-bezier(.2,.8,.2,1),opacity .35s}
   .hgwrap:not(.atend) .viewall{transform:scale(.82);opacity:.35}
 }
+/* v75: dating archived, links hidden */
+a[href="#dating"][data-tab="dating"],.footcols a[href="#dating"],footer a[href="#dating"]{display:none!important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -2464,11 +2466,11 @@ const views = {
       <div class="homegrid evhome">${EVENTS.slice(0, 4).map(evCardHTML).join("")}${viewAll("svc", "#events", EVENTS.length + " upcoming", "View all events")}</div></section>` : ""}`;
   },
   events(){ return eventsView(); },
-  dating(){ return datingView(); },
-  person(){ return personView(); },
-  matches(){ return matchesView(); },
-  chat(){ return chatView(); },
-  datingprofile(){ return datingProfileView(); },
+  dating(){ return dtOpen() ? datingView() : dtArchivedHTML(); },
+  person(){ return dtOpen() ? personView() : dtArchivedHTML(); },
+  matches(){ return dtOpen() ? matchesView() : dtArchivedHTML(); },
+  chat(){ return dtOpen() ? chatView() : dtArchivedHTML(); },
+  datingprofile(){ return dtOpen() ? datingProfileView() : dtArchivedHTML(); },
   homes(){ return homesView(); },
   listing(){ return listingView(); },
   listhome(){ return listHomeView(); },
@@ -3922,6 +3924,10 @@ const DT_INTERESTS = ["Music", "Travel", "Food", "Coffee", "Cooking", "Fitness",
 const DT_HEART = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.8 1.3-1.7 2.9-2.8 4.9-2.8 3.5 0 5.7 3.4 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>`;
 const DT_X = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
 const DT_VIEWS = ["dating", "person", "matches", "chat", "datingprofile"];
+/* v75: the dating section is archived. Set DATING_ON to true to bring it back; the admin can still open it to test. */
+const DATING_ON = false;
+const dtOpen = () => DATING_ON || isAdmin();
+const dtArchivedHTML = () => `<div class="empty">The dating section isn't available right now. <a href="#home" style="color:var(--link)">Back to the home page</a></div>`;
 const tsMs = t => !t ? 0 : t.toMillis ? t.toMillis() : t.seconds ? t.seconds * 1000 : typeof t === "number" ? t : 0;
 const dtCity = c => String(c || "").trim().replace(/\s+/g, " ").replace(/\b\w/g, m => m.toUpperCase());
 const dtAgeFrom = dob => { if (!dob) return null; const b = new Date(dob + "T12:00:00"), n = new Date(); let a = n.getFullYear() - b.getFullYear(); if (n.getMonth() < b.getMonth() || (n.getMonth() === b.getMonth() && n.getDate() < b.getDate())) a--; return a; };
