@@ -3047,7 +3047,9 @@ const isAdmin = () => !!USER && USER.emailVerified && ADMIN_EMAILS.includes(Stri
 const fmtDate = ts => { const d = ts && ts.toDate ? ts.toDate() : (ts ? new Date(ts) : null); return d ? d.toLocaleString("en-CA", {month:"short", day:"numeric", year:"numeric", hour:"numeric", minute:"2-digit"}) : "just now"; };
 const tsNum = ts => ts && ts.toMillis ? ts.toMillis() : (ts ? +new Date(ts) : Date.now());
 const itemPrice = it => it.price == null ? "Price on request" : money(it.price * it.qty);
-function googleBtn(next){ return `<button type="button" class="gbtn" data-google${next ? ` data-next="${next}"` : ""}><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continue with Google</button>`; }
+function googleBtn(next){ return `<button type="button" class="gbtn" data-google${next ? ` data-next="${next}"` : ""}><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continue with Google</button>${msBtn(next)}`; }
+/* v76: Microsoft sign-in (Outlook, Hotmail, Live and work or school accounts) */
+function msBtn(next){ return `<button type="button" class="gbtn msbtn" data-microsoft${next ? ` data-next="${next}"` : ""}><svg viewBox="0 0 21 21" aria-hidden="true"><path fill="#f25022" d="M1 1h9v9H1z"/><path fill="#7fba00" d="M11 1h9v9h-9z"/><path fill="#00a4ef" d="M1 11h9v9H1z"/><path fill="#ffb900" d="M11 11h9v9h-9z"/></svg>Continue with Microsoft</button>`; }
 function authError(e){
   const c = (e && e.code) || "";
   return ({
@@ -3059,8 +3061,10 @@ function authError(e){
     "auth/invalid-email":"Enter a valid email address, like name@example.com.",
     "auth/too-many-requests":"Too many tries. Wait a few minutes and try again.",
     "auth/network-request-failed":"No connection. Check your internet and try again.",
-    "auth/popup-blocked":"Your browser blocked the Google window. Allow pop-ups for this site and try again.",
-    "auth/unauthorized-domain":"Google sign-in isn't enabled for this web address yet."
+    "auth/popup-blocked":"Your browser blocked the sign-in window. Allow pop-ups for this site and try again.",
+    "auth/unauthorized-domain":"This sign-in option isn't enabled for this web address yet.",
+    "auth/account-exists-with-different-credential":"You already have an account with this email. Sign in the way you did before (Google or email and password).",
+    "auth/operation-not-allowed":"This sign-in option isn't switched on yet. Please use Google or email for now."
   })[c] || "Something went wrong. Please try again.";
 }
 function updateAcct(){
@@ -5828,11 +5832,11 @@ document.addEventListener("click", async e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.mode){ authMode = b.dataset.mode; render(); return; }
   if (b.dataset.auth){ authMode = b.dataset.auth; afterLogin = b.dataset.next || null; go("account"); return; }
-  if (b.hasAttribute("data-google")){
+  if (b.hasAttribute("data-google") || b.hasAttribute("data-microsoft")){
     if (!FB) return toast("Still connecting, try again in a moment");
     if (b.dataset.next) afterLogin = b.dataset.next; else if (!afterLogin && current() === "account") afterLogin = "account";
     b.disabled = true;
-    try { await FB.google(); }
+    try { if (b.hasAttribute("data-microsoft")) await FB.microsoft(); else await FB.google(); }
     catch(err){ b.disabled = false; if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request"){ const m = $("#authMsg"); if (m) showMsg(m,false,authError(err)); else toast(authError(err)); } }
     return;
   }
@@ -5978,7 +5982,7 @@ function loadFromSheet(){   // used only when the product database is empty or c
 /* Firebase: sign-in (email or Google) and the order database. These keys are public by design;
    the database's security rules decide who can read or change what. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect, sendPasswordResetEmail, sendEmailVerification, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect, sendPasswordResetEmail, sendEmailVerification, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, writeBatch, collection, query, where, orderBy, onSnapshot, getDocs, limit, runTransaction, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
@@ -5993,6 +5997,7 @@ const auth = getAuth(app);
 /* v58: keep a copy of the shop data on the phone so it shows instantly, then refreshes */
 let db; try { db = initializeFirestore(app, {localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})}); } catch (e) { db = getFirestore(app); }
 const google = new GoogleAuthProvider(); google.setCustomParameters({prompt: "select_account"});
+const microsoft = new OAuthProvider("microsoft.com"); microsoft.setCustomParameters({prompt: "select_account"}); microsoft.addScope("email"); microsoft.addScope("profile");
 const withId = s => ({id: s.id, ...s.data()});
 
 window.SHOP_FB = {
@@ -6008,6 +6013,10 @@ window.SHOP_FB = {
   async google(){
     try { return await signInWithPopup(auth, google); }
     catch (e) { if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") return signInWithRedirect(auth, google); throw e; }
+  },
+  async microsoft(){
+    try { const cred = await signInWithPopup(auth, microsoft); if (cred.user.email && !cred.user.emailVerified && !(await getDoc(doc(db, "users", cred.user.uid))).exists()) sendEmailVerification(cred.user).catch(() => {}); return cred; }
+    catch (e) { if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") return signInWithRedirect(auth, microsoft); throw e; }
   },
   reset: email => sendPasswordResetEmail(auth, email),
   resendVerify: () => sendEmailVerification(auth.currentUser),
