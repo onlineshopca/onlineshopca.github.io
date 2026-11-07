@@ -6480,7 +6480,7 @@ const app = initializeApp({
 });
 const auth = getAuth(app);
 /* v58: keep a copy of the shop data on the phone so it shows instantly, then refreshes */
-let db; try { db = initializeFirestore(app, {localCache: memoryLocalCache()}); } catch (e) { db = getFirestore(app); }   // v80: memory cache; the shared multi-tab cache could leave queries hanging
+let db; try { db = initializeFirestore(app, {localCache: memoryLocalCache(), experimentalForceLongPolling: true}); } catch (e) { db = getFirestore(app); }   // v82: memory cache + long polling, so antivirus, VPNs and proxies that hold back streaming connections can't stall reads and saves
 const google = new GoogleAuthProvider(); google.setCustomParameters({prompt: "select_account"});
 const microsoft = new OAuthProvider("microsoft.com"); microsoft.setCustomParameters({prompt: "select_account"}); microsoft.addScope("email"); microsoft.addScope("profile");
 const withId = s => ({id: s.id, ...s.data()});
