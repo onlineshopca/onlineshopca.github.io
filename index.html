@@ -1307,7 +1307,7 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 /* v61: search icon at the top on phones; bottom bar has 4 tabs; highlight stays inside the bar */
 @media (max-width:700px){
   .gtools #searchBtn{display:grid!important}
-  .tabbar{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+  .tabbar{grid-template-columns:repeat(4,minmax(0,1fr))!important}
   .tabbar a[aria-current="page"]{height:52px!important;min-height:52px!important;transform:none!important;margin:0 4px;border-radius:26px!important}
   .gsearch .search{padding:12px 16px}
   .gsearch .search .btn{padding:0 16px}
@@ -1801,6 +1801,7 @@ a[data-tab="homes"].hasdot::after{content:"";position:absolute;top:4px;right:cal
 }
 /* v75: dating archived, links hidden */
 a[href="#dating"][data-tab="dating"],.footcols a[href="#dating"],footer a[href="#dating"]{display:none!important}
+a[data-tab="events"],a[data-tab="homes"],footer a[href="#events"],footer a[href="#homes"]{display:none!important}
 
 /* ===== v77: member selling ===== */
 .cert{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:#0a7a4f;font-size:14px;line-height:1;white-space:nowrap}
@@ -2489,7 +2490,7 @@ const views = {
     const q = query.trim();
     if (q){ const svcs = SERVICES.filter(s => [s.title, s.summary, s.category, s.providerName, s.description].join(" ").toLowerCase().includes(q.toLowerCase())), items = filtered();
       return `<div class="sectionhead"><h1>Results for “${esc(q)}”</h1><button class="linkbtn" data-clear>Clear search</button></div>
-        ${items.length || (!svcs.length && !EVENTS.some(e => evMatchQ(e, q.toLowerCase()))) ? productGrid(items) : ""}${svcs.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Services</h2></div>${serviceGrid(svcs)}` : ""}${(() => { const evs = EVENTS.filter(e => evMatchQ(e, q.toLowerCase())); return evs.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Events</h2></div><div class="evgrid">${evs.map(evCardHTML).join("")}</div>` : ""; })()}`; }
+        ${items.length || (!svcs.length && !(evOn() && EVENTS.some(e => evMatchQ(e, q.toLowerCase())))) ? productGrid(items) : ""}${svcs.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Services</h2></div>${serviceGrid(svcs)}` : ""}${(() => { const evs = evOn() ? EVENTS.filter(e => evMatchQ(e, q.toLowerCase())) : []; return evs.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Events</h2></div><div class="evgrid">${evs.map(evCardHTML).join("")}</div>` : ""; })()}`; }
     const nNew = PRODUCTS.filter(p => p.condition === "new"), nUsed = PRODUCTS.filter(p => p.condition === "used"), loading = feedState.new === "loading";
     const soon = (icon, title, text) => `<div class="soon"><span class="soonic">${svgI(icon)}</span><b>${title}</b><span>${text}</span></div>`;
     return `
@@ -2503,23 +2504,23 @@ const views = {
     <section class="hsec"><div class="hhead"><h2>Services &amp; classes</h2><span>Learn with a local expert, online or in person.</span></div>
       <div class="homegrid">${SERVICES.length ? serviceCards(SERVICES.slice(0, 3)) : soon("monitor", "Services are coming soon", servicesLoaded || fbFailed ? "Computer lessons, online training and expert help. Tell us what you'd like to learn." : "Loading services…")}
         ${viewAll("svc", "#services", SERVICES.length ? "Book a time" : "Online or in person", "View all services")}</div></section>
-    ${EVENTS.length ? `<section class="hsec"><div class="hhead"><h2>Events</h2><span>Things to do around Richmond Hill, Toronto and online.</span></div>
+    ${EVENTS.length && evOn() ? `<section class="hsec"><div class="hhead"><h2>Events</h2><span>Things to do around Richmond Hill, Toronto and online.</span></div>
       <div class="homegrid evhome">${EVENTS.slice(0, 4).map(evCardHTML).join("")}${viewAll("svc", "#events", EVENTS.length + " upcoming", "View all events")}</div></section>` : ""}`;
   },
-  events(){ return eventsView(); },
+  events(){ return evOn() ? eventsView() : offHTML("events"); },
   dating(){ return dtOpen() ? datingView() : dtArchivedHTML(); },
   person(){ return dtOpen() ? personView() : dtArchivedHTML(); },
   matches(){ return dtOpen() ? matchesView() : dtArchivedHTML(); },
   chat(){ return dtOpen() ? chatView() : dtArchivedHTML(); },
   datingprofile(){ return dtOpen() ? datingProfileView() : dtArchivedHTML(); },
-  homes(){ return homesView(); },
-  listing(){ return listingView(); },
-  listhome(){ return listHomeView(); },
-  mylistings(){ return myListingsView(); },
+  homes(){ return hmOn() ? homesView() : offHTML("homes"); },
+  listing(){ return hmOn() ? listingView() : offHTML("homes"); },
+  listhome(){ return hmOn() ? listHomeView() : offHTML("homes"); },
+  mylistings(){ return hmOn() ? myListingsView() : offHTML("homes"); },
   hchat(){ return hchatView(); },
   selling(){ return sellingView(); },
   sell(){ return sellView(); },
-  event(){ return eventView(); },
+  event(){ return evOn() ? eventView() : offHTML("events"); },
   new(){ return listView("new"); },
   used(){ return listView("used"); },
   cart(){
@@ -2897,7 +2898,7 @@ function toggleSearch(force){
   p.hidden = !open; $("#searchBtn").setAttribute("aria-expanded", String(open));
   if (open){
     
-    const v = current(), ph = {new: "Search brand new items", used: "Search used items", services: "Search services", events: "Search events", dating: "Search people by name, city or interest", homes: "Search homes by city, street or type"}[v] || "Search everything: items, services and events";
+    const v = current(), ph = {new: "Search brand new items", used: "Search used items", services: "Search services", events: "Search events", dating: "Search people by name, city or interest", homes: "Search homes by city, street or type"}[v] || "Search items and services";
     $("#q").placeholder = ph; $("#q").setAttribute("aria-label", ph);
     megaClose(); setTimeout(() => $("#q").focus(), 30);
   }
@@ -3994,6 +3995,10 @@ const DT_X = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18
 const DT_VIEWS = ["dating", "person", "matches", "chat", "datingprofile"];
 /* v75: the dating section is archived. Set DATING_ON to true to bring it back; the admin can still open it to test. */
 const DATING_ON = false;
+/* v83: Events and Homes are archived for now (set to true to bring them back). Admins can still open them. */
+const EVENTS_ON = false, HOMES_ON = false;
+const evOn = () => EVENTS_ON || isAdmin(), hmOn = () => HOMES_ON || isAdmin();
+const offHTML = what => `<div class="empty">The ${what} section isn't available right now. <a href="#home" style="color:var(--link)">Back to the home page</a></div>`;
 const dtOpen = () => DATING_ON || isAdmin();
 const dtArchivedHTML = () => `<div class="empty">The dating section isn't available right now. <a href="#home" style="color:var(--link)">Back to the home page</a></div>`;
 const tsMs = t => !t ? 0 : t.toMillis ? t.toMillis() : t.seconds ? t.seconds * 1000 : typeof t === "number" ? t : 0;
@@ -5054,7 +5059,7 @@ function mkMerge(){
   const L = MK.list || [], now = Date.now();
   L.filter(d => d.kind === "new" || d.kind === "used").forEach(d => PRODUCTS.push(mkToItem(d)));
   L.filter(d => d.kind === "service").forEach(d => SERVICES.push(mkToService(d)));
-  L.filter(d => d.kind === "event" && (+d.endMs || +d.startMs || 0) >= now).forEach(d => EVENTS.push(mkToEvent(d)));
+  if (EVENTS_ON) L.filter(d => d.kind === "event" && (+d.endMs || +d.startMs || 0) >= now).forEach(d => EVENTS.push(mkToEvent(d)));
   EVENTS.sort((a, b) => a.startMs - b.startMs);
 }
 function mkStartWatch(){
@@ -5102,7 +5107,7 @@ function sellingView(){
   else if (s.status === "pending") status = `<div class="panel"><h2>Application sent</h2><p class="note">Nojan is reviewing your account. Once you're approved, you can start listing right here.</p></div>`;
   else if (s.status === "suspended") status = `<div class="panel"><h2>Selling is paused</h2><p class="note">Your selling account is paused${s.note ? ": " + esc(s.note) : "."} <a href="#contact-us">Contact us</a> if you have questions.</p></div>`;
   else status = `<div class="panel mkok"><h2><span class="mkokdot">✓</span> You're approved to sell</h2>
-      <div class="mknew"><button class="btn" type="button" data-mknew="used">+ Used item</button><button class="btn" type="button" data-mknew="new">+ Brand new item</button><button class="btn ghost" type="button" data-mknew="service" style="color:var(--fg)">+ Service</button><button class="btn ghost" type="button" data-mknew="event" style="color:var(--fg)">+ Event</button></div>
+      <div class="mknew"><button class="btn" type="button" data-mknew="used">+ Used item</button><button class="btn" type="button" data-mknew="new">+ Brand new item</button><button class="btn ghost" type="button" data-mknew="service" style="color:var(--fg)">+ Service</button>${EVENTS_ON ? `<button class="btn ghost" type="button" data-mknew="event" style="color:var(--fg)">+ Event</button>` : ""}</div>
       <p class="note">Your listings go live right away. Nojan can inspect an item in person and give it the ${certBadge(true)} badge.</p></div>`;
   const st = {live: ["Live", "live"], sold: ["Sold", "closed"], hidden: ["Hidden", "wait"], removed: ["Taken down by Nojan", "no"]};
   const mine = Array.isArray(MK.mine) ? MK.mine.slice().sort((a, b) => tsMs(b.updatedAt) - tsMs(a.updatedAt)) : null;
@@ -5117,7 +5122,7 @@ function sellingView(){
     return `<a class="dtmrow${un ? " unread" : ""}" href="#hchat-${esc(t.id)}">${t.thumb ? `<img src="${esc(t.thumb)}" alt="">` : `<span class="dtnoimg">${esc(((t.names || {})[other] || "?").charAt(0).toUpperCase())}</span>`}
       <span class="dtmtxt"><b>${esc((t.names || {})[other] || "Someone")} · ${esc(t.homeTitle || "")}</b><small>${mineL ? "About your listing · " : ""}${t.lastText ? (t.lastFrom === USER.uid ? "You: " : "") + esc(t.lastText) : "No messages yet"}</small></span>
       <span class="dtmwhen">${tsMs(t.lastAt) ? dtWhen(tsMs(t.lastAt)) : ""}${un ? `<i class="dtdot" aria-label="Unread"></i>` : ""}</span></a>`; };
-  return `<section class="pagehero lhero"><div class="phtext"><h1>Sell on Nojan</h1><p>Sell brand new and used items, offer services and list events. Chat with buyers right here.</p></div></section>
+  return `<section class="pagehero lhero"><div class="phtext"><h1>Sell on Nojan</h1><p>Sell brand new and used items and offer services. Chat with buyers right here.</p></div></section>
     ${status}
     <h2 class="hmh2">Messages</h2>
     ${HM.threads === null ? `<div class="empty">Loading messages…</div>` : T.length ? `<div class="panel dtmlist">${T.map(trow).join("")}</div>` : `<div class="empty">No messages yet. When someone asks about a listing, or you message a seller, it shows up here.</div>`}
@@ -5167,7 +5172,7 @@ function sellView(){
   const cats = k === "event" ? EV_CATS : k === "service" ? [...new Set([...SVC_CATS, ...SERVICES.map(s => s.category)])].filter(Boolean) : TYPE_LIST;
   return `<section class="pagehero lhero"><div class="phtext"><h1>${isNew ? "New listing" : "Edit listing"}</h1><p>${isNew ? "It goes live as soon as you save." : "Changes show right away."}</p></div></section>
   <form class="panel dtform hmform" id="mkForm" novalidate>
-    <div class="fsec"><h3>What are you listing?</h3><div class="fopts" role="radiogroup" aria-label="Listing type">${Object.entries(MK_KINDS).map(([v, l]) => `<label class="fopt hmradio"><input type="radio" name="kind" value="${v}"${k === v ? " checked" : ""}${isNew ? "" : " disabled"}> ${l}</label>`).join("")}</div></div>
+    <div class="fsec"><h3>What are you listing?</h3><div class="fopts" role="radiogroup" aria-label="Listing type">${Object.entries(MK_KINDS).filter(([v]) => v !== "event" || EVENTS_ON || v === k).map(([v, l]) => `<label class="fopt hmradio"><input type="radio" name="kind" value="${v}"${k === v ? " checked" : ""}${isNew ? "" : " disabled"}> ${l}</label>`).join("")}</div></div>
     ${F.wasCert ? `<p class="dtnote">This listing is ${certBadge(true)}. If you change it, the badge comes off until Nojan checks it again.</p>` : ""}
     <div class="fsec"><h3>Photos <small>up to 6 · the first one is the main photo</small></h3><div class="dtphotos" id="mkPhotos">${mkPhotoStrip()}</div></div>
     <label>Title<input name="title" required maxlength="100" placeholder="${k === "event" ? "e.g. Persian music night" : k === "service" ? "e.g. Home cleaning, 3 hours" : "e.g. iPhone 13, 128 GB, blue"}" value="${esc(d.title || "")}"></label>
