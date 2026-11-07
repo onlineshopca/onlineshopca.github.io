@@ -6468,7 +6468,7 @@ function loadFromSheet(){   // used only when the product database is empty or c
    the database's security rules decide who can read or change what. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect, sendPasswordResetEmail, sendEmailVerification, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, writeBatch, collection, query, where, orderBy, onSnapshot, getDocs, limit, runTransaction, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, initializeFirestore, memoryLocalCache, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, writeBatch, collection, query, where, orderBy, onSnapshot, getDocs, limit, runTransaction, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyCjz0UoLyWjWeIhtP8mNJhCGpWmTBw4MLw",
@@ -6480,7 +6480,7 @@ const app = initializeApp({
 });
 const auth = getAuth(app);
 /* v58: keep a copy of the shop data on the phone so it shows instantly, then refreshes */
-let db; try { db = initializeFirestore(app, {localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})}); } catch (e) { db = getFirestore(app); }
+let db; try { db = initializeFirestore(app, {localCache: memoryLocalCache()}); } catch (e) { db = getFirestore(app); }   // v80: memory cache; the shared multi-tab cache could leave queries hanging
 const google = new GoogleAuthProvider(); google.setCustomParameters({prompt: "select_account"});
 const microsoft = new OAuthProvider("microsoft.com"); microsoft.setCustomParameters({prompt: "select_account"}); microsoft.addScope("email"); microsoft.addScope("profile");
 const withId = s => ({id: s.id, ...s.data()});
