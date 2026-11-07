@@ -5284,25 +5284,24 @@ function mkContactHTML(d){
 }
 
 /* ---- admin: seller applications and member listings ---- */
-function mkAdmLoad(){
-  MK.adm = "loading"; const at = MK.admAt = Date.now();
-  const T = (pr, ms) => Promise.race([pr, new Promise((_, no) => setTimeout(() => no({code: "timeout"}), ms))]);
-  Promise.allSettled([T(FB.mkSellers(), 15000), T(FB.mkAll(), 15000), T(FB.dtReports(), 15000)]).then(([s, l, r]) => {
-    if (at !== MK.admAt) return;
-    const bad = [s, l].filter(x => x.status === "rejected").map(x => (x.reason && (x.reason.code || x.reason.message)) || "error");
-    if (bad.length) console.error("sellers admin", bad);
-    MK.adm = {sellers: s.status === "fulfilled" ? s.value : [], list: l.status === "fulfilled" ? l.value : [], reports: r.status === "fulfilled" ? r.value.filter(x => String(x.about).startsWith("market:")) : [], err: bad.length ? bad.join(", ") : ""};
-    refreshAdmin(true);
-  });
-  setTimeout(() => { if (at === MK.admAt && MK.adm === "loading") refreshAdmin(true); }, 16000);
+function mkAdmLoad(){   // v81: live lists (same way the Orders tab loads), so they can't hang
+  if (MK.admUnsub) MK.admUnsub.forEach(u => { try { u(); } catch (_) {} });
+  MK.adm = {sellers: null, list: null, reports: [], err: ""};
+  const fail = what => e => { console.error(what, e); MK.adm.err = what + ": " + (e && (e.code || e.message) || "error"); if (MK.adm.sellers === null) MK.adm.sellers = []; if (MK.adm.list === null) MK.adm.list = []; refreshAdmin(true); };
+  MK.admUnsub = [
+    FB.mkWatchSellers(l => { MK.adm.sellers = l; refreshAdmin(true); }, fail("applications")),
+    FB.mkWatchAll(l => { MK.adm.list = l; refreshAdmin(true); }, fail("listings"))
+  ];
+  FB.dtReports().then(r => { MK.adm.reports = r.filter(x => String(x.about).startsWith("market:")); refreshAdmin(true); }).catch(() => {});
 }
 function membersAdminHTML(){
-  if (!MK.adm || (MK.adm === "loading" && Date.now() - (MK.admAt || 0) > 20000)) mkAdmLoad();
-  if (MK.adm === "loading") return `<div class="empty">Loading sellers…</div>`;
-  const A = MK.adm, S = A.sellers.slice().sort((a, b) => (a.status === "pending" ? 0 : 1) - (b.status === "pending" ? 0 : 1) || tsMs(b.appliedAt) - tsMs(a.appliedAt));
+  if (!MK.adm) mkAdmLoad();
+  const A = MK.adm;
+  if (A.sellers === null && A.list === null) return `<div class="empty">Loading sellers…</div>`;
+  const S = (A.sellers || []).slice().sort((a, b) => (a.status === "pending" ? 0 : 1) - (b.status === "pending" ? 0 : 1) || tsMs(b.appliedAt) - tsMs(a.appliedAt));
   const srow = s => `<tr><td><b>${esc(s.name || "")}</b><br><small>${esc(s.email || "")}${s.phone ? " · " + esc(s.phone) : ""}</small></td><td>${esc(s.address || "")}</td><td>${ageOf(s.dob) != null ? ageOf(s.dob) : "?"}</td><td>${tsMs(s.appliedAt) ? new Date(tsMs(s.appliedAt)).toLocaleDateString("en-CA") : ""}</td><td><span class="hmst ${s.status === "approved" ? "live" : s.status === "pending" ? "wait" : "no"}">${esc(s.status)}</span></td>
     <td style="white-space:nowrap">${s.status !== "approved" ? `<button class="linkbtn" type="button" data-mkseller="approved" data-id="${esc(s.id)}">Approve</button> ` : ""}${s.status === "pending" ? `<button class="linkbtn" type="button" data-mkseller="rejected" data-id="${esc(s.id)}">Reject</button>` : s.status === "approved" ? `<button class="linkbtn" type="button" data-mkseller="suspended" data-id="${esc(s.id)}">Pause selling</button>` : ""}</td></tr>`;
-  const L = A.list.slice().sort((a, b) => tsMs(b.updatedAt) - tsMs(a.updatedAt));
+  const L = (A.list || []).slice().sort((a, b) => tsMs(b.updatedAt) - tsMs(a.updatedAt));
   const lrow = d => `<tr><td>${d.thumb ? `<img src="${esc(d.thumb)}" alt="" style="width:56px;height:42px;object-fit:cover;border-radius:8px">` : ""}</td><td><a href="#${mkRoute(d)}">${esc(d.title)}</a><br><small>${MK_KINDS[d.kind]} · ${esc(d.city || "")}</small></td><td>${esc(mkPrice(d))}</td><td>${esc(d.ownerName || "")}</td><td>${esc(d.status)}</td>
     <td>${d.certified ? certBadge(true) : ""}</td>
     <td style="white-space:nowrap"><button class="linkbtn" type="button" data-mkcert="${d.certified ? "0" : "1"}" data-id="${esc(d.id)}">${d.certified ? "Remove badge" : "Certify ✓"}</button> ${d.status === "removed" ? `<button class="linkbtn" type="button" data-mkadmset="live" data-id="${esc(d.id)}">Put back</button>` : `<button class="linkbtn" type="button" data-mkadmset="removed" data-id="${esc(d.id)}">Take down</button>`} <button class="linkbtn" type="button" data-mkadmdel="${esc(d.id)}" style="color:var(--danger)">${MK.arm === "a" + d.id ? "Click again" : "Delete"}</button></td></tr>`;
@@ -5310,10 +5309,10 @@ function membersAdminHTML(){
   return `${A.err ? `<p class="formerr">Couldn't load everything (${esc(A.err)}). Try Refresh. If it keeps happening, sign out and sign in again with the admin account.</p>` : ""}
     <div class="admintools"><span class="note">${pend} application${pend === 1 ? "" : "s"} waiting · ${S.filter(s => s.status === "approved").length} approved sellers · ${L.filter(d => d.status === "live").length} live listings</span><button class="btn small ghost" type="button" data-mkadmreload>Refresh</button></div>
     <h2 class="hmh2">Seller applications</h2>
-    ${S.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th>Member</th><th>Address</th><th>Age</th><th>Applied</th><th>Status</th><th></th></tr></thead><tbody>${S.map(srow).join("")}</tbody></table></div>` : `<div class="empty">No applications yet.</div>`}
+    ${A.sellers === null ? `<div class="empty">Loading applications…</div>` : S.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th>Member</th><th>Address</th><th>Age</th><th>Applied</th><th>Status</th><th></th></tr></thead><tbody>${S.map(srow).join("")}</tbody></table></div>` : `<div class="empty">No applications yet.</div>`}
     <h2 class="hmh2">Member listings</h2>
     <p class="note">Click <b>Certify ✓</b> after you've checked an item, service or event in person. The ${certBadge(true)} badge then shows on its card and page. If the member edits it, the badge comes off.</p>
-    ${L.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th></th><th>Listing</th><th>Price</th><th>By</th><th>Status</th><th>Badge</th><th></th></tr></thead><tbody>${L.map(lrow).join("")}</tbody></table></div>` : `<div class="empty">No member listings yet.</div>`}
+    ${A.list === null ? `<div class="empty">Loading listings…</div>` : L.length ? `<div class="tablewrap"><table class="ctable"><thead><tr><th></th><th>Listing</th><th>Price</th><th>By</th><th>Status</th><th>Badge</th><th></th></tr></thead><tbody>${L.map(lrow).join("")}</tbody></table></div>` : `<div class="empty">No member listings yet.</div>`}
     ${A.reports.length ? `<h2 class="hmh2">Reports</h2><div class="panel">${A.reports.map(r => `<p><a href="#item-m-${esc(String(r.about).slice(7))}">${esc(String(r.about).slice(7))}</a> · ${esc(r.reason || "")} ${r.text ? "· " + esc(r.text) : ""} <button class="linkbtn" type="button" data-mkrepdis="${esc(r.id)}">Dismiss</button></p>`).join("")}</div>` : ""}`;
 }
 
@@ -5387,7 +5386,7 @@ document.addEventListener("click", async ev => {
     const id = b.dataset.mkdel; if (MK.arm !== "d" + id){ MK.arm = "d" + id; render(); return; }
     MK.arm = ""; try { await FB.mkDelete(id); MK.mine = null; toast("Listing deleted"); render(); } catch (e) { console.error(e); toast("Couldn't delete it."); } return;
   }
-  if (b.hasAttribute("data-mkadmreload")){ MK.adm = null; refreshAdmin(); return; }
+  if (b.hasAttribute("data-mkadmreload")){ MK.adm = null; refreshAdmin(true); return; }
   if (b.dataset.mkseller){
     const id = b.dataset.id, s = b.dataset.mkseller, note = "";
     try { await FB.mkSetSeller(id, s, note); const x = MK.adm.sellers.find(y => y.id === id); if (x) x.status = s; toast(s === "approved" ? "Approved. They can sell now." : s === "rejected" ? "Application rejected" : "Selling paused"); refreshAdmin(); }
@@ -6432,6 +6431,7 @@ function onFirebaseReady(api){
       ADM.orders = ADM.users = ADM.bookings = null; ADM.error = null; ADM.notes = {};
       dtReset(); DT.adm = null;
       if (HM.unsubT) HM.unsubT(); HM.unsubT = null; HM.tuid = null; HM.threads = null; HM.mine = null; HM.adm = null; HM.form = null;
+      if (MK.admUnsub) MK.admUnsub.forEach(u => { try { u(); } catch (_) {} }); MK.admUnsub = null;
       MK.meUid = null; MK.me = "none"; MK.mine = null; MK.form = null; MK.adm = null; MK.editId = null;
       PED = {id:null, data:null, photo:null};
     }
@@ -6624,6 +6624,8 @@ window.SHOP_FB = {
   async mkDelete(id){ for (let i = 0; i < 6; i++){ try { await deleteDoc(doc(db, "marketPhotos", id + "_" + i)); } catch (_) {} } await deleteDoc(doc(db, "market", id)); },
   async mkGetSeller(uid){ const s = await getDoc(doc(db, "sellers", uid)); return s.exists() ? withId(s) : null; },
   mkApply: (uid, data, isNew) => setDoc(doc(db, "sellers", uid), {...data, appliedAt: serverTimestamp()}, {merge: !isNew}),
+  mkWatchSellers: (cb, err) => onSnapshot(collection(db, "sellers"), s => cb(s.docs.map(withId)), err),
+  mkWatchAll: (cb, err) => onSnapshot(collection(db, "market"), s => cb(s.docs.map(withId)), err),
   mkSellers: async () => (await getDocs(collection(db, "sellers"))).docs.map(withId),
   mkSetSeller: (uid, status, note) => updateDoc(doc(db, "sellers", uid), {status, note: note || "", decidedAt: serverTimestamp()}),
   async mkOpenThread(d, me, myName){
