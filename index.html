@@ -1784,6 +1784,21 @@ a[data-tab="homes"].hasdot::after{content:"";position:absolute;top:4px;right:cal
 .hmdrag{background:none;border:0}
 .hmdrag svg{width:36px;height:36px;fill:#e0245e;stroke:#fff;stroke-width:1.5;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
 .hmdrag svg circle{fill:#fff;stroke:none}
+/* v74 home rows: small View all button on phones */
+.vapill{display:none}
+@media (max-width:820px){
+  .hgwrap{position:relative}
+  .vapill{display:inline-flex;align-items:center;gap:6px;position:absolute;right:12px;top:50%;transform:translateY(-58%);z-index:3;padding:8px 8px 8px 14px;border-radius:999px;color:#fff!important;font-weight:700;font-size:.86rem;text-decoration:none;box-shadow:0 8px 22px rgba(13,47,117,.38);transition:transform .38s cubic-bezier(.2,.8,.2,1),opacity .3s}
+  body .vapill.new{background-image:linear-gradient(120deg,#1546a8,#1f2f9e)!important}
+  body .vapill.used{background-image:linear-gradient(120deg,#0a1433,#1a2b6d)!important}
+  body .vapill.svc{background-image:linear-gradient(120deg,#0d2f75,#1e40af)!important}
+  .vapill .arrow{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.25)}
+  .vapill .arrow svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .vapill:active{transform:translateY(-58%) scale(.95)}
+  .hgwrap.atend .vapill{opacity:0;transform:translateY(-58%) scale(2.4);pointer-events:none}
+  .hgwrap .viewall{transition:transform .42s cubic-bezier(.2,.8,.2,1),opacity .35s}
+  .hgwrap:not(.atend) .viewall{transform:scale(.82);opacity:.35}
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -2938,6 +2953,7 @@ function render(){
   if (!["datingprofile", "chat"].includes(v)) DT.delArm = false;
   $("#view").innerHTML = views[v]();
   if (HM_VIEWS.includes(v)) hmAfterRender(v);
+  if (v === "home") homeRowsInit();
   if (priceRange[v]) syncPriceUI(v);
   const it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
   const navV = it ? it.condition : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : ["person", "matches", "chat", "datingprofile"].includes(v) ? "dating" : ["listing", "listhome", "mylistings", "hchat"].includes(v) ? "homes" : v;
@@ -5177,6 +5193,18 @@ function serviceCards(list){
     </article>`).join("");
 }
 const ARROW = '<span class="arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>';
+/* v74: on phones each home row gets a small "View all" button; it grows into the big View all card when the row reaches the end */
+function homeRowsInit(){
+  document.querySelectorAll(".hsec .homegrid").forEach(g => {
+    const va = g.querySelector(".viewall"); if (!va || g.parentElement.classList.contains("hgwrap")) return;
+    const wrap = document.createElement("div"); wrap.className = "hgwrap"; g.before(wrap); wrap.appendChild(g);
+    const pill = document.createElement("a"); pill.className = "vapill " + [...va.classList].filter(c => c !== "viewall").join(" ");
+    pill.href = va.getAttribute("href"); pill.setAttribute("aria-label", (va.querySelector("b") || va).textContent.trim());
+    pill.innerHTML = `<span>View all</span>${ARROW}`; wrap.appendChild(pill);
+    const upd = () => wrap.classList.toggle("atend", g.scrollLeft + g.clientWidth >= g.scrollWidth - va.offsetWidth * 0.6);
+    g.addEventListener("scroll", upd, {passive: true}); upd();
+  });
+}
 const viewAll = (cls, href, small, big) => `<a class="viewall ${cls}" href="${href}"><small>${small}</small><b>${big}</b>${ARROW}</a>`;
 function servicesView(){
   const F = FLT.services, n = activeFilters("services").length;
