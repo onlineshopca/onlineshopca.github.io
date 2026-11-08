@@ -1851,6 +1851,17 @@ a.gicon.hasdot{position:relative}a.gicon.hasdot::after{content:"";position:absol
 @media (max-width:640px){.addrrow{grid-template-columns:1fr 100px}.addrrow3{grid-template-columns:1fr 1fr}.addrrow3>label:first-child{grid-column:1/-1}}
 @keyframes addrfill{0%{background:#e3f6ec}100%{background:transparent}}
 #profileForm .filled{animation:addrfill 1.4s ease-out}
+/* v86: top bar = Home + main categories; what doesn't fit goes under More */
+.gtabs{flex:1 1 auto;min-width:0;justify-content:center}
+.navmore{position:relative}
+.navmore>summary{list-style:none;cursor:pointer;color:var(--fg);opacity:.82;font-size:.93rem;font-weight:500;padding:8px 16px;border-radius:999px;white-space:nowrap;user-select:none}
+.navmore>summary::-webkit-details-marker{display:none}
+.navmore>summary::after{content:" ▾";font-size:.8em}
+.navmore>summary:hover,.navmore[open]>summary,.navmore.on>summary{opacity:1;background:rgba(0,0,0,.05)}
+.navmore.on>summary{color:#0d2f75;font-weight:600}
+.navmenu{position:absolute;right:0;top:calc(100% + 10px);z-index:60;display:grid;min-width:230px;padding:8px;background:var(--card,#fff);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 48px -20px rgba(0,0,0,.35)}
+.navmenu a{border-radius:10px!important;padding:10px 14px!important}
+@media (min-width:821px){.navmore>summary{font-size:18px}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -1858,14 +1869,8 @@ a.gicon.hasdot{position:relative}a.gicon.hasdot::after{content:"";position:absol
 <header class="gbar" id="gbar">
   <div class="gwrap">
     <a class="logo" href="#home"><img class="logomark" src="data:image/png;base64,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" alt="" width="34" height="34">Nojan</a>
-    <nav class="gtabs" aria-label="Main">
-      <a href="#home" data-tab="home">Store</a>
-      <a href="#shop" data-tab="shop" data-menu="shop">Shop</a>
-      <a href="#services" data-tab="services" data-menu="services">Services</a>
-      <a href="#events" data-tab="events">Events</a>
-      <a href="#dating" data-tab="dating">Dating</a>
-      <a href="#homes" data-tab="homes">Homes</a>
-      <a href="#contact-us" data-tab="contact" data-menu="support">Support</a>
+    <nav class="gtabs" id="gtabs" aria-label="Main">
+      <a href="#home" data-tab="home">Home</a>
       <a href="#admin" data-tab="admin" id="navAdmin" hidden>Admin</a>
     </nav>
     <div class="gtools">
@@ -1899,12 +1904,6 @@ a.gicon.hasdot{position:relative}a.gicon.hasdot::after{content:"";position:absol
 </div></main>
 
 <footer><div class="wrap">
-  <nav class="footnav" aria-label="Footer">
-    <div><b>Shop</b><a href="#shop">All items</a><a href="#new-items">Brand new</a><a href="#used-items">Used</a><a href="#services">Services &amp; classes</a><a href="#events">Events</a><a href="#dating">Dating</a><a href="#homes">Homes</a></div>
-    <div><b>Account</b><a href="#account">Sign in</a><a href="#selling">Sell on Nojan</a><a href="#my-orders">My orders &amp; bookings</a><a href="#cart">Bag</a></div>
-    <div><b>Help</b><a href="#contact-us">Contact us</a><a href="#contact-us">Pickup &amp; delivery</a><a href="#contact-us">Sell us an item</a></div>
-    <div><b>Follow</b><a href="https://www.instagram.com/online.shop.on.ca/" target="_blank" rel="noopener">@online.shop.on.ca</a><a href="https://www.instagram.com/online.shop.Used.on.ca/" target="_blank" rel="noopener">@online.shop.Used.on.ca</a></div>
-  </nav>
   <div class="footbottom"><span>Copyright © <span id="yr"></span> Nojan · Richmond Hill, Ontario · <span id="infoEmail"></span> · No payment is taken online.</span><a href="#top" data-top>Back to top ↑</a></div>
 </div></footer>
 <nav class="tabbar" aria-label="Mobile">
@@ -2931,6 +2930,36 @@ function megaHTML(key){
     : `<a href="${mgEsc(l.href)}"${l.ext ? ' target="_blank" rel="noopener"' : ""}>${mgEsc(l.label)}</a>`).join("")}</div>`).join("")}</div>`;
 }
 const megaWide = () => matchMedia("(min-width: 821px)").matches;
+/* v86: the top bar shows Home + the main shop categories, most items first. Categories that don't fit go under "More". */
+const CAT_SHORT = {"Personal care & grooming": "Personal care", "Headphones & audio": "Audio", "Computers & office": "Computers", "Cameras & photo": "Cameras",
+  "Phones, tablets & e-readers": "Phones & tablets", "Kitchen & cooking": "Kitchen", "Air purifiers & humidifiers": "Air & climate", "Home & cleaning": "Cleaning",
+  "Clothing & shoes": "Clothing", "Sports & outdoors": "Sports", "Toys, games & LEGO": "Toys & games"};
+let NAVSIG = "";
+function navCats(){
+  const nav = $("#gtabs"); if (!nav) return;
+  const m = new Map(); PRODUCTS.forEach(p => { const t = typeOf(p); if (t && t !== "Other") m.set(t, (m.get(t) || 0) + 1); });
+  const cats = [...m].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(x => x[0]);
+  const sig = cats.join("|") + "@" + nav.clientWidth;
+  if (sig === NAVSIG) return; NAVSIG = sig;
+  nav.querySelectorAll("a[data-cat], .navmore").forEach(x => x.remove());
+  nav.querySelector('[data-tab="home"]').insertAdjacentHTML("afterend", cats.map(t => `<a href="#shop" data-cat="${esc(t)}" data-mgo="shop|types|${esc(t)}" title="${esc(t)}">${esc(CAT_SHORT[t] || t)}</a>`).join("")
+    + `<details class="navmore" hidden><summary>More</summary><div class="navmenu"></div></details>`);
+  const more = nav.querySelector(".navmore"), menu = more.querySelector(".navmenu"), links = [...nav.querySelectorAll("a[data-cat]")];
+  if (nav.scrollWidth > nav.clientWidth + 1){
+    more.hidden = false;
+    for (let i = links.length - 1; i >= 0 && nav.scrollWidth > nav.clientWidth + 1; i--) menu.prepend(links[i]);
+  }
+  markNav();
+}
+function markNav(){
+  const nav = $("#gtabs"); if (!nav) return;
+  const v = current(), it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
+  const cat = it ? typeOf(it) : v === "shop" && FLT.shop && FLT.shop.types.length === 1 ? FLT.shop.types[0] : "";
+  nav.querySelectorAll("a[data-cat]").forEach(a => a.dataset.cat === cat ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  const more = nav.querySelector(".navmore"); if (more){ more.open = false; more.classList.toggle("on", !!more.querySelector("a[aria-current]")); }
+}
+addEventListener("resize", () => { clearTimeout(navCats.t); navCats.t = setTimeout(navCats, 150); });
+document.addEventListener("click", e => { const m = document.querySelector(".navmore[open]"); if (m && !e.target.closest(".navmore")) m.open = false; });
 function megaOpen(key){
   clearTimeout(MEGA.t);
   if (!megaWide() || !key) return;
@@ -3103,6 +3132,7 @@ function render(){
   if (v === "service") afterServiceRender();
   if (v === "provider") renderLinkedInBadges();
   document.querySelectorAll("header nav a, .tabbar a").forEach(a => (a.dataset.tab===navV || a.dataset.also===navV) ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
+  navCats(); markNav();
   document.title = it ? `${it.name} · Nojan` : "Nojan";
   ["new","used"].forEach(c => { const el = document.querySelector(`[data-count="${c}"]`); if (el) el.textContent = feedState[c]==="loading" ? "" : PRODUCTS.filter(p=>p.condition===c).length; });
   { const el = document.querySelector('[data-count="services"]'); if (el) el.textContent = SERVICES.length || ""; }
