@@ -1307,7 +1307,7 @@ body *:not(.dual),body *:not(.dual)::before,body *::after{background-image:none!
 /* v61: search icon at the top on phones; bottom bar has 4 tabs; highlight stays inside the bar */
 @media (max-width:700px){
   .gtools #searchBtn{display:grid!important}
-  .tabbar{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .tabbar{grid-template-columns:repeat(3,minmax(0,1fr))!important}
   .tabbar a[aria-current="page"]{height:52px!important;min-height:52px!important;transform:none!important;margin:0 4px;border-radius:26px!important}
   .gsearch .search{padding:12px 16px}
   .gsearch .search .btn{padding:0 16px}
@@ -1804,18 +1804,19 @@ a[href="#dating"][data-tab="dating"],.footcols a[href="#dating"],footer a[href="
 a[data-tab="events"],a[data-tab="homes"],footer a[href="#events"],footer a[href="#homes"]{display:none!important}
 
 /* ===== v77: member selling ===== */
-.cert{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:#0a7a4f;font-size:14px;line-height:1;white-space:nowrap}
+.cert{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:#0b57d0;font-size:14px;line-height:1;white-space:nowrap}
 .cert svg{width:20px;height:20px;flex:none}
-.cert .cb,.certnote .cb{fill:#12a46c;stroke:none}
+.cert .cb,.certnote .cb{fill:#1a73e8;stroke:none}
 .cert .ck,.certnote .ck{fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .cert.sm{font-size:12px;gap:3px}.cert.sm svg{width:15px;height:15px}
 .cseller{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:12.5px;color:var(--muted);min-width:0}
 .cseller>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .svccard .cert{margin-left:8px;vertical-align:middle}
 .evby{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.certnote{display:flex;gap:12px;align-items:flex-start;background:#e9f7f0;border:1px solid #bfe6d3;border-radius:14px;padding:12px 14px;margin:14px 0}
+.certnote{display:flex;gap:12px;align-items:flex-start;background:#e8f0fe;border:1px solid #c2d7fb;border-radius:14px;padding:12px 14px;margin:14px 0}
 .certnote svg{width:28px;height:28px;flex:none}
-.certnote span{display:grid;gap:2px}.certnote small{color:#2d5a47;font-size:13.5px}
+.certnote span{display:grid;gap:2px}.certnote small{color:#1f3b73;font-size:13.5px}
+.soldby{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-4px 0 6px;color:var(--muted);font-size:15px}.soldby b{color:var(--fg)}.uncert{font-size:13px;color:var(--muted);border:1px solid var(--line,#d2d2d7);border-radius:999px;padding:2px 8px}
 .mktags{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .mktags .hmdeal{color:#fff!important;position:static}.hmdeal.mknew{background:#0d2f75}.hmdeal.mkused{background:#7a4b12}.hmdeal.mkservice{background:#3c3c8c}.hmdeal.mkevent{background:#8c2f5a}
 .mkh1{font-size:clamp(1.5rem,3.2vw,2.1rem);margin:10px 0 4px}
@@ -1851,8 +1852,7 @@ a.gicon.hasdot{position:relative}a.gicon.hasdot::after{content:"";position:absol
     <a class="logo" href="#home"><img class="logomark" src="data:image/png;base64,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" alt="" width="34" height="34">Nojan</a>
     <nav class="gtabs" aria-label="Main">
       <a href="#home" data-tab="home">Store</a>
-      <a href="#new-items" data-tab="new" data-menu="new">Brand New</a>
-      <a href="#used-items" data-tab="used" data-menu="used">Used</a>
+      <a href="#shop" data-tab="shop" data-menu="shop">Shop</a>
       <a href="#services" data-tab="services" data-menu="services">Services</a>
       <a href="#events" data-tab="events">Events</a>
       <a href="#dating" data-tab="dating">Dating</a>
@@ -1892,7 +1892,7 @@ a.gicon.hasdot{position:relative}a.gicon.hasdot::after{content:"";position:absol
 
 <footer><div class="wrap">
   <nav class="footnav" aria-label="Footer">
-    <div><b>Shop</b><a href="#new-items">Brand New</a><a href="#used-items">Used</a><a href="#services">Services &amp; classes</a><a href="#events">Events</a><a href="#dating">Dating</a><a href="#homes">Homes</a></div>
+    <div><b>Shop</b><a href="#shop">All items</a><a href="#new-items">Brand new</a><a href="#used-items">Used</a><a href="#services">Services &amp; classes</a><a href="#events">Events</a><a href="#dating">Dating</a><a href="#homes">Homes</a></div>
     <div><b>Account</b><a href="#account">Sign in</a><a href="#selling">Sell on Nojan</a><a href="#my-orders">My orders &amp; bookings</a><a href="#cart">Bag</a></div>
     <div><b>Help</b><a href="#contact-us">Contact us</a><a href="#contact-us">Pickup &amp; delivery</a><a href="#contact-us">Sell us an item</a></div>
     <div><b>Follow</b><a href="https://www.instagram.com/online.shop.on.ca/" target="_blank" rel="noopener">@online.shop.on.ca</a><a href="https://www.instagram.com/online.shop.Used.on.ca/" target="_blank" rel="noopener">@online.shop.Used.on.ca</a></div>
@@ -1901,8 +1901,7 @@ a.gicon.hasdot{position:relative}a.gicon.hasdot::after{content:"";position:absol
 </div></footer>
 <nav class="tabbar" aria-label="Mobile">
   <a href="#home" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
-  <a href="#new-items" data-tab="new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="8" cy="8" r="1.6"/></svg>New</a>
-  <a href="#used-items" data-tab="used"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 0 1 14-3l2 2M20 15a8 8 0 0 1-14 3l-2-2"/><path d="M20 3v5h-5M4 21v-5h5"/></svg>Used</a>
+  <a href="#shop" data-tab="shop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2"/></svg>Shop</a>
   <a href="#services" data-tab="services"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Services</a>
   <a href="#events" data-tab="events"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12"/></svg>Events</a>
   <a href="#dating" data-tab="dating"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.8 1.3-1.7 2.9-2.8 4.9-2.8 3.5 0 5.7 3.4 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>Dating</a>
@@ -1930,6 +1929,7 @@ const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy8QCPb-TspU
 
 /* Instagram accounts linked on the Brand New and Used pages */
 const FEEDS = {
+  shop: { account: "online.shop.on.ca" },
   new:  { account: "Nojan" },
   used: { account: "online.shop.Used.on.ca" },
 };
@@ -1951,6 +1951,11 @@ const SAMPLE_PRODUCTS = [
 
 let PRODUCTS = SAMPLE_PRODUCTS.slice();
 const feedState = { new:"loading", used:"loading" };   // loading | live | sample
+Object.defineProperty(feedState, "shop", {get(){ return feedState.new === "loading" && feedState.used === "loading" ? "loading" : feedState.new === "loading" ? feedState.used : feedState.new; }, enumerable: false});
+/* v84: Brand New and Used share one Shop page. Nojan's own items count as certified; members' items only once Nojan certifies them. */
+const inCond = (p, cond) => !cond || cond === "shop" || p.condition === cond;
+const isCert = p => !p.member || !!p.certified;
+const sellerOf = p => p.member ? (p.seller || "A member") : "Nojan";
 
 /* Read the Google Sheet */
 function parseCSV(text){
@@ -2168,15 +2173,15 @@ function productCards(list, opts){
       <a class="piclink tile" href="#item-${esc(p.id)}" aria-label="View ${esc(p.name)}">${picHTML(p, false)}</a>
       <div class="body">
         <a class="name namelink" href="#item-${esc(p.id)}">${esc(p.name)}</a>
-        <span class="cbrand">${[p.condition === "used" && p.grade ? esc(p.grade) : "", showBrand && p.brand ? esc(p.brand) : "", stockTxt(p)].filter(Boolean).join(" · ")}</span>${p.member ? `<span class="cseller">${p.certified ? certBadge(true) : ""}<span>by ${esc(p.seller)}${p.city ? " · " + esc(p.city) : ""}</span></span>` : ""}
+        <span class="cbrand">${[p.condition === "used" && p.grade ? esc(p.grade) : "", showBrand && p.brand ? esc(p.brand) : "", stockTxt(p)].filter(Boolean).join(" · ")}</span><span class="cseller">${isCert(p) ? certBadge(true) : ""}<span>${p.condition === "new" ? "Brand new" : "Used"} · by ${esc(sellerOf(p))}${p.member && p.city ? " · " + esc(p.city) : ""}</span></span>
         <div class="cfoot"><span class="cpwrap"><span class="cprice">${p.price == null ? "Ask for price" : money(p.price)}</span>${saveHST(p) > 0 ? `<span class="chst">Regular <s>${money(withHST(p.was))}</s> incl. HST</span><span class="csave">Save ${money(saveHST(p))}</span>` : ""}</span>
           <div class="cardact" data-act="${p.id}">${cardAction(p.id)}</div></div>
       </div></article>`; }).join("");
 }
 let sortBy = "featured";
-const priceRange = { new:{min:null,max:null,scale:null}, used:{min:null,max:null,scale:null} };   // null = no limit
+const priceRange = { shop:{min:null,max:null,scale:null}, new:{min:null,max:null,scale:null}, used:{min:null,max:null,scale:null} };   // null = no limit
 function priceBound(cond){
-  const m = Math.max(0, ...PRODUCTS.filter(p=>p.condition===cond && p.price!=null).map(p=>p.price));
+  const m = Math.max(0, ...PRODUCTS.filter(p=>inCond(p, cond) && p.price!=null).map(p=>p.price));
   return Math.max(10, Math.ceil(m/10)*10);
 }
 const priceStep = B => B <= 100 ? 1 : B <= 500 ? 5 : 10;
@@ -2184,11 +2189,11 @@ function rangeOf(cond){
   const r = priceRange[cond], B = Math.max(priceBound(cond), r.scale || 0);   // slider scale: top item price, or a bigger typed number
   const min = Math.max(0, r.min ?? 0);                 // any number, 0 or more
   const max = r.max == null ? Infinity : r.max;         // any number, or no limit
-  const top = Math.max(0, ...PRODUCTS.filter(p=>p.condition===cond && p.price!=null).map(p=>p.price));
+  const top = Math.max(0, ...PRODUCTS.filter(p=>inCond(p, cond) && p.price!=null).map(p=>p.price));
   return {B, min, max, active: min > 0 || max < top};
 }
 /* ---- Filter panel: product type → brand → condition → price → more ---- */
-const FLT = { new:{types:[],brands:[],grades:[],sale:false,stock:false}, used:{types:[],brands:[],grades:[],sale:false,stock:false},
+const FLT = { shop:{types:[],brands:[],grades:[],conds:[],sellers:[],sale:false,stock:false,cert:false}, new:{types:[],brands:[],grades:[],sale:false,stock:false}, used:{types:[],brands:[],grades:[],sale:false,stock:false},
   services:{cats:[],provs:[],fmts:[],sizes:[],levels:[],min:null,max:null} };
 let fltOpen = false;
 const typeOf = p => (p.type && TYPE_LIST.includes(p.type)) ? p.type : guessType(p.name + " " + (p.brand || ""));
@@ -2202,7 +2207,10 @@ function facetList(cond, skip){          // everything that passes the other fil
     (skip === "brands" || !F.brands.length || F.brands.includes(brandOf(p))) &&
     (skip === "grades" || !F.grades.length || F.grades.includes(p.grade)) &&
     (skip === "sale" || !F.sale || p.was != null) &&
-    (skip === "stock" || !F.stock || !p.soldOut));
+    (skip === "stock" || !F.stock || !p.soldOut) &&
+    (skip === "conds" || !(F.conds || []).length || F.conds.includes(p.condition)) &&
+    (skip === "sellers" || !(F.sellers || []).length || F.sellers.includes(p.member ? "Members" : "Nojan")) &&
+    (skip === "cert" || !F.cert || isCert(p)));
 }
 const tally = (list, fn) => list.reduce((m, p) => { const k = fn(p); if (k) m[k] = (m[k] || 0) + 1; return m; }, {});
 function activeFilters(cond){
@@ -2212,6 +2220,9 @@ function activeFilters(cond){
     if (F.min != null || F.max != null) out.push(["price", "", F.max == null ? `${fmtP(F.min)} and up` : `${fmtP(F.min || 0)} – ${fmtP(F.max)}`]);
     return out;
   }
+  (F.conds || []).forEach(v => out.push(["conds", v, v === "new" ? "Brand new" : "Used"]));
+  (F.sellers || []).forEach(v => out.push(["sellers", v, "Sold by " + v]));
+  if (F.cert) out.push(["cert", "", "Certified only"]);
   F.types.forEach(v => out.push(["types", v, v]));
   F.brands.forEach(v => out.push(["brands", v, v]));
   F.grades.forEach(v => out.push(["grades", v, v]));
@@ -2234,6 +2245,7 @@ function fltListsHTML(cond, part){
       <div class="fopts">
         <button type="button" class="fopt" data-f="sale" aria-pressed="${F.sale}">On sale <i>${sale}</i></button>
         <button type="button" class="fopt" data-f="stock" aria-pressed="${F.stock}">In stock only <i>${inStock}</i></button>
+        ${cond === "shop" ? `<button type="button" class="fopt" data-f="cert" aria-pressed="${F.cert}">Certified only <i>${facetList(cond, "cert").filter(isCert).length}</i></button>` : ""}
       </div></div>`;
   }
   const types = tally(facetList(cond, "types"), typeOf);
@@ -2242,16 +2254,19 @@ function fltListsHTML(cond, part){
   const allTypes = [...new Set(filtered(cond).map(typeOf))];                                            // every type in this tab stays listed
   const allBrands = [...new Set(filtered(cond).filter(p => !F.types.length || F.types.includes(typeOf(p))).map(brandOf).filter(Boolean))];  // brands of the chosen types
   const forTypes = F.types.length ? `<small>for ${esc(F.types.join(", "))}</small>` : "";
-  return `
+  const condBox = cond !== "shop" ? "" : (() => { const cc = tally(facetList(cond, "conds"), p => p.condition), sc = tally(facetList(cond, "sellers"), p => p.member ? "Members" : "Nojan");
+    return `<div class="fsec"><h3>New or used</h3><div class="fopts" role="group" aria-label="New or used">${["new", "used"].map(k => `<button type="button" class="fopt${cc[k] ? "" : " zero"}" data-f="conds" data-v="${k}" aria-pressed="${F.conds.includes(k)}">${k === "new" ? "Brand new" : "Used"} <i>${cc[k] || 0}</i></button>`).join("")}</div></div>
+      <div class="fsec"><h3>Sold by</h3><div class="fopts" role="group" aria-label="Sold by">${optBtns("sellers", sc, F.sellers, ["Nojan", "Members"])}</div></div>`; })();
+  return `${condBox}
     <div class="fsec"><h3>Product type</h3>
       ${allTypes.length || F.types.length ? `<div class="fopts" role="group" aria-label="Product type">${optBtns("types", types, F.types, null, allTypes)}</div>` : `<p class="hint">No items to filter yet.</p>`}</div>
     <div class="fsec"><h3>Brand ${forTypes}</h3>
       ${allBrands.length || F.brands.length ? `<div class="fopts" role="group" aria-label="Brand">${optBtns("brands", brands, F.brands, null, allBrands)}</div>` : `<p class="hint">${F.types.length ? "No brands listed for this type." : "No brands listed yet."}</p>`}</div>
-    ${cond === "used" ? `<div class="fsec"><h3>Condition</h3>
+    ${cond === "used" || cond === "shop" ? `<div class="fsec"><h3>${cond === "shop" ? "Condition of used items" : "Condition"}</h3>
       ${Object.keys(grades).length || F.grades.length ? `<div class="fopts" role="group" aria-label="Condition">${optBtns("grades", grades, F.grades, GRADES)}</div>` : `<p class="hint">Condition grades appear here once items have one.</p>`}</div>` : ""}`;
 }
 function fltChipsHTML(cond){
-  const a = activeFilters(cond).filter(x => cond === "services" || cond === "used" || cond === "new" || (x[0] !== "types" && x[0] !== "brands")); if (!a.length) return "";
+  const a = activeFilters(cond).filter(x => cond === "services" || cond === "used" || cond === "new" || cond === "shop" || (x[0] !== "types" && x[0] !== "brands")); if (!a.length) return "";
   return a.map(([k, v, label]) => `<button type="button" class="fchip" data-fchip="${k}" data-v="${esc(v)}" aria-label="Remove filter ${esc(label)}">${esc(label)} <span aria-hidden="true">×</span></button>`).join("")
     + `<button type="button" class="linkbtn" data-fclear>Clear all</button>`;
 }
@@ -2260,14 +2275,14 @@ function refreshFilterUI(cond){
   const lists = $("#fltLists"); if (lists) lists.innerHTML = fltLists(cond);
   const more = $("#fltMore"); if (more) more.innerHTML = fltLists(cond, "more");
   const chips = $("#fltChips"); if (chips) chips.innerHTML = fltChipsHTML(cond);
-  const badge = $("#fltBadge"); if (badge) badge.textContent = (cond === "services" || cond === "used" || cond === "new" ? n : activeFilters(cond).filter(x => x[0] !== "types" && x[0] !== "brands").length) || "";
+  const badge = $("#fltBadge"); if (badge) badge.textContent = (cond === "services" || cond === "used" || cond === "new" || cond === "shop" ? n : activeFilters(cond).filter(x => x[0] !== "types" && x[0] !== "brands").length) || "";
   const qb = $("#qbar"); if (qb && cond !== "services") qb.innerHTML = quickBarHTML(cond);
   const show = $("#fltShow"); if (show) show.textContent = `Show ${total} ${cond === "services" ? "service" : "item"}${total === 1 ? "" : "s"}`;
   const clr = $("#fltClearAll"); if (clr) clr.disabled = !n;
 }
 function quickBarHTML(cond){
   const F = FLT[cond], all = filtered(cond);
-  if (cond === "used" || cond === "new") return `<div class="qrow qonly"><button type="button" class="morefl" id="fltBtn" data-fopen aria-expanded="${fltOpen}" aria-controls="fltPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>More filters <span class="fltbadge" id="fltBadge">${activeFilters(cond).length || ""}</span></button></div>`;
+  if (cond === "used" || cond === "new" || cond === "shop") return `<div class="qrow qonly"><button type="button" class="morefl" id="fltBtn" data-fopen aria-expanded="${fltOpen}" aria-controls="fltPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>More filters <span class="fltbadge" id="fltBadge">${activeFilters(cond).length || ""}</span></button></div>`;
   const types = [...new Set(all.map(typeOf))].sort((a, b) => a === "Other" ? 1 : b === "Other" ? -1 : a.localeCompare(b));
   const pool = all.filter(p => !F.types.length || F.types.includes(typeOf(p)));
   const brands = [...new Set(pool.map(brandOf).filter(Boolean))].sort();
@@ -2346,7 +2361,7 @@ function setFltOpen(open){
 }
 function clearFilters(cond){
   if (cond === "services"){ FLT.services = {cats:[],provs:[],fmts:[],sizes:[],levels:[],min:null,max:null}; return; }
-  FLT[cond] = {types:[],brands:[],grades:[],sale:false,stock:false};
+  FLT[cond] = cond === "shop" ? {types:[],brands:[],grades:[],conds:[],sellers:[],sale:false,stock:false,cert:false} : {types:[],brands:[],grades:[],sale:false,stock:false};
   priceRange[cond] = {min:null,max:null,scale:null};
 }
 function listFor(cond){
@@ -2401,6 +2416,7 @@ function updateResults(cond){
   if (FLT[cond]) refreshFilterUI(cond);
 }
 const PAGE = {
+  shop: {title:"Shop", lead:"Brand new and used items in one place. Every item shows its condition, who sells it, and whether Nojan has certified it."},
   new: {
     eyebrow:"Brand new · never used", title:"Brand New",
     lead:"Sealed, never used, and priced below market.",
@@ -2422,7 +2438,7 @@ function listView(cond){
   const status = st==="loading" ? "Loading items from Instagram…"
     : st==="live" ? `Up to date · see posts on <a href="${ig}" target="_blank" rel="noopener">@${f.account}</a>`
     : `Example items · latest posts on <a href="${ig}" target="_blank" rel="noopener">@${f.account}</a>`;
-  const guide = cond === "used" ? `
+  const guide = cond === "shop" ? "" : cond === "used" ? `
     <section class="guide" aria-label="Condition guide">
       <h2>How we describe condition</h2>
       <div class="guidegrid">
@@ -2446,7 +2462,7 @@ function listView(cond){
       <select id="sort"><option value="featured"${sortBy==="featured"?" selected":""}>Featured</option><option value="low"${sortBy==="low"?" selected":""}>Price: low to high</option><option value="high"${sortBy==="high"?" selected":""}>Price: high to low</option></select>
     </label>
   </section>
-  ${filterBarHTML(cond, cond === "new" ? "brand new items" : "used items")}
+  ${filterBarHTML(cond, cond === "new" ? "brand new items" : cond === "used" ? "used items" : "items")}
       <div class="fsec"><h3>Price</h3>
     <div class="pricebox" role="group" aria-labelledby="priceTitle">
       <div class="pricehead"><span id="priceTitle">Price</span><output id="priceLbl" aria-live="polite"></output></div>
@@ -2481,7 +2497,7 @@ function descHTML(d){
 }
 function filtered(cond){
   const q = query.trim().toLowerCase();
-  return PRODUCTS.filter(p => (!cond || p.condition===cond) && (!q || [p.name, p.desc, p.brand, typeOf(p), p.grade].join(" ").toLowerCase().includes(q)));
+  return PRODUCTS.filter(p => inCond(p, cond) && (!q || [p.name, p.desc, p.brand, typeOf(p), p.grade].join(" ").toLowerCase().includes(q)));
 }
 
 const ITEMQ = {id: null, q: 1, added: false};
@@ -2521,8 +2537,9 @@ const views = {
   selling(){ return sellingView(); },
   sell(){ return sellView(); },
   event(){ return evOn() ? eventView() : offHTML("events"); },
-  new(){ return listView("new"); },
-  used(){ return listView("used"); },
+  shop(){ return listView("shop"); },
+  new(){ return listView("shop"); },
+  used(){ return listView("shop"); },
   cart(){
     const items = cartItems();
     if (!items.length) return `<h1>Your cart</h1><div class="empty" style="margin-top:16px">Your cart is empty. <a href="#home" style="color:var(--link)">Continue shopping</a></div>`;
@@ -2627,6 +2644,7 @@ const views = {
       <div class="iteminfo">
         <span class="badge">${used ? "Used" + (p.grade ? " · " + esc(p.grade) : "") : "Brand new"}</span>
         <h1>${esc(p.name)}</h1>
+        <p class="soldby">Sold by <b>Nojan</b> ${certBadge(true)}</p>
         ${summary ? `<p class="lead">${esc(summary)}</p>` : ""}
         <div class="itemprice"><span class="bigp">${p.price == null ? "Ask for price" : money(p.price)}</span></div>
         ${saveHST(p) > 0 ? `<div class="isave"><em>Regular <s>${money(withHST(p.was))}</s> incl. HST · <b>Save ${money(saveHST(p))}</b></em></div>` : ""}
@@ -2790,7 +2808,7 @@ document.addEventListener("click", e => {
   else if (b.hasAttribute("data-fclear")){ const c = current(); if (!FLT[c]) return; clearFilters(c); afterFilterChange(c);
     if (c === "services"){ const a = $("#sMinN"), z = $("#sMaxN"); if (a) a.value = ""; if (z) z.value = ""; } }
   else if (b.dataset.f){ const c = current(), F = FLT[c]; if (!F) return; const k = b.dataset.f, v = b.dataset.v;
-    if (k === "sale" || k === "stock") F[k] = !F[k];
+    if (k === "sale" || k === "stock" || k === "cert") F[k] = !F[k];
     else { F[k] = F[k].includes(v) ? F[k].filter(x => x !== v) : [...F[k], v];
       if (k === "types"){ const ok = new Set(facetList(c, "brands").map(brandOf)); F.brands = F.brands.filter(x => ok.has(x)); }   // brands follow the chosen type
       if (k === "cats"){ const ok = new Set(svcFacet("provs").map(s => s.providerName)); F.provs = F.provs.filter(x => ok.has(x)); } }   // providers follow the category
@@ -2800,7 +2818,7 @@ document.addEventListener("click", e => {
     const again = document.querySelector(`.fopt[data-f="${k}"]${v != null ? `[data-v="${CSS.escape(v)}"]` : ""}`); if (again) again.focus({preventScroll:true}); }
   else if (b.dataset.fchip){ const c = current(), F = FLT[c]; if (!F) return; const k = b.dataset.fchip, v = b.dataset.v;
     if (k === "price"){ if (c === "services"){ F.min = F.max = null; const a = $("#sMinN"), z = $("#sMaxN"); if (a) a.value = ""; if (z) z.value = ""; } else priceRange[c] = {min:null,max:null,scale:null}; }
-    else if (k === "sale" || k === "stock") F[k] = false;
+    else if (k === "sale" || k === "stock" || k === "cert") F[k] = false;
     else F[k] = F[k].filter(x => x !== v);
     afterFilterChange(c); }
   else if (b.dataset.copy){ const t=b.dataset.copy; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Email address copied"),()=>{ const r=document.createRange(); r.selectNodeContents(b.previousElementSibling); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Address selected — press copy"); }); }
@@ -2813,6 +2831,14 @@ const MEGA = { key: null, t: null };
 const mgEsc = v => esc(String(v));
 function megaCols(key){
   const top = (arr, fn, n) => Object.entries(arr.reduce((m, x) => { const k = fn(x); if (k) m[k] = (m[k] || 0) + 1; return m; }, {})).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, n);
+  if (key === "shop"){
+    const list = PRODUCTS, types = top(list, typeOf, 7), brands = top(list, brandOf, 8);
+    const cols = [{big: true, h: "Shop all items", links: types.length ? types.map(([t, n]) => ({go: "shop|types|" + t, label: t, n})) : [{href: "#shop", label: "All items"}]}];
+    if (brands.length) cols.push({h: "Shop by brand", links: brands.map(([b, n]) => ({go: "shop|brands|" + b, label: b, n}))});
+    cols.push({h: "New or used", links: [{go: "shop|conds|new", label: "Brand new"}, {go: "shop|conds|used", label: "Used"}, ...GRADES.map(g => ({go: "shop|grades|" + g, label: "Used · " + g}))]});
+    cols.push({h: "Quick links", links: [{href: "#shop", label: "All items" + (list.length ? " (" + list.length + ")" : "")}, {go: "shop|cert|1", label: "Certified only"}, list.some(p => p.was != null) ? {go: "shop|sale|1", label: "On sale"} : null, {href: "#selling", label: "Sell on Nojan"}].filter(Boolean)});
+    return cols;
+  }
   if (key === "new" || key === "used"){
     const list = PRODUCTS.filter(p => p.condition === key), word = key === "new" ? "Brand New" : "Used";
     const types = top(list, typeOf, 7), brands = top(list, brandOf, 8);
@@ -2838,7 +2864,7 @@ function megaCols(key){
 }
 function megaHTML(key){
   return `<div class="mwrap">${megaCols(key).map(c => `<div class="mcol${c.big ? " big" : ""}"><h4>${mgEsc(c.h)}</h4>${c.links.map(l => l.go
-    ? `<a href="${l.go.startsWith("services") ? "#services" : l.go.startsWith("new") ? "#new-items" : "#used-items"}" data-mgo="${mgEsc(l.go)}">${mgEsc(l.label)}${l.n && !c.big ? `<i>${l.n}</i>` : ""}</a>`
+    ? `<a href="${l.go.startsWith("services") ? "#services" : l.go.startsWith("shop") ? "#shop" : l.go.startsWith("new") ? "#new-items" : "#used-items"}" data-mgo="${mgEsc(l.go)}">${mgEsc(l.label)}${l.n && !c.big ? `<i>${l.n}</i>` : ""}</a>`
     : `<a href="${mgEsc(l.href)}"${l.ext ? ' target="_blank" rel="noopener"' : ""}>${mgEsc(l.label)}</a>`).join("")}</div>`).join("")}</div>`;
 }
 const megaWide = () => matchMedia("(min-width: 821px)").matches;
@@ -2872,7 +2898,7 @@ document.addEventListener("click", e => {
     e.preventDefault(); e.stopPropagation();
     const [cond, k, v] = g.dataset.mgo.split("|");
     clearFilters(cond);
-    if (k === "sale") FLT[cond].sale = true; else FLT[cond][k] = [v];
+    if (k === "sale" || k === "cert") FLT[cond][k] = true; else FLT[cond][k] = [v];
     megaClose(); go(cond); return;
   }
   if (e.target.closest("#gbar a")) megaClose();
@@ -2917,7 +2943,7 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell"};
+const SLUG = {home:"home", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
 let itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
@@ -2931,11 +2957,14 @@ function viewFromHash(){
   if (h.startsWith("chat-")){ chatId = h.slice(5); return "chat"; }
   if (h.startsWith("listing-")){ listingId = h.slice(8); HM.gi = 0; return "listing"; }
   if (h.startsWith("hchat-")){ hchatId = h.slice(6); return "hchat"; }
-  return VIEW_OF[h] || "home";
+  const vv = VIEW_OF[h] || "home";
+  if (vv === "new" || vv === "used"){ clearFilters("shop"); FLT.shop.conds = [vv]; return "shop"; }
+  return vv;
 }
 let currentView = viewFromHash();
 function current(){ return views[currentView] ? currentView : "home"; }
 function go(v, id, keepQuery){
+  if (v === "new" || v === "used"){ clearFilters("shop"); FLT.shop.conds = [v]; v = "shop"; }
   if (!views[v]) v = "home";
   if (!keepQuery){ if (query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } const gs = $("#gsearch"); if (gs && !gs.hidden) toggleSearch(false); }
   if (v === "item") itemId = id;
@@ -2964,6 +2993,7 @@ document.addEventListener("click", e => {
   if (h.startsWith("hchat-")){ e.preventDefault(); go("hchat", decodeURIComponent(h.slice(6))); return; }
   const v = VIEW_OF[h];
   if (!v) return;
+  if (v === "shop" && FLT.shop){ FLT.shop.conds = []; }
   e.preventDefault(); go(v);
 });
 document.addEventListener("click", e => {
@@ -3006,7 +3036,7 @@ function render(){
   if (priceRange[v]) syncPriceUI(v);
   const it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
   const hct = v === "hchat" && (HM.threads || []).find(x => x.id === hchatId), mkt = hct && hct.marketId;
-  const navV = it ? it.condition : v === "hchat" && mkt ? "account" : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : ["person", "matches", "chat", "datingprofile"].includes(v) ? "dating" : ["listing", "listhome", "mylistings", "hchat"].includes(v) ? "homes" : v;
+  const navV = it || v === "item" ? "shop" : v === "hchat" && mkt ? "account" : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : ["person", "matches", "chat", "datingprofile"].includes(v) ? "dating" : ["listing", "listhome", "mylistings", "hchat"].includes(v) ? "homes" : v;
   if (v === "service") afterServiceRender();
   if (v === "provider") renderLinkedInBadges();
   document.querySelectorAll("header nav a, .tabbar a").forEach(a => (a.dataset.tab===navV || a.dataset.also===navV) ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
@@ -3021,8 +3051,8 @@ function render(){
   { const mid = v === "item" && String(itemId).startsWith("m-") ? itemId : v === "service" && String(serviceId).startsWith("m-") ? serviceId : v === "event" && String(eventId).startsWith("m-") ? eventId : ""; const md = mid && mkFind(mid.slice(2)); if (md) document.title = md.title + " · Nojan"; }
   if (HM_VIEWS.includes(v)){ const hh = v === "listing" && ((HM.list || []).find(x => x.id === listingId) || HM.extra[listingId]); document.title = (hh ? hh.title : {homes: "Homes", listing: "Home", listhome: "List your home", mylistings: "My listings", hchat: "Messages"}[v]) + " · Nojan"; }
   if (DT_VIEWS.includes(v)) document.title = (v === "person" && dtProfile(personId) ? dtProfile(personId).name : {dating: "Dating", matches: "Matches", chat: "Chat", datingprofile: "My dating profile", person: "Dating"}[v]) + " · Nojan";
-  const trail = v === "item" ? (it ? [[it.condition === "new" ? "Brand new items" : "Used items", it.condition === "new" ? "#new-items" : "#used-items"], [it.name]] : [["Item"]])
-    : {new:[["Brand new items"]], used:[["Used items"]], contact:[["Contact us"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["My orders & bookings"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
+  const trail = v === "item" ? (it ? [["Shop", "#shop"], [it.name]] : [["Shop", "#shop"], ["Item"]])
+    : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["My orders & bookings"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
          service:[["Services","#services"],[(SERVICES.find(s=>s.id===serviceId)||{}).title || "Service"]],
          provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]],
          events:[["Events"]], event:[["Events","#events"],[(eventById(eventId)||{}).title || "Event"]],
@@ -5262,8 +5292,9 @@ function mkDetailView(id){
     <div class="hmlayout">
       <div class="hmmain">
         ${status}
-        <div class="mktags"><span class="hmdeal inline mk${k}">${MK_KINDS[k]}</span>${d.certified ? certBadge(false) : ""}</div>
+        <div class="mktags"><span class="hmdeal inline mk${k}">${k === "used" ? "Used" + (d.grade ? " · " + esc(d.grade) : "") : k === "new" ? "Brand new" : MK_KINDS[k]}</span>${d.certified ? certBadge(false) : ""}</div>
         <h1 class="hmtitle mkh1">${esc(d.title)}</h1>
+        ${k === "new" || k === "used" ? `<p class="soldby">Sold by <b>${esc(d.ownerName || "a member")}</b> · Nojan member${d.certified ? "" : ` <span class="uncert">Not certified yet</span>`}</p>` : ""}
         <p class="hmbig mkprice">${esc(mkPrice(d))}</p>
         ${k === "event" && d.startMs ? `<p class="hmaddr big">${svgI("calendar")}${evDayLong(+d.startMs)} · ${evTime(+d.startMs)}</p>` : ""}
         <p class="hmaddr big">${HM_PIN}${esc(k === "event" && d.format === "online" ? "Online" : [k === "event" ? d.venue : "", d.city].filter(Boolean).join(", ") || "Location on request")}</p>
