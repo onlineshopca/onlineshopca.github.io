@@ -1809,6 +1809,14 @@ a[data-tab="events"],a[data-tab="homes"],footer a[href="#events"],footer a[href=
 .cert .cb,.certnote .cb{fill:#1a73e8;stroke:none}
 .cert .ck,.certnote .ck{fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .cert.sm{font-size:12px;gap:3px}.cert.sm svg{width:15px;height:15px}
+.itemid{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;font-size:13px;color:var(--muted)}.itemid code,.idcode{font:600 12.5px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--fg);background:rgba(127,127,127,.12);border-radius:6px;padding:3px 7px;letter-spacing:.02em}
+.coffers{font-size:12.5px;font-weight:600;color:var(--link)}
+.offers{margin:28px 0}.offers h2{font-size:1.25rem;margin:0 0 4px}.offers>p{margin:0 0 12px;color:var(--muted);font-size:14px}
+.offerrow{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid rgba(127,127,127,.22);border-radius:12px;margin-bottom:8px;color:inherit;text-decoration:none}
+.offerrow:hover{border-color:var(--link)}.offerrow img,.offerrow .noimg{width:56px;height:56px;object-fit:cover;border-radius:8px;background:rgba(127,127,127,.1);display:block}
+.offerrow b{display:block}.offerrow small{color:var(--muted)}.offerrow .op{font-weight:700;white-space:nowrap}.offerrow.here{border-color:var(--link);background:rgba(0,113,227,.05)}
+.idbox{display:grid;gap:8px;padding:12px;border:1px dashed rgba(127,127,127,.4);border-radius:12px}.idbox input{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}
+.idhint{font-size:13.5px;color:var(--muted);display:grid;gap:6px}.idhint .idm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.idhint .idm span{min-width:0}
 .cseller{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:12.5px;color:var(--muted);min-width:0}
 .cseller>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .svccard .cert{margin-left:8px;vertical-align:middle}
@@ -1956,6 +1964,55 @@ Object.defineProperty(feedState, "shop", {get(){ return feedState.new === "loadi
 const inCond = (p, cond) => !cond || cond === "shop" || p.condition === cond;
 const isCert = p => !p.member || !!p.certified;
 const sellerOf = p => p.member ? (p.seller || "A member") : "Nojan";
+/* v85: every item has a Nojan item ID (e.g. NJ-7K3QXM). Items listed with the same ID show as ONE ad with several offers. */
+const ID_CHARS = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ", ID_RE = /^NJ-[A-Z0-9]{3,12}$/;
+const normId = v => { let x = String(v || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); if (x.startsWith("NJ")) x = x.slice(2); return x ? "NJ-" + x.slice(0, 12) : ""; };
+const fallbackId = id => "NJ-" + String(id || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+const idOf = p => !p ? "" : p.itemId || fallbackId(p.mid || String(p.pid || p.id).replace(/^[sm]-/, ""));
+const isItem = p => p && (p.condition === "new" || p.condition === "used");
+function knownIds(){
+  const k = new Set(PRODUCTS.map(idOf));
+  (typeof ALL_PRODUCTS !== "undefined" ? ALL_PRODUCTS : []).forEach(d => k.add(normId(d.itemId) || fallbackId(d.id)));
+  if (typeof MK !== "undefined" && Array.isArray(MK.mine)) MK.mine.forEach(d => k.add(normId(d.itemId) || fallbackId(d.id)));
+  return k;
+}
+function newItemId(){
+  const k = knownIds(), r = new Uint32Array(6); let id;
+  do { crypto.getRandomValues(r); id = "NJ-" + [...r].map(x => ID_CHARS[x % ID_CHARS.length]).join(""); } while (k.has(id));
+  return id;
+}
+const offersOf = p => { if (!p) return []; const id = idOf(p), l = PRODUCTS.filter(x => idOf(x) === id && x.active !== false); return l.length ? l : [p]; };
+const offerRank = (a, b) => ((a.soldOut ? 1 : 0) - (b.soldOut ? 1 : 0)) || ((a.price ?? 1e9) - (b.price ?? 1e9));
+function groupList(list){   // one card per item ID; the card shows the best offer (in stock, then cheapest)
+  const g = new Map();
+  list.forEach(p => { const k = idOf(p); if (!g.has(k)) g.set(k, []); g.get(k).push(p); });
+  return [...g.values()].map(l => l.length === 1 ? l[0] : l.slice().sort(offerRank)[0]);
+}
+function idSuggest(title, cur, self){   // existing items whose title looks like this one
+  const tok = t => [...new Set(String(t || "").toLowerCase().split(/[^a-z0-9\u0600-\u06ff]+/).filter(w => w.length > 1))];
+  const T = tok(title); if (T.length < 2) return [];
+  return groupList(PRODUCTS.filter(isItem)).filter(p => idOf(p) !== cur && idOf(p) !== self).map(p => {
+    const P = tok(p.name), hit = T.filter(w => P.includes(w)).length; return {p, hit, sc: hit / Math.max(T.length, P.length)}; })
+    .filter(x => x.hit >= 2 && x.sc >= 0.45).sort((a, b) => b.sc - a.sc).slice(0, 3).map(x => x.p);
+}
+function idHintHTML(title, cur, self){
+  const id = normId(cur), on = id && id !== self ? PRODUCTS.find(p => idOf(p) === id) : null;
+  if (on){ const n = offersOf(on).length;
+    return `<div class="idm"><span>✓ Joins the ad for <b>${esc(on.name)}</b> (${n} offer${n === 1 ? "" : "s"} now).</span><button type="button" class="linkbtn" data-newid>Use a new ID instead</button></div>`; }
+  const S = idSuggest(title, id, self);
+  return S.length ? `<span>Selling one of these? Use its ID so it shows under the same ad:</span>${S.map(p => `<div class="idm"><code class="idcode">${esc(idOf(p))}</code><span>${esc(p.name)} · ${offersOf(p).length} offer${offersOf(p).length === 1 ? "" : "s"}</span><button type="button" class="linkbtn" data-useid="${esc(idOf(p))}">Use this ID</button></div>`).join("")}` : "";
+}
+function offersHTML(p){
+  const all = offersOf(p).slice().sort(offerRank); if (all.length < 2) return "";
+  const row = o => { const img = o.member ? o.thumb : imagesOf(o)[0], here = o.id === p.id;
+    return `<a class="offerrow${here ? " here" : ""}" href="#item-${esc(o.id)}">${img ? `<img src="${esc(img)}" alt="">` : `<span class="noimg"></span>`}
+      <span><b>${o.condition === "new" ? "Brand new" : "Used" + (o.grade ? " · " + esc(o.grade) : "")}${here ? " · you're viewing this one" : ""}</b><small>Sold by ${esc(sellerOf(o))}${isCert(o) ? " · Certified" : ""}${o.member && o.city ? " · " + esc(o.city) : ""}${o.soldOut ? " · Sold out" : ""}</small></span>
+      <span class="op">${o.price == null ? "Ask" : money(o.price)}</span></a>`; };
+  return `<section class="offers" id="offers"><h2>${all.length} offers for this item</h2><p>Same item, ID <code class="idcode">${esc(idOf(p))}</code>, from different sellers.</p>${all.map(row).join("")}</section>`;
+}
+function itemIdLine(p){
+  return `<p class="itemid">Nojan item ID <code>${esc(idOf(p))}</code><button type="button" class="linkbtn" data-copyid="${esc(idOf(p))}">Copy</button>${USER && p.uid === USER.uid ? "" : `<button type="button" class="linkbtn" data-mklike="${esc(p.id)}">Sell one like this</button>`}</p>`;
+}
 
 /* Read the Google Sheet */
 function parseCSV(text){
@@ -2031,7 +2088,7 @@ function fsToItem(d){
   const price = d.price == null ? null : +d.price, sale = d.salePrice == null || d.salePrice === "" ? null : +d.salePrice;
   const onSale = sale != null && price != null && sale < price;
   const stock = Math.max(0, parseInt(d.stock, 10) || 0);
-  return { id: "s-" + d.id, pid: d.id, name: d.title || "", desc: d.description || "", brand: d.brand || "",
+  return { id: "s-" + d.id, pid: d.id, itemId: normId(d.itemId) || fallbackId(d.id), name: d.title || "", desc: d.description || "", brand: d.brand || "",
     price: onSale ? sale : price, was: onSale ? price : undefined, condition: d.condition === "used" ? "used" : "new",
     images: (d.images || []).slice(0, 5), thumb: d.thumb || "", stock, soldOut: stock <= 0, active: d.active !== false,
     order: d.order || 0, type: fixType((d.type || "").trim(), guessType((d.title || "") + " " + (d.brand || ""))), grade: d.condition === "used" ? (d.grade || "") : "" };
@@ -2168,13 +2225,15 @@ function cardTag(p){
 }
 function productCards(list, opts){
   const showBrand = opts && opts.brand;
-  return list.map(p => { const [tg, tc] = cardTag(p); return `
+  return groupList(list).map(p => { const [tg, tc] = cardTag(p), O = offersOf(p), many = O.length > 1;
+    const lo = many ? O.filter(o => !o.soldOut && o.price != null).reduce((m, o) => Math.min(m, o.price), Infinity) : null;
+    const h = many ? O.find(o => !o.member) || O.slice().sort((a, b) => b.order - a.order)[0] : p; return `
     <article class="card">
-      <a class="piclink tile" href="#item-${esc(p.id)}" aria-label="View ${esc(p.name)}">${picHTML(p, false)}</a>
+      <a class="piclink tile" href="#item-${esc(p.id)}" aria-label="View ${esc(h.name)}">${picHTML(h, false)}</a>
       <div class="body">
-        <a class="name namelink" href="#item-${esc(p.id)}">${esc(p.name)}</a>
-        <span class="cbrand">${[p.condition === "used" && p.grade ? esc(p.grade) : "", showBrand && p.brand ? esc(p.brand) : "", stockTxt(p)].filter(Boolean).join(" · ")}</span><span class="cseller">${isCert(p) ? certBadge(true) : ""}<span>${p.condition === "new" ? "Brand new" : "Used"} · by ${esc(sellerOf(p))}${p.member && p.city ? " · " + esc(p.city) : ""}</span></span>
-        <div class="cfoot"><span class="cpwrap"><span class="cprice">${p.price == null ? "Ask for price" : money(p.price)}</span>${saveHST(p) > 0 ? `<span class="chst">Regular <s>${money(withHST(p.was))}</s> incl. HST</span><span class="csave">Save ${money(saveHST(p))}</span>` : ""}</span>
+        <a class="name namelink" href="#item-${esc(p.id)}">${esc(h.name)}</a>
+        <span class="cbrand">${[p.condition === "used" && p.grade && !many ? esc(p.grade) : "", showBrand && p.brand ? esc(p.brand) : "", stockTxt(p)].filter(Boolean).join(" · ")}</span>${many ? `<span class="cseller"><a class="coffers" href="#item-${esc(p.id)}">${O.length} offers${O.some(o => o.condition === "new") && O.some(o => o.condition === "used") ? " · new &amp; used" : ""}</a></span>` : `<span class="cseller">${isCert(p) ? certBadge(true) : ""}<span>${p.condition === "new" ? "Brand new" : "Used"} · by ${esc(sellerOf(p))}${p.member && p.city ? " · " + esc(p.city) : ""}</span></span>`}
+        <div class="cfoot"><span class="cpwrap"><span class="cprice">${many && lo !== Infinity ? "From " + money(lo) : p.price == null ? "Ask for price" : money(p.price)}</span>${saveHST(p) > 0 ? `<span class="chst">Regular <s>${money(withHST(p.was))}</s> incl. HST</span><span class="csave">Save ${money(saveHST(p))}</span>` : ""}</span>
           <div class="cardact" data-act="${p.id}">${cardAction(p.id)}</div></div>
       </div></article>`; }).join("");
 }
@@ -2373,6 +2432,7 @@ function listFor(cond){
 /* v60: Brand New, Used and Services show one row per category, like the home page; every item is in its row */
 function shelvesHTML(list, catOf, cards, word){
   const groups = new Map();
+  if (cards === productCards) list = groupList(list);
   list.forEach(x => { const c = catOf(x) || "Other"; if (!groups.has(c)) groups.set(c, []); groups.get(c).push(x); });
   const cats = [...groups.keys()].sort((a, b) => (a === "Other") - (b === "Other") || groups.get(b).length - groups.get(a).length || a.localeCompare(b));
   const n = k => `${k} ${word}${k === 1 ? "" : "s"}`;
@@ -2392,7 +2452,8 @@ function resultsHTML(cond){
   if (st === "loading") return `<div class="empty">Loading items…</div>`;
   const list = listFor(cond);
   if (list.length && !activeFilters(cond).length && !query.trim()) return shelvesHTML(list, typeOf, productCards, "item");
-  return `<p class="count">${list.length} item${list.length===1?"":"s"}${query.trim()?` matching “${esc(query.trim())}”`:""}</p>
+  const ads = groupList(list).length;
+  return `<p class="count">${ads} item${ads===1?"":"s"}${query.trim()?` matching “${esc(query.trim())}”`:""}</p>
   ${list.length ? productGrid(list, {brand: true}) : activeFilters(cond).length ? `<div class="empty">No items match these filters. <button class="linkbtn" type="button" data-reset>Clear filters</button> to see everything.</div>` : `<div class="empty">No items here yet. Follow <a href="${ig}" target="_blank" rel="noopener">@${f.account}</a> for new posts.</div>`}`;
 }
 const fmtP = n => "$" + (Number.isInteger(n) ? n : n.toFixed(2));
@@ -2497,7 +2558,7 @@ function descHTML(d){
 }
 function filtered(cond){
   const q = query.trim().toLowerCase();
-  return PRODUCTS.filter(p => inCond(p, cond) && (!q || [p.name, p.desc, p.brand, typeOf(p), p.grade].join(" ").toLowerCase().includes(q)));
+  return PRODUCTS.filter(p => inCond(p, cond) && (!q || [p.name, p.desc, p.brand, typeOf(p), p.grade, idOf(p)].join(" ").toLowerCase().includes(q)));
 }
 
 const ITEMQ = {id: null, q: 1, added: false};
@@ -2512,10 +2573,10 @@ const views = {
     return `
     <div class="storehead"><a class="storelogo" href="#home" aria-label="Nojan home"><img class="logomark" src="${(document.querySelector("header .logomark") || {}).src || ""}" alt="" width="64" height="64"></a><a class="gicon storeacct" href="#account" aria-label="Your account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a></div>
     <section class="hsec"><div class="hhead"><h2>Brand New</h2><span>Sealed and never used, below market price.</span></div>
-      <div class="homegrid">${loading ? soon("clock", "Loading items…", "") : nNew.length ? productCards(nNew.slice(0, 4)) : soon("level", "New items are coming soon", "Check back shortly.")}
+      <div class="homegrid">${loading ? soon("clock", "Loading items…", "") : nNew.length ? productCards(groupList(nNew).slice(0, 4)) : soon("level", "New items are coming soon", "Check back shortly.")}
         ${viewAll("new", "#new-items", nNew.length ? nNew.length + " item" + (nNew.length === 1 ? "" : "s") : "Brand New", "View all brand new")}</div></section>
     <section class="hsec"><div class="hhead"><h2>Used</h2><span>Pre-owned, tested, and honestly described.</span></div>
-      <div class="homegrid">${nUsed.length ? productCards(nUsed.slice(0, 4)) : soon("level", "Used items are coming soon", "Every item is checked before it's listed, with any wear described honestly.")}
+      <div class="homegrid">${nUsed.length ? productCards(groupList(nUsed).slice(0, 4)) : soon("level", "Used items are coming soon", "Every item is checked before it's listed, with any wear described honestly.")}
         ${viewAll("used", "#used-items", nUsed.length ? nUsed.length + " item" + (nUsed.length === 1 ? "" : "s") : "Coming soon", "View all used")}</div></section>
     <section class="hsec"><div class="hhead"><h2>Services &amp; classes</h2><span>Learn with a local expert, online or in person.</span></div>
       <div class="homegrid">${SERVICES.length ? serviceCards(SERVICES.slice(0, 3)) : soon("monitor", "Services are coming soon", servicesLoaded || fbFailed ? "Computer lessons, online training and expert help. Tell us what you'd like to learn." : "Loading services…")}
@@ -2645,6 +2706,7 @@ const views = {
         <span class="badge">${used ? "Used" + (p.grade ? " · " + esc(p.grade) : "") : "Brand new"}</span>
         <h1>${esc(p.name)}</h1>
         <p class="soldby">Sold by <b>Nojan</b> ${certBadge(true)}</p>
+        ${itemIdLine(p)}${offersOf(p).length > 1 ? `<p class="itemid"><button type="button" class="linkbtn coffers" data-gooffers>See all ${offersOf(p).length} offers for this item ›</button></p>` : ""}
         ${summary ? `<p class="lead">${esc(summary)}</p>` : ""}
         <div class="itemprice"><span class="bigp">${p.price == null ? "Ask for price" : money(p.price)}</span></div>
         ${saveHST(p) > 0 ? `<div class="isave"><em>Regular <s>${money(withHST(p.was))}</s> incl. HST · <b>Save ${money(saveHST(p))}</b></em></div>` : ""}
@@ -2658,6 +2720,7 @@ const views = {
         <a class="msglink" href="#contact-us">Questions about this item? Message us ›</a>
       </div>
     </article>
+    ${offersHTML(p)}
     ${feats.length || extra.length ? `<section class="hl"><h2>Highlights</h2><div class="hlgrid">
       ${feats.map(f => `<div class="hlcard"><span class="hlbar"></span><span>${f.t ? `<b>${esc(f.t)}</b>` : ""}<span>${esc(f.d)}</span></span></div>`).join("")}
       ${extra.map(x => `<div class="hlcard"><span class="hlbar"></span><span><span>${esc(x)}</span></span></div>`).join("")}
@@ -5070,7 +5133,7 @@ const mkFirst = () => (PROFILE && PROFILE.name ? PROFILE.name.trim().split(/\s+/
 
 /* live listings from members are mixed into Brand New, Used, Services and Events */
 function mkToItem(d){
-  return {id: "m-" + d.id, pid: "m-" + d.id, mid: d.id, member: true, uid: d.uid, seller: d.ownerName || "A member", certified: !!d.certified,
+  return {id: "m-" + d.id, pid: "m-" + d.id, mid: d.id, itemId: normId(d.itemId) || fallbackId(d.id), member: true, uid: d.uid, seller: d.ownerName || "A member", certified: !!d.certified,
     name: d.title || "", desc: d.description || "", brand: d.brand || "", price: d.price == null || d.price === "" ? null : +d.price, condition: d.kind === "used" ? "used" : "new",
     images: d.thumb ? [d.thumb] : [], thumb: d.thumb || "", stock: null, soldOut: false, active: true, order: 100000 + (tsMs(d.createdAt) ? -tsMs(d.createdAt) / 1e13 : 0),
     type: fixType((d.type || "").trim(), guessType((d.title || "") + " " + (d.brand || ""))), grade: d.kind === "used" ? (d.grade || "") : "", city: d.city || ""};
@@ -5143,7 +5206,7 @@ function sellingView(){
   const mine = Array.isArray(MK.mine) ? MK.mine.slice().sort((a, b) => tsMs(b.updatedAt) - tsMs(a.updatedAt)) : null;
   const row = d => { const [l, c] = st[d.status] || ["", ""];
     return `<div class="hmrow">${d.thumb ? `<img src="${esc(d.thumb)}" alt="">` : `<span class="hmnoimg sm">${svgI("box")}</span>`}
-      <div class="hmrowtxt"><a href="#${mkRoute(d)}"><b>${esc(d.title)}</b></a><small>${MK_KINDS[d.kind]} · ${esc(mkPrice(d))}${d.kind === "event" && d.startMs ? " · " + evDayShort(+d.startMs) : ""}</small><span class="hmst ${c}">${l}</span>${d.certified ? certBadge(true) : ""}</div>
+      <div class="hmrowtxt"><a href="#${mkRoute(d)}"><b>${esc(d.title)}</b></a><small>${MK_KINDS[d.kind]}${d.kind === "new" || d.kind === "used" ? ` · <code class="idcode">${esc(normId(d.itemId) || fallbackId(d.id))}</code>` : ""} · ${esc(mkPrice(d))}${d.kind === "event" && d.startMs ? " · " + evDayShort(+d.startMs) : ""}</small><span class="hmst ${c}">${l}</span>${d.certified ? certBadge(true) : ""}</div>
       <div class="hmrowacts">${d.status !== "removed" ? `<button type="button" class="linkbtn" data-mkedit="${esc(d.id)}">Edit</button>` : ""}
         ${d.status === "live" ? `<button type="button" class="linkbtn" data-mkset="sold" data-id="${esc(d.id)}">${d.kind === "event" || d.kind === "service" ? "End it" : "Mark sold"}</button><button type="button" class="linkbtn" data-mkset="hidden" data-id="${esc(d.id)}">Hide</button>` : d.status === "sold" || d.status === "hidden" ? `<button type="button" class="linkbtn" data-mkset="live" data-id="${esc(d.id)}">Make live again</button>` : ""}
         <button type="button" class="linkbtn" data-mkdel="${esc(d.id)}" style="color:var(--danger)">${MK.arm === "d" + d.id ? "Click again to delete" : "Delete"}</button></div></div>`; };
@@ -5162,9 +5225,13 @@ function sellingView(){
 /* ---- add or edit a listing ---- */
 function mkStartForm(edit, kind){
   const d = edit ? {...edit} : {kind: kind || "used", city: (PROFILE && PROFILE.city) || "", format: kind === "service" ? "in-person" : "in-person", priceUnit: "hour", grade: "Good"};
+  if (!edit && MK.prefill){ Object.assign(d, MK.prefill); MK.prefill = null; }
+  const selfId = edit ? normId(edit.itemId) || fallbackId(edit.id) : "";
+  const autoId = edit ? selfId : newItemId();
+  if (edit) d.itemId = selfId; else if (!d.itemId) d.itemId = autoId;
   if (!edit && kind === "event"){ const t = new Date(Date.now() + 7 * 864e5); d.date = t.toLocaleDateString("en-CA", {timeZone: TZ}); d.start = "18:00"; d.end = "20:00"; }
   if (edit && edit.kind === "event" && edit.startMs){ const p = ms => new Date(ms).toLocaleString("en-CA", {timeZone: TZ, hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"}).replace(",", ""); const [ds, ts] = p(+edit.startMs).split(" "); d.date = ds; d.start = ts.slice(0, 5); d.end = p(+edit.endMs || +edit.startMs + 72e5).split(" ")[1].slice(0, 5); }
-  MK.form = {id: edit ? edit.id : null, data: d, photos: [], photosLoaded: !edit || !edit.photoCount, changed: false, wasCert: !!(edit && edit.certified)};
+  MK.form = {selfId, autoId, id: edit ? edit.id : null, data: d, photos: [], photosLoaded: !edit || !edit.photoCount, changed: false, wasCert: !!(edit && edit.certified)};
   if (edit && edit.photoCount){ if (Array.isArray(MK.photos[edit.id])){ MK.form.photos = MK.photos[edit.id].map(data => ({data})); MK.form.photosLoaded = true; } else mkLoadPhotos(edit); }
 }
 function mkPhotoStrip(){
@@ -5205,6 +5272,7 @@ function sellView(){
     <div class="fsec"><h3>What are you listing?</h3><div class="fopts" role="radiogroup" aria-label="Listing type">${Object.entries(MK_KINDS).filter(([v]) => v !== "event" || EVENTS_ON || v === k).map(([v, l]) => `<label class="fopt hmradio"><input type="radio" name="kind" value="${v}"${k === v ? " checked" : ""}${isNew ? "" : " disabled"}> ${l}</label>`).join("")}</div></div>
     ${F.wasCert ? `<p class="dtnote">This listing is ${certBadge(true)}. If you change it, the badge comes off until Nojan checks it again.</p>` : ""}
     <div class="fsec"><h3>Photos <small>up to 6 · the first one is the main photo</small></h3><div class="dtphotos" id="mkPhotos">${mkPhotoStrip()}</div></div>
+    ${k === "new" || k === "used" ? `<div class="idbox"><label>Nojan item ID <small>made for you automatically · items with the same ID show under one ad</small><input name="itemId" maxlength="15" autocomplete="off" spellcheck="false" value="${esc(d.itemId || "")}"></label><div class="idhint" id="mkIdHint">${idHintHTML(d.title, d.itemId, F.selfId)}</div></div>` : ""}
     <label>Title<input name="title" required maxlength="100" placeholder="${k === "event" ? "e.g. Persian music night" : k === "service" ? "e.g. Home cleaning, 3 hours" : "e.g. iPhone 13, 128 GB, blue"}" value="${esc(d.title || "")}"></label>
     <div class="dtgrid2">
       <label>Price in $ <small>${k === "event" ? "per person · 0 if free" : k === "service" ? "" : "leave empty for “Ask for price”"}</small><input name="price" type="number" min="0" step="0.01" inputmode="decimal" value="${d.price != null ? d.price : ""}"></label>
@@ -5239,13 +5307,19 @@ async function mkSave(form){
   if ((k === "new" || k === "used") && !F.photos.length) return say("Please add at least one photo of the item.");
   if (!fd.get("ok")) return say("Please confirm the listing is real.");
   if (!F.photosLoaded) return say("Your photos are still loading. Try again in a moment.");
+  let itemId = "";
+  if (k === "new" || k === "used"){
+    itemId = normId(g("itemId")) || F.autoId || newItemId();
+    if (!ID_RE.test(itemId)) return say("That item ID doesn't look right. It should look like NJ-7K3QXM.");
+    if (itemId !== F.autoId && itemId !== F.selfId && !knownIds().has(itemId)) return say(`No item on Nojan has the ID ${itemId}. Check it, or clear the box to get a new ID.`);
+  }
   if (MK.busy) return; MK.busy = true;
   const btn = form.querySelector('button[type="submit"]'), label = btn.textContent; btn.disabled = true; btn.textContent = "Saving…";
   try {
     const isNew = !F.id, id = F.id || FB.mkNewId(), ph = F.photos;
     const thumb = ph.length ? await dtShrink(ph[0].data, 520, 0.7, 60000) : "";
     const cat = g("category").slice(0, 40);
-    const data = {uid: USER.uid, ownerName: mkFirst().slice(0, 40), kind: k, title: g("title").slice(0, 100), description: g("description").slice(0, 3000), price: pr, city: dtCity(g("city")).slice(0, 40), thumb, photoCount: ph.length,
+    const data = {uid: USER.uid, ...(itemId ? {itemId} : {}), ownerName: mkFirst().slice(0, 40), kind: k, title: g("title").slice(0, 100), description: g("description").slice(0, 3000), price: pr, city: dtCity(g("city")).slice(0, 40), thumb, photoCount: ph.length,
       brand: k === "new" || k === "used" ? g("brand").slice(0, 40) : "", type: k === "new" || k === "used" ? cat : "", grade: k === "used" ? g("grade") : "",
       category: k === "service" || k === "event" ? cat || "Other" : "", priceUnit: k === "service" ? g("priceUnit") || "hour" : "", format: k === "service" || k === "event" ? g("format") || "in-person" : "",
       startMs, endMs, venue: k === "event" ? g("venue").slice(0, 100) : "", certified: false};
@@ -5257,7 +5331,7 @@ async function mkSave(form){
       MK.photos[id] = ph.map(p => p.data);
     }
     MK.form = null; MK.editId = null; MK.busy = false; MK.mine = null;
-    toast(isNew ? "Published. It's live now." : "Saved"); go("selling");
+    toast(isNew ? (itemId ? `Published · item ID ${itemId}` : "Published. It's live now.") : "Saved"); go("selling");
   } catch (e) {
     console.error(e); MK.busy = false; btn.disabled = false; btn.textContent = label;
     say(e && e.code === "permission-denied" ? "Your listing couldn't be saved. Your selling account may not be approved yet." : "Your listing couldn't be saved. Check your connection and try again.");
@@ -5284,7 +5358,7 @@ function mkDetailView(id){
   const listed = tsMs(d.createdAt) ? new Date(tsMs(d.createdAt)).toLocaleDateString("en-CA", {month: "short", day: "numeric", year: "numeric"}) : "";
   const facts = (k === "event" ? [["When", d.startMs ? evDayLong(+d.startMs) + " · " + evTime(+d.startMs) + (d.endMs ? " – " + evTime(+d.endMs) : "") : ""], ["Where", d.format === "online" ? "Online" : [d.venue, d.city].filter(Boolean).join(", ")], ["Category", d.category], ["Price", mkPrice(d)]]
     : k === "service" ? [["Category", d.category], ["Offered", d.format === "both" ? "Online or in person" : d.format === "online" ? "Online" : "In person"], ["Area", d.city], ["Price", mkPrice(d)]]
-    : [["Condition", k === "new" ? "Brand new" : "Used" + (d.grade ? " · " + d.grade : "")], ["Brand", d.brand], ["Category", d.type], ["Location", d.city]]).concat([["Listed", listed]]).filter(x => x[1]);
+    : [["Condition", k === "new" ? "Brand new" : "Used" + (d.grade ? " · " + d.grade : "")], ["Brand", d.brand], ["Category", d.type], ["Location", d.city], ["Nojan item ID", idOf(mkToItem(d))]]).concat([["Listed", listed]]).filter(x => x[1]);
   const status = own && d.status !== "live" ? `<div class="dtnote">${d.status === "sold" ? "You marked this as sold, so only you can see it." : d.status === "hidden" ? "This listing is hidden. Only you can see it." : "Nojan took this listing down."}</div>` : !own && d.status !== "live" ? `<div class="dtnote">This listing is no longer available.</div>` : "";
   const back = k === "event" ? "#events" : k === "service" ? "#services" : k === "used" ? "#used-items" : "#new-items";
   return `<article class="hmpage mkpage">
@@ -5296,11 +5370,13 @@ function mkDetailView(id){
         <h1 class="hmtitle mkh1">${esc(d.title)}</h1>
         ${k === "new" || k === "used" ? `<p class="soldby">Sold by <b>${esc(d.ownerName || "a member")}</b> · Nojan member${d.certified ? "" : ` <span class="uncert">Not certified yet</span>`}</p>` : ""}
         <p class="hmbig mkprice">${esc(mkPrice(d))}</p>
+        ${k === "new" || k === "used" ? itemIdLine(mkToItem(d)) : ""}
         ${k === "event" && d.startMs ? `<p class="hmaddr big">${svgI("calendar")}${evDayLong(+d.startMs)} · ${evTime(+d.startMs)}</p>` : ""}
         <p class="hmaddr big">${HM_PIN}${esc(k === "event" && d.format === "online" ? "Online" : [k === "event" ? d.venue : "", d.city].filter(Boolean).join(", ") || "Location on request")}</p>
         ${d.certified ? `<div class="certnote">${CERT_SVG}<span><b>Certified by Nojan</b><small>Nojan checked this ${k === "event" ? "event" : k === "service" ? "service" : "item"} in person and confirmed it's as described.</small></span></div>` : ""}
         ${d.description ? `<section class="dtsect"><h2>About this ${k === "event" ? "event" : k === "service" ? "service" : "item"}</h2><div class="itemdesc">${descHTML(d.description)}</div></section>` : ""}
         <section class="dtsect"><h2>Details</h2><dl class="dtfacts">${facts.map(([a, b]) => `<div><dt>${a}</dt><dd>${esc(String(b))}</dd></div>`).join("")}</dl></section>
+        ${k === "new" || k === "used" ? offersHTML(mkToItem(d)) : ""}
         <div class="hmacts"><button type="button" class="btn ghost" data-mkshare>Share</button><a class="btn ghost" href="${back}" style="color:var(--fg)">See more</a></div>
       </div>
       <aside class="hmside">${mkContactHTML(d)}</aside>
@@ -5408,6 +5484,12 @@ document.addEventListener("click", async ev => {
     return;
   }
   if (b.dataset.mknew){ MK.newKind = b.dataset.mknew; MK.editId = null; MK.form = null; go("sell"); return; }
+  if (b.dataset.mklike){ const p = PRODUCTS.find(x => x.id === b.dataset.mklike); if (!p) return;
+    MK.prefill = {itemId: idOf(p), title: p.name, brand: p.brand || "", type: p.type || "", category: p.type || ""}; MK.newKind = p.condition === "new" ? "new" : "used"; MK.editId = null; MK.form = null; go("sell"); return; }
+  if (b.hasAttribute("data-gooffers")){ const o = $("#offers"); if (o) o.scrollIntoView({behavior: "smooth", block: "start"}); return; }
+  if (b.dataset.copyid){ try { await navigator.clipboard.writeText(b.dataset.copyid); toast("Item ID copied"); } catch (_) { toast(b.dataset.copyid); } return; }
+  if (b.dataset.useid || b.hasAttribute("data-newid")){ const f = b.closest("form"), inp = f && f.querySelector('[name="itemId"]'); if (!inp) return;
+    inp.value = b.dataset.useid || (f.id === "mkForm" && MK.form && !MK.form.id ? MK.form.autoId : f.id === "mkForm" ? newItemId() : ""); idHintRefresh(f); return; }
   if (b.dataset.mkedit){ MK.editId = b.dataset.mkedit; MK.form = null; go("sell"); return; }
   if (b.dataset.mkphx != null){ MK.form.photos.splice(+b.dataset.mkphx, 1); MK.form.changed = true; $("#mkPhotos").innerHTML = mkPhotoStrip(); return; }
   if (b.dataset.mkphmain != null){ const [x] = MK.form.photos.splice(+b.dataset.mkphmain, 1); MK.form.photos.unshift(x); MK.form.changed = true; $("#mkPhotos").innerHTML = mkPhotoStrip(); return; }
@@ -5444,6 +5526,14 @@ document.addEventListener("click", async ev => {
   }
   if (b.dataset.mkrepdis){ try { await FB.dtDelReport(b.dataset.mkrepdis); MK.adm.reports = MK.adm.reports.filter(r => r.id !== b.dataset.mkrepdis); refreshAdmin(); } catch (e) { toast("Couldn't dismiss it."); } }
 });
+function idHintRefresh(f){
+  const box = f && f.querySelector(".idhint"), inp = f && f.querySelector('[name="itemId"]'); if (!box || !inp) return;
+  const self = f.id === "mkForm" ? (MK.form && MK.form.selfId) || "" : (PADM.edit && PADM.edit !== "new" ? (r => r ? normId(r.itemId) || fallbackId(r.id) : "")(rawProduct(PADM.edit)) : "");
+  box.innerHTML = idHintHTML((f.querySelector('[name="title"]') || {}).value, inp.value, self);
+}
+let idHintT = null;
+document.addEventListener("input", e => { const t = e.target, f = t.closest && t.closest("#mkForm, #productForm");
+  if (f && (t.name === "title" || t.name === "itemId")){ clearTimeout(idHintT); idHintT = setTimeout(() => idHintRefresh(f), 250); } });
 document.addEventListener("change", e => {
   const t = e.target;
   if (t.id === "mkPhIn"){ mkAddPhotos(t.files); return; }
@@ -6195,7 +6285,7 @@ function productsAdminHTML(){
   const cnt = {All: all.length, "In stock": all.filter(x=>x.p.active && !x.p.soldOut).length, "Sold out": all.filter(x=>x.p.soldOut).length, Hidden: all.filter(x=>!x.p.active).length};
   const q = PADM.q.trim().toLowerCase();
   let list = all.filter(x => PADM.filter === "All" || (PADM.filter === "In stock" && x.p.active && !x.p.soldOut) || (PADM.filter === "Sold out" && x.p.soldOut) || (PADM.filter === "Hidden" && !x.p.active));
-  if (q) list = list.filter(x => [x.d.id, x.p.name, x.p.brand, x.p.type].join(" ").toLowerCase().includes(q));
+  if (q) list = list.filter(x => [x.d.id, idOf(x.p), x.p.name, x.p.brand, x.p.type].join(" ").toLowerCase().includes(q));
   list.sort((a,b) => a.d.id.localeCompare(b.d.id, undefined, {numeric:true}));
   return `<div class="admintools"><input id="admPQ" type="search" placeholder="Search products by name, brand or ID" value="${esc(PADM.q)}" aria-label="Search products"><button class="btn small" type="button" data-pnew>+ Add product</button></div>
     <div class="chips" role="group" aria-label="Filter products" style="margin-bottom:14px">${Object.keys(cnt).map(k=>`<button type="button" data-pfilter="${k}" aria-pressed="${PADM.filter===k}">${k} (${cnt[k]})</button>`).join("")}</div>
@@ -6204,7 +6294,7 @@ function productsAdminHTML(){
       return `<div class="prow${p.active ? "" : " hiddenp"}">
         ${img ? `<img src="${esc(img)}" data-ref="${esc(refsOf(p)[0])}" alt="">` : `<span class="noimg"></span>`}
         <div><div class="pname">${esc(p.name)}</div>
-          <div class="pmeta">${esc(d.id)} · ${p.condition === "new" ? "Brand new" : "Used"}${p.grade ? ` (${esc(p.grade)})` : ""} · ${esc(p.type)}${p.brand ? ` · ${esc(p.brand)}` : ""} · ${p.price == null ? "No price" : money(p.price)}${p.was ? ` (regular ${money(p.was)})` : ""} · ${stockNote(p).replace(/<[^>]+>/g,"")}${p.active ? "" : " · hidden"}</div></div>
+          <div class="pmeta"><code class="idcode">${esc(normId(d.itemId) || fallbackId(d.id))}</code> · ${p.condition === "new" ? "Brand new" : "Used"}${p.grade ? ` (${esc(p.grade)})` : ""} · ${esc(p.type)}${p.brand ? ` · ${esc(p.brand)}` : ""} · ${p.price == null ? "No price" : money(p.price)}${p.was ? ` (regular ${money(p.was)})` : ""} · ${stockNote(p).replace(/<[^>]+>/g,"")}${p.active ? "" : " · hidden"}</div></div>
         <div class="pctl">
           <span class="stockctl" aria-label="Quantity available"><button type="button" data-pstep="${esc(d.id)}" data-d="-1" aria-label="One less">−</button><input type="number" min="0" step="1" value="${p.stock}" data-pstock="${esc(d.id)}" aria-label="Quantity available for ${esc(p.name)}"><button type="button" data-pstep="${esc(d.id)}" data-d="1" aria-label="One more">+</button></span>
           <label class="check" style="font-size:.88rem"><input type="checkbox" data-pactive="${esc(d.id)}" ${p.active ? "checked" : ""}> Show</label>
@@ -6215,6 +6305,7 @@ function productFormHTML(){
   const isNew = PADM.edit === "new", d = isNew ? {condition:"new", stock:1, active:true} : (rawProduct(PADM.edit) || {});
   return `<div class="sectionhead"><h2>${isNew ? "Add a product" : "Edit " + esc(d.id)}</h2><button class="linkbtn" type="button" data-pcancel>Back to products</button></div>
   <form class="panel" id="productForm" novalidate>
+    <div class="idbox"><label>Nojan item ID <small>${isNew ? "leave empty for a new ID" : "items with the same ID show under one ad"}</small><input name="itemId" maxlength="15" autocomplete="off" spellcheck="false" placeholder="${isNew ? "Made automatically when you save" : ""}" value="${esc(isNew ? "" : normId(d.itemId) || fallbackId(d.id))}"></label><div class="idhint" id="pIdHint">${idHintHTML(d.title, isNew ? "" : normId(d.itemId) || fallbackId(d.id), isNew ? "" : normId(d.itemId) || fallbackId(d.id))}</div></div>
     <label>Product name<input name="title" required value="${esc(d.title||"")}" placeholder="e.g. Breville the Smart Oven Pro, Brushed Stainless Steel (BOV845BSS)"></label>
     <div class="row">
       <label>Brand<input name="brand" value="${esc(d.brand||"")}"></label>
@@ -6322,6 +6413,8 @@ document.addEventListener("submit", async e => {
   const btn = f.querySelector("button[type=submit]"); btn.disabled = true; btn.textContent = "Saving…";
   try {
     const isNew = PADM.edit === "new", id = isNew ? nextProductId(d.condition) : PADM.edit, old = isNew ? null : rawProduct(id);
+    const selfId = old ? normId(old.itemId) || fallbackId(old.id) : "", itemId = normId(d.itemId) || selfId || newItemId();
+    if (!ID_RE.test(itemId) || (itemId !== selfId && normId(d.itemId) && !knownIds().has(itemId))){ btn.disabled = false; btn.textContent = "Save"; return showMsg(m, false, `No item on Nojan has the ID ${itemId}. Check it, or clear the box.`); }
     const refs = [];
     for (const ph of PADM.photos){
       if (ph.ref){ refs.push(ph.ref); continue; }
@@ -6331,11 +6424,11 @@ document.addEventListener("submit", async e => {
     const thumb = !first ? "" : first.thumb ? first.thumb : (old && old.images && old.images[0] === first.ref ? (old.thumb || "") : "");
     const data = {title: d.title.trim(), brand: (d.brand||"").trim(), condition: d.condition, price, salePrice: sale,
       type: (d.type||"").trim() || guessType(d.title), grade: d.condition === "used" ? (d.grade || "") : "",
-      stock: Math.max(0, parseInt(d.stock, 10) || 0), active: !!d.active, description: (d.description||"").trim(), images: refs, thumb};
+      stock: Math.max(0, parseInt(d.stock, 10) || 0), active: !!d.active, description: (d.description||"").trim(), images: refs, thumb, itemId};
     if (isNew) data.order = ALL_PRODUCTS.length;
     await FB.saveProduct(id, data, isNew);
     if (old) (old.images||[]).filter(r => r.startsWith("img:") && !refs.includes(r)).forEach(r => FB.deleteImage(r.slice(4)).catch(()=>{}));
-    toast(isNew ? `Added ${id}` : "Saved"); PADM.edit = null; PADM.photos = []; refreshAdmin(true);
+    toast(isNew ? `Added · item ID ${itemId}` : "Saved"); PADM.edit = null; PADM.photos = []; refreshAdmin(true);
   } catch(er){ console.error(er); btn.disabled = false; btn.textContent = "Save"; showMsg(m, false, "Couldn't save. Check your connection and try again."); }
 });
 
