@@ -1979,6 +1979,29 @@ html body .cartcount,html body .gicon .cartcount{background:linear-gradient(180d
 html body .h5tabs button[aria-selected="true"]{box-shadow:inset 0 -2px 0 rgb(var(--vblue)),0 1px 3px rgba(0,0,0,.12)!important}
 html body .csave{color:rgb(var(--vgrn))!important}
 html body .cert .cb,html body .certnote .cb{fill:rgb(var(--vgrn))!important}
+/* ===== v90: Shop and Services headers get the same frosted glass with soft video colour ===== */
+html body .pagehero.lhero.shop,html body .pagehero.lhero.services{position:relative;overflow:hidden;
+  border:1px solid rgba(255,255,255,.9)!important;
+  box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(0,0,0,.04),0 20px 50px rgba(0,0,0,.08)!important;
+  backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px)}
+html body .pagehero.lhero.shop{background:
+  linear-gradient(135deg,rgba(255,255,255,.5) 0%,rgba(255,255,255,.14) 45%,rgba(255,255,255,.08) 55%,rgba(255,255,255,.4) 100%),
+  radial-gradient(520px 360px at 2% 6%,rgba(var(--vblue),.5),transparent 72%),
+  radial-gradient(480px 340px at 70% -10%,rgba(var(--vyel),.55),transparent 72%),
+  radial-gradient(480px 360px at 106% 110%,rgba(var(--vred),.32),transparent 72%),
+  rgba(255,255,255,.4)!important}
+html body .pagehero.lhero.services{background:
+  linear-gradient(135deg,rgba(255,255,255,.5) 0%,rgba(255,255,255,.14) 45%,rgba(255,255,255,.08) 55%,rgba(255,255,255,.4) 100%),
+  radial-gradient(520px 360px at 2% 6%,rgba(var(--vgrn),.42),transparent 72%),
+  radial-gradient(480px 340px at 70% -10%,rgba(var(--vblue),.42),transparent 72%),
+  radial-gradient(480px 360px at 106% 110%,rgba(var(--vyel),.45),transparent 72%),
+  rgba(255,255,255,.4)!important}
+html body .pagehero.lhero.shop::before,html body .pagehero.lhero.services::before{content:"";position:absolute;inset:0 0 55% 0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0))}
+html body .pagehero.lhero.shop>*,html body .pagehero.lhero.services>*{position:relative}
+html body .pagehero.lhero.shop select,html body .pagehero.lhero.services select,html body .pagehero.lhero.shop input,html body .pagehero.lhero.services input{
+  background-color:rgba(255,255,255,.7)!important;border-color:rgba(0,0,0,.1)!important;box-shadow:inset 0 1px 0 #fff,0 4px 14px rgba(0,0,0,.05)!important;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
