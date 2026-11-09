@@ -2328,13 +2328,26 @@ function sizeImg(u, w){
     return x;
   } catch (e) { return u; }
 }
+const IMGDB = (() => {   // v92: small IndexedDB store for product photos kept in the database
+  let p;
+  const open = () => p || (p = new Promise((res, rej) => { try { const r = indexedDB.open("nojan", 1); r.onupgradeneeded = () => r.result.createObjectStore("img"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e){ rej(e); } }));
+  return {
+    get: id => open().then(db => new Promise(res => { try { const q = db.transaction("img").objectStore("img").get(id); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); } catch (_) { res(null); } })).catch(() => null),
+    put: (id, v) => open().then(db => { try { db.transaction("img", "readwrite").objectStore("img").put(v, id); } catch (_) {} }).catch(() => {})
+  };
+})();
 function imgSrc(ref, p, i){
   if (!String(ref).startsWith("img:")) return sizeImg(ref, 800);
   const id = ref.slice(4);
   if (IMG[id]) return IMG[id];
-  if (FB && !IMG_PENDING[id]){
+  if (!IMG_PENDING[id]){   // v92: photos are saved in the browser after the first download
     IMG_PENDING[id] = 1;
-    FB.getImage(id).then(d => { if (!d) return; IMG[id] = d; document.querySelectorAll(`img[data-ref="img:${CSS.escape(id)}"]`).forEach(el => el.src = d); }).catch(() => { delete IMG_PENDING[id]; });
+    const show = d => { IMG[id] = d; document.querySelectorAll(`img[data-ref="img:${CSS.escape(id)}"]`).forEach(el => el.src = d); };
+    IMGDB.get(id).then(d => {
+      if (d) return show(d);
+      if (!FB){ delete IMG_PENDING[id]; return; }
+      return FB.getImage(id).then(d => { if (!d) return; show(d); IMGDB.put(id, d); });
+    }).catch(() => { delete IMG_PENDING[id]; });
   }
   return (i === 0 && p && p.thumb) ? p.thumb : BLANK;
 }
@@ -2991,6 +3004,7 @@ document.addEventListener("submit", async e => {
     const msg = $("#orderMsg"), err = validate(f);
     if (err) return showMsg(msg,false,err);
     if (!USER || !FB) return showMsg(msg,false,"Please sign in to place your order.");
+    await catFresh();   // v92: newest prices and stock before checking the cart
     const t = totals(), d = Object.fromEntries(new FormData(f));
     const its = cartItems();
     const over = its.filter(({p,q}) => q > stockOf(p.id));
@@ -5338,7 +5352,7 @@ function mkMerge(){
   EVENTS.sort((a, b) => a.startMs - b.startMs);
 }
 function mkStartWatch(){
-  if (!FB || MK.watching) return; MK.watching = true;
+  if (!FB || MK.watching || !SELLING_ON) return; MK.watching = true;   // v92: not while selling is off
   FB.mkWatchLive(l => { MK.list = l; mkMerge(); const v = current(); if (v === "admin") return; if (["home", "new", "used", "services", "events", "item", "service", "event"].includes(v)) render(); },
     e => { console.error(e); MK.list = []; });
 }
@@ -6825,23 +6839,82 @@ document.addEventListener("submit", async e => {
 });
 
 /* ---- Firebase connection (loaded by the module script at the end of the page) ---- */
-function onFirebaseReady(api){
-  FB = api; fbFailed = false;
-  mkStartWatch();
+/* v92: visitors read ONE catalog record (products/_catalog) instead of every product and service,
+   and keep a copy in the browser for 15 minutes. Admin keeps the live view and rebuilds the catalog when anything changes.
+   If the catalog is missing or can't be read, the site falls back to reading products the old way. */
+const CAT_KEY = "nojanCatalog", CAT_MAX_AGE = 15 * 60 * 1000;
+const CAT = {live: false, applied: 0, lastSig: "", timer: 0, gotP: false, gotS: false, rawServices: []};
+const catNorm = v => v && typeof v === "object" ? (v.toMillis ? v.toMillis() : Array.isArray(v) ? v.map(catNorm) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, catNorm(x)]))) : v;
+const catStable = v => Array.isArray(v) ? "[" + v.map(catStable).join(",") + "]" : v && typeof v === "object" ? "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + catStable(v[k])).join(",") + "}" : JSON.stringify(v === undefined ? null : v);
+const catSig = c => catStable([c.products || [], c.services || [], c.site || {}]);
+function catApply(c){
+  if (!c || !Array.isArray(c.products)) return false;
+  SITE = c.site || {};
+  if (c.products.length) useProducts(c.products); else { ALL_PRODUCTS = []; loadFromSheet(); }
+  useServices(c.services || []);
+  CAT.applied = c.at || 1;
+  return true;
+}
+function catLoadLocal(){ try { const c = JSON.parse(localStorage.getItem(CAT_KEY) || "null"); return c && c.data && Array.isArray(c.data.products) ? c : null; } catch (_) { return null; } }
+function catSaveLocal(data){ try { localStorage.setItem(CAT_KEY, JSON.stringify({saved: Date.now(), data})); } catch (_) {} }
+async function catFetch(){
+  const raw = await FB.getCatalog();
+  if (!raw || !raw.json) return null;
+  const c = JSON.parse(raw.json);
+  if (!c || !Array.isArray(c.products)) return null;
+  catSaveLocal(c); return c;
+}
+function catRender(){ if (current() === "admin") refreshAdmin(); else render(); }
+async function catStart(){
+  const local = catLoadLocal();
+  if (local && !CAT.applied && catApply(local.data)) catRender();
+  if (local){ CAT.lastSig = catSig(local.data); if (Date.now() - local.saved < CAT_MAX_AGE) return; }
+  try {
+    const c = await catFetch();
+    if (c){ CAT.lastSig = catSig(c); if (c.at !== CAT.applied){ catApply(c); catRender(); } return; }
+  } catch (e){ console.error("catalog", e); }
+  liveStart();
+}
+async function catFresh(){   // right before an order: newest prices and stock (1 read)
+  if (!FB || CAT.live) return;
+  try { const c = await catFetch(); if (c) catApply(c); } catch (_) {}
+}
+function catSchedule(){
+  if (!FB || !FB.saveCatalog || !isAdmin() || !CAT.gotP || !CAT.gotS) return;
+  clearTimeout(CAT.timer);
+  CAT.timer = setTimeout(async () => {
+    const data = {products: catNorm(ALL_PRODUCTS || []), services: catNorm(CAT.rawServices || []), site: catNorm(SITE || {})};
+    const sig = catSig(data); if (sig === CAT.lastSig) return;
+    data.at = Date.now();
+    const json = JSON.stringify(data), big = json.length > 900000;
+    try { await FB.saveCatalog(big ? {at: data.at, json: ""} : {at: data.at, json}); CAT.lastSig = sig; if (!big) catSaveLocal(data); }
+    catch (e){ console.error("catalog save", e); }
+  }, 3000);
+}
+function liveStart(){
+  if (CAT.live || !FB) return; CAT.live = true;
   FB.watchProducts(list => {
     SITE = list.find(d => d.id === "_site") || {}; list = list.filter(d => !String(d.id).startsWith("_"));
+    CAT.gotP = true; catSchedule();
     if (!list.length){ ALL_PRODUCTS = []; loadFromSheet(); if (current() === "admin") refreshAdmin(); return; }
     useProducts(list);
     if (current() === "admin") refreshAdmin(); else render();
-  }, err => { console.error(err); loadFromSheet(); });
+  }, err => { console.error(err); if (!CAT.applied) loadFromSheet(); });
   FB.watchServices(list => {
+    CAT.rawServices = list; CAT.gotS = true; catSchedule();
     useServices(list);
     if (current() === "admin") refreshAdmin(); else if (current() === "service") { const p = $("#bookPanel"); if (p) refreshBookPanel(); else render(); } else render();
   }, err => { console.error(err); servicesLoaded = true; render(); });
+}
+function onFirebaseReady(api){
+  FB = api; fbFailed = false;
+  mkStartWatch();
+  catStart();
   FB.onAuth(async u => {
     const prevUid = USER && USER.uid;
     USER = u; PROFILE = null;
     if (u && !u.emailVerified){ try { USER = await FB.refreshUser(); } catch(_) {} }
+    if (isAdmin()) liveStart();   // v92: admin always sees live data and keeps the catalog up to date
     if (u){
       try { PROFILE = await FB.getProfile(u.uid); } catch(_) {}
       if (!PROFILE && signingUp) PROFILE = {name: "", email: u.email || "", phone: "", city: ""};
@@ -6872,7 +6945,8 @@ window.addEventListener("focus", async () => {   // picks up an email confirmati
   try { const u = await FB.refreshUser(); if (u && u.emailVerified){ USER = u; updateAcct(); render(); toast("Email confirmed"); } } catch(_) {}
 });
 if (window.SHOP_FB) setTimeout(() => onFirebaseReady(window.SHOP_FB));
-setTimeout(() => { if (!FB){ fbFailed = true; authReady = true; render(); loadFromSheet(); } }, 12000);
+setTimeout(() => { if (!FB){ fbFailed = true; authReady = true; render(); if (!CAT.applied) loadFromSheet(); } }, 12000);
+{ const l = catLoadLocal(); if (l && l.data.products.length) catApply(l.data); }   // v92: saved catalog shows instantly
 
 $("#yr").textContent = new Date().getFullYear();
 $("#infoEmail").textContent = CONTACT_EMAIL;
@@ -7148,6 +7222,8 @@ window.SHOP_FB = {
     });
   },
   saveSite: data => setDoc(doc(db, "products", "_site"), {...data, updatedAt: serverTimestamp()}, {merge: true}),
+  async getCatalog(){ const s = await getDoc(doc(db, "products", "_catalog")); return s.exists() ? s.data() : null; },   // v92
+  saveCatalog: data => setDoc(doc(db, "products", "_catalog"), data),
   saveNote: (id, text) => setDoc(doc(db, "adminNotes", id), {text, updatedAt: serverTimestamp()})
 };
 window.dispatchEvent(new Event("firebase-ready"));
