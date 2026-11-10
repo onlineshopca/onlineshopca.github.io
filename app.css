@@ -2132,3 +2132,5 @@ html:not([lang^="fr"]) .l-fr,html[lang^="fr"] .l-en{display:none!important}
   html body .bgfield{display:none!important}
 }
 @media (prefers-contrast:more){:root,:root[data-theme]{--muted:#3a3a3c}html body .h5hero p,html body .chst,html body .howcard li span{color:#1d1d1f!important}}
+:root,:root[data-theme]{--body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI Variable Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+html body{font-family:var(--body)}
