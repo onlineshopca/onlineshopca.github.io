@@ -1,4 +1,4 @@
-// Nojan · v93 · built 2026-11-09
+// Nojan · v94 · built 2026-11-10
 /* =========================================================
    SETTINGS — edit these
    ========================================================= */
@@ -1142,7 +1142,34 @@ function viewFromHash(){
 let currentView = viewFromHash();
 if (PATH_MODE && location.hash.length > 1 && isRouteSlug(slugNow())) { try { history.replaceState(null, "", pathFor(slugNow())); } catch (_) {} }
 function current(){ return views[currentView] ? currentView : "home"; }
+// v94: Back (and Forward) return to the same place on the page instead of the top
+const SCR = {key: "", pend: null, from: null, busy: false};
+const SCR_RAILS = ".homegrid,.explore,.news3,.h5tabs";
+try { history.scrollRestoration = "manual"; } catch (_) {}
+function scrStateKey(){ try { return (history.state && history.state.k) || ""; } catch (_) { return ""; } }
+function scrNewKey(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function scrMark(){ let k = scrStateKey(); if (!k){ k = scrNewKey(); try { history.replaceState({k}, ""); } catch (_) {} } SCR.key = k; }
+function scrAll(){ try { return JSON.parse(sessionStorage.getItem("nojanScroll") || "{}") || {}; } catch (_) { return {}; } }
+function scrPend(){ if (SCR.pend && Date.now() - SCR.pend.t > 15000) SCR.pend = null; return SCR.pend; }
+function scrSave(){
+  if (!SCR.key || scrPend()) return;
+  const rails = []; document.querySelectorAll("#view " + SCR_RAILS).forEach((el, i) => { if (el.scrollLeft > 0) rails.push([i, Math.round(el.scrollLeft)]); });
+  const all = scrAll(); delete all[SCR.key]; all[SCR.key] = [Math.round(window.scrollY || 0), rails];
+  const keys = Object.keys(all); while (keys.length > 60) delete all[keys.shift()];
+  try { sessionStorage.setItem("nojanScroll", JSON.stringify(all)); } catch (_) {}
+}
+function scrApply(){
+  const p = scrPend(); if (!p) return;
+  const els = document.querySelectorAll("#view " + SCR_RAILS);
+  p.x.forEach(([i, left]) => { if (els[i]) els[i].scrollLeft = left; });
+  window.scrollTo({top: p.y, left: 0, behavior: "instant"});
+}
+function scrBack(k){ const p = k && scrAll()[k]; if (!p) return false; SCR.pend = {y: p[0], x: p[1] || [], t: Date.now()}; scrApply(); return true; }
+["wheel", "touchstart", "keydown", "mousedown"].forEach(t => window.addEventListener(t, () => { SCR.pend = null; }, {passive: true, capture: true}));
+window.addEventListener("pagehide", scrSave);
+try { new ResizeObserver(() => scrApply()).observe(document.getElementById("view") || document.body); } catch (_) {}   // the page grows as items load: keep going to the saved place
 function go(v, id, keepQuery){
+  scrSave(); SCR.pend = null; const fromView = current();
   if (v === "new" || v === "used"){ clearFilters("shop"); FLT.shop.conds = [v]; v = "shop"; }
   if (!views[v]) v = "home";
   if (!keepQuery){ if (query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } const gs = $("#gsearch"); if (gs && !gs.hidden) toggleSearch(false); }
@@ -1157,8 +1184,9 @@ function go(v, id, keepQuery){
   currentView = v; render(); window.scrollTo(0,0); pageIn();
   const slug = v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : v === "listing" ? "listing-" + listingId : v === "hchat" ? "hchat-" + hchatId : SLUG[v];
   try {
-    if (PATH_MODE){ const u = pathFor(slug); if (location.pathname !== u || location.hash) history.pushState(null, "", u); }
-    else if (location.hash.slice(1) !== slug) location.hash = slug;
+    const k = scrNewKey();
+    if (PATH_MODE){ const u = pathFor(slug); if (location.pathname !== u || location.hash){ history.pushState({k}, "", u); SCR.key = k; SCR.from = fromView; } }
+    else if (location.hash.slice(1) !== slug){ SCR.busy = true; try { location.hash = slug; history.replaceState({k}, ""); } finally { SCR.busy = false; } SCR.key = k; SCR.from = fromView; }
   } catch(_) {}
 }
 document.addEventListener("click", e => {
@@ -1176,6 +1204,7 @@ document.addEventListener("click", e => {
   if (h.startsWith("hchat-")){ e.preventDefault(); go("hchat", decodeURIComponent(h.slice(6))); return; }
   const v = VIEW_OF[h];
   if (!v) return;
+  if (a.closest("#crumbs") && SCR.from && SCR.from === (v === "new" || v === "used" ? "shop" : v) && ["item", "service", "provider"].includes(current())){ e.preventDefault(); history.back(); return; }
   if (v === "shop" && FLT.shop){ FLT.shop.conds = []; }
   e.preventDefault(); go(v);
 });
@@ -1263,6 +1292,7 @@ function render(){
   const cr = $("#crumbs");
   if (trail){ cr.innerHTML = `<li><a href="#home">Home</a></li>` + trail.map(([t,h])=> h?`<li><a href="${h}">${esc(t)}</a></li>`:`<li aria-current="page">${esc(t)}</li>`).join(""); cr.hidden = false; }
   else cr.hidden = true;
+  scrApply();
 }
 document.addEventListener("click", e => { const a = e.target.closest("a[data-top]"); if (a){ e.preventDefault(); window.scrollTo({top:0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); } });
 function afterPriceChange(cond){
@@ -1303,10 +1333,13 @@ document.addEventListener("change", e => {
   }
 });
 function onRouteChange(){ if (PATH_MODE && location.hash.length > 1 && isRouteSlug(slugNow())) { try { history.replaceState(null, "", pathFor(slugNow())); } catch (_) {} }
+  const sk = scrStateKey(), moved = !SCR.busy && sk !== SCR.key; if (moved){ scrSave(); SCR.pend = null; SCR.from = null; }
   const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, prevEv = eventId, prevPer = personId, prevChat = chatId, prevLst = listingId, prevHc = hchatId, v = viewFromHash();
-  if (v !== currentView && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv) || (v === "person" && personId !== prevPer) || (v === "chat" && chatId !== prevChat) || (v === "listing" && listingId !== prevLst) || (v === "hchat" && hchatId !== prevHc)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); window.scrollTo(0,0); pageIn(); } }
+  if (v !== currentView && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv) || (v === "person" && personId !== prevPer) || (v === "chat" && chatId !== prevChat) || (v === "listing" && listingId !== prevLst) || (v === "hchat" && hchatId !== prevHc)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); if (!(moved && scrBack(sk))) window.scrollTo(0,0); pageIn(); }
+  if (moved){ if (sk) SCR.key = sk; else scrMark(); } }
 window.addEventListener("hashchange", onRouteChange);
 window.addEventListener("popstate", onRouteChange);
+{ const k = scrStateKey(); scrMark(); if (k) scrBack(k); }   // v94: a reload or a Back into a freshly loaded page also returns to its place
 /* =========================================================
    ACCOUNTS, ORDERS AND ADMIN (Firebase)
    ========================================================= */
