@@ -1,4 +1,4 @@
-// Nojan · v98 · inventory: scan in, scan out, item and unit numbers, labels. Loaded only when an admin opens Inventory.
+// Nojan · v99 · inventory: scan in, scan out, item and unit numbers, labels. Loaded only when an admin opens Inventory.
 (function(){
 "use strict";
 const INV = window.NJ_INV = {view: "list", filter: "All", q: "", res: null, form: null, photos: [], queue: [], start: 1, last: null, busy: false};
@@ -89,6 +89,7 @@ function listHTML(){
       <div class="invacts"><button type="button" class="btn invbig" data-inv="scan" data-mode="in">${I.scanIn}Scan in</button><button type="button" class="btn invbig" data-inv="scan" data-mode="out">${I.scanOut}Scan out</button></div></section>
     <div class="admintools"><input id="invQ" type="search" placeholder="Search by name, brand, ID or number" value="${esc(INV.q)}" aria-label="Search inventory"></div>
     <div class="chips invchips" role="group" aria-label="Filter items">${Object.keys(cnt).filter(k => k !== "Hidden" || cnt[k]).map(k => `<button type="button" data-inv="filter" data-v="${k}" aria-pressed="${INV.filter === k}">${k} (${cnt[k]})</button>`).join("")}</div>
+    ${(() => { const S = salesSum(); return `<div class="invbar"><span>Sales this month: <b>${money(S.month[1])}</b> · ${S.month[0]} sold</span><button type="button" class="btn small" data-inv="salesview">See sales</button></div>`; })()}
     ${INV.queue.length ? `<div class="invbar"><span><b>${INV.queue.length}</b> label${INV.queue.length === 1 ? "" : "s"} waiting to print</span><button type="button" class="btn small" data-inv="sheet">Open the label sheet</button></div>` : ""}
     ${old ? `<div class="invbar"><span><b>${old}</b> item${old === 1 ? " still has" : "s still have"} an old-style ID or no unit number.</span><button type="button" class="btn small" data-inv="migrate">Give them new numbers</button></div>` : ""}
     ${list.length ? `<div class="plist">${list.map(({d, st, ord}) => {
@@ -113,7 +114,7 @@ function addedHTML(){
     <div class="invdone"><span class="invok ok">${I.check}</span><h3>Added 1</h3><p>This barcode is already in your inventory, so the count went up by one. Nothing to type.</p></div>
     ${itemCard(d)}
     <div class="invbox"><div class="invline"><span>In stock</span><b class="invnum"><i>${r.from}</i>${I.arrow}<span>${r.to}</span></b></div>
-      <div class="invline"><span>Wrong count? Fix it here</span><span class="stockctl" aria-label="Quantity available"><button type="button" data-inv="fix" data-d="-1" aria-label="One less">−</button><input type="number" min="0" step="1" value="${n}" id="invFix" aria-label="Quantity available"><button type="button" data-inv="fix" data-d="1" aria-label="One more">+</button></span></div>
+      <div class="invline"><span>Got more than one? Set how many you have now</span><span class="stockctl" aria-label="Quantity available"><button type="button" data-inv="fix" data-d="-1" aria-label="One less">−</button><input type="number" min="0" step="1" value="${n}" id="invFix" aria-label="Quantity available"><button type="button" data-inv="fix" data-d="1" aria-label="One more">+</button></span></div>
       <p class="invgood">${d.active === false ? "This item is hidden, so customers can't see it yet." : "The website already shows the new count."}</p></div>
     <div class="invbtns"><button type="button" class="btn invmain" data-inv="scan" data-mode="in">Scan the next item</button>
       <button type="button" class="btn" data-inv="undo">Undo</button>
@@ -129,7 +130,9 @@ function soldHTML(){
     <div class="invbox">${r.code ? `<div class="invline"><span>Scanned</span><code class="idcode">${showCode(r.code)}</code></div>` : ""}
       <div class="invline"><span>In stock</span><b class="invnum"><i>${r.from}</i>${I.arrow}<span>${r.to}</span></b></div>
       <div class="invline"><span>Website</span><b>${last ? "Removed from the shop and search" : "Still listed"}</b></div>
-      <div class="invline"><span>Your records</span><b>${last ? "Kept in Inventory under Sold" : "Count updated"}</b></div></div>
+      <div class="invline"><span>Your records</span><b>${last ? "Kept in Inventory under Sold" : "Count updated"}</b></div>
+      ${r.saleAt ? `<div class="invline"><span>Sold for</span><span class="invprice">$<input type="number" id="invSalePrice" min="0" step="0.01" inputmode="decimal" value="${(+r.price || 0).toFixed(2)}" aria-label="Price the customer paid"><button type="button" class="btn small" data-inv="saleprice">Save</button></span></div>
+      <p class="note">This is the website price. If the customer paid something else, change it and tap Save.</p>` : ""}</div>
     <div class="invbtns"><button type="button" class="btn invmain" data-inv="scan" data-mode="out">Scan the next item</button>
       ${r.order ? "" : `<button type="button" class="btn" data-inv="undo">Undo and put it back</button>`}</div>`;
 }
@@ -166,11 +169,27 @@ function pickHTML(){
     <div class="invbtns"><button type="button" class="btn" data-inv="home">Cancel</button></div>`;
 }
 
+/* ---------- sales record ---------- */
+const dayKey = t => { const x = new Date(t); return x.getFullYear() + "-" + (x.getMonth() + 1) + "-" + x.getDate(); };
+function salesSum(){
+  const all = allSales(), now = new Date(), tk = dayKey(now), mk = now.getFullYear() + "-" + now.getMonth();
+  const sum = l => l.reduce((n, x) => n + (+x.price || 0), 0), mon = all.filter(x => { const d = new Date(x.at); return d.getFullYear() + "-" + d.getMonth() === mk; }), tod = all.filter(x => dayKey(x.at) === tk);
+  return {all, today: [tod.length, sum(tod)], month: [mon.length, sum(mon)], total: [all.length, sum(all)]};
+}
+function salesHTML(){
+  const S = salesSum(), row = (k, v) => `<div class="invline"><span>${k}</span><b>${money(v[1])} <small>· ${v[0]} sold</small></b></div>`;
+  return `${head("Sales")}
+    <div class="invbox">${row("Today", S.today)}${row("This month", S.month)}${row("All time", S.total)}
+      <p class="note">Sales are recorded when you scan an item out. The price is the website price unless you changed it on the Sold screen.</p></div>
+    ${S.all.length ? `<div class="plist">${S.all.slice(0, 200).map(x => `<div class="invqrow"><div><div class="pname">${esc(x.title)}</div><div class="pmeta"><code class="idcode">${esc(x.itemId)}</code> · ${new Date(x.at).toLocaleDateString("en-CA", {month: "short", day: "numeric", year: "numeric"})}${x.order ? " · order #" + esc(String(x.order)) : ""}${x.unit ? ` · <span class="mono">${showCode(x.unit)}</span>` : ""}</div></div><b>${money(+x.price || 0)}</b></div>`).join("")}</div>` : `<div class="empty">No sales recorded yet. They appear here after your first scan-out.</div>`}
+    <div class="invbtns"><button type="button" class="btn" data-inv="home">Back to inventory</button></div>`;
+}
+
 /* ---------- add an item ---------- */
 function openForm(init){
   INV.form = {gtin: "", like: null, title: "", brand: "", type: "", condition: "new", grade: "Good", price: "", salePrice: "", stock: 1, notes: "", imgUrl: "", found: null, ...init};
   const k = INV.form.like;
-  if (k){ const p = fsToItem(k); INV.form.title = k.title || ""; INV.form.brand = k.brand || ""; INV.form.type = k.type || ""; INV.form.price = k.price == null ? "" : String(k.price); INV.form.condition = "used"; }
+  if (k){ INV.form.title = k.title || ""; INV.form.brand = k.brand || ""; INV.form.type = k.type || ""; INV.form.price = k.price == null ? "" : String(k.price); INV.form.condition = "used"; if (init && init.grade && k.salePrice != null && k.salePrice !== "") INV.form.salePrice = String(k.salePrice); }
   if (INV.form.price !== "" && INV.form.salePrice === "") INV.form.salePrice = rulePrice(INV.form.price, INV.form.condition);
   INV.photos = []; show("form");
 }
@@ -260,8 +279,10 @@ function labelViewHTML(){
       <p class="note">${d.gtin && d.condition !== "used" ? "A boxed item already has its own barcode, so this label is optional." : "No price on the label, so it stays right when you change the price."}</p></div>
     <div class="invbtns"><button type="button" class="btn invmain" data-inv="print1" data-id="${esc(d.id)}">Print this label</button>
       <button type="button" class="btn" data-inv="queue" data-id="${esc(d.id)}"${inQ ? " disabled" : ""}>${inQ ? "On the label sheet" : `Add to the label sheet (${INV.queue.length} waiting)`}</button>
+      <button type="button" class="btn" data-inv="printroll" data-id="${esc(d.id)}">Print on a label printer</button>
+      ${r.fresh && d.condition === "used" ? `<button type="button" class="btn" data-inv="another" data-id="${esc(d.id)}">Add another one like this</button>` : ""}
       <button type="button" class="btn" data-inv="scan" data-mode="in">Scan the next item</button>
-      <p class="note">Prints from your phone to a normal printer on sticker sheets (30 per letter page), or to a label printer.</p></div>`;
+      <p class="note">"Print this label" is for sticker sheets. "Print on a label printer" makes one 2¼ × 1¼ in label per page for a roll printer. Prints from your phone to a normal printer on sticker sheets (30 per letter page), or to a label printer.</p></div>`;
 }
 function sheetHTML(){
   const ds = INV.queue.map(docOf).filter(d => d && d.unit);
@@ -269,20 +290,24 @@ function sheetHTML(){
     <div class="invdone left"><h3>${ds.length} label${ds.length === 1 ? "" : "s"} to print</h3><p>For letter sticker sheets with 30 labels (2⅝ × 1 in, Avery 5160 layout). Print at 100%, not "fit to page".</p></div>
     ${ds.length ? `<div class="invbox"><label class="invline">Start at label number <input type="number" id="invStart" min="1" max="30" step="1" value="${INV.start}" inputmode="numeric" style="width:84px"></label><p class="note">Use this when the top of the sheet is already used. Labels count left to right, row by row.</p></div>
       <div class="plist">${ds.map(d => `<div class="invqrow">${labelHTML(d)}<button type="button" class="btn small" data-inv="unqueue" data-id="${esc(d.id)}">Remove</button></div>`).join("")}</div>` : `<div class="empty">No labels are waiting. Open an item's label and add it to the sheet.</div>`}
-    <div class="invbtns">${ds.length ? `<button type="button" class="btn invmain" data-inv="printq">Print ${ds.length} label${ds.length === 1 ? "" : "s"}</button><button type="button" class="btn" data-inv="clearq">Clear the list</button>` : ""}
+    <div class="invbtns">${ds.length ? `<button type="button" class="btn invmain" data-inv="printq">Print ${ds.length} label${ds.length === 1 ? "" : "s"}</button><button type="button" class="btn" data-inv="printqroll">Print on a label printer (one per label)</button><button type="button" class="btn" data-inv="clearq">Clear the list</button>` : ""}
       <button type="button" class="btn" data-inv="home">Back to inventory</button></div>`;
 }
-function printLabels(ids, start){
+function printLabels(ids, start, roll){
   const ds = ids.map(docOf).filter(d => d && d.unit); if (!ds.length) return toast("Nothing to print");
-  const cells = [];
-  for (let i = 1; i < Math.min(30, Math.max(1, start || 1)); i++) cells.push(`<div class="invcell"></div>`);
-  ds.forEach(d => cells.push(`<div class="invcell">${labelHTML(d)}</div>`));
-  const pages = [];
-  for (let i = 0; i < cells.length; i += 30) pages.push(`<div class="invsheet">${cells.slice(i, i + 30).join("")}</div>`);
+  const cells = [], pages = [];
+  if (roll) ds.forEach(d => pages.push(`<div class="invrollpage">${labelHTML(d)}</div>`));
+  else {
+    for (let i = 1; i < Math.min(30, Math.max(1, start || 1)); i++) cells.push(`<div class="invcell"></div>`);
+    ds.forEach(d => cells.push(`<div class="invcell">${labelHTML(d)}</div>`));
+    for (let i = 0; i < cells.length; i += 30) pages.push(`<div class="invsheet">${cells.slice(i, i + 30).join("")}</div>`);
+  }
+  let pg = $("#invPage"); if (pg) pg.remove();
+  pg = document.createElement("style"); pg.id = "invPage"; pg.textContent = `@page{size:${roll ? "2.25in 1.25in" : "letter"};margin:0}`; document.head.appendChild(pg);
   let box = $("#invPrint"); if (box) box.remove();
   box = document.createElement("div"); box.id = "invPrint"; box.innerHTML = pages.join(""); document.body.appendChild(box);
   document.body.classList.add("invprinting");
-  const done = () => { document.body.classList.remove("invprinting"); const b = $("#invPrint"); if (b) b.remove(); window.removeEventListener("afterprint", done); };
+  const done = () => { document.body.classList.remove("invprinting"); const b = $("#invPrint"); if (b) b.remove(); const g = $("#invPage"); if (g) g.remove(); window.removeEventListener("afterprint", done); };
   window.addEventListener("afterprint", done);
   setTimeout(() => { try { window.print(); } catch (e){ console.error(e); toast("Printing isn't available here. Open nojans.com in Safari or Chrome to print."); done(); } }, 60);
 }
@@ -290,15 +315,19 @@ INV.printLabels = printLabels;
 
 /* ---------- scan logic ---------- */
 async function lookup(code){
-  try {
-    const c = code.length === 13 && code[0] === "0" ? code.slice(1) : code, ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 7000);
-    const r = await fetch("https://api.upcitemdb.com/prod/trial/lookup?upc=" + c, {signal: ctl.signal}); clearTimeout(t);
-    if (!r.ok) return null;
-    const it = ((await r.json()).items || [])[0]; if (!it || !it.title) return null;
-    return {title: String(it.title).slice(0, 140), brand: String(it.brand || "").slice(0, 60), imgUrl: (it.images || []).find(u => /^https:\/\//.test(u)) || ""};
+  try {   // v99: asked through the Nojan mailer script, because the lookup service refuses calls straight from a website
+    const c = code.length === 13 && code[0] === "0" ? code.slice(1) : code, ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 12000);
+    let idToken = ""; try { idToken = await window.SHOP_FB.idToken(); } catch (_) {}
+    if (!idToken || typeof MAIL_URL === "undefined") return null;
+    const r = await fetch(MAIL_URL, {method: "POST", headers: {"Content-Type": "text/plain;charset=utf-8"}, body: JSON.stringify({action: "lookup", upc: c, idToken}), signal: ctl.signal}); clearTimeout(t);
+    const j = await r.json(), it = j && j.ok && j.item; if (!it || !it.title) return null;
+    return {title: String(it.title).slice(0, 140), brand: String(it.brand || "").slice(0, 60), imgUrl: /^https:\/\//.test(it.image || "") ? it.image : ""};
   } catch (_) { return null; }
 }
 INV.lookup = lookup;
+const salesOf = d => Array.isArray(d.sales) ? d.sales : [];
+const saleLine = (d, code, more) => { const p = fsToItem(d); return {at: Date.now(), price: p.price == null ? 0 : +p.price, unit: d.unit || "", code: code || "", ...(more || {})}; };
+const allSales = () => ALL_PRODUCTS.flatMap(d => salesOf(d).map(x => ({...x, id: d.id, title: d.title || "", itemId: effId(d)}))).sort((a, b) => b.at - a.at);
 async function setStock(d, to, extra){ await FB.updateProduct(d.id, {stock: to, ...(extra || {})}); }
 async function addOne(d, code){
   const from = stockN(d);
@@ -307,8 +336,9 @@ async function addOne(d, code){
 }
 async function sell(d, code){
   const from = stockN(d), to = Math.max(0, from - 1);
-  try { await setStock(d, to, to === 0 ? {soldAt: Date.now()} : null); } catch (e){ console.error(e); return toast("Couldn't update stock"); }
-  INV.res = {kind: "sold", id: d.id, from, to, code}; show("sold");
+  const sale = saleLine(d, code);
+  try { await setStock(d, to, {sales: [...salesOf(d), sale], ...(to === 0 ? {soldAt: sale.at} : {})}); } catch (e){ console.error(e); return toast("Couldn't update stock"); }
+  INV.res = {kind: "sold", id: d.id, from, to, code, saleAt: sale.at, price: sale.price}; show("sold");
 }
 function outOne(d, code){
   const o = openOrderOf(d);
@@ -420,6 +450,7 @@ INV.html = function(){
     case "pick": return pickHTML();
     case "label": return labelViewHTML();
     case "sheet": return sheetHTML();
+    case "sales": return salesHTML();
     case "looking": return `${head("Scan in")}<div class="invdone"><h3>Looking it up…</h3><p class="mono">${showCode(INV.res.code)}</p></div>`;
     default: return listHTML();
   }
@@ -449,6 +480,10 @@ document.addEventListener("click", async e => {
   if (a === "unqueue"){ INV.queue = INV.queue.filter(x => x !== id); saveQ(); return refreshAdmin(true); }
   if (a === "clearq"){ INV.queue = []; saveQ(); return refreshAdmin(true); }
   if (a === "sheet") return show("sheet");
+  if (a === "salesview") return show("sales");
+  if (a === "another" && d) return openForm({like: d, grade: d.grade || "Good"});
+  if (a === "printroll" && d) return printLabels([d.id], 1, true);
+  if (a === "printqroll") return printLabels(INV.queue, 1, true);
   if (a === "printq"){ const s = $("#invStart"); INV.start = Math.min(30, Math.max(1, parseInt(s && s.value, 10) || 1)); return printLabels(INV.queue, INV.start); }
   if (a === "migrate") return migrate(b);
   if (a === "cond" || a === "grade"){
@@ -464,9 +499,10 @@ document.addEventListener("click", async e => {
   if (!r) return;
   const cur = docOf(r.id);
   if (a === "fix" && cur){ const v = Math.max(0, stockN(cur) + (+b.dataset.d)); try { await setStock(cur, v); const i = $("#invFix"); if (i) i.value = v; r.to = v; toast(v + " in stock"); } catch (er){ toast("Couldn't update stock"); } return; }
-  if (a === "undo" && cur){ try { await setStock(cur, r.from, r.kind === "sold" ? {soldAt: null} : null); toast("Undone"); show("list"); } catch (er){ toast("Couldn't undo"); } return; }
+  if (a === "undo" && cur){ try { await setStock(cur, r.from, r.kind === "sold" ? {soldAt: null, sales: salesOf(cur).filter(x => x.at !== r.saleAt)} : null); toast("Undone"); show("list"); } catch (er){ toast("Couldn't undo"); } return; }
   if (a === "isused" && cur){ try { await setStock(cur, r.from); } catch (er){ return toast("Couldn't update stock"); } return openForm({gtin: cur.gtin || r.code || "", like: cur}); }
   if (a === "sellother" && cur) return sell(cur, r.code);
+  if (a === "saleprice" && cur){ const v = Math.max(0, parseFloat(($("#invSalePrice") || {}).value) || 0); try { await FB.updateProduct(cur.id, {sales: salesOf(cur).map(x => x.at === r.saleAt ? {...x, price: v} : x)}); r.price = v; toast("Saved: sold for " + money(v)); } catch (er){ toast("Couldn't save the price"); } return; }
   if ((a === "orderdone" || a === "ordercancel") && cur){
     const o = (ADM.orders || []).find(x => x.id === r.oid); if (!o) return show("list");
     const status = a === "orderdone" ? "Completed" : "Cancelled", from = stockN(cur);
@@ -475,7 +511,10 @@ document.addEventListener("click", async e => {
       const res = await FB.setOrderStatus(o.id, status, {status, by: USER.email, emailed: false, via: "scan"});
       if (status === "Cancelled"){ toast(`Order #${o.number} cancelled`); return show("list"); }
       const q = (o.items || []).filter(it => String(it.id).replace(/^s-/, "") === cur.id).reduce((n, it) => n + (it.qty || 0), 0);
-      INV.res = {kind: "sold", id: cur.id, from, to: res && res.stock === "taken" ? Math.max(0, from - q) : from, code: r.code, order: o.number}; show("sold");
+      const it = (o.items || []).find(x => String(x.id).replace(/^s-/, "") === cur.id) || {}, sale = saleLine(cur, r.code, {order: o.number, qty: q || 1});
+      if (it.price != null && !isNaN(+it.price)) sale.price = +it.price * (q || 1);
+      try { await FB.updateProduct(cur.id, {sales: [...salesOf(cur), sale]}); } catch (e2){ console.error(e2); }
+      INV.res = {kind: "sold", id: cur.id, from, to: res && res.stock === "taken" ? Math.max(0, from - q) : from, code: r.code, order: o.number, saleAt: sale.at, price: sale.price}; show("sold");
     } catch (er){ console.error(er); b.disabled = false; toast("Couldn't update the order"); }
     return;
   }

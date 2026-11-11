@@ -2340,3 +2340,16 @@ html body .invscan .btn[hidden]{display:none!important}
 .istype{display:grid;grid-template-columns:1fr 88px;gap:8px}
 .istype[hidden]{display:none}
 .istype input{height:50px;border-radius:999px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.95);color:#1d1d1f;font:inherit;font-size:18px;padding:0 18px;min-width:0}
+
+/* ===== v99: sales record, roll label printer ===== */
+.invprice{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.invprice input{width:96px;height:38px;border-radius:12px;border:1px solid rgba(0,0,0,.14);padding:0 10px;font:inherit;font-size:16px;font-weight:700;background:#fff}
+.invqrow .pname{font-weight:600}
+.invline b small{font-weight:500;color:var(--muted)}
+@media print{
+  .invrollpage{width:2.25in;height:1.25in;overflow:hidden;page-break-after:always;break-after:page}
+  .invrollpage:last-child{page-break-after:auto;break-after:auto}
+  .invrollpage .invlabel{width:2.25in;height:1.25in;border-radius:0;padding:.07in .1in .06in}
+  .invrollpage .invlabel .iln{font-size:8pt}
+  .invrollpage .invlabel .invbc{width:1.8in}
+}

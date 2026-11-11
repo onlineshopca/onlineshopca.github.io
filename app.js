@@ -3818,7 +3818,7 @@ function adminView(){
 let INV_LOAD = 0;
 function invHTML(){
   if (window.NJ_INV) return window.NJ_INV.html();
-  if (!INV_LOAD){ INV_LOAD = 1; const s = document.createElement("script"); s.src = "/inv.js?v=98a"; s.onload = () => refreshAdmin(true); s.onerror = () => { INV_LOAD = 2; refreshAdmin(true); }; document.head.appendChild(s); }
+  if (!INV_LOAD){ INV_LOAD = 1; const s = document.createElement("script"); s.src = "/inv.js?v=99a"; s.onload = () => refreshAdmin(true); s.onerror = () => { INV_LOAD = 2; refreshAdmin(true); }; document.head.appendChild(s); }
   return `<div class="empty">${INV_LOAD === 2 ? "Couldn't load the inventory tool. Check your connection and refresh the page." : "Loading inventory…"}</div>`;
 }
 function invTab(){
@@ -5391,7 +5391,7 @@ function catSchedule(){
   if (!FB || !FB.saveCatalog || !isAdmin() || !CAT.gotP || !CAT.gotS) return;
   clearTimeout(CAT.timer);
   CAT.timer = setTimeout(async () => {
-    const data = {products: catNorm(ALL_PRODUCTS || []), services: catNorm(CAT.rawServices || []), site: catNorm(SITE || {})};
+    const data = {products: catNorm(ALL_PRODUCTS || []).map(({sales, soldAt, ...p}) => p),   /* v99: the sales record stays out of the public catalog */ services: catNorm(CAT.rawServices || []), site: catNorm(SITE || {})};
     const sig = catSig(data); if (sig === CAT.lastSig) return;
     data.at = Date.now();
     const json = JSON.stringify(data), big = json.length > 900000;
