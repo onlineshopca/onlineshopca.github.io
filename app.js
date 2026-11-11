@@ -886,7 +886,16 @@ const views = {
 };
 
 /* Sending email (uses FormSubmit.co — free, no account. The first message asks you to confirm your address once.) */
+const MAIL_URL = "https://script.google.com/macros/s/AKfycbxvHu5BN9-l6MjcKR2cwabkfBsC9MJhj45NE7iIQaD3uFGDCFX8_zXf0oJxqgggE9g/exec";   // v97: Nojan mailer (Google script in the shop account)
 async function sendEmail(subject, fields){
+  try {   // v97: send from the shop Gmail as "Nojan"; FormSubmit below stays as the backup
+    const f = {...fields}, cc = f._cc || "", replyTo = f._replyto || "";
+    delete f._cc; delete f._replyto; delete f._template;
+    let idToken = ""; try { idToken = await window.SHOP_FB.idToken(); } catch (e) {}
+    const r = await fetch(MAIL_URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({subject, fields:f, cc, replyTo, idToken})});
+    const j = await r.json();
+    if (j && j.ok) return;
+  } catch (e) {}
   const res = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(SHOP_EMAIL), {
     method:"POST", headers:{"Content-Type":"application/json","Accept":"application/json"},
     body: JSON.stringify({_subject:subject, _template:"table", _captcha:"false", ...fields})
