@@ -130,7 +130,7 @@ const FR = {
 "Receive": "Recevoir", "Pick up in Richmond Hill or arrange local delivery.": "Cueillette à Richmond Hill ou livraison locale.",
 "No description yet. Ask us about this item.": "Pas encore de description. Posez-nous vos questions sur cet article.",
 /* ---- item page ---- */
-"Loading item…": "Chargement de l'article…", "This item is no longer available. It may have sold.": "Cet article n'est plus disponible. Il a peut-être été vendu.",
+"Loading item…": "Chargement de l'article…", "This item has sold": "Cet article a été vendu", "This item is no longer available. It may have sold.": "Cet article n'est plus disponible. Il a peut-être été vendu.",
 "See what's in stock": "Voir ce qui est en stock", "offers for this item ›": "offres pour cet article ›", "offers for this item": "offres pour cet article",
 "Same item, ID": "Même article, identifiant", ", from different sellers.": ", chez différents vendeurs.", "Nojan item ID": "Identifiant Nojan", "Copy": "Copier",
 "Quantity": "Quantité", "One fewer": "Un de moins", "One more": "Un de plus", "Added to Bag ✓": "Ajouté au sac ✓", "Add to Bag": "Ajouter au sac",

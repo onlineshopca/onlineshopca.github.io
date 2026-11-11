@@ -60,7 +60,7 @@ function knownIds(){
   return k;
 }
 function newItemId(){
-  const k = knownIds(), r = new Uint32Array(6); let id;
+  const k = knownIds(), r = new Uint32Array(8); let id;
   do { crypto.getRandomValues(r); id = "NJ-" + [...r].map(x => ID_CHARS[x % ID_CHARS.length]).join(""); } while (k.has(id));
   return id;
 }
@@ -178,12 +178,15 @@ function fsToItem(d){
 }
 function useProducts(list){
   ALL_PRODUCTS = list;
-  PRODUCTS = list.map(fsToItem).filter(p => p.active).sort((a,b) => (a.soldOut - b.soldOut) || (a.order - b.order) || a.pid.localeCompare(b.pid));
+  const act98 = list.map(fsToItem).filter(p => p.active);
+  SOLD = act98.filter(p => p.soldOut);   // v98: sold items are off the shop
+  PRODUCTS = act98.filter(p => !p.soldOut).sort((a,b) => (a.order - b.order) || a.pid.localeCompare(b.pid));
   productSource = "db"; feedState.new = feedState.used = "live"; mkMerge();
   Object.keys(cart).forEach(id => { const p = PRODUCTS.find(x=>x.id===id); if (p) cart[id].snap = p; });
   saveCart();
 }
-const stockOf = id => { const p = PRODUCTS.find(x => x.id === id); return p && p.stock != null ? p.stock : Infinity; };
+let SOLD = [];
+const stockOf = id => { const p = PRODUCTS.find(x => x.id === id); return p && p.stock != null ? p.stock : SOLD.some(x => x.id === id) ? 0 : Infinity; };
 
 /* ========================================================= */
 const ICONS = {
@@ -775,6 +778,8 @@ const views = {
     const p = PRODUCTS.find(x => x.id === itemId);
     if (!p){
       if (feedState.new === "loading") return `<div class="empty">Loading item…</div>`;
+      const s98 = SOLD.find(x => x.id === itemId);
+      if (s98) return `<div class="soldnote"><h1>This item has sold</h1><p>${esc(s98.name)}</p><a class="btn" href="#shop">See what's in stock</a></div>${simHTML(s98)}`;
       return `<div class="empty">This item is no longer available. It may have sold. <a href="#home" style="color:var(--link)">See what's in stock</a></div>`;
     }
     if (ITEMQ.id !== p.id){ ITEMQ.id = p.id; ITEMQ.q = 1; ITEMQ.added = false; }
@@ -1270,6 +1275,7 @@ function render(){
   if (v !== "datingprofile" && DT.form && !DT.busy){ DT.form = null; DT.err = ""; }
   if (!["datingprofile", "chat"].includes(v)) DT.delArm = false;
   $("#view").innerHTML = views[v]();
+  invTab();
   if (HM_VIEWS.includes(v)) hmAfterRender(v);
   if (v === "home") homeRowsInit();
   if (priceRange[v]) syncPriceUI(v);
@@ -3804,12 +3810,29 @@ function adminView(){
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
   return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them.</p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
+    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
 }
+/* v98: inventory (scan in, scan out, labels) loads only for admins, only when opened */
+let INV_LOAD = 0;
+function invHTML(){
+  if (window.NJ_INV) return window.NJ_INV.html();
+  if (!INV_LOAD){ INV_LOAD = 1; const s = document.createElement("script"); s.src = "/inv.js?v=98a"; s.onload = () => refreshAdmin(true); s.onerror = () => { INV_LOAD = 2; refreshAdmin(true); }; document.head.appendChild(s); }
+  return `<div class="empty">${INV_LOAD === 2 ? "Couldn't load the inventory tool. Check your connection and refresh the page." : "Loading inventory…"}</div>`;
+}
+function invTab(){
+  const bar = document.querySelector(".tabbar"); if (!bar) return;
+  const have = bar.querySelector(".invtab"), want = isAdmin();
+  if (want && !have){ const a = document.createElement("a"); a.className = "invtab"; a.href = PATH_MODE ? "/admin" : "#admin"; a.dataset.r = "admin"; a.dataset.tab = "admin";
+    a.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8V5a1 1 0 0 1 1-1h3M17 4h3a1 1 0 0 1 1 1v3M21 16v3a1 1 0 0 1-1 1h-3M7 20H4a1 1 0 0 1-1-1v-3M7 9v6M10 9v6M13.5 9v6M17 9v6"/></svg>Scan';
+    bar.appendChild(a); bar.classList.add("hasinv"); if (current() === "admin") a.setAttribute("aria-current", "page"); }
+  else if (!want && have){ have.remove(); bar.classList.remove("hasinv"); }
+}
+document.addEventListener("click", e => { if (e.target.closest && e.target.closest('.invtab,[data-atab="inventory"]')){ ADM.tab = "inventory"; if (window.NJ_INV){ window.NJ_INV.view = "list"; window.NJ_INV.form = null; } } }, true);
 function adminBody(){
   if (ADM.error) return `<div class="empty">Couldn't load orders (${esc(ADM.error)}). Refresh the page and sign in again.</div>`;
+  if (ADM.tab === "inventory") return invHTML();
   if (ADM.tab === "homepage") return homeAdminHTML();
   if (ADM.tab === "products") return productsAdminHTML();
   if (ADM.tab === "services") return servicesAdminHTML();
@@ -3863,7 +3886,7 @@ function adminOrderHTML(o){
         <textarea data-note="${o.id}" placeholder="${n == null ? "Loading…" : "e.g. Paid by e-Transfer, picking up Saturday"}" style="min-height:70px">${esc(n || "")}</textarea>
         <button class="linkbtn" type="button" data-savenote="${o.id}" style="justify-self:start">Save note</button>
       </div>
-      <p class="note">${o.stockApplied ? "These items have been taken out of stock. Cancelling the order puts them back." : "Stock comes off automatically when you set this order to Ready for pickup."}</p>
+      <p class="note">${o.stockApplied ? "These items have been taken out of stock. Cancelling the order puts them back." : "Stock comes off when the customer picks up and pays: scan the item out, or set this order to Completed."}</p>
       <div class="obox"><h3>History</h3><ul class="ohist">${(o.history||[]).slice().reverse().map(h=>`<li>${esc(fmtDate(h.at))}: ${esc(h.status)}${h.by ? ` (${esc(h.by)})` : ""}${h.emailed ? " · customer emailed" : ""}</li>`).join("")}</ul></div>
     </div>
   </details>`;

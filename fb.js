@@ -276,11 +276,11 @@ window.SHOP_FB = {
       tx.update(bref, {status, updatedAt: serverTimestamp(), history: arrayUnion({status, by: "admin", at: new Date().toISOString()})});
     });
   },
-  /* Change an order's status; items come out of stock at "Ready for pickup" (or "Completed") and go back if it moves away from those */
+  /* v98: items come out of stock only when the order is Completed (picked up and paid); they go back if it moves away from Completed */
   async setOrderStatus(id, status, hist){
     return runTransaction(db, async tx => {
       const oref = doc(db, "orders", id), o = (await tx.get(oref)).data();
-      const want = ["Ready for pickup", "Completed"].includes(status), had = !!o.stockApplied;
+      const want = status === "Completed", had = !!o.stockApplied;
       const qty = {}; (o.items || []).forEach(it => { const pid = String(it.id).replace(/^s-/, ""); qty[pid] = (qty[pid] || 0) + (it.qty || 0); });
       const snaps = want === had ? [] : await Promise.all(Object.keys(qty).map(async pid => [pid, await tx.get(doc(db, "products", pid))]));
       const soldOut = [];
