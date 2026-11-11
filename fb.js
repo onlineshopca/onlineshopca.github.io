@@ -1,4 +1,4 @@
-// Nojan · v93 · built 2026-11-09
+// Nojan · v95 · built 2026-11-10
 /* Firebase: sign-in (email or Google) and the order database. These keys are public by design;
    the database's security rules decide who can read or change what. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -77,6 +77,24 @@ window.SHOP_FB = {
   updateService: (id, data) => updateDoc(doc(db, "services", id), {...data, updatedAt: serverTimestamp()}),
   async deleteService(id, imageIds){ await deleteDoc(doc(db, "services", id)); await Promise.all(imageIds.map(i => deleteDoc(doc(db, "productImages", i)).catch(() => {}))); },
   watchSlots: (serviceId, cb, err) => onSnapshot(query(collection(db, "slots"), where("serviceId", "==", serviceId)), s => { const m = {}; s.docs.forEach(d => m[d.id] = d.data().count || 0); cb(m); }, err),
+  /* v95: taken times for every service from now on (no personal details), for "next free time" */
+  watchOpenSlots: (fromMs, cb, err) => onSnapshot(query(collection(db, "slots"), where("startMs", ">=", fromMs)), s => { const m = {}; s.docs.forEach(d => m[d.id] = d.data().count || 0); cb(m); }, err),
+  updateBooking: (id, data, hist) => updateDoc(doc(db, "bookings", id), {...data, updatedAt: serverTimestamp(), ...(hist ? {history: arrayUnion({...hist, at: new Date().toISOString()})} : {})}),
+  /* v95: an admin moves a booking: the old time is freed and the new one is taken, if there is room */
+  async moveBooking(id, to, capacity, by){
+    return runTransaction(db, async tx => {
+      const bref = doc(db, "bookings", id), b = (await tx.get(bref)).data();
+      const counted = b.status !== "Cancelled", oref = counted && b.slotKey ? doc(db, "slots", b.slotKey) : null, nref = doc(db, "slots", to.slotKey);
+      const os = oref ? await tx.get(oref) : null, ns = await tx.get(nref), used = ns.exists() ? (ns.data().count || 0) : 0;
+      if (counted){
+        if (used >= capacity) throw new Error("slot-full");
+        if (os && os.exists() && (os.data().count || 0) > 0) tx.update(oref, {count: os.data().count - 1});
+        if (ns.exists()) tx.update(nref, {count: used + 1}); else tx.set(nref, {serviceId: b.serviceId, startMs: to.startMs, count: 1});
+      }
+      tx.update(bref, {startMs: to.startMs, date: to.date, time: to.time, slotKey: to.slotKey, reminded: false, updatedAt: serverTimestamp(),
+        history: arrayUnion({status: "Time changed", by, from: b.startMs, to: to.startMs, at: new Date().toISOString()})});
+    });
+  },
   async bookService(b, slotKey, capacity){
     const counter = doc(db, "counters", "bookings"), slotRef = doc(db, "slots", slotKey), ref = doc(collection(db, "bookings"));
     const number = await runTransaction(db, async tx => {

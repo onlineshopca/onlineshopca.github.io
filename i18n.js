@@ -1,10 +1,38 @@
-// Nojan · v93 · built 2026-11-09
+// Nojan · v95 · built 2026-11-10
 /* v91: English / Français. Text on the page is written in English; when French is on,
    each piece of text is swapped for its French version from FR below (and swapped back for English).
    Language choice: 1) what the visitor picked (remembered on this device), else
    2) visitors in Quebec see French (checked once from their internet address — nothing is saved or sent to us), else English. */
 (function(){
 const FR = {
+/* ---- v95: services — people, repeat bookings, booking page ---- */
+"People": "Personnes", "Filter people": "Filtrer les personnes", "Speaks": "Parle", "Free this week": "Libre cette semaine", "From": "À partir de",
+"Next free:": "Prochaine disponibilité :", "No open times right now": "Aucune heure libre pour l'instant", "No services yet": "Aucun service pour l'instant",
+"View profile": "Voir le profil", "Nobody matches these filters yet.": "Personne ne correspond à ces filtres pour l'instant.", "Show everyone": "Afficher tout le monde",
+"Want to offer a service?": "Vous voulez offrir un service?", "Tell us about yourself": "Parlez-nous de vous", "of 5": "sur 5", "Price on request": "Prix sur demande",
+"usual reply": "délai de réponse habituel", "languages": "langues", "1 review": "1 avis", "Book a session": "Réserver une séance",
+"Not sure yet?": "Pas encore certain?", "Book a free intro call": "Réservez un appel d'introduction gratuit", "Next free times": "Prochaines heures libres", "Toronto time": "Heure de Toronto",
+"What Nojan checked": "Ce que Nojan a vérifié", "Identity": "Identité", "Reviews": "Avis", "Only from people who had a session": "Seulement de personnes qui ont eu une séance", "Customer": "Client",
+"Good to know": "Bon à savoir", "No payment online. You pay at the session.": "Aucun paiement en ligne. Vous payez à la séance.",
+"Your time is held as soon as you send the request.": "Votre heure est réservée dès que vous envoyez la demande.", "Plans changed? Cancel from My bookings.": "Changement de plans? Annulez dans Mes réservations.",
+"How often?": "À quelle fréquence?", "One time": "Une fois", "Every week": "Chaque semaine", "Same day and time": "Même jour, même heure", "each": "chacune",
+"Package of 5": "Forfait de 5", "5 weekly sessions, save": "5 séances hebdomadaires, économisez", "5 weekly sessions": "5 séances hebdomadaires", "For how many weeks?": "Pendant combien de semaines?",
+"Closed that day": "Fermé ce jour-là", "Already booked": "Déjà réservé", "Dates that are not free are left out.": "Les dates qui ne sont pas libres sont exclues.",
+"weekly sessions": "séances hebdomadaires", "total": "total", "Who is the session for?": "Pour qui est la séance?", "Me": "Moi", "My child": "Mon enfant", "Someone else": "Quelqu'un d'autre",
+"Their name": "Son nom", "(if it is not for you)": "(si ce n'est pas pour vous)", "Your level": "Votre niveau", "Complete beginner": "Grand débutant", "I know a little": "Je connais un peu", "Comfortable": "À l'aise",
+"Language for the session": "Langue de la séance", "What happens next": "La suite", "We confirm, or offer another time, usually within a day.": "Nous confirmons, ou proposons une autre heure, habituellement en une journée.",
+"You get the meeting link or the place by email.": "Vous recevez le lien de la rencontre ou le lieu par courriel.",
+"I agree to share my name and answers with the provider.": "J'accepte de partager mon nom et mes réponses avec le fournisseur.", "Send booking request": "Envoyer la demande de réservation",
+"Please tick the box to agree before you send.": "Veuillez cocher la case pour accepter avant d'envoyer.", "Sending…": "Envoi…", "Booking request sent": "Demande de réservation envoyée",
+"Your booking · Nojan": "Votre réservation · Nojan", "Sign in to see your booking": "Connectez-vous pour voir votre réservation", "Loading your booking…": "Chargement de votre réservation…",
+"We couldn't find this booking.": "Nous n'avons pas trouvé cette réservation.", "See all your bookings": "Voir toutes vos réservations", "Package": "Forfait", "Weekly": "Hebdomadaire", "with": "avec",
+"Join the online session": "Rejoindre la séance en ligne", "Join opens 10 minutes before": "L'accès ouvre 10 minutes avant", "The meeting link will show here": "Le lien de la rencontre s'affichera ici",
+"Ask for another time": "Demander une autre heure", "Message us": "Écrivez-nous", "See the service": "Voir le service", "Book again": "Réserver de nouveau", "Cancel booking": "Annuler la réservation",
+"Where things stand": "Où en sont les choses", "Request sent": "Demande envoyée", "Waiting for confirmation": "En attente de confirmation", "We usually answer within a day.": "Nous répondons habituellement en une journée.",
+"Time changed": "Heure modifiée", "Reminder": "Rappel", "Sent by email": "Envoyé par courriel", "By email, the day before": "Par courriel, la veille", "Session": "Séance", "Missed session": "Séance manquée",
+"pay at the session:": "à payer à la séance :", "Notes from your session": "Notes de votre séance", "Ready below": "Prêtes ci-dessous", "They show here afterwards": "Elles s'afficheront ici ensuite",
+"To practise before next time": "À pratiquer avant la prochaine fois", "Get ready": "Préparez-vous", "All sessions in this booking": "Toutes les séances de cette réservation",
+"Your answers": "Vos réponses", "For": "Pour", "Level": "Niveau", "Language": "Langue", "Focus": "Objectif", "All my bookings": "Toutes mes réservations", "Booking": "Réservation",
 /* ---- top bar, menus, footer ---- */
 "10% of our profit goes to the community.": "10 % de nos profits sont remis à la communauté.",
 "Support us on GoFundMe ›": "Soutenez-nous sur GoFundMe ›",
@@ -260,6 +288,7 @@ const DAY = {Sunday:"dimanche",Monday:"lundi",Tuesday:"mardi",Wednesday:"mercred
 const pl = (n, one, many) => (+n > 1 ? many : one);
 const dateFR = (m, d, y) => d + " " + (MON[m] || m) + " " + y;
 const FRP = [
+  [/^(\d+) reviews$/, (_, n) => n + " avis"], [/^(\d+) sessions requested$/, (_, n) => n + " séances demandées"],
   [/^(Like new|Good|Fair) · (.+)$/, (_, c, b) => ({"Like new": "Comme neuf", Good: "Bon", Fair: "Passable"})[c] + " · " + b],
   [/^Remove filter (.+)$/, (_, f) => "Retirer le filtre " + (FR[f] || f)],
   [/^(\d+) items? in your bag · (.+)$/, (_, n, t) => n + pl(n, " article", " articles") + " dans votre sac · " + t],

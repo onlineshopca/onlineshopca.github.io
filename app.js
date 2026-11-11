@@ -1,4 +1,4 @@
-// Nojan · v94 · built 2026-11-10
+// Nojan · v95 · built 2026-11-10
 /* =========================================================
    SETTINGS — edit these
    ========================================================= */
@@ -1112,11 +1112,11 @@ document.addEventListener("click", e => {
 const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
-let itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
+let bookingId = null, itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
 // v93: real page addresses (nojans.com/shop, nojans.com/item-s-U002). preview.html keeps the old #addresses.
 const PREVIEW = /^\/preview(\.html)?$/.test(location.pathname);
 const PATH_MODE = !PREVIEW && /^https?:$/.test(location.protocol);
-const isRouteSlug = s => /^(item|service|provider|event|person|chat|listing|hchat)-./.test(s) || Object.prototype.hasOwnProperty.call(VIEW_OF, s);
+const isRouteSlug = s => /^(item|service|provider|event|person|chat|listing|hchat|mybooking)-./.test(s) || Object.prototype.hasOwnProperty.call(VIEW_OF, s);
 const pathFor = s => !s || s === "home" ? "/" : "/" + encodeURIComponent(s);
 function slugNow(){
   let h = location.hash.slice(1); try { h = decodeURIComponent(h); } catch (_) {}
@@ -1127,6 +1127,7 @@ function slugNow(){
 }
 function viewFromHash(){
   const h = slugNow();
+  if (h.startsWith("mybooking-")){ bookingId = h.slice(10); return "mybooking"; }
   if (h.startsWith("item-")){ itemId = h.slice(5); return "item"; }
   if (h.startsWith("service-")){ serviceId = h.slice(8); return "service"; }
   if (h.startsWith("provider-")){ providerId = h.slice(9); return "provider"; }
@@ -1174,6 +1175,7 @@ function go(v, id, keepQuery){
   if (!views[v]) v = "home";
   if (!keepQuery){ if (query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } const gs = $("#gsearch"); if (gs && !gs.hidden) toggleSearch(false); }
   if (v === "item") itemId = id;
+  if (v === "mybooking" && id != null) bookingId = id;
   if (v === "service" && id != null && id !== serviceId){ serviceId = id; resetBooking(); }
   if (v === "provider" && id != null) providerId = id;
   if (v === "event" && id != null) eventId = id;
@@ -1182,7 +1184,7 @@ function go(v, id, keepQuery){
   if (v === "listing" && id != null){ listingId = id; HM.gi = 0; }
   if (v === "hchat" && id != null) hchatId = id;
   currentView = v; render(); window.scrollTo(0,0); pageIn();
-  const slug = v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : v === "listing" ? "listing-" + listingId : v === "hchat" ? "hchat-" + hchatId : SLUG[v];
+  const slug = v === "mybooking" ? "mybooking-" + bookingId : v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : v === "listing" ? "listing-" + listingId : v === "hchat" ? "hchat-" + hchatId : SLUG[v];
   try {
     const k = scrNewKey();
     if (PATH_MODE){ const u = pathFor(slug); if (location.pathname !== u || location.hash){ history.pushState({k}, "", u); SCR.key = k; SCR.from = fromView; } }
@@ -1194,6 +1196,7 @@ document.addEventListener("click", e => {
   const a = e.target.closest('a[href^="#"], a[data-r]');
   if (!a || a.hasAttribute("data-top")) return;
   const h = a.hasAttribute("data-r") ? a.dataset.r : a.getAttribute("href").slice(1);
+  if (h.startsWith("mybooking-")){ e.preventDefault(); go("mybooking", decodeURIComponent(h.slice(10))); return; }
   if (h.startsWith("item-")){ e.preventDefault(); go("item", decodeURIComponent(h.slice(5))); return; }
   if (h.startsWith("service-")){ e.preventDefault(); go("service", decodeURIComponent(h.slice(8))); return; }
   if (h.startsWith("provider-")){ e.preventDefault(); go("provider", decodeURIComponent(h.slice(9))); return; }
@@ -1215,7 +1218,7 @@ document.addEventListener("click", e => {
   go("item", decodeURIComponent(a.getAttribute("href").slice(6)));
 });
 // v93: in-site links get real addresses so they can be opened in a new tab, shared and found by search engines
-const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|about|returns|privacy|terms|certified|new-items|used-items|(item|service|provider)-.+)$/;
+const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|about|returns|privacy|terms|certified|new-items|used-items|(item|service|provider|mybooking)-.+)$/;
 function relink(root){
   if (!PATH_MODE || !root || root.nodeType !== 1) return;
   const fix = a => { const h = a.getAttribute("href"); if (!h || h[0] !== "#") return; let s = h.slice(1); try { s = decodeURIComponent(s); } catch (_) {} if (!R_OK.test(s)) return; a.dataset.r = s; a.setAttribute("href", pathFor(s)); };
@@ -1287,6 +1290,7 @@ function render(){
          chat:[["Dating","#dating"],["Matches","#matches"],["Chat"]], datingprofile:[["Dating","#dating"],["My profile"]],
          homes:[["Homes"]], listing:[["Homes","#homes"],[(((HM.list || []).find(x => x.id === listingId) || HM.extra[listingId] || {}).city) || "Listing"]], listhome:[["Homes","#homes"],["List your home"]],
          mylistings:[["Homes","#homes"],["My listings"]], hchat: mkt ? [["Sell on Nojan","#selling"],["Messages"]] : [["Homes","#homes"],["My listings","#my-listings"],["Messages"]],
+         mybooking:[["My orders & bookings","#my-orders"],["Booking"]],
          about:[["About Nojan"]], returns:[["Test before you pay"]], privacy:[["Privacy policy"]], terms:[["Terms of use"]], certified:[["What Certified means"]], notfound:[["Page not found"]],
          selling:[["Your account","#account"],["Sell on Nojan"]], sell:[["Sell on Nojan","#selling"],[MK.form && MK.form.id ? "Edit listing" : "New listing"]]}[v];
   const cr = $("#crumbs");
@@ -1334,8 +1338,8 @@ document.addEventListener("change", e => {
 });
 function onRouteChange(){ if (PATH_MODE && location.hash.length > 1 && isRouteSlug(slugNow())) { try { history.replaceState(null, "", pathFor(slugNow())); } catch (_) {} }
   const sk = scrStateKey(), moved = !SCR.busy && sk !== SCR.key; if (moved){ scrSave(); SCR.pend = null; SCR.from = null; }
-  const prevItem = itemId, prevSvc = serviceId, prevProv = providerId, prevEv = eventId, prevPer = personId, prevChat = chatId, prevLst = listingId, prevHc = hchatId, v = viewFromHash();
-  if (v !== currentView && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv) || (v === "person" && personId !== prevPer) || (v === "chat" && chatId !== prevChat) || (v === "listing" && listingId !== prevLst) || (v === "hchat" && hchatId !== prevHc)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); if (!(moved && scrBack(sk))) window.scrollTo(0,0); pageIn(); }
+  const prevBk = bookingId, prevItem = itemId, prevSvc = serviceId, prevProv = providerId, prevEv = eventId, prevPer = personId, prevChat = chatId, prevLst = listingId, prevHc = hchatId, v = viewFromHash();
+  if (v !== currentView && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "mybooking" && bookingId !== prevBk) || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv) || (v === "person" && personId !== prevPer) || (v === "chat" && chatId !== prevChat) || (v === "listing" && listingId !== prevLst) || (v === "hchat" && hchatId !== prevHc)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); if (!(moved && scrBack(sk))) window.scrollTo(0,0); pageIn(); }
   if (moved){ if (sk) SCR.key = sk; else scrMark(); } }
 window.addEventListener("hashchange", onRouteChange);
 window.addEventListener("popstate", onRouteChange);
@@ -1545,7 +1549,7 @@ function providersSectionHTML(){
 function providerView(){
   const p = providerById(providerId);
   if (!p) return providersLoaded ? `<div class="empty">This profile isn't available. <a href="#services" style="color:var(--link)">See all services</a></div>` : `<div class="empty">Loading…</div>`;
-  const svcs = servicesOf(p.id), admin = isAdmin();
+  const svcs = servicesOf(p.id), admin = isAdmin(), pinfo = provInfo(p); startAllSlots();
   const sec = (title, body) => body ? `<section class="pcard"><h2>${title}</h2>${body}</section>` : "";
   const exp = (p.experience || []).filter(x => x.title || x.company).map(x => `<li class="pitem">
       <span class="plogo">${esc(initials(x.company || x.title))}</span>
@@ -1573,16 +1577,18 @@ function providerView(){
       <div class="pcover"></div>
       <div class="pheadin">
         ${provAvatar(p, 132)}
-        <h1>${esc(p.name)}</h1>
+        <h1>${esc(p.name)}${p.checked ? CHK : ""}</h1>
         ${p.headline ? `<p class="phl">${esc(p.headline)}</p>` : ""}
         <p class="pmuted">${esc([p.location, p.providerType === "Company" ? "Company" : ""].filter(Boolean).join(" · "))}</p>
-        <div class="pbtns">${svcs.length ? `<a class="btn" href="#psvcs">See services</a>` : ""}<a class="btn ghost" href="#contact-us">Message the shop</a>${admin ? `<button class="btn ghost" type="button" data-pedit="${esc(p.id)}">Edit profile</button>` : ""}</div>
+        ${provHeadExtra(p, pinfo)}<div class="pbtns">${svcs.length === 1 ? `<a class="btn" href="#service-${esc(svcs[0].id)}">Book a session</a>` : svcs.length ? `<a class="btn" href="#psvcs">Book a session</a>` : ""}<a class="btn ghost" href="#contact-us">Message the shop</a>${admin ? `<button class="btn ghost" type="button" data-pedit="${esc(p.id)}">Edit profile</button>` : ""}</div>
         ${web || li ? `<p class="plinks">${web ? `<a href="${esc(web)}" target="_blank" rel="noopener nofollow">Website ↗</a>` : ""}${li ? `<a href="${esc(li)}" target="_blank" rel="noopener nofollow">LinkedIn ↗</a>` : ""}</p>` : ""}
       </div>
     </section>
+    ${provBookHTML(p, pinfo)}
     ${liBadgeHTML(p)}
     ${sec("About", p.about ? `<p class="pabout">${esc(p.about)}</p>` : "")}
     ${svcs.length ? `<section class="pcard" id="psvcs"><h2>Services</h2><div class="svcgrid">${serviceCards(svcs)}</div></section>` : ""}
+    ${provTrustHTML(p, pinfo)}
     ${sec("Experience", exp ? `<ul class="plist">${exp}</ul>` : "")}
     ${sec("Education", edu ? `<ul class="plist">${edu}</ul>` : "")}
     ${sec("Licences &amp; certifications", certs ? `<ul class="plist">${certs}</ul>` : "")}
@@ -1617,6 +1623,9 @@ function pedCollect(){
   Object.assign(PED.data, {name: g("name").trim(), headline: g("headline").trim(), location: g("location").trim(), providerType: g("providerType") || "Individual",
     about: g("about").trim(), website: g("website").trim(), linkedin: g("linkedin").trim(), skills: listTxt(g("skills")), languages: listTxt(g("languages")),
     active: !!(f.querySelector('[name="active"]') || {}).checked});
+  const lines = n => g(n).split("\n").map(x => x.trim()).filter(Boolean);
+  Object.assign(PED.data, {checked: !!(f.querySelector('[name="checked"]') || {}).checked, checks: lines("checks").slice(0, 10), reply: g("reply").trim(),
+    reviews: lines("reviews").slice(0, 50).map(l => { const a = l.split("|").map(x => x.trim()); return {name: a[0] || "", stars: Math.min(5, Math.max(1, parseInt(a[1], 10) || 5)), date: a[2] || "", text: a.slice(3).join(" | ")}; })});
   ["experience", "education", "certifications"].forEach(sec => {
     PED.data[sec] = [...f.querySelectorAll(`fieldset[data-sec="${sec}"]`)].map(fs => {
       const o = {}; fs.querySelectorAll("[data-f]").forEach(el => o[el.dataset.f] = el.type === "checkbox" ? el.checked : el.value.trim());
@@ -1652,6 +1661,12 @@ function providerFormHTML(){
     <section class="panel"><h2>Skills &amp; languages</h2>
       <label>Skills <small>(separate with commas)</small><input name="skills" value="${esc((d.skills || []).join(", "))}" placeholder="e.g. Microsoft Excel, Word, Legal documents, Teaching"></label>
       <label>Languages <small>(separate with commas)</small><input name="languages" value="${esc((d.languages || []).join(", "))}" placeholder="e.g. English, Farsi, French"></label>
+    </section>
+    <section class="panel"><h2>Trust and reviews</h2>
+      <label class="chk"><input type="checkbox" name="checked"${d.checked ? " checked" : ""}> Show the "Checked by Nojan" mark</label>
+      <label>What Nojan checked <small>(one per line)</small><textarea name="checks" placeholder="Identity, in person">${esc((d.checks || []).join("\n"))}</textarea></label>
+      <label>Usual reply time <small>(optional)</small><input name="reply" maxlength="30" value="${esc(d.reply || "")}" placeholder="e.g. Same day"></label>
+      <label>Reviews <small>(one per line: name | stars 1 to 5 | month and year | what they said)</small><textarea name="reviews" style="min-height:110px" placeholder="Mina | 5 | Oct 2026 | Very patient and clear.">${esc((d.reviews || []).map(r => [r.name, r.stars, r.date, r.text].join(" | ")).join("\n"))}</textarea></label>
     </section>
     <section class="panel"><h2>Links</h2>
       <label>Website<input name="website" type="url" value="${esc(d.website)}" placeholder="https://"></label>
@@ -1769,6 +1784,7 @@ document.addEventListener("submit", async e => {
     const clip = (s, n) => String(s || "").slice(0, n);
     const data = {kind: "provider", name: clip(d.name, 80), headline: clip(d.headline, 160), location: clip(d.location, 80), providerType: d.providerType === "Company" ? "Company" : "Individual",
       about: clip(d.about, 2600), photo, website: safeUrl(d.website), linkedin: safeUrl(d.linkedin), active: !!d.active,
+      checked: !!d.checked, checks: (d.checks || []).map(x => clip(x, 120)), reply: clip(d.reply, 30), reviews: (d.reviews || []).map(r => ({name: clip(r.name, 40), stars: r.stars, date: clip(r.date, 20), text: clip(r.text, 600)})),
       skills: d.skills.slice(0, 50).map(s => clip(s, 60)), languages: d.languages.slice(0, 20).map(s => clip(s, 40)),
       experience: d.experience.filter(x => x.title || x.company).slice(0, 30).map(x => ({title: clip(x.title, 100), company: clip(x.company, 100), type: x.type || "", location: clip(x.location, 80), start: x.start || "", end: x.current ? "" : (x.end || ""), current: !!x.current, description: clip(x.description, 2000)})),
       education: d.education.filter(x => x.school).slice(0, 20).map(x => ({school: clip(x.school, 120), degree: clip(x.degree, 100), field: clip(x.field, 100), start: clip(x.start, 4), end: clip(x.end, 4), description: clip(x.description, 1000)})),
@@ -3765,7 +3781,7 @@ function startAdmin(){
   ADM.unsubO = ADM.unsubU = () => {};
   ADM.unsubO = FB.watchAllOrders(list => { ADM.orders = list; refreshAdmin(); }, err => { console.error(err); ADM.error = err.code || String(err); refreshAdmin(true); });
   ADM.unsubU = FB.watchUsers(list => { ADM.users = list; refreshAdmin(); }, err => console.error(err));
-  ADM.unsubB = FB.watchAllBookings(list => { ADM.bookings = list; refreshAdmin(); }, err => console.error(err));
+  ADM.unsubB = FB.watchAllBookings(list => { ADM.bookings = list; refreshAdmin(); autoRemind(); }, err => console.error(err));
 }
 function refreshAdmin(force){
   if (current() !== "admin") return;
@@ -3908,6 +3924,7 @@ function fsToService(d){
     format: d.format || "online", platform: d.platform || "", location: d.location || "", classType: group ? "group" : "1-on-1",
     capacity: group ? Math.max(2, +d.capacity || 6) : 1, level: d.level || "All levels", availability: d.availability || {},
     leadHours: d.leadHours == null || d.leadHours === "" ? 24 : +d.leadHours, horizonDays: +d.horizonDays || 21, blocked: d.blocked || [],
+    prep: d.prep || [], repeat: d.repeat !== false, packPct: d.packPct == null ? 10 : +d.packPct || 0,
     images: (d.images || []).slice(0, 5), thumb: d.thumb || "", active: d.active !== false, order: d.order || 0 };
 }
 function useServices(all){
@@ -3948,7 +3965,7 @@ function slotsFor(s, date, dow){
   const out = [], minStart = Date.now() + s.leadHours * 3600000;
   for (let t = sh*60 + sm; t + s.duration <= eh*60 + em; t += s.duration){
     const hhmm = pad2(Math.floor(t/60)) + ":" + pad2(t % 60), ms = torontoMs(date, hhmm), key = `${s.id}_${date}_${hhmm.replace(":", "")}`;
-    const used = SVC.slots[key] || 0;
+    const used = Math.max(SVC.slots[key] || 0, ALLSLOTS[key] || 0);
     out.push({hhmm, ms, key, taken: used >= s.capacity, past: ms < minStart, left: s.capacity - used});
   }
   return out;
@@ -4116,7 +4133,8 @@ function servicesView(){
         <select id="sort"><option value="featured"${sortBy==="featured"?" selected":""}>Featured</option><option value="low"${sortBy==="low"?" selected":""}>Price: low to high</option><option value="high"${sortBy==="high"?" selected":""}>Price: high to low</option></select>
       </label>` : ""}
     </section>
-    ${!SERVICES.length ? `<div class="empty">${servicesLoaded || fbFailed ? `New services are coming soon. <a href="#contact-us" style="color:var(--link)">Tell us what you'd like to learn</a>.` : "Loading services…"}</div>` : `
+    ${svcTabsHTML()}
+    ${svcTab() === "people" ? peopleDirHTML() : !SERVICES.length ? `<div class="empty">${servicesLoaded || fbFailed ? `New services are coming soon. <a href="#contact-us" style="color:var(--link)">Tell us what you'd like to learn</a>.` : "Loading services…"}</div>` : `
     ${filterBarHTML("services", "services")}
     <div class="fsec"><h3>Price</h3>
       <div class="pricein">
@@ -4126,7 +4144,6 @@ function servicesView(){
       </div></div>
     ${filterFootHTML("services")}
     <div id="results">${resultsHTML("services")}</div>`}
-    ${providersSectionHTML()}
     <div class="tiles" style="margin-top:28px">
       <div class="tile"><h2>Online classes</h2><p>Join from home on your computer, tablet or phone. Your meeting link comes with your confirmation.</p></div>
       <div class="tile"><h2>In person</h2><p>Meet in Richmond Hill or, for some services, at your home or office. The exact place is confirmed with your booking.</p></div>
@@ -4183,19 +4200,21 @@ function bookPanelHTML(s){
   return `${head}
     ${s.format === "both" ? `<div><div class="note" style="margin-bottom:6px;font-weight:600;color:var(--fg)">How would you like to attend?</div>
       <div class="seg" role="group" aria-label="How to attend">${[["online", "Online"], ["in-person", "In person"]].map(([v, l]) => `<button type="button" data-bkfmt="${v}" aria-pressed="${SVC.format === v}">${l}</button>`).join("")}</div></div>` : ""}
+    ${oftenHTML(s)}
     ${days.some(d => d.open) ? `
       <h2>1. Choose a date</h2>
       <div class="daystrip" role="group" aria-label="Dates">${days.map(d => `<button type="button" data-bkday="${d.date}" aria-pressed="${d.date === SVC.date}" ${d.open ? "" : "disabled"} aria-label="${d.dt.toLocaleDateString("en-CA", {weekday:"long", month:"long", day:"numeric", timeZone:"UTC"})}, ${d.open ? d.open + " times open" : "no times open"}"><small>${d.dt.toLocaleDateString("en-CA", {weekday:"short", timeZone:"UTC"})}</small><b>${d.dt.getUTCDate()}</b><small>${d.dt.toLocaleDateString("en-CA", {month:"short", timeZone:"UTC"})}</small>${d.open ? `<em>${d.open} open</em>` : ""}</button>`).join("")}</div>
       <div><h2>2. Choose a time</h2><p class="tzline">All times are Toronto time (ET)</p></div>
       <div class="timegrid" role="group" aria-label="Times">${day.slots.map(x => `<button type="button" data-bkslot="${x.key}" aria-pressed="${!!slot && x.key === slot.key}" ${x.taken ? "disabled" : ""} title="${x.taken ? "Booked" : s.capacity > 1 ? x.left + " spots left" : "Available"}">${fmtTime(x.ms)}</button>`).join("")}</div>
       ${slot ? `<div class="picked"><b>${fmtLong(slot.ms)}</b><br>${durTxt(s.duration)} · ${SVC.format === "online" ? "Online" : "In person"}${s.capacity > 1 ? ` · ${slot.left} spot${slot.left > 1 ? "s" : ""} left` : ""}</div>` : ""}
+      ${slot ? seriesHTML(s, {...slot, date: SVC.date}) : ""}
       <button class="btn" type="button" data-bknext ${slot ? "" : "disabled"}>${slot ? "Continue" : "Select a time to continue"}</button>`
     : `<div class="empty" style="padding:18px">No open times in the next ${s.horizonDays} days. <a href="#contact-us" style="color:var(--link)">Ask us about other times</a>.</div>`}
     <p class="note">No payment online. You'll get a confirmation by email.</p>`;
 }
 function detailsFormHTML(s, slot){
-  const pr = PROFILE || {};
-  const sum = `<div class="picked"><b>${esc(s.title)}</b><br>${fmtLong(slot.ms)} · ${durTxt(s.duration)}<br>${SVC.format === "online" ? "Online" : "In person"} · ${s.price == null ? "Price on request" : money(s.price) + " / " + esc(s.priceUnit)}<br><button class="linkbtn" type="button" data-bkback>Change time</button></div>`;
+  const pr = PROFILE || {}, ser = seriesOf(s, {...slot, date: SVC.date}).filter(x => x.ok), unit = oftenOf(s) === "pack" ? packPrice(s) : s.price;
+  const sum = `<div class="picked"><b>${esc(s.title)}</b><br>${fmtLong(slot.ms)} · ${durTxt(s.duration)}<br>${SVC.format === "online" ? "Online" : "In person"} · ${s.price == null ? "Price on request" : money(s.price) + " / " + esc(s.priceUnit)}${ser.length > 1 ? `<br><b>${ser.length} <span>weekly sessions</span></b> · <span>total</span> ${money(unit * ser.length)}` : ""}<br><button class="linkbtn" type="button" data-bkback>Change time</button></div>`;
   if (!authReady) return sum + `<p class="note">Loading your account…</p>`;
   if (!USER) return sum + `<div class="signinprompt"><h2>3. Sign in to book</h2><p class="note">Sign in or create a free account so you can see and manage your bookings.</p>${googleBtn("service")}
     <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn small" type="button" data-auth="signin" data-next="service">Sign in with email</button><button class="btn small ghost" type="button" data-auth="signup" data-next="service" style="color:var(--fg)">Create account</button></div><div id="authMsg" hidden></div></div>`;
@@ -4206,9 +4225,9 @@ function detailsFormHTML(s, slot){
     <label>Phone<input name="phone" type="tel" required autocomplete="tel" value="${esc(pr.phone || "")}"></label>
     <label>Email<input name="email" type="email" required autocomplete="email" value="${esc(pr.email || USER.email || "")}"></label>
     ${needAddr ? `<label>Address for the session<input name="address" required autocomplete="street-address"></label>` : ""}
+    ${bookExtraHTML(s)}
     <label>What would you like to focus on? <small>(optional)</small><textarea name="notes" style="min-height:80px" placeholder="e.g. I'm new to computers and want to learn email and video calls"></textarea></label>
-    <div id="bookMsg" hidden></div>
-    <button class="btn" type="submit" id="bookSubmit">Request booking</button>
+    ${BOOK_END}
   </form>`;
 }
 function afterServiceRender(){
@@ -4256,13 +4275,13 @@ MY.bookings = null; MY.unsubB = null;
 function startMyBookings(){
   if (!FB || !USER || MY.unsubB) return;
   MY.unsubB = () => {};
-  MY.unsubB = FB.watchMyBookings(USER.uid, list => { MY.bookings = list.sort((a,b) => a.startMs - b.startMs); if (current() === "orders") setTimeout(render); }, err => { console.error(err); MY.bookings = MY.bookings || []; });
+  MY.unsubB = FB.watchMyBookings(USER.uid, list => { MY.bookings = list.sort((a,b) => a.startMs - b.startMs); if (["orders", "mybooking"].includes(current())) setTimeout(render); }, err => { console.error(err); MY.bookings = MY.bookings || []; });
 }
 function bookingCardHTML(b, admin){
   return `<div class="bkcard">
     <div class="bkdate"><small>${fmtWhen(b.startMs, {month:"short"})}</small><b>${fmtWhen(b.startMs, {day:"numeric"})}</b><small>${fmtWhen(b.startMs, {weekday:"short"})}</small></div>
-    <div style="min-width:0;display:grid;gap:3px"><b>${esc(b.serviceTitle)}</b>
-      <span class="bkmeta">${fmtTime(b.startMs)} · ${durTxt(b.durationMin)} · ${b.format === "online" ? "Online" : "In person"} · with ${esc(b.providerName)} · #B${b.number}</span>
+    <div style="min-width:0;display:grid;gap:3px">${admin ? `<b>${esc(b.serviceTitle)}</b>` : `<a href="#mybooking-${b.id}" style="font-weight:700;color:inherit">${esc(b.serviceTitle)}</a>`}
+      <span class="bkmeta">${fmtTime(b.startMs)} · ${durTxt(b.durationMin)} · ${b.format === "online" ? "Online" : "In person"} · with ${esc(b.providerName)} · #B${b.number}${b.seriesId ? ` · ${b.seriesI}/${b.seriesN}` : ""}</span>
       ${!admin && b.status === "Confirmed" && b.meetingLink ? `<a href="${esc(b.meetingLink)}" target="_blank" rel="noopener" style="color:var(--link);font-weight:600">Join the online session</a>` : ""}
       ${!admin && b.status === "Confirmed" && b.format !== "online" && b.locationNote ? `<span class="bkmeta">Where: ${esc(b.locationNote)}</span>` : ""}
       ${!admin ? `<span class="bkmeta" style="color:var(--fg)">${esc(BOOK_TEXT[b.status] || "")}</span>` : ""}
@@ -4308,7 +4327,7 @@ document.addEventListener("click", async e => {
   }
 });
 document.addEventListener("submit", async e => {
-  if (e.target.id !== "bookForm") return;
+  if (e.target.id !== "bookFormV94") return;   // v95: replaced by the handler in the v95 block below
   e.preventDefault();
   const f = e.target, msg = $("#bookMsg"), err = validate(f);
   if (err) return showMsg(msg, false, err);
@@ -4343,6 +4362,287 @@ document.addEventListener("submit", async e => {
   resetBooking(); go("booked");
 });
 
+/* =========================================================
+   v95: SERVICES — people directory, profile extras, repeat bookings, booking page
+   ========================================================= */
+let ALLSLOTS = {}, allSlotsOn = false;
+SVC.tab = null; SVC.pf = {fmt: "", lang: "", week: false}; SVC.often = "one"; SVC.weeks = 4; SVC.lastSeries = [];
+BOOK_TEXT["Time changed"] = "Your session has a new time. If it doesn't work for you, reply to this email or cancel from My bookings.";
+BOOK_TEXT["Reminder"] = "A reminder about your session. See you soon!";
+TITLES.mybooking = "Your booking · Nojan";
+const CHK = '<svg class="pchk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" role="img" aria-label="Checked by Nojan"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16 9.5"/></svg>';
+function startAllSlots(){
+  if (allSlotsOn || !FB || !FB.watchOpenSlots) return; allSlotsOn = true;
+  FB.watchOpenSlots(Date.now() - 3600000, m => { ALLSLOTS = m; if (["services", "provider"].includes(current())) setTimeout(render); }, err => console.error(err));
+}
+function nextFree(s, n){
+  const out = [];
+  for (const d of dayList(s)) for (const x of slotsFor(s, d.date, d.dow)) if (!x.taken && !x.past){ out.push({...x, date: d.date, sid: s.id}); if (out.length >= (n || 1)) return out; }
+  return out;
+}
+function provInfo(p){
+  const sv = servicesOf(p.id), paid = sv.filter(s => s.price > 0).sort((a, b) => a.price - b.price)[0] || null;
+  const next = sv.flatMap(s => nextFree(s, 1)).sort((a, b) => a.ms - b.ms)[0] || null;
+  const rv = p.reviews || [], avg = rv.length ? rv.reduce((t, r) => t + (+r.stars || 0), 0) / rv.length : 0;
+  return {sv, from: paid, free: !paid && sv.some(s => s.price === 0), next, online: sv.some(s => s.format !== "in-person"), inp: sv.some(s => s.format !== "online"), rv, avg};
+}
+const dayTime = ms => `${fmtWhen(ms, {weekday: "short", month: "short", day: "numeric"})}, ${fmtTime(ms)}`;
+
+/* ---- Services page: People | Services ---- */
+const svcTab = () => !PROVIDERS.length ? "services" : (SVC.tab || "people");
+function svcTabsHTML(){
+  if (!PROVIDERS.length) return "";
+  return `<div class="seg svctabs" role="group" aria-label="Show">${[["people", "People"], ["services", "Services"]].map(([v, l]) => `<button type="button" data-svctab="${v}" aria-pressed="${svcTab() === v}">${l}</button>`).join("")}</div>`;
+}
+function personCardHTML(p, i){
+  const where = [i.online ? "Online" : "", i.inp ? "In person" : ""].filter(Boolean);
+  return `<article class="pdcard">
+    <div class="pdtop">${provAvatar(p, 56)}<div><b class="pdname"><span>${esc(p.name)}</span>${p.checked ? CHK : ""}</b>${p.headline ? `<span class="pdhl">${esc(p.headline)}</span>` : ""}</div></div>
+    <div class="pdmeta">${(p.languages || []).length ? `<span>${p.languages.map(esc).join(" · ")}</span>` : ""}${where.map(w => `<span>${w}</span>`).join("")}${p.location ? `<span>${esc(p.location)}</span>` : ""}${i.rv.length ? `<span class="pdrate"><b>${i.avg.toFixed(1)}</b> <span>of 5</span> (${i.rv.length})</span>` : ""}</div>
+    <div class="pdfoot"><div>${i.from ? `<b><span>From</span> ${money(i.from.price)} <small>/ ${esc(i.from.priceUnit)}</small></b>` : i.free ? `<b>Free</b>` : i.sv.length ? `<b>Price on request</b>` : `<span class="note">No services yet</span>`}
+      ${i.next ? `<span class="pdnext"><span>Next free:</span> ${dayTime(i.next.ms)}</span>` : i.sv.length ? `<span class="note">No open times right now</span>` : ""}</div>
+      <a class="btn" href="#provider-${esc(p.id)}">View profile</a></div>
+  </article>`;
+}
+function peopleDirHTML(){
+  startAllSlots();
+  const f = SVC.pf, q = query.trim().toLowerCase(), wk = Date.now() + 7 * 86400000;
+  const langs = [...new Set(PROVIDERS.flatMap(p => p.languages || []))].slice(0, 5);
+  const rows = PROVIDERS.map(p => ({p, i: provInfo(p)})).filter(({p, i}) =>
+    (!q || [p.name, p.headline, p.about, (p.skills || []).join(" "), i.sv.map(s => s.title + " " + s.category).join(" ")].join(" ").toLowerCase().includes(q)) &&
+    (f.fmt !== "online" || i.online) && (f.fmt !== "inp" || i.inp) && (!f.lang || (p.languages || []).includes(f.lang)) && (!f.week || (i.next && i.next.ms < wk)));
+  rows.sort((a, b) => (a.i.next ? a.i.next.ms : 9e15) - (b.i.next ? b.i.next.ms : 9e15));
+  const chip = (k, v, label, on) => `<button type="button" data-pf="${k}" data-v="${esc(v)}" aria-pressed="${on}">${label}</button>`;
+  return `<div class="chips pdirchips" role="group" aria-label="Filter people">
+      ${chip("all", "", "All", !f.fmt && !f.lang && !f.week)}${chip("fmt", "online", "Online", f.fmt === "online")}${chip("fmt", "inp", "In person", f.fmt === "inp")}${langs.map(l => chip("lang", l, `<span>Speaks</span> ${esc(l)}`, f.lang === l)).join("")}${chip("week", "1", "Free this week", f.week)}</div>
+    ${rows.length ? `<div class="pdir">${rows.map(({p, i}) => personCardHTML(p, i)).join("")}</div>` : `<div class="empty">Nobody matches these filters yet. <button class="linkbtn" type="button" data-pf="all" data-v="">Show everyone</button></div>`}
+    <p class="note" style="text-align:center;margin:16px 0 0">Want to offer a service? <a href="#contact-us" style="color:var(--link)">Tell us about yourself</a></p>`;
+}
+
+/* ---- Provider profile extras ---- */
+function provHeadExtra(p, i){
+  const st = [i.rv.length ? [`${i.avg.toFixed(1)} / 5`, i.rv.length === 1 ? "1 review" : `${i.rv.length} reviews`] : null, p.reply ? [esc(p.reply), "usual reply"] : null,
+    (p.languages || []).length ? [p.languages.slice(0, 3).map(esc).join(", "), "languages"] : null].filter(Boolean);
+  return st.length ? `<div class="pstats">${st.map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join("")}</div>` : "";
+}
+function provBookHTML(p, i){
+  const intro = i.sv.find(s => s.price === 0 && s.duration <= 20);
+  const nx = i.sv.filter(s => s !== intro).flatMap(s => nextFree(s, 3)).sort((a, b) => a.ms - b.ms).slice(0, 3);
+  return `${intro ? `<a class="pintro" href="#service-${esc(intro.id)}"><span><b>Not sure yet?</b> <span>Book a free intro call</span></span><span aria-hidden="true">›</span></a>` : ""}
+    ${nx.length ? `<section class="pcard"><div class="phd"><h2>Next free times</h2><span class="pmuted">Toronto time</span></div>
+      <div class="pnext">${nx.map(x => `<button type="button" data-pslot="${esc(x.sid)}|${x.date}|${esc(x.key)}"><small>${fmtWhen(x.ms, {weekday: "short", month: "short", day: "numeric"})}</small><b>${fmtTime(x.ms)}</b><small>${esc((SERVICES.find(s => s.id === x.sid) || {}).title || "")}</small></button>`).join("")}</div></section>` : ""}`;
+}
+function provTrustHTML(p, i){
+  return `${p.checked || (p.checks || []).length ? `<section class="pcard"><h2>What Nojan checked</h2><ul class="pchecks">${((p.checks || []).length ? p.checks : ["Identity"]).map(c => `<li>${esc(c)}</li>`).join("")}</ul></section>` : ""}
+    ${i.rv.length ? `<section class="pcard"><div class="phd"><h2>Reviews</h2><span class="pmuted">Only from people who had a session</span></div>
+      <ul class="prevs">${i.rv.map(r => `<li><div class="prevh"><b>${esc(r.name || "Customer")}</b><span class="pmuted">${esc(String(r.stars))} <span>of 5</span>${r.date ? ` · ${esc(r.date)}` : ""}</span></div>${r.text ? `<p>${esc(r.text)}</p>` : ""}</li>`).join("")}</ul></section>` : ""}
+    ${i.sv.length ? `<section class="pcard"><h2>Good to know</h2><ul class="pknow"><li>No payment online. You pay at the session.</li><li>Your time is held as soon as you send the request.</li><li>Plans changed? Cancel from My bookings.</li></ul></section>` : ""}`;
+}
+
+/* ---- Booking: one time, every week, or a package of 5 ---- */
+const oftenOf = s => s.repeat === false || s.price == null ? "one" : (SVC.often || "one");
+const packPrice = s => Math.round(s.price * (100 - (s.packPct || 0))) / 100;
+function seriesOf(s, slot){
+  const o = oftenOf(s), n = o === "pack" ? 5 : o === "weekly" ? (SVC.weeks || 4) : 1, out = [];
+  const [y, m, d] = slot.date.split("-").map(Number);
+  for (let k = 0; k < n; k++){
+    const dt = new Date(Date.UTC(y, m - 1, d + 7 * k)), date = dt.toISOString().slice(0, 10);
+    const x = slotsFor(s, date, DAYS[dt.getUTCDay()]).find(z => z.hhmm === slot.hhmm);
+    out.push(x ? {...x, date, ok: !x.taken && !x.past} : {date, hhmm: slot.hhmm, ms: torontoMs(date, slot.hhmm), ok: false, off: true});
+  }
+  return out;
+}
+function oftenHTML(s){
+  if (s.repeat === false || s.price == null) return "";
+  const o = oftenOf(s), each = s.price === 0 ? "Free" : money(s.price);
+  const opt = (v, t, sub, pr) => `<button type="button" class="often" data-bkoften="${v}" aria-pressed="${o === v}"><span class="oftxt"><b>${t}</b>${sub ? `<small>${sub}</small>` : ""}</span><span class="oftpr">${pr}</span></button>`;
+  return `<div><div class="note" style="margin-bottom:6px;font-weight:600;color:var(--fg)">How often?</div>
+    <div class="oftens" role="group" aria-label="How often">${opt("one", "One time", "", each)}${opt("weekly", "Every week", "Same day and time", `${each} <small>each</small>`)}${s.price > 0 ? opt("pack", "Package of 5", s.packPct ? `<span>5 weekly sessions, save</span> ${s.packPct}%` : "5 weekly sessions", money(packPrice(s) * 5)) : ""}</div>
+    ${o === "weekly" ? `<label class="oftweeks"><span>For how many weeks?</span><select data-bkweeks aria-label="For how many weeks?">${[2, 3, 4, 6, 8].map(n => `<option${(SVC.weeks || 4) === n ? " selected" : ""}>${n}</option>`).join("")}</select></label>` : ""}</div>`;
+}
+function seriesHTML(s, slot){
+  const list = seriesOf(s, slot); if (list.length < 2) return "";
+  return `<ul class="serlist">${list.map((x, k) => `<li${x.ok ? "" : ' class="no"'}><span>${k + 1}. ${dayTime(x.ms)}</span><span>${x.ok ? "Free" : x.off ? "Closed that day" : "Already booked"}</span></li>`).join("")}</ul>
+    ${list.some(x => !x.ok) ? `<p class="note" style="margin:0">Dates that are not free are left out.</p>` : ""}`;
+}
+function bookExtraHTML(s){
+  const pp = s.providerUid ? PROVIDERS.find(x => x.id === s.providerUid) : null, langs = (pp && pp.languages) || [];
+  return `<fieldset class="whofor"><legend>Who is the session for?</legend><div class="whoseg">${["Me", "My child", "Someone else"].map((w, k) => `<label><input type="radio" name="who" value="${w}"${k ? "" : " checked"}><span>${w}</span></label>`).join("")}</div></fieldset>
+    <label>Their name <small>(if it is not for you)</small><input name="forName" maxlength="60" autocomplete="off"></label>
+    <label>Your level<select name="level"><option>Complete beginner</option><option>I know a little</option><option>Comfortable</option></select></label>
+    ${langs.length > 1 ? `<label>Language for the session<select name="lang">${langs.map(l => `<option>${esc(l)}</option>`).join("")}</select></label>` : ""}`;
+}
+const BOOK_END = `<div class="bknext"><b>What happens next</b><ol><li>We confirm, or offer another time, usually within a day.</li><li>You get the meeting link or the place by email.</li><li>Plans changed? Cancel from My bookings.</li></ol></div>
+    <label class="check bkagree"><input type="checkbox" name="agree"> <span>I agree to share my name and answers with the provider.</span></label>
+    <div id="bookMsg" hidden></div>
+    <button class="btn" type="submit" id="bookSubmit">Send booking request</button>`;
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.svctab){ SVC.tab = b.dataset.svctab; render(); return; }
+  if (b.dataset.pf){ const f = SVC.pf, k = b.dataset.pf, v = b.dataset.v;
+    if (k === "all") SVC.pf = {fmt: "", lang: "", week: false}; else if (k === "week") f.week = !f.week; else f[k] = f[k] === v ? "" : v;
+    render(); return; }
+  if (b.dataset.bkoften){ SVC.often = b.dataset.bkoften; refreshBookPanel(); return; }
+  if (b.dataset.pslot){ const [sid, date, key] = b.dataset.pslot.split("|"); go("service", sid); SVC.date = date; SVC.slot = key; refreshBookPanel(); return; }
+});
+document.addEventListener("change", e => {
+  if (e.target.matches("[data-bkweeks]")){ SVC.weeks = +e.target.value || 4; refreshBookPanel(); return; }
+  if (e.target.matches("[data-bkchk]")){ const m = bkChecks(); m[e.target.dataset.bkchk] = e.target.checked; try { localStorage.setItem("nojanChk", JSON.stringify(m)); } catch (_) {} }
+});
+function bkChecks(){ try { return JSON.parse(localStorage.getItem("nojanChk") || "{}") || {}; } catch (_) { return {}; } }
+
+document.addEventListener("submit", async e => {
+  if (e.target.id !== "bookForm") return;
+  e.preventDefault();
+  const f = e.target, msg = $("#bookMsg"), err = validate(f);
+  if (err) return showMsg(msg, false, err);
+  if (!f.agree.checked) return showMsg(msg, false, "Please tick the box to agree before you send.");
+  const s = SERVICES.find(x => x.id === serviceId); if (!s || !USER) return;
+  const day = dayList(s).find(d => d.date === SVC.date), slot = day && slotsFor(s, day.date, day.dow).find(x => x.key === SVC.slot);
+  if (!slot || slot.taken || slot.past){ SVC.step = "pick"; refreshBookPanel(); return toast("That time is no longer available. Please pick another."); }
+  const o = oftenOf(s), list = seriesOf(s, {...slot, date: day.date}).filter(x => x.ok && x.key);
+  const d = Object.fromEntries(new FormData(f)), unit = o === "pack" ? packPrice(s) : s.price;
+  const seriesId = list.length > 1 ? "S" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) : "";
+  const base = { uid: USER.uid, serviceId: s.id, serviceTitle: s.title, providerName: s.providerName, providerUid: s.providerUid || "", category: s.category,
+    durationMin: s.duration, format: SVC.format, platform: SVC.format === "online" ? s.platform : "", location: SVC.format === "online" ? "" : s.location,
+    price: unit, priceUnit: s.priceUnit, name: d.name.trim(), email: d.email.trim(), phone: d.phone.trim(), address: (d.address || "").trim(), notes: (d.notes || "").trim(),
+    who: d.who || "Me", forName: (d.forName || "").trim().slice(0, 60), level: d.level || "", lang: d.lang || "",
+    ...(seriesId ? {seriesId, seriesKind: o, seriesN: list.length} : {}) };
+  const btn = $("#bookSubmit"); btn.disabled = true; btn.textContent = "Sending…";
+  const done = [];
+  for (let k = 0; k < list.length; k++){
+    const x = list[k], bk = {...base, startMs: x.ms, date: x.date, time: x.hhmm, ...(seriesId ? {seriesI: k + 1} : {})};
+    try { const r = await FB.bookService(bk, x.key, s.capacity); done.push({...bk, id: r.id, number: r.number, status: "Requested", slotKey: x.key, history: [{status: "Requested", at: new Date().toISOString(), by: "customer"}]}); }
+    catch(er){
+      console.error(er);
+      if (er.message !== "slot-full" && !done.length){ btn.disabled = false; btn.textContent = "Send booking request"; return showMsg(msg, false, `We couldn't save your booking. Check your connection and try again, or email us at ${CONTACT_EMAIL}.`); }
+    }
+  }
+  if (!done.length){ SVC.step = "pick"; SVC.slot = null; refreshBookPanel(); return toast("Sorry, that time was just booked. Please pick another time."); }
+  FB.saveProfile(USER.uid, {name: base.name, phone: base.phone}).catch(() => {});
+  PROFILE = {...(PROFILE || {}), name: base.name, phone: base.phone};
+  sendEmail(`Booking request #B${done[0].number}${done.length > 1 ? ` (+${done.length - 1} more)` : ""}: ${s.title}, ${fmtLong(done[0].startMs)}`, {
+    Booking: done.map(x => "#B" + x.number).join(", "), Service: s.title, Provider: s.providerName,
+    When: done.map(x => fmtLong(x.startMs)).join(" | ") + " (Toronto time)", Length: durTxt(s.duration),
+    ...(done.length > 1 ? {Type: o === "pack" ? `Package of ${done.length}` : `Weekly, ${done.length} sessions`} : {}),
+    Format: SVC.format === "online" ? `Online${s.platform ? " (" + s.platform + ")" : ""}` : `In person${s.location ? " (" + s.location + ")" : ""}`,
+    Price: unit == null ? "On request" : money(unit) + " / " + s.priceUnit + (done.length > 1 ? `, total ${money(unit * done.length)}` : ""),
+    Name: base.name, Phone: base.phone, Email: base.email, ...(base.address ? {Address: base.address} : {}),
+    For: base.who + (base.forName ? ` (${base.forName})` : ""), Level: base.level || "—", ...(base.lang ? {Language: base.lang} : {}), Notes: base.notes || "—",
+    "What happens next": "Your time is held. We'll confirm by email, usually within a day.",
+    _cc: base.email, _replyto: base.email, _template: "box"
+  }).catch(() => {});
+  SVC.lastBooking = done[0]; SVC.lastSeries = done;
+  resetBooking(); SVC.often = "one";
+  go("mybooking", done[0].id);
+  toast(done.length > 1 ? `${done.length} sessions requested` : "Booking request sent");
+});
+
+/* ---- The booking page ---- */
+function findBooking(id){
+  return (MY.bookings || []).find(b => b.id === id) || (isAdmin() && (ADM.bookings || []).find(b => b.id === id)) || (SVC.lastSeries || []).find(b => b.id === id) || null;
+}
+function bookingView(){
+  if (!authReady) return `<div class="empty">Loading…</div>`;
+  if (!USER) return needSignIn("orders", "Sign in to see your booking", "Your bookings and their status show here after you sign in.");
+  startMyBookings();
+  const b = findBooking(bookingId);
+  if (!b) return MY.bookings ? `<div class="empty">We couldn't find this booking. <a href="#my-orders" style="color:var(--link)">See all your bookings</a></div>` : `<div class="empty">Loading your booking…</div>`;
+  const s = SERVICES.find(x => x.id === b.serviceId), now = Date.now(), end = b.startMs + b.durationMin * 60000;
+  const live = ["Requested", "Confirmed"].includes(b.status), up = live && b.startMs > now, hist = b.history || [];
+  const when = st => { const h = hist.find(x => x.status === st); return h ? fmtDate(h.at) : ""; };
+  const moved = hist.filter(h => h.status === "Time changed");
+  const sib = b.seriesId ? [...new Map([...(SVC.lastSeries || []), ...(MY.bookings || [])].filter(x => x.seriesId === b.seriesId).map(x => [x.id, x])).values()].sort((x, y) => x.startMs - y.startMs) : [];
+  const joinOpen = b.status === "Confirmed" && b.format === "online" && b.meetingLink && now > b.startMs - 600000 && now < end;
+  const conf = ["Confirmed", "Completed", "No-show"].includes(b.status);
+  const step = (state, title, sub) => `<li class="${state}"><span class="tdot" aria-hidden="true"></span><div><b>${title}</b>${sub ? `<span>${sub}</span>` : ""}</div></li>`;
+  const steps = b.status === "Cancelled"
+    ? [step("done", "Request sent", esc(when("Requested"))), step("stop", "Cancelled", esc(when("Cancelled")))]
+    : [step("done", "Request sent", esc(when("Requested"))),
+       step(conf ? "done" : "now", conf ? "Confirmed" : "Waiting for confirmation", conf ? esc(when("Confirmed")) : "We usually answer within a day."),
+       ...moved.map(h => step("done", "Time changed", esc(fmtDate(h.at)))),
+       step(b.reminded ? "done" : "", "Reminder", b.reminded ? "Sent by email" : "By email, the day before"),
+       step(b.status === "Completed" ? "done" : b.status === "No-show" ? "stop" : "", b.status === "No-show" ? "Missed session" : "Session", `${esc(dayTime(b.startMs))}${b.price ? ` · <span>pay at the session:</span> ${money(b.price)}` : ""}`),
+       step(b.sessionNotes ? "done" : "", "Notes from your session", b.sessionNotes ? "Ready below" : "They show here afterwards")];
+  const chk = bkChecks(), box = (key, text) => `<label class="check"><input type="checkbox" data-bkchk="${esc(key)}"${chk[key] ? " checked" : ""}> <span>${esc(text)}</span></label>`;
+  const ans = [b.who && b.who !== "Me" ? ["For", b.who + (b.forName ? ` (${b.forName})` : "")] : null, b.level ? ["Level", b.level] : null, b.lang ? ["Language", b.lang] : null, b.notes ? ["Focus", b.notes] : null].filter(Boolean);
+  return `<div class="bkpage">
+    <section class="panel">
+      <div class="bktop">${pill(b.status)}<span class="note">#B${b.number}${b.seriesId ? ` · ${b.seriesKind === "pack" ? "<span>Package</span>" : "<span>Weekly</span>"} ${b.seriesI}/${b.seriesN}` : ""}</span></div>
+      <div class="bkhead"><div class="bkdate"><small>${fmtWhen(b.startMs, {month: "short"})}</small><b>${fmtWhen(b.startMs, {day: "numeric"})}</b><small>${fmtWhen(b.startMs, {weekday: "short"})}</small></div>
+        <div><h1>${esc(b.serviceTitle)}</h1><p>${fmtTime(b.startMs)} · ${durTxt(b.durationMin)} · <span>Toronto time</span></p>
+          <p class="note">${b.format === "online" ? "Online" : "In person"} · <span>with</span> ${esc(b.providerName)}${b.price ? ` · ${money(b.price)}` : ""}</p></div></div>
+      ${b.status === "Confirmed" && b.format === "online" ? (joinOpen ? `<a class="btn bkjoin" href="${esc(b.meetingLink)}" target="_blank" rel="noopener">Join the online session</a>` : `<button class="btn bkjoin" type="button" disabled>${b.meetingLink ? "Join opens 10 minutes before" : "The meeting link will show here"}</button>`) : ""}
+      ${b.status === "Confirmed" && b.format !== "online" && b.locationNote ? `<p class="picked" style="margin:0"><b>Where:</b> ${esc(b.locationNote)}</p>` : ""}
+      <div class="bkacts">${up ? `<button class="btn small ghost" type="button" data-ics="${b.id}">Add to calendar</button>` : ""}<a class="btn small ghost" href="#contact-us">${up ? "Ask for another time" : "Message us"}</a>${s ? `<a class="btn small ghost" href="#service-${esc(s.id)}">${up ? "See the service" : "Book again"}</a>` : ""}${up ? `<button class="linkbtn" type="button" data-bkcancel="${b.id}" style="color:var(--danger)">Cancel booking</button>` : ""}</div>
+    </section>
+    <section class="panel"><h2>Where things stand</h2><ol class="tline">${steps.join("")}</ol></section>
+    ${b.sessionNotes || (b.tasks || []).length ? `<section class="panel"><h2>Notes from your session</h2>${b.sessionNotes ? `<p style="margin:0;white-space:pre-line">${esc(b.sessionNotes)}</p>` : ""}
+      ${(b.tasks || []).length ? `<b>To practise before next time</b><div class="bkchecks">${b.tasks.map((t, k) => box(b.id + ":t" + k, t)).join("")}</div>` : ""}</section>` : ""}
+    ${up && s && (s.prep || []).length ? `<section class="panel"><h2>Get ready</h2><div class="bkchecks">${s.prep.map((t, k) => box(b.id + ":p" + k, t)).join("")}</div></section>` : ""}
+    ${sib.length > 1 ? `<section class="panel"><h2>All sessions in this booking</h2><ul class="serlist">${sib.map(x => `<li><a href="#mybooking-${x.id}"${x.id === b.id ? ' aria-current="true"' : ""}>${esc(dayTime(x.startMs))}</a><span>${esc(x.status)}</span></li>`).join("")}</ul></section>` : ""}
+    ${ans.length ? `<section class="panel"><h2>Your answers</h2><dl class="bkans">${ans.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl></section>` : ""}
+    <p class="note" style="text-align:center;margin:0"><a href="#my-orders" style="color:var(--link)">All my bookings</a></p>
+  </div>`;
+}
+views.mybooking = bookingView;
+
+/* ---- Admin: move a booking, session notes, reminders ---- */
+function toLocalInput(ms){ const p = tzParts(ms); return `${p.y}-${pad2(p.m)}-${pad2(p.d)}T${pad2(p.H)}:${pad2(p.M)}`; }
+function adminBookingExtraHTML(b){
+  return `<form class="oactions" data-bkmoveform="${b.id}">
+        <label>Move to another time <small>(Toronto time)</small><input name="when" type="datetime-local" required value="${toLocalInput(b.startMs)}"></label>
+        <label class="check"><input type="checkbox" name="email" checked> Email the customer the new time</label>
+        <button class="btn small ghost" type="submit" style="color:var(--fg)">Move booking</button>
+      </form>
+      <form class="oactions" data-bknotesform="${b.id}">
+        <label style="flex-basis:100%">Session notes for the customer <small>(they see these on their booking page)</small><textarea name="sessionNotes" style="min-height:70px">${esc(b.sessionNotes || "")}</textarea></label>
+        <label style="flex-basis:100%">To practise before next time <small>(one per line)</small><textarea name="tasks" style="min-height:60px">${esc((b.tasks || []).join("\n"))}</textarea></label>
+        <button class="btn small ghost" type="submit" style="color:var(--fg)">Save notes</button>
+        ${b.status === "Confirmed" && b.startMs > Date.now() && b.email ? `<button class="linkbtn" type="button" data-bkremind="${b.id}">${b.reminded ? "Email another reminder" : "Email a reminder now"}</button>` : ""}
+      </form>`;
+}
+document.addEventListener("submit", async e => {
+  const f = e.target, mid = f.dataset && (f.dataset.bkmoveform || f.dataset.bknotesform); if (!mid) return;
+  e.preventDefault();
+  const b = (ADM.bookings || []).find(x => x.id === mid); if (!b || !isAdmin()) return;
+  const btn = f.querySelector("button[type=submit]"), label = btn.textContent; btn.disabled = true;
+  try {
+    if (f.dataset.bkmoveform){
+      const w = f.when.value; if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(w)) return toast("Choose a date and time");
+      const date = w.slice(0, 10), hhmm = w.slice(11, 16), ms = torontoMs(date, hhmm);
+      if (ms === b.startMs) return toast("That is the time it already has");
+      const svc = ALL_SERVICES.find(x => x.id === b.serviceId), cap = svc && svc.classType === "group" ? Math.max(2, +svc.capacity || 6) : 1;
+      await FB.moveBooking(b.id, {startMs: ms, date, time: hhmm, slotKey: `${b.serviceId}_${date}_${hhmm.replace(":", "")}`}, cap, USER.email);
+      if (f.email.checked && b.email) emailBooking({...b, startMs: ms}, "Time changed", `Your session moved from ${fmtLong(b.startMs)} to ${fmtLong(ms)} (Toronto time).`, {}).catch(er => { console.error(er); toast("Moved, but the email didn't send"); });
+      toast("Booking moved");
+    } else {
+      await FB.updateBooking(b.id, {sessionNotes: f.sessionNotes.value.trim().slice(0, 3000), tasks: f.tasks.value.split("\n").map(x => x.trim()).filter(Boolean).slice(0, 12)}, {status: "Notes saved", by: USER.email});
+      toast("Notes saved");
+    }
+  } catch(er){ console.error(er); toast(er.message === "slot-full" ? "That time is already taken" : "Couldn't save. Try again."); }
+  finally { btn.disabled = false; btn.textContent = label; }
+});
+document.addEventListener("click", async e => {
+  const r = e.target.closest("[data-bkremind]"); if (!r || !isAdmin()) return;
+  const b = (ADM.bookings || []).find(x => x.id === r.dataset.bkremind); if (!b) return;
+  r.disabled = true;
+  try { await emailBooking(b, "Reminder", "", {}); await FB.updateBooking(b.id, {reminded: true}, {status: "Reminder emailed", by: USER.email}); toast("Reminder emailed"); }
+  catch(er){ console.error(er); toast("The reminder didn't send"); r.disabled = false; }
+});
+/* Reminders go out by email the day before, whenever an admin has the site open */
+let remindBusy = false;
+async function autoRemind(){
+  if (remindBusy || !isAdmin() || !ADM.bookings || !FB || !FB.updateBooking) return; remindBusy = true;
+  try {
+    const now = Date.now();
+    for (const b of ADM.bookings.filter(b => b.kind !== "event" && b.status === "Confirmed" && !b.reminded && b.email && b.startMs > now && b.startMs - now < 24 * 3600000).slice(0, 5)){
+      try { await FB.updateBooking(b.id, {reminded: true}, {status: "Reminder emailed", by: "automatic"}); await emailBooking(b, "Reminder", "", {}); } catch(er){ console.error(er); }
+    }
+  } finally { remindBusy = false; }
+}
+
 /* ---- Admin: bookings ---- */
 const BADM = {filter: "Upcoming", q: ""};
 function adminBookingsHTML(){
@@ -4368,7 +4668,8 @@ function adminBookingHTML(b){
           ${b.phone ? `<a href="tel:${esc(tel)}">${esc(b.phone)}</a>` : ""}
           <a href="mailto:${esc(b.email || "")}?subject=${encodeURIComponent("Your booking #B" + b.number)}">${esc(b.email || "")}</a>
           ${b.address ? `<span class="note">Address: ${esc(b.address)}</span>` : ""}
-          ${b.notes ? `<span class="note" style="color:var(--fg)">“${esc(b.notes)}”</span>` : ""}</div>
+          ${b.notes ? `<span class="note" style="color:var(--fg)">“${esc(b.notes)}”</span>` : ""}
+          ${[b.who && b.who !== "Me" ? "For: " + b.who + (b.forName ? " (" + b.forName + ")" : "") : "", b.level ? "Level: " + b.level : "", b.lang ? "Language: " + b.lang : "", b.seriesId ? `${b.seriesKind === "pack" ? "Package" : "Weekly"}: session ${b.seriesI} of ${b.seriesN}` : ""].filter(Boolean).map(t => `<span class="note">${esc(t)}</span>`).join("")}</div>
         <div class="obox"><h3>Session</h3><b>${esc(b.serviceTitle)}</b><span class="note">with ${esc(b.providerName)}</span>
           <span>${fmtLong(b.startMs)}</span><span class="note">${durTxt(b.durationMin)} · ${b.format === "online" ? `Online${b.platform ? " · " + esc(b.platform) : ""}` : `In person${b.location ? " · " + esc(b.location) : ""}`}</span>
           <span class="note">${b.price == null ? "Price on request" : money(b.price) + " / " + esc(b.priceUnit)}</span></div>
@@ -4381,6 +4682,7 @@ function adminBookingHTML(b){
         <label class="check"><input type="checkbox" name="email" checked> Email the customer about this change</label>
         <button class="btn small" type="submit">Update booking</button>
       </form>
+      ${adminBookingExtraHTML(b)}
       <div class="obox"><h3>Private notes <small style="text-transform:none;letter-spacing:0">(only admins see these)</small></h3>
         <textarea data-note="${key}" placeholder="${n == null ? "Loading…" : "e.g. Paid $45 cash"}" style="min-height:70px">${esc(n || "")}</textarea>
         <button class="linkbtn" type="button" data-savenote="${key}" style="justify-self:start">Save note</button></div>
@@ -4393,8 +4695,8 @@ async function emailBooking(b, status, message, extra){
   await sendEmail(`Your booking #B${b.number}: ${status} · ${b.serviceTitle}`, {
     Booking: "#B" + b.number, Status: status, Update: BOOK_TEXT[status] || "", Service: b.serviceTitle, With: b.providerName,
     When: fmtLong(b.startMs) + " (Toronto time)", Length: durTxt(b.durationMin), Format: b.format === "online" ? "Online" : "In person",
-    ...(status === "Confirmed" && b.format === "online" && link ? {"Join link": link} : {}),
-    ...(status === "Confirmed" && b.format !== "online" && where ? {"Where": where} : {}),
+    ...(["Confirmed", "Reminder", "Time changed"].includes(status) && b.format === "online" && link ? {"Join link": link} : {}),
+    ...(["Confirmed", "Reminder", "Time changed"].includes(status) && b.format !== "online" && where ? {"Where": where} : {}),
     ...(message ? {"Message": message} : {}),
     "Your bookings": location.origin + "/#my-orders",
     _cc: b.email, _replyto: CONTACT_EMAIL, _template: "box"
@@ -4469,6 +4771,9 @@ function serviceFormHTML(){
       <label>Customers can book up to (days ahead)<input name="horizonDays" type="number" min="1" max="90" value="${d.horizonDays || 21}"></label>
     </div>
     <label>Days off <small>(no bookings on these dates; separate with commas, like 2026-12-25, 2026-12-26)</small><input name="blocked" value="${esc((d.blocked || []).join(", "))}"></label>
+    <label>Get ready list <small>(the customer sees it on their booking page; one per line)</small><textarea name="prep" placeholder="Charge your laptop">${esc((d.prep || []).join("\n"))}</textarea></label>
+    <div class="row"><label class="check"><input type="checkbox" name="repeat"${d.repeat !== false ? " checked" : ""}> Allow weekly bookings and packages of 5</label>
+      <label>Package of 5 discount (%)<input name="packPct" type="number" min="0" max="50" value="${d.packPct == null ? 10 : d.packPct}"></label></div>
     <div class="obox"><h3>Photos <small style="text-transform:none;letter-spacing:0">(optional, up to 5; the first is the cover)</small></h3><div class="photogrid" id="photoGrid">${photoGridHTML()}</div></div>
     <label class="check"><input type="checkbox" name="active" ${d.active !== false ? "checked" : ""}> Show on the website</label>
     <div id="serviceMsg" hidden></div>
@@ -4534,7 +4839,8 @@ document.addEventListener("submit", async e => {
         price: d.price === "" ? null : +d.price, priceUnit: d.priceUnit, duration: +d.duration, classType: group ? "group" : "1-on-1", capacity: group ? Math.max(2, parseInt(d.capacity, 10) || 6) : 1,
         format: d.format, platform: (d.platform || "").trim(), location: (d.location || "").trim(), availability,
         leadHours: Math.max(0, parseInt(d.leadHours, 10) || 0), horizonDays: Math.min(90, Math.max(1, parseInt(d.horizonDays, 10) || 21)),
-        blocked: String(d.blocked || "").match(/\d{4}-\d{2}-\d{2}/g) || [], active: !!d.active, images: refs, thumb};
+        blocked: String(d.blocked || "").match(/\d{4}-\d{2}-\d{2}/g) || [], active: !!d.active,
+        prep: String(d.prep || "").split("\n").map(x => x.trim()).filter(Boolean).slice(0, 12), repeat: !!d.repeat, packPct: Math.min(50, Math.max(0, parseInt(d.packPct, 10) || 0)), images: refs, thumb};
       if (isNew) data.order = ALL_SERVICES.length;
       await FB.saveService(id, data, isNew);
       toast(isNew ? `Added ${id}` : "Saved"); SADM.edit = null; PADM.photos = []; refreshAdmin(true);
