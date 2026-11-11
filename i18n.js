@@ -1,10 +1,22 @@
-// Nojan · v95 · built 2026-11-10
+// Nojan · v96 · built 2026-11-10
 /* v91: English / Français. Text on the page is written in English; when French is on,
    each piece of text is swapped for its French version from FR below (and swapped back for English).
    Language choice: 1) what the visitor picked (remembered on this device), else
    2) visitors in Quebec see French (checked once from their internet address — nothing is saved or sent to us), else English. */
 (function(){
 const FR = {
+/* ---- v96: booking messages, time changes, reviews ---- */
+"Messages": "Messages", "Loading messages…": "Chargement des messages…", "No messages yet. Ask anything about this booking.": "Aucun message pour l'instant. Posez vos questions sur cette réservation.",
+"I'm running late": "Je serai en retard", "I can't find the link": "Je ne trouve pas le lien", "Can we change the time?": "Peut-on changer l'heure?", "Write a message": "Écrire un message", "Send": "Envoyer",
+"New time offered": "Nouvelle heure proposée", "Your time now:": "Votre heure actuelle :", "Accept the new time": "Accepter la nouvelle heure", "Keep my time": "Garder mon heure",
+"You asked for another time": "Vous avez demandé une autre heure", "We'll answer soon. Your booking stays as it is until then.": "Nous répondrons bientôt. Votre réservation ne change pas d'ici là.",
+"Withdraw this request": "Retirer cette demande", "Pick up to 3 times that work for you. We choose one and confirm.": "Choisissez jusqu'à 3 heures qui vous conviennent. Nous en choisissons une et confirmons.",
+"Day": "Jour", "There are no other free times right now. Send us a message instead.": "Il n'y a pas d'autre heure libre pour l'instant. Envoyez-nous plutôt un message.",
+"Reason": "Raison", "Something came up": "Un imprévu", "I chose the wrong time": "J'ai choisi la mauvaise heure", "I'm not feeling well": "Je ne me sens pas bien", "Other": "Autre", "Note": "Note",
+"Send request": "Envoyer la demande", "Your review": "Votre avis", "Thank you. It helps other people choose.": "Merci. Cela aide les autres à choisir.", "How was your session?": "Comment s'est passée votre séance?",
+"Your rating": "Votre note", "A few words": "Quelques mots", "What would you tell a friend?": "Que diriez-vous à un ami?", "Show my first name with the review": "Afficher mon prénom avec l'avis", "Send review": "Envoyer l'avis",
+"Request withdrawn": "Demande retirée", "Your new time is booked": "Votre nouvelle heure est réservée", "You kept your time": "Vous avez gardé votre heure", "Thank you for your review": "Merci pour votre avis",
+"Couldn't send. Try again.": "Envoi impossible. Réessayez.", "You can pick up to 3 times": "Vous pouvez choisir jusqu'à 3 heures", "That time was just taken": "Cette heure vient d'être prise", "New message": "Nouveau message",
 /* ---- v95: services — people, repeat bookings, booking page ---- */
 "People": "Personnes", "Filter people": "Filtrer les personnes", "Speaks": "Parle", "Free this week": "Libre cette semaine", "From": "À partir de",
 "Next free:": "Prochaine disponibilité :", "No open times right now": "Aucune heure libre pour l'instant", "No services yet": "Aucun service pour l'instant",

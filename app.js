@@ -1,4 +1,4 @@
-// Nojan · v95 · built 2026-11-10
+// Nojan · v96 · built 2026-11-10
 /* =========================================================
    SETTINGS — edit these
    ========================================================= */
@@ -3930,7 +3930,8 @@ function fsToService(d){
 function useServices(all){
   useProviders(all.filter(d => d.kind === "provider"));
   useEvents(all.filter(d => d.kind === "event"));
-  const list = all.filter(d => d.kind !== "provider" && d.kind !== "event");
+  const st = all.find(d => d.kind === "settings"); SET = st || {}; ALL_SETTINGS = !!st;
+  const list = all.filter(d => d.kind !== "provider" && d.kind !== "event" && d.kind !== "settings");
   ALL_SERVICES = list; servicesLoaded = true;
   SERVICES = list.map(fsToService).filter(s => s.active).sort((a,b) => (a.order - b.order) || a.title.localeCompare(b.title));
   mkMerge();
@@ -4275,13 +4276,13 @@ MY.bookings = null; MY.unsubB = null;
 function startMyBookings(){
   if (!FB || !USER || MY.unsubB) return;
   MY.unsubB = () => {};
-  MY.unsubB = FB.watchMyBookings(USER.uid, list => { MY.bookings = list.sort((a,b) => a.startMs - b.startMs); if (["orders", "mybooking"].includes(current())) setTimeout(render); }, err => { console.error(err); MY.bookings = MY.bookings || []; });
+  MY.unsubB = FB.watchMyBookings(USER.uid, list => { MY.bookings = list.sort((a,b) => a.startMs - b.startMs); if (["orders", "mybooking"].includes(current())) setTimeout(softRender); }, err => { console.error(err); MY.bookings = MY.bookings || []; });
 }
 function bookingCardHTML(b, admin){
   return `<div class="bkcard">
     <div class="bkdate"><small>${fmtWhen(b.startMs, {month:"short"})}</small><b>${fmtWhen(b.startMs, {day:"numeric"})}</b><small>${fmtWhen(b.startMs, {weekday:"short"})}</small></div>
     <div style="min-width:0;display:grid;gap:3px">${admin ? `<b>${esc(b.serviceTitle)}</b>` : `<a href="#mybooking-${b.id}" style="font-weight:700;color:inherit">${esc(b.serviceTitle)}</a>`}
-      <span class="bkmeta">${fmtTime(b.startMs)} · ${durTxt(b.durationMin)} · ${b.format === "online" ? "Online" : "In person"} · with ${esc(b.providerName)} · #B${b.number}${b.seriesId ? ` · ${b.seriesI}/${b.seriesN}` : ""}</span>
+      <span class="bkmeta">${fmtTime(b.startMs)} · ${durTxt(b.durationMin)} · ${b.format === "online" ? "Online" : "In person"} · with ${esc(b.providerName)} · #B${b.number}${b.seriesId ? ` · ${b.seriesI}/${b.seriesN}` : ""}${!admin && p2on() && b.msgFrom === "admin" && b.msgSeenC !== b.msgAt ? ` <span class="pill bkflagp">New message</span>` : ""}${!admin && p2on() && b.offer ? ` <span class="pill bkflagp">New time offered</span>` : ""}</span>
       ${!admin && b.status === "Confirmed" && b.meetingLink ? `<a href="${esc(b.meetingLink)}" target="_blank" rel="noopener" style="color:var(--link);font-weight:600">Join the online session</a>` : ""}
       ${!admin && b.status === "Confirmed" && b.format !== "online" && b.locationNote ? `<span class="bkmeta">Where: ${esc(b.locationNote)}</span>` : ""}
       ${!admin ? `<span class="bkmeta" style="color:var(--fg)">${esc(BOOK_TEXT[b.status] || "")}</span>` : ""}
@@ -4575,14 +4576,16 @@ function bookingView(){
           <p class="note">${b.format === "online" ? "Online" : "In person"} · <span>with</span> ${esc(b.providerName)}${b.price ? ` · ${money(b.price)}` : ""}</p></div></div>
       ${b.status === "Confirmed" && b.format === "online" ? (joinOpen ? `<a class="btn bkjoin" href="${esc(b.meetingLink)}" target="_blank" rel="noopener">Join the online session</a>` : `<button class="btn bkjoin" type="button" disabled>${b.meetingLink ? "Join opens 10 minutes before" : "The meeting link will show here"}</button>`) : ""}
       ${b.status === "Confirmed" && b.format !== "online" && b.locationNote ? `<p class="picked" style="margin:0"><b>Where:</b> ${esc(b.locationNote)}</p>` : ""}
-      <div class="bkacts">${up ? `<button class="btn small ghost" type="button" data-ics="${b.id}">Add to calendar</button>` : ""}<a class="btn small ghost" href="#contact-us">${up ? "Ask for another time" : "Message us"}</a>${s ? `<a class="btn small ghost" href="#service-${esc(s.id)}">${up ? "See the service" : "Book again"}</a>` : ""}${up ? `<button class="linkbtn" type="button" data-bkcancel="${b.id}" style="color:var(--danger)">Cancel booking</button>` : ""}</div>
+      <div class="bkacts">${up ? `<button class="btn small ghost" type="button" data-ics="${b.id}">Add to calendar</button>` : ""}${p2on() && up && s && !b.changeReq ? `<button class="btn small ghost" type="button" data-chgopen="${b.id}">Ask for another time</button>` : `<a class="btn small ghost" href="#contact-us">${up && !p2on() ? "Ask for another time" : "Message us"}</a>`}${s ? `<a class="btn small ghost" href="#service-${esc(s.id)}">${up ? "See the service" : "Book again"}</a>` : ""}${up ? `<button class="linkbtn" type="button" data-bkcancel="${b.id}" style="color:var(--danger)">Cancel booking</button>` : ""}</div>
     </section>
+    ${bkTopP2(b, s)}
     <section class="panel"><h2>Where things stand</h2><ol class="tline">${steps.join("")}</ol></section>
     ${b.sessionNotes || (b.tasks || []).length ? `<section class="panel"><h2>Notes from your session</h2>${b.sessionNotes ? `<p style="margin:0;white-space:pre-line">${esc(b.sessionNotes)}</p>` : ""}
       ${(b.tasks || []).length ? `<b>To practise before next time</b><div class="bkchecks">${b.tasks.map((t, k) => box(b.id + ":t" + k, t)).join("")}</div>` : ""}</section>` : ""}
     ${up && s && (s.prep || []).length ? `<section class="panel"><h2>Get ready</h2><div class="bkchecks">${s.prep.map((t, k) => box(b.id + ":p" + k, t)).join("")}</div></section>` : ""}
     ${sib.length > 1 ? `<section class="panel"><h2>All sessions in this booking</h2><ul class="serlist">${sib.map(x => `<li><a href="#mybooking-${x.id}"${x.id === b.id ? ' aria-current="true"' : ""}>${esc(dayTime(x.startMs))}</a><span>${esc(x.status)}</span></li>`).join("")}</ul></section>` : ""}
     ${ans.length ? `<section class="panel"><h2>Your answers</h2><dl class="bkans">${ans.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl></section>` : ""}
+    ${bkMsgP2(b)}
     <p class="note" style="text-align:center;margin:0"><a href="#my-orders" style="color:var(--link)">All my bookings</a></p>
   </div>`;
 }
@@ -4591,10 +4594,10 @@ views.mybooking = bookingView;
 /* ---- Admin: move a booking, session notes, reminders ---- */
 function toLocalInput(ms){ const p = tzParts(ms); return `${p.y}-${pad2(p.m)}-${pad2(p.d)}T${pad2(p.H)}:${pad2(p.M)}`; }
 function adminBookingExtraHTML(b){
-  return `<form class="oactions" data-bkmoveform="${b.id}">
+  return `${adminP2HTML(b)}<form class="oactions" data-bkmoveform="${b.id}">
         <label>Move to another time <small>(Toronto time)</small><input name="when" type="datetime-local" required value="${toLocalInput(b.startMs)}"></label>
         <label class="check"><input type="checkbox" name="email" checked> Email the customer the new time</label>
-        <button class="btn small ghost" type="submit" style="color:var(--fg)">Move booking</button>
+        <button class="btn small ghost" type="submit" style="color:var(--fg)">Move booking</button>${p2on() ? `<button class="btn small ghost" type="submit" data-offer="1" style="color:var(--fg)">Offer this time to the customer</button>` : ""}
       </form>
       <form class="oactions" data-bknotesform="${b.id}">
         <label style="flex-basis:100%">Session notes for the customer <small>(they see these on their booking page)</small><textarea name="sessionNotes" style="min-height:70px">${esc(b.sessionNotes || "")}</textarea></label>
@@ -4614,6 +4617,11 @@ document.addEventListener("submit", async e => {
       const date = w.slice(0, 10), hhmm = w.slice(11, 16), ms = torontoMs(date, hhmm);
       if (ms === b.startMs) return toast("That is the time it already has");
       const svc = ALL_SERVICES.find(x => x.id === b.serviceId), cap = svc && svc.classType === "group" ? Math.max(2, +svc.capacity || 6) : 1;
+      if (e.submitter && e.submitter.dataset.offer){
+        await FB.updateBooking(b.id, {offer: {startMs: ms, date, time: hhmm, slotKey: `${b.serviceId}_${date}_${hhmm.replace(":", "")}`}}, {status: "Time offered", by: USER.email});
+        if (b.email) emailBooking(b, "New time offered", `We can offer ${fmtLong(ms)} (Toronto time) instead of ${fmtLong(b.startMs)}.`, {}).catch(er => console.error(er));
+        toast("Offer sent to the customer"); return;
+      }
       await FB.moveBooking(b.id, {startMs: ms, date, time: hhmm, slotKey: `${b.serviceId}_${date}_${hhmm.replace(":", "")}`}, cap, USER.email);
       if (f.email.checked && b.email) emailBooking({...b, startMs: ms}, "Time changed", `Your session moved from ${fmtLong(b.startMs)} to ${fmtLong(ms)} (Toronto time).`, {}).catch(er => { console.error(er); toast("Moved, but the email didn't send"); });
       toast("Booking moved");
@@ -4643,6 +4651,187 @@ async function autoRemind(){
   } finally { remindBusy = false; }
 }
 
+/* =========================================================
+   v96: SERVICES part 2 — messages, time changes, offers, customer reviews
+   (customers see these only when the admin switch is on)
+   ========================================================= */
+let SET = {}, ALL_SETTINGS = false;
+const BKP = {msgs: {}, unsub: {}, pick: [], changing: null, day: null, stale: false, seen: {}};
+const p2on = () => !!SET.part2;
+BOOK_TEXT["New time offered"] = "We can offer you another time. Open your booking to accept it or keep the time you have.";
+BOOK_TEXT["Change declined"] = "We couldn't change the time, so your booking stays as it is. Reply to this email if you need help.";
+function softRender(){
+  const a = document.activeElement, v = $("#view");
+  if (current() === "mybooking" && a && v && v.contains(a) && /^(TEXTAREA|INPUT|SELECT)$/.test(a.tagName)){ BKP.stale = true; return; }
+  BKP.stale = false; render();
+}
+document.addEventListener("focusout", () => { if (BKP.stale) setTimeout(() => { if (BKP.stale) softRender(); }, 150); });
+const bkAny = id => findBooking(id) || (ADM.bookings || []).find(x => x.id === id) || null;
+const bkCap = b => { const svc = ALL_SERVICES.find(x => x.id === b.serviceId); return svc && svc.classType === "group" ? Math.max(2, +svc.capacity || 6) : 1; };
+const bkFlags = b => !p2on() ? "" : (b.changeReq ? `<span class="pill bkflagp">Time change</span>` : "") + (b.msgFrom === "customer" && (!b.msgSeenA || b.msgSeenA < b.msgAt) ? `<span class="pill bkflagp">New message</span>` : "") + (b.review && !b.review.published ? `<span class="pill bkflagp">Review</span>` : "");
+
+/* ---- Messages ---- */
+function watchMsgs(id){
+  if (BKP.unsub[id] || !FB || !FB.watchBookingMsgs) return;
+  BKP.unsub[id] = FB.watchBookingMsgs(id, list => { BKP.msgs[id] = list; paintMsgs(id); }, err => { console.error(err); BKP.msgs[id] = BKP.msgs[id] || []; paintMsgs(id); });
+}
+function msgsHTML(b, admin){
+  const list = BKP.msgs[b.id];
+  if (!list) return `<p class="note">Loading messages…</p>`;
+  if (!list.length) return `<p class="note">${admin ? "No messages yet." : "No messages yet. Ask anything about this booking."}</p>`;
+  return list.map(m => { const mine = admin ? m.role === "admin" : m.role !== "admin";
+    return `<div class="bmsg${mine ? " me" : ""}"><p>${esc(m.text)}</p><small>${mine ? "" : m.role === "admin" ? "Nojan · " : esc(b.name || "Customer") + " · "}${esc(fmtDate(m.at))}</small></div>`; }).join("");
+}
+function paintMsgs(id){
+  const b = bkAny(id); if (!b) return;
+  document.querySelectorAll(`[data-msglog="${id}"]`).forEach(el => { el.innerHTML = msgsHTML(b, el.dataset.admin === "1"); el.scrollTop = el.scrollHeight; });
+}
+function msgBoxHTML(b, admin){
+  watchMsgs(b.id);
+  const quick = admin ? [] : ["I'm running late", "I can't find the link", "Can we change the time?"];
+  return `<div class="bmsgs" data-msglog="${b.id}" data-admin="${admin ? 1 : 0}" aria-live="polite">${msgsHTML(b, admin)}</div>
+    ${quick.length ? `<div class="chips">${quick.map(q => `<button type="button" data-msgquick="${b.id}">${q}</button>`).join("")}</div>` : ""}
+    <form class="bmsgform" data-msgform="${b.id}"><input name="text" maxlength="2000" placeholder="Write a message" aria-label="Message" autocomplete="off" required><button class="btn small" type="submit">Send</button></form>`;
+}
+async function sendBkMsg(id, text, admin){
+  const b = admin ? (ADM.bookings || []).find(x => x.id === id) : findBooking(id);
+  text = String(text || "").trim().slice(0, 2000); if (!b || !text || !USER) return false;
+  const quiet = b.msgFrom === (admin ? "admin" : "customer") && b.msgAt && Date.now() - Date.parse(b.msgAt) < 600000;
+  await FB.addBookingMsg(id, {from: USER.uid, role: admin ? "admin" : "customer", text});
+  if (!quiet){
+    if (admin && b.email) sendEmail(`New message about your booking #B${b.number}`, {Booking: "#B" + b.number, Service: b.serviceTitle, Message: text, "Read and reply": location.origin + "/mybooking-" + b.id, _cc: b.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {});
+    if (!admin) sendEmail(`Message from ${b.name || "a customer"} about booking #B${b.number}`, {Booking: "#B" + b.number, Service: b.serviceTitle, From: b.name || "", Message: text, "Reply in Admin": location.origin + "/admin", _replyto: b.email || CONTACT_EMAIL, _template: "box"}).catch(() => {});
+  }
+  return true;
+}
+
+/* ---- Customer: offer, ask for another time, review ---- */
+function offerHTML(b){
+  const o = b.offer; if (!o || !["Requested", "Confirmed"].includes(b.status)) return "";
+  return `<section class="panel bkoffer"><span class="bklabel">New time offered</span><b class="bkbig">${esc(dayTime(o.startMs))}</b><span class="note"><span>Your time now:</span> ${esc(dayTime(b.startMs))}</span>
+    <div class="bkacts"><button class="btn small" type="button" data-offeryes="${b.id}">Accept the new time</button><button class="btn small ghost" type="button" data-offerno="${b.id}">Keep my time</button></div></section>`;
+}
+function changeHTML(b, s){
+  if (b.changeReq && b.changeReq.options) return `<section class="panel"><h2>You asked for another time</h2><ul class="serlist">${b.changeReq.options.map(o => `<li><span>${esc(dayTime(o.startMs))}</span></li>`).join("")}</ul>
+    <p class="note" style="margin:0">We'll answer soon. Your booking stays as it is until then.</p><div><button class="linkbtn" type="button" data-chgcancel="${b.id}">Withdraw this request</button></div></section>`;
+  if (BKP.changing !== b.id || !s) return "";
+  const days = dayList(s).map(d => ({...d, free: slotsFor(s, d.date, d.dow).filter(x => !x.taken && !x.past && x.ms !== b.startMs)})).filter(d => d.free.length);
+  const day = days.find(d => d.date === BKP.day) || days[0];
+  return `<section class="panel"><h2>Ask for another time</h2><p class="note" style="margin:0">Pick up to 3 times that work for you. We choose one and confirm.</p>
+    ${day ? `<label>Day<select data-chgday>${days.map(d => `<option value="${d.date}"${d.date === day.date ? " selected" : ""}>${fmtWhen(d.free[0].ms, {weekday: "short", month: "short", day: "numeric"})}</option>`).join("")}</select></label>
+    <div class="timegrid">${day.free.map(x => `<button type="button" data-chgslot="${day.date}|${x.hhmm}|${esc(x.key)}|${x.ms}" aria-pressed="${BKP.pick.some(p => p.slotKey === x.key)}">${fmtTime(x.ms)}</button>`).join("")}</div>` : `<p class="note">There are no other free times right now. Send us a message instead.</p>`}
+    ${BKP.pick.length ? `<ul class="serlist">${BKP.pick.map((p, k) => `<li><span>${k + 1}. ${esc(dayTime(p.startMs))}</span><button class="linkbtn" type="button" data-chgdrop="${esc(p.slotKey)}">Remove</button></li>`).join("")}</ul>` : ""}
+    <form data-chgform="${b.id}" style="display:grid;gap:10px"><label>Reason <small>(optional)</small><select name="reason"><option>Something came up</option><option>I chose the wrong time</option><option>I'm not feeling well</option><option>Other</option></select></label>
+      <label>Note <small>(optional)</small><input name="note" maxlength="300" autocomplete="off"></label>
+      <div class="bkacts"><button class="btn small" type="submit"${BKP.pick.length ? "" : " disabled"}>Send request</button><button class="btn small ghost" type="button" data-chgclose>Keep my time</button></div></form></section>`;
+}
+function reviewHTML(b){
+  if (b.review) return `<section class="panel"><h2>Your review</h2><p style="margin:0"><b>${esc(String(b.review.stars))} <span>of 5</span></b>${b.review.text ? ` · ${esc(b.review.text)}` : ""}</p><p class="note" style="margin:0">Thank you. It helps other people choose.</p></section>`;
+  return `<section class="panel"><h2>How was your session?</h2><form data-revform="${b.id}" style="display:grid;gap:12px">
+    <fieldset class="whofor"><legend>Your rating</legend><div class="whoseg stars">${[1, 2, 3, 4, 5].map(n => `<label><input type="radio" name="stars" value="${n}"${n === 5 ? " checked" : ""}><span>${n}</span></label>`).join("")}</div></fieldset>
+    <label>A few words <small>(optional)</small><textarea name="text" maxlength="600" placeholder="What would you tell a friend?"></textarea></label>
+    <label class="check"><input type="checkbox" name="showName" checked> <span>Show my first name with the review</span></label>
+    <div><button class="btn small" type="submit">Send review</button></div></form></section>`;
+}
+function bkTopP2(b, s){
+  if (!p2on()) return "";
+  if (b.msgFrom === "admin" && b.msgAt && b.msgSeenC !== b.msgAt && !BKP.seen[b.id + b.msgAt]){ BKP.seen[b.id + b.msgAt] = 1; FB.updateBooking(b.id, {msgSeenC: b.msgAt}).catch(() => {}); }
+  return offerHTML(b) + changeHTML(b, s) + (b.status === "Completed" ? reviewHTML(b) : "");
+}
+const bkMsgP2 = b => p2on() ? `<section class="panel"><h2>Messages</h2>${msgBoxHTML(b, false)}</section>` : "";
+
+/* ---- Admin ---- */
+function adminP2HTML(b){
+  if (!p2on()) return "";
+  const cr = b.changeReq, rv = b.review, key = "b_" + b.id;
+  return `${cr && cr.options ? `<div class="obox bkflag"><h3>Customer asks for another time</h3>${cr.reason || cr.note ? `<span class="note">${esc([cr.reason, cr.note].filter(Boolean).join(" · "))}</span>` : ""}
+      <div class="bkacts">${cr.options.map((o, k) => `<button class="btn small" type="button" data-chgpick="${b.id}|${k}">${esc(dayTime(o.startMs))}</button>`).join("")}<button class="btn small ghost" type="button" data-chgkeep="${b.id}" style="color:var(--fg)">Keep current time</button></div></div>` : ""}
+      ${b.offer ? `<div class="obox bkflag"><h3>Waiting for the customer</h3><span>You offered ${esc(dayTime(b.offer.startMs))}.</span><div><button class="linkbtn" type="button" data-offerdrop="${b.id}">Withdraw the offer</button></div></div>` : ""}
+      ${rv ? `<div class="obox"><h3>Customer review</h3><b>${esc(String(rv.stars))} of 5</b>${rv.text ? `<span>“${esc(rv.text)}”</span>` : ""}${rv.published ? `<span class="note">Shown on the provider's profile</span>` : b.providerUid ? `<div><button class="btn small ghost" type="button" data-revpub="${b.id}" style="color:var(--fg)">Publish on the provider's profile</button></div>` : `<span class="note">This service has no provider profile to show it on.</span>`}</div>` : ""}
+      <div class="obox"><h3>Messages</h3><div data-msglazy="${b.id}"${ADM.open.has(key) ? ' data-done="1"' : ""}>${ADM.open.has(key) ? msgBoxHTML(b, true) : ""}</div></div>`;
+}
+function p2SwitchHTML(){
+  return `<div class="obox" style="margin-bottom:14px"><label class="check"><input type="checkbox" data-p2switch${p2on() ? " checked" : ""}> <span><b>Messages, time changes and reviews for customers</b></span></label>
+    <span class="note">Turn this on only after the new database rules are published in Firebase. While it is off, customers see the site as before.</span></div>`;
+}
+document.addEventListener("toggle", e => {
+  const d = e.target; if (!d.matches || !d.matches("details.ord[open]")) return;
+  const z = d.querySelector("[data-msglazy]"); if (!z || z.dataset.done) return;
+  const b = (ADM.bookings || []).find(x => x.id === z.dataset.msglazy); if (!b) return;
+  z.dataset.done = "1"; z.innerHTML = msgBoxHTML(b, true);
+  if (b.msgFrom === "customer" && b.msgAt && b.msgSeenA !== b.msgAt) FB.updateBooking(b.id, {msgSeenA: b.msgAt}).catch(() => {});
+}, true);
+
+document.addEventListener("submit", async e => {
+  const f = e.target, ds = f.dataset || {}; if (!ds.msgform && !ds.chgform && !ds.revform) return;
+  e.preventDefault();
+  const btn = f.querySelector("button[type=submit]"); btn.disabled = true;
+  try {
+    if (ds.msgform){ if (await sendBkMsg(ds.msgform, f.text.value, isAdmin() && current() === "admin")) f.text.value = ""; }
+    else if (ds.chgform){
+      const b = findBooking(ds.chgform); if (!b || !BKP.pick.length) return;
+      const req = {options: BKP.pick.slice(0, 3), reason: f.reason.value, note: f.note.value.trim().slice(0, 300), at: new Date().toISOString()};
+      await FB.updateBooking(b.id, {changeReq: req}, {status: "Change requested", by: "customer"});
+      sendEmail(`${b.name || "A customer"} asks to change booking #B${b.number}`, {Booking: "#B" + b.number, Service: b.serviceTitle, Now: fmtLong(b.startMs), "Asks for": req.options.map(o => fmtLong(o.startMs)).join(" | "), Reason: req.reason, Note: req.note || "—", "Answer in Admin": location.origin + "/admin", _replyto: b.email || CONTACT_EMAIL, _template: "box"}).catch(() => {});
+      BKP.pick = []; BKP.changing = null; toast("Request sent"); BKP.stale = false; render();
+    } else {
+      const b = findBooking(ds.revform); if (!b) return;
+      const rv = {stars: Math.min(5, Math.max(1, parseInt(f.stars.value, 10) || 5)), text: f.text.value.trim().slice(0, 600), showName: f.showName.checked, name: String(b.name || "").trim().split(/\s+/)[0] || "", at: new Date().toISOString()};
+      await FB.updateBooking(b.id, {review: rv}, {status: "Review sent", by: "customer"});
+      sendEmail(`New review for ${b.providerName}: ${rv.stars} of 5`, {Booking: "#B" + b.number, Service: b.serviceTitle, Stars: String(rv.stars), Review: rv.text || "—", "Publish it in Admin": location.origin + "/admin", _template: "box"}).catch(() => {});
+      toast("Thank you for your review"); BKP.stale = false; render();
+    }
+  } catch(er){ console.error(er); toast("Couldn't send. Try again."); }
+  finally { btn.disabled = false; }
+});
+document.addEventListener("change", async e => {
+  const t = e.target;
+  if (t.matches("[data-chgday]")){ BKP.day = t.value; render(); return; }
+  if (t.matches("[data-p2switch]") && isAdmin()){
+    try { await FB.saveService("_settings", {kind: "settings", title: "_settings", active: false, part2: t.checked}, !ALL_SETTINGS); SET = {...SET, part2: t.checked}; ALL_SETTINGS = true; toast(t.checked ? "Switched on for customers" : "Switched off"); refreshAdmin(true); }
+    catch(er){ console.error(er); t.checked = !t.checked; toast("Couldn't save. Try again."); }
+  }
+});
+document.addEventListener("click", async e => {
+  const el = e.target.closest("button"); if (!el) return; const d = el.dataset;
+  if (d.msgquick){ const f = document.querySelector(`[data-msgform="${d.msgquick}"]`); if (f){ f.text.value = el.textContent; f.text.focus(); } return; }
+  if (d.chgopen){ BKP.changing = d.chgopen; BKP.pick = []; BKP.day = null; render(); return; }
+  if ("chgclose" in d){ BKP.changing = null; BKP.pick = []; render(); return; }
+  if (d.chgslot){ const [date, time, slotKey, ms] = d.chgslot.split("|"), i = BKP.pick.findIndex(p => p.slotKey === slotKey);
+    if (i >= 0) BKP.pick.splice(i, 1); else if (BKP.pick.length >= 3) return toast("You can pick up to 3 times"); else BKP.pick.push({startMs: +ms, date, time, slotKey});
+    render(); return; }
+  if (d.chgdrop){ BKP.pick = BKP.pick.filter(p => p.slotKey !== d.chgdrop); render(); return; }
+  const id = d.chgcancel || d.offeryes || d.offerno || d.chgkeep || d.offerdrop || d.revpub || (d.chgpick || "").split("|")[0]; if (!id) return;
+  const b = bkAny(id); if (!b) return;
+  el.disabled = true;
+  try {
+    if (d.chgcancel){ await FB.updateBooking(id, {changeReq: null}, {status: "Change request withdrawn", by: "customer"}); toast("Request withdrawn"); }
+    else if (d.offeryes){
+      await FB.acceptOffer(id, bkCap(b));
+      sendEmail(`${b.name || "A customer"} accepted the new time for #B${b.number}`, {Booking: "#B" + b.number, Service: b.serviceTitle, "New time": fmtLong(b.offer.startMs), _template: "box"}).catch(() => {});
+      toast("Your new time is booked");
+    }
+    else if (d.offerno){ await FB.updateBooking(id, {offer: null}, {status: "Offer declined", by: "customer"}); toast("You kept your time"); }
+    else if (!isAdmin()) return;
+    else if (d.chgpick){
+      const o = b.changeReq.options[+d.chgpick.split("|")[1]];
+      await FB.moveBooking(id, {startMs: o.startMs, date: o.date, time: o.time, slotKey: o.slotKey}, bkCap(b), USER.email);
+      if (b.email) emailBooking({...b, startMs: o.startMs}, "Time changed", `Your session moved from ${fmtLong(b.startMs)} to ${fmtLong(o.startMs)} (Toronto time), as you asked.`, {}).catch(() => {});
+      toast("Booking moved");
+    }
+    else if (d.chgkeep){ await FB.updateBooking(id, {changeReq: null}, {status: "Change declined", by: USER.email}); if (b.email) emailBooking(b, "Change declined", "", {}).catch(() => {}); toast("Kept the current time"); }
+    else if (d.offerdrop){ await FB.updateBooking(id, {offer: null}, {status: "Offer withdrawn", by: USER.email}); toast("Offer withdrawn"); }
+    else if (d.revpub){
+      const p = PROVIDERS.find(x => x.id === b.providerUid), rv = b.review; if (!p || !rv) return toast("No provider profile for this service");
+      const when = new Date(rv.at || Date.now()).toLocaleDateString("en-CA", {month: "short", year: "numeric"});
+      await FB.saveService(p.id, {reviews: [{name: rv.showName ? rv.name : "", stars: rv.stars, date: when, text: rv.text || ""}, ...(p.reviews || [])].slice(0, 50)}, false);
+      await FB.updateBooking(id, {review: {...rv, published: true}}, {status: "Review published", by: USER.email});
+      toast("Review published");
+    }
+  } catch(er){ console.error(er); toast(er.message === "slot-full" ? "That time was just taken" : "Couldn't save. Try again."); }
+  finally { el.disabled = false; }
+});
+
 /* ---- Admin: bookings ---- */
 const BADM = {filter: "Upcoming", q: ""};
 function adminBookingsHTML(){
@@ -4654,14 +4843,14 @@ function adminBookingsHTML(){
   let list = all.filter(F[BADM.filter]);
   if (q) list = list.filter(b => [b.number, b.name, b.email, b.phone, b.serviceTitle, b.providerName].join(" ").toLowerCase().includes(q));
   list.sort((a, b) => ["Upcoming", "Requested", "Confirmed"].includes(BADM.filter) ? a.startMs - b.startMs : b.startMs - a.startMs);
-  return `<div class="admintools"><input id="admBQ" type="search" placeholder="Search by booking #, name, email, phone or service" value="${esc(BADM.q)}" aria-label="Search bookings"></div>
+  return `${p2SwitchHTML()}<div class="admintools"><input id="admBQ" type="search" placeholder="Search by booking #, name, email, phone or service" value="${esc(BADM.q)}" aria-label="Search bookings"></div>
     <div class="chips" role="group" aria-label="Filter bookings" style="margin-bottom:14px">${Object.keys(F).map(k => `<button type="button" data-bfilter="${k}" aria-pressed="${BADM.filter === k}">${k} (${all.filter(F[k]).length})</button>`).join("")}</div>
     ${list.length ? `<div class="ordlist">${list.map(adminBookingHTML).join("")}</div>` : `<div class="empty">No bookings here.</div>`}`;
 }
 function adminBookingHTML(b){
   const key = "b_" + b.id, n = ADM.notes[key], tel = String(b.phone || "").replace(/[^\d+]/g, "");
   return `<details class="ord" data-oid="${key}"${ADM.open.has(key) ? " open" : ""}>
-    <summary><span class="onum">#B${b.number} · ${esc(b.name || "")}</span><span class="oright">${pill(b.status)}<b>${fmtWhen(b.startMs, {month:"short", day:"numeric"})}, ${fmtTime(b.startMs)}</b></span><span class="ometa">${esc(b.serviceTitle)} · ${b.format === "online" ? "Online" : "In person"} · ${durTxt(b.durationMin)}</span></summary>
+    <summary><span class="onum">#B${b.number} · ${esc(b.name || "")}</span><span class="oright">${pill(b.status)}${bkFlags(b)}<b>${fmtWhen(b.startMs, {month:"short", day:"numeric"})}, ${fmtTime(b.startMs)}</b></span><span class="ometa">${esc(b.serviceTitle)} · ${b.format === "online" ? "Online" : "In person"} · ${durTxt(b.durationMin)}</span></summary>
     <div class="obody">
       <div class="ogrid">
         <div class="obox"><h3>Customer</h3><b>${esc(b.name || "")}</b>

@@ -1,4 +1,4 @@
-// Nojan · v95 · built 2026-11-10
+// Nojan · v96 · built 2026-11-10
 /* Firebase: sign-in (email or Google) and the order database. These keys are public by design;
    the database's security rules decide who can read or change what. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -91,8 +91,28 @@ window.SHOP_FB = {
         if (os && os.exists() && (os.data().count || 0) > 0) tx.update(oref, {count: os.data().count - 1});
         if (ns.exists()) tx.update(nref, {count: used + 1}); else tx.set(nref, {serviceId: b.serviceId, startMs: to.startMs, count: 1});
       }
-      tx.update(bref, {startMs: to.startMs, date: to.date, time: to.time, slotKey: to.slotKey, reminded: false, updatedAt: serverTimestamp(),
+      tx.update(bref, {startMs: to.startMs, date: to.date, time: to.time, slotKey: to.slotKey, reminded: false, changeReq: null, offer: null, updatedAt: serverTimestamp(),
         history: arrayUnion({status: "Time changed", by, from: b.startMs, to: to.startMs, at: new Date().toISOString()})});
+    });
+  },
+  /* v96: messages on a booking, and a customer accepting a time the admin offered */
+  watchBookingMsgs: (id, cb, err) => onSnapshot(query(collection(db, "bookings", id, "messages"), orderBy("at")), s => cb(s.docs.map(d => ({id: d.id, ...d.data()}))), err),
+  async addBookingMsg(id, m){
+    const at = new Date().toISOString();
+    await addDoc(collection(db, "bookings", id, "messages"), {...m, at});
+    await updateDoc(doc(db, "bookings", id), {msgAt: at, msgFrom: m.role, msgText: m.text.slice(0, 120), updatedAt: serverTimestamp()});
+  },
+  async acceptOffer(id, capacity){
+    return runTransaction(db, async tx => {
+      const bref = doc(db, "bookings", id), b = (await tx.get(bref)).data(), o = b.offer;
+      if (!o) throw new Error("no-offer");
+      const oref = b.slotKey ? doc(db, "slots", b.slotKey) : null, nref = doc(db, "slots", o.slotKey);
+      const os = oref ? await tx.get(oref) : null, ns = await tx.get(nref), used = ns.exists() ? (ns.data().count || 0) : 0;
+      if (used >= capacity) throw new Error("slot-full");
+      if (os && os.exists() && (os.data().count || 0) > 0) tx.update(oref, {count: os.data().count - 1});
+      if (ns.exists()) tx.update(nref, {count: used + 1}); else tx.set(nref, {serviceId: b.serviceId, startMs: o.startMs, count: 1});
+      tx.update(bref, {startMs: o.startMs, date: o.date, time: o.time, slotKey: o.slotKey, offer: null, changeReq: null, reminded: false, updatedAt: serverTimestamp(),
+        history: arrayUnion({status: "Time changed", by: "customer", from: b.startMs, to: o.startMs, at: new Date().toISOString()})});
     });
   },
   async bookService(b, slotKey, capacity){

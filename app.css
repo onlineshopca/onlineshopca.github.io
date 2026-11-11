@@ -2187,3 +2187,14 @@ h1 .pchk{width:22px;height:22px;margin-left:8px}
 .bkans{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px}.bkans dt{color:var(--muted)}.bkans dd{margin:0}
 
 .pdirchips button{white-space:nowrap}
+
+/* v96: booking messages, time changes, reviews */
+.bmsgs{display:grid;gap:8px;max-height:340px;overflow-y:auto;padding:2px}
+.bmsg{justify-self:start;max-width:85%;background:var(--soft);border-radius:14px 14px 14px 4px;padding:8px 12px}
+.bmsg.me{justify-self:end;background:var(--fg);color:var(--card);border-radius:14px 14px 4px 14px}
+.bmsg p{margin:0;white-space:pre-line;overflow-wrap:anywhere}.bmsg small{display:block;font-size:.75rem;opacity:.75;margin-top:2px}
+.bmsgform{display:flex;gap:8px;align-items:center}.bmsgform input{flex:1;min-width:0}
+.bkoffer{border:2px solid var(--fg)}.bklabel{font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}.bkbig{font-size:1.15rem}
+.whoseg.stars{grid-template-columns:repeat(5,minmax(0,1fr))}
+.pill.bkflagp{background:var(--usedbg);color:var(--used);margin-left:6px}
+.obox.bkflag{border:2px solid var(--used)}
