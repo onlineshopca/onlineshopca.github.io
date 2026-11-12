@@ -2384,3 +2384,7 @@ html body .invscan .btn[hidden]{display:none!important}
 html{zoom:.85}
 input,select,textarea{font-size:18.9px!important}
 }
+
+/* v101: pictures always fit their frame in full (tall photos were cut off at top and bottom) */
+.pic,.ctile .cimg{grid-template:minmax(0,1fr)/minmax(0,1fr)}
+.pic img,.ctile .cimg img{min-width:0;min-height:0;max-width:100%;max-height:100%}
