@@ -409,11 +409,12 @@ function categoryView(){
   if (feedState.new === "loading" && !all.length) return `<div class="sectionhead"><h1>${esc(c)}</h1></div><div class="empty">Loading items…</div>`;
   const nNew = all.filter(p => p.condition === "new").length, nUsed = all.length - nNew;
   if (catCond !== "all" && !(nNew && nUsed)) catCond = "all";
-  const list = catSorted(catCond === "all" ? all : all.filter(p => (p.condition === "new") === (catCond === "new")));
+  cfFor("c:" + c);
+  const list = catSorted(cfList(catCond === "all" ? all : all.filter(p => (p.condition === "new") === (catCond === "new")), false));
   const others = groupCats(CAT_GROUPS, g, m).filter(x => x !== c);
   return `<div class="cathead t${g[1]}"><span class="cgi">${cgiImg(all.find(x => imagesOf(x).length))}</span><div><h1>${esc(c)}</h1><p class="count">${plural(all.length, "item")}</p></div></div>
-    ${all.length ? `<div class="cattools"><div class="catchips">${nNew && nUsed ? cgChip("catcond", "all", catCond === "all", "All", all.length) + cgChip("catcond", "new", catCond === "new", "Brand new", nNew) + cgChip("catcond", "used", catCond === "used", "Used", nUsed) : ""}</div>${catSortHTML()}</div>
-    <div class="grid">${productCards(list, {brand: true})}</div>` : `<div class="empty">No items in this category right now. <a href="#shop">See all categories ›</a></div>`}
+    ${all.length ? `<div class="cattools">${cfBtnHTML()}<div class="catchips">${nNew && nUsed ? cgChip("catcond", "all", catCond === "all", "All", all.length) + cgChip("catcond", "new", catCond === "new", "Brand new", nNew) + cgChip("catcond", "used", catCond === "used", "Used", nUsed) : ""}</div>${catSortHTML()}</div>${cfPanelHTML(all, false, list.length)}
+    ${list.length ? `<div class="grid">${productCards(list, {brand: true})}</div>` : cfEmptyHTML(false)}` : `<div class="empty">No items in this category right now. <a href="#shop">See all categories ›</a></div>`}
     ${cgMore(g, "More in " + esc(g[0]), others.map(x => catTileHTML(x, m.get(x))), "#group-" + catSlug(g[0]), "See all ›")}`;
 }
 function groupView(){
@@ -421,33 +422,84 @@ function groupView(){
   const all = cs.flatMap(c => m.get(c));
   if (feedState.new === "loading" && !all.length) return `<div class="sectionhead"><h1>${esc(g[0])}</h1></div><div class="empty">Loading items…</div>`;
   if (groupCat !== "all" && !cs.includes(groupCat)) groupCat = "all";
-  const list = catSorted(groupCat === "all" ? all : m.get(groupCat));
+  cfFor("g:" + g[0]);
+  const list = catSorted(cfList(groupCat === "all" ? all : m.get(groupCat), false));
   return `<div class="cathead t${g[1]}"><div><h1>${esc(g[0])}</h1><p class="count">${plural(all.length, "item")} in ${cs.length} categor${cs.length === 1 ? "y" : "ies"}</p></div></div>
     ${all.length ? `<div class="catrow gtiles t${g[1]}">${cs.map(c => catTileHTML(c, m.get(c))).join("")}</div>
-    <div class="cattools"><div class="catchips">${cs.length > 1 ? cgChip("groupcat", "all", groupCat === "all", "All", all.length) + cs.map(c => cgChip("groupcat", c, groupCat === c, c, m.get(c).length)).join("") : ""}</div>${catSortHTML()}</div>
-    <div class="grid">${productCards(list, {brand: true})}</div>` : `<div class="empty">No items here right now. <a href="#shop">See all categories ›</a></div>`}`;
+    <div class="cattools">${cfBtnHTML()}<div class="catchips">${cs.length > 1 ? cgChip("groupcat", "all", groupCat === "all", "All", all.length) + cs.map(c => cgChip("groupcat", c, groupCat === c, c, m.get(c).length)).join("") : ""}</div>${catSortHTML()}</div>${cfPanelHTML(all, false, list.length)}
+    ${list.length ? `<div class="grid">${productCards(list, {brand: true})}</div>` : cfEmptyHTML(false)}` : `<div class="empty">No items here right now. <a href="#shop">See all categories ›</a></div>`}`;
 }
 function scatName(m){ const known = [...new Set([...SVC_GROUPS.flatMap(g => g[2]), ...m.keys()])]; return known.find(c => catSlug(c) === scatSlug) || ""; }
 function scategoryView(){
   const m = svcMap(), c = scatName(m);
   if (!c) return servicesLoaded || fbFailed ? `<div class="empty">This category isn't available. <a href="#services">See all services ›</a></div>` : `<div class="empty">Loading…</div>`;
   const g = groupOf(SVC_GROUPS, c), all = m.get(c) || [], others = groupCats(SVC_GROUPS, g, m).filter(x => x !== c);
+  cfFor("sc:" + c); const list = catSorted(cfList(all, true));
   return `<div class="cathead t${g[1]}"><span class="cgi">${cgiSvg(SVC_ICONS[c] || CG_ICON.svc)}</span><div><h1>${esc(c)}</h1><p class="count">${plural(all.length, "service")}</p></div></div>
-    ${all.length ? `<div class="svcgrid">${serviceCards(all)}</div>` : `<div class="empty">${servicesLoaded || fbFailed ? `No services in this category right now. <a href="#services">See all services ›</a>` : "Loading…"}</div>`}
+    ${all.length ? `<div class="cattools">${cfBtnHTML()}<div class="catchips"></div>${catSortHTML()}</div>${cfPanelHTML(all, true, list.length)}
+    ${list.length ? `<div class="svcgrid">${serviceCards(list)}</div>` : cfEmptyHTML(true)}` : `<div class="empty">${servicesLoaded || fbFailed ? `No services in this category right now. <a href="#services">See all services ›</a>` : "Loading…"}</div>`}
     ${cgMore(g, "More in " + esc(g[0]), others.map(x => svcTileHTML(x, m.get(x))), "#sgroup-" + catSlug(g[0]), "See all ›")}`;
 }
 function sgroupView(){
   const g = groupFromSlug(SVC_GROUPS, catSlug(sgroupId || "")) || SVC_GROUPS[0], m = svcMap(), cs = groupCats(SVC_GROUPS, g, m), all = cs.flatMap(c => m.get(c));
   if (sgroupCat !== "all" && !cs.includes(sgroupCat)) sgroupCat = "all";
-  const list = sgroupCat === "all" ? all : m.get(sgroupCat);
+  cfFor("sg:" + g[0]);
+  const list = catSorted(cfList(sgroupCat === "all" ? all : m.get(sgroupCat), true));
   return `<div class="cathead t${g[1]}"><div><h1>${esc(g[0])}</h1><p class="count">${plural(all.length, "service")} in ${cs.length} categor${cs.length === 1 ? "y" : "ies"}</p></div></div>
     ${all.length ? `<div class="catrow gtiles t${g[1]}">${cs.map(c => svcTileHTML(c, m.get(c))).join("")}</div>
-    <div class="cattools"><div class="catchips">${cs.length > 1 ? cgChip("sgroupcat", "all", sgroupCat === "all", "All", all.length) + cs.map(c => cgChip("sgroupcat", c, sgroupCat === c, c, m.get(c).length)).join("") : ""}</div></div>
-    <div class="svcgrid">${serviceCards(list)}</div>` : `<div class="empty">${servicesLoaded || fbFailed ? `No services here right now. <a href="#services">See all services ›</a>` : "Loading…"}</div>`}`;
+    <div class="cattools">${cfBtnHTML()}<div class="catchips">${cs.length > 1 ? cgChip("sgroupcat", "all", sgroupCat === "all", "All", all.length) + cs.map(c => cgChip("sgroupcat", c, sgroupCat === c, c, m.get(c).length)).join("") : ""}</div>${catSortHTML()}</div>${cfPanelHTML(all, true, list.length)}
+    ${list.length ? `<div class="svcgrid">${serviceCards(list)}</div>` : cfEmptyHTML(true)}` : `<div class="empty">${servicesLoaded || fbFailed ? `No services here right now. <a href="#services">See all services ›</a>` : "Loading…"}</div>`}`;
 }
 document.addEventListener("click", e => { const b = e.target.closest("[data-catcond],[data-groupcat],[data-sgroupcat]"); if (!b) return;
   if (b.dataset.catcond) catCond = b.dataset.catcond; else if (b.dataset.groupcat) groupCat = b.dataset.groupcat; else sgroupCat = b.dataset.sgroupcat; render(); });
 document.addEventListener("change", e => { if (e.target.id !== "catsort") return; sortBy = e.target.value; render(); });
+/* v104: "More filters" on category and group pages (items and services). One small filter state for the page you are on; it clears when you open another page. */
+let CF = {key:""};
+function cfFor(key){ if (CF.key !== key) CF = {key, brands:[], grades:[], sale:false, provs:[], fmts:[], sizes:[], levels:[], min:null, max:null}; return CF; }
+const cfFacets = svc => svc ? {provs: SVC_FACETS.provs, fmts: SVC_FACETS.fmts, sizes: SVC_FACETS.sizes, levels: s => [s.level].filter(Boolean)}
+  : {brands: p => [brandOf(p)].filter(Boolean), grades: p => p.condition === "used" && p.grade ? [p.grade] : []};
+function cfPass(x, svc, skip){ const F = CF;
+  return Object.entries(cfFacets(svc)).every(([k, fn]) => k === skip || !F[k].length || fn(x).some(v => F[k].includes(v)))
+    && (svc || skip === "sale" || !F.sale || x.was != null)
+    && (skip === "price" || ((F.min == null || (x.price ?? 0) >= F.min) && (F.max == null || (x.price ?? 0) <= F.max))); }
+const cfList = (list, svc) => list.filter(x => cfPass(x, svc));
+const cfActive = () => ["brands","grades","provs","fmts","sizes","levels"].reduce((n, k) => n + CF[k].length, 0) + (CF.sale ? 1 : 0) + (CF.min != null || CF.max != null ? 1 : 0);
+const cfBtnHTML = () => `<button type="button" class="morefl" id="fltBtn" data-fopen aria-expanded="${fltOpen}" aria-controls="fltPanel" style="margin-left:0;min-height:44px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>More filters <span class="fltbadge" id="fltBadge">${cfActive() || ""}</span></button>`;
+const cfEmptyHTML = svc => svc ? `<div class="empty">No services match these filters. <button class="linkbtn" type="button" data-cfclear>Clear filters</button></div>`
+  : `<div class="empty">No items match these filters. <button class="linkbtn" type="button" data-cfclear>Clear filters</button> to see everything.</div>`;
+function cfPanelHTML(base, svc, n){
+  const F = CF, fc = cfFacets(svc), word = svc ? "service" : "item";
+  const count = k => base.filter(x => cfPass(x, svc, k)).reduce((m, x) => { fc[k](x).forEach(v => m[v] = (m[v] || 0) + 1); return m; }, {});
+  const sec = (k, title, order) => { const all = [...new Set(base.flatMap(fc[k]))]; if (all.length < 2 && !F[k].length) return "";
+    const c = count(k), keys = order ? order.filter(v => all.includes(v)) : all.sort((a, b) => a.localeCompare(b));
+    return `<div class="fsec"><h3>${title}</h3><div class="fopts" role="group" aria-label="${title}">${keys.map(v => `<button type="button" class="fopt${c[v] ? "" : " zero"}" data-cf="${k}" data-v="${esc(v)}" aria-pressed="${F[k].includes(v)}">${esc(v)} <i>${c[v] || 0}</i></button>`).join("")}</div></div>`; };
+  const sale = svc ? 0 : base.filter(x => cfPass(x, svc, "sale") && x.was != null).length;
+  return `<div class="fltback" id="fltBack" data-fclose ${fltOpen ? "" : "hidden"}></div>
+  <section class="fltpanel" id="fltPanel" role="dialog" aria-label="Filter ${word}s" ${fltOpen ? "" : "hidden"}>
+    <div class="flthead"><h2>More filters</h2><button type="button" class="fltx" data-fclose aria-label="Close filters">×</button></div>
+    <div class="fltbody">
+      ${svc ? sec("provs", "Provider") + sec("fmts", "How it's held", ["Online", "In person"]) + sec("sizes", "Class size", ["1-on-1", "Group class"]) + sec("levels", "Level") : sec("brands", "Brand") + sec("grades", "Condition of used items", GRADES)}
+      <div class="fsec"><h3>Price</h3><div class="pricein">
+        <label class="pnum"><span>From $</span><input id="cfMin" type="number" inputmode="decimal" min="0" step="any" value="${F.min ?? ""}" placeholder="0"></label>
+        <span class="pto">to</span>
+        <label class="pnum"><span>To $</span><input id="cfMax" type="number" inputmode="decimal" min="0" step="any" value="${F.max ?? ""}" placeholder="Any"></label>
+      </div></div>
+      ${sale || F.sale ? `<div class="fsec"><h3>More</h3><div class="fopts"><button type="button" class="fopt" data-cf="sale" aria-pressed="${!!F.sale}">On sale <i>${sale}</i></button></div></div>` : ""}
+    </div>
+    <div class="fltfoot"><button type="button" class="linkbtn" data-cfclear ${cfActive() ? "" : "disabled"}>Clear all</button><button type="button" class="btn" id="fltShow" data-fclose>Show ${n} ${word}${n === 1 ? "" : "s"}</button></div>
+  </section>`;
+}
+function cfRerender(focusSel){ const y = (document.querySelector(".fltbody") || {}).scrollTop || 0; render();
+  const body = document.querySelector(".fltbody"); if (body) body.scrollTop = y;
+  const again = focusSel && document.querySelector(focusSel); if (again) again.focus({preventScroll:true}); }
+document.addEventListener("click", e => { const b = e.target.closest("[data-cf],[data-cfclear]"); if (!b || !CF.key) return;
+  if (b.hasAttribute("data-cfclear")){ const key = CF.key; CF = {key:""}; cfFor(key); cfRerender(fltOpen ? ".fltx" : "#fltBtn"); return; }
+  const k = b.dataset.cf, v = b.dataset.v;
+  if (k === "sale") CF.sale = !CF.sale; else CF[k] = CF[k].includes(v) ? CF[k].filter(x => x !== v) : [...CF[k], v];
+  cfRerender(`.fopt[data-cf="${k}"]${v != null ? `[data-v="${CSS.escape(v)}"]` : ""}`); });
+document.addEventListener("change", e => { const id = e.target.id; if ((id !== "cfMin" && id !== "cfMax") || !CF.key) return;
+  const raw = e.target.value.trim(), v = raw === "" ? null : Math.max(0, +raw);
+  CF[id === "cfMin" ? "min" : "max"] = v != null && Number.isFinite(v) ? v : null; cfRerender("#" + id); });
 function inPrice(cond, p){ const {min, max, active} = rangeOf(cond); return !active || (p.price != null && p.price >= min && p.price <= max); }
 function facetList(cond, skip){          // everything that passes the other filters (so counts stay honest)
   const F = FLT[cond];
@@ -666,7 +718,13 @@ function syncPriceUI(cond){
 function updateResults(cond){
   const el = $("#results"); if (el) el.innerHTML = resultsHTML(cond);
   if (FLT[cond]) refreshFilterUI(cond);
+  syncListTools(cond);
 }
+/* v104: on the main Shop and Services pages, "Sort by" and "More filters" show only with a list (a search or a filter), not with the category cards */
+function plainList(cond){ return !!FLT[cond] && !activeFilters(cond).length && !query.trim(); }
+const toolOff = cond => plainList(cond) ? ' style="display:none"' : "";
+const hideBar = (h, cond) => plainList(cond) ? h.replace('<div class="qbar" id="qbar">', '<div class="qbar" id="qbar" style="display:none">') : h;
+function syncListTools(cond){ const off = plainList(cond) ? "none" : "", s = document.querySelector(".pagehero .hsort"), q = $("#qbar"); if (s) s.style.display = off; if (q) q.style.display = off; }
 const PAGE = {
   shop: {title:"Shop", lead:"Brand new and used items in one place. Every item shows its condition, who sells it, and whether Nojan has certified it."},
   new: {
@@ -710,11 +768,11 @@ function listView(cond){
   return `
   <section class="pagehero lhero ${cond}">
     <div class="phtext"><h1>${P.title}</h1><p>${P.lead}</p></div>
-    <label class="sortlbl hsort">Sort by
+    <label class="sortlbl hsort"${toolOff(cond)}>Sort by
       <select id="sort"><option value="featured"${sortBy==="featured"?" selected":""}>Featured</option><option value="low"${sortBy==="low"?" selected":""}>Price: low to high</option><option value="high"${sortBy==="high"?" selected":""}>Price: high to low</option></select>
     </label>
   </section>
-  ${filterBarHTML(cond, cond === "new" ? "brand new items" : cond === "used" ? "used items" : "items")}
+  ${hideBar(filterBarHTML(cond, cond === "new" ? "brand new items" : cond === "used" ? "used items" : "items"), cond)}
       <div class="fsec"><h3>Price</h3>
     <div class="pricebox" role="group" aria-labelledby="priceTitle">
       <div class="pricehead"><span id="priceTitle">Price</span><output id="priceLbl" aria-live="polite"></output></div>
@@ -4275,13 +4333,13 @@ function servicesView(){
   const F = FLT.services, n = activeFilters("services").length;
   return `<section class="pagehero lhero services">
       <div class="phtext"><h1>Services</h1><p>Applications, automation, cloud and project work for your business, plus one-on-one classes. Choose a category to see its services.</p></div>
-      ${SERVICES.length ? `<label class="sortlbl hsort">Sort by
+      ${SERVICES.length ? `<label class="sortlbl hsort"${toolOff("services")}>Sort by
         <select id="sort"><option value="featured"${sortBy==="featured"?" selected":""}>Featured</option><option value="low"${sortBy==="low"?" selected":""}>Price: low to high</option><option value="high"${sortBy==="high"?" selected":""}>Price: high to low</option></select>
       </label>` : ""}
     </section>
     ${svcTabsHTML()}
     ${svcTab() === "people" ? peopleDirHTML() : !SERVICES.length ? `<div class="empty">${servicesLoaded || fbFailed ? `New services are coming soon. <a href="#contact-us" style="color:var(--link)">Tell us what you'd like to learn</a>.` : "Loading services…"}</div>` : `
-    ${filterBarHTML("services", "services")}
+    ${hideBar(filterBarHTML("services", "services"), "services")}
     <div class="fsec"><h3>Price</h3>
       <div class="pricein">
         <label class="pnum"><span>From $</span><input id="sMinN" type="number" inputmode="decimal" min="0" step="any" value="${F.min ?? ""}" placeholder="0"></label>
