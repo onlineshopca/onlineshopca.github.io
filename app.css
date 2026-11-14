@@ -2388,3 +2388,49 @@ input,select,textarea{font-size:18.9px!important}
 /* v101: pictures always fit their frame in full (tall photos were cut off at top and bottom) */
 .pic,.ctile .cimg{grid-template:minmax(0,1fr)/minmax(0,1fr)}
 .pic img,.ctile .cimg img{min-width:0;min-height:0;max-width:100%;max-height:100%}
+
+/* v102: home category cards + one page per category */
+.cgtitle{margin-top:22px}
+.catcards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.cgcard{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;display:grid;gap:14px;align-content:start;min-width:0}
+.cgcard h3{margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.cgcard h3 a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:28px;color:inherit;text-decoration:none}.cgcard h3 a span{color:var(--muted);font-weight:600}.cgcard h3 a:hover{text-decoration:underline}
+.gtiles{margin-bottom:18px;grid-template-columns:repeat(auto-fill,minmax(150px,180px))}
+.cathead .cgi svg{width:46%;height:46%;fill:none;stroke:#1d1d1f;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+body[data-view="scategory"] .svcgrid,body[data-view="sgroup"] .svcgrid{margin-top:4px}
+.cgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px}
+.cgt{display:grid;gap:4px;align-content:start;min-width:0;color:var(--fg);text-decoration:none}
+.cgt .cgi{aspect-ratio:1/1;border-radius:14px;background:#f5f5f7;display:grid;grid-template:minmax(0,1fr)/minmax(0,1fr);place-items:center;overflow:hidden;padding:10px;margin-bottom:2px;transition:transform .15s}
+.cgt .cgi img{width:100%;height:100%;min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply}
+.cgt .cgi svg{width:42%;height:42%;fill:none;stroke:#1d1d1f;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.cgt b{font-size:14px;font-weight:600;line-height:1.25}
+.cgt .xn{font-size:12px;color:var(--muted)}
+.cgt:hover b{text-decoration:underline}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.cgt:hover .cgi{transform:scale(1.03)}}
+.tb .cgi{background:rgba(43,111,234,.09)}.ty .cgi{background:rgba(251,188,5,.15)}.tr .cgi{background:rgba(232,51,74,.08)}.tg .cgi{background:rgba(30,142,62,.09)}
+.cathead{display:flex;align-items:center;gap:16px;margin:6px 0 18px}
+.cathead .cgi{flex:none;width:76px;height:76px;border-radius:18px;display:grid;grid-template:minmax(0,1fr)/minmax(0,1fr);place-items:center;overflow:hidden;padding:8px}
+.cathead .cgi img{min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply}
+.cathead h1{margin:0;font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.cathead .count{margin:4px 0 0}
+.cattools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+.catchips{display:flex;flex-wrap:wrap;gap:8px}
+.catchips button{font:inherit;font-size:14px;font-weight:600;color:var(--fg);min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:transparent;cursor:pointer}
+.catchips button[aria-pressed="true"]{background:#fff;border-color:#1d1d1f;font-weight:700}
+.catchips button i{font-style:normal;color:var(--muted);font-weight:600}
+.catsort{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin-left:auto;white-space:nowrap}
+.catsort select{font:inherit;font-size:14px;color:var(--fg);min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:#fff}
+.catmore{margin-top:36px}
+.catrow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.catrow .cgt{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px}
+.shelf .hhead .shelfall{margin-left:auto;font-weight:600;font-size:15px;text-decoration:none;color:var(--link)}
+.mcol a i{font-style:normal}
+@media (max-width:1000px){.catcards{grid-template-columns:repeat(2,minmax(0,1fr))}.catrow{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:620px){
+  .catcards{grid-template-columns:minmax(0,1fr);gap:12px}.cgcard{padding:16px}.cgcard h3{font-size:19px}
+  .cathead{gap:12px}.cathead .cgi{width:58px;height:58px;border-radius:16px}.cathead h1{font-size:26px}
+  .gtiles{grid-template-columns:none}
+  .catrow{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}.catrow>*{flex:0 0 38%;scroll-snap-align:start}
+  .catsort span{display:none}
+  body[data-view="category"] .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+}

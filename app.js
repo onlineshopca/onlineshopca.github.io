@@ -356,6 +356,98 @@ const FLT = { shop:{types:[],brands:[],grades:[],conds:[],sellers:[],sale:false,
 let fltOpen = false;
 const typeOf = p => (p.type && TYPE_LIST.includes(p.type)) ? p.type : guessType(p.name + " " + (p.brand || ""));
 const brandOf = p => (p.brand || "").trim();
+/* v102: Shop and Services show their categories in four cards; every group and every category has its own page
+   (nojans.com/group-electronics, /category-headphones-audio, /sgroup-apps-automation, /scategory-power-platform) */
+const catSlug = c => String(c).toLowerCase().replace(/&/g, " ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const CAT_PAGES = [...TYPE_LIST, "Other"];
+const catFromSlug = s => CAT_PAGES.find(c => catSlug(c) === String(s || "").toLowerCase()) || null;
+const CAT_GROUPS = [
+  ["Electronics", "b", ["Headphones & audio", "Computers & office", "Cameras & photo", "Phones, tablets & e-readers", "TVs"]],
+  ["Home & kitchen", "y", ["Kitchen & cooking", "Home & cleaning", "Air purifiers & humidifiers", "Toys, games & LEGO", "Furniture"]],
+  ["Beauty & health", "r", ["Fragrances", "Personal care & grooming", "Health & fitness", "Jewelry & gifts"]],
+  ["More from Nojan", "g", ["Sports & outdoors", "Clothing & shoes", "Books", "Other"]]];
+const SVC_GROUPS = [
+  ["Apps & automation", "b", ["App & web development", "Power Platform", "CRM & Dynamics 365", "SharePoint & Microsoft 365"]],
+  ["Cloud & consulting", "g", ["Cloud & DevOps", "Data & AI", "Security & identity", "Project management"]],
+  ["Technology classes", "y", ["Programming", "Web development", "Software engineering", "Databases"]],
+  ["More classes & help", "r", ["Math", "English & writing", "Career & workplace", "Assembly"]]];
+const SVC_ICONS = {"App & web development": "M8 7l-5 5 5 5M16 7l5 5-5 5M13 5l-2 14", "Power Platform": "M13 3L5 13h6l-1 8 8-10h-6z",
+  "CRM & Dynamics 365": "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c.8-3 2.8-5 5-5s4.2 2 5 5M13 17c.7-1.3 1.8-2 3-2 2.2 0 4.2 2 5 5",
+  "SharePoint & Microsoft 365": "M4 5h16v14H4zM4 9h16M9 9v10", "Cloud & DevOps": "M7 18a4 4 0 0 1-.5-8 5.5 5.5 0 0 1 10.6-1.5A4.5 4.5 0 0 1 17 18z",
+  "Data & AI": "M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3zM5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3",
+  "Security & identity": "M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z", "Project management": "M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2",
+  "Programming": "M4 5h16v14H4zM7 9l3 3-3 3M12 15h5", "Web development": "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
+  "Software engineering": "M12 3l9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5", "Databases": "M4 5h16v14H4zM4 10h16M4 15h16M10 5v14",
+  "Math": "M5 7h6M8 4v6M14 7h5M5 17l5-5M5 12l5 5M14 15h5M14 18h5", "English & writing": "M4 20l4-1L19 8l-3-3L5 16zM14 7l3 3",
+  "Career & workplace": "M4 8h16v11H4zM9 8V5h6v3M4 13h16", "Assembly": "M14 6l4 4M5 19l9-9M13 5l2-2 6 6-2 2z"};
+const CG_ICON = {svc: "M4 6h16v10H4zM8 20h8M12 16v4"};
+const groupOf = (G, c) => G.find(g => g[2].includes(c)) || G[3];
+const groupFromSlug = (G, s) => G.find(g => catSlug(g[0]) === String(s || "").toLowerCase()) || null;
+const byCount = m => (a, b) => m.get(b).length - m.get(a).length || a.localeCompare(b);
+const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+let catId = null, catCond = "all", groupId = null, groupCat = "all", scatSlug = "", sgroupId = null, sgroupCat = "all";
+function catMap(){ const m = new Map(); groupList(PRODUCTS.filter(p => !p.soldOut)).forEach(p => { const c = typeOf(p) || "Other"; if (!m.has(c)) m.set(c, []); m.get(c).push(p); }); return m; }
+function svcMap(){ const m = new Map(); SERVICES.filter(s => !s.member).forEach(s => { const c = s.category || "Other"; if (!m.has(c)) m.set(c, []); m.get(c).push(s); }); return m; }
+/* categories of a group that have something in them; a category that is in no group goes to the last one */
+function groupCats(G, g, m){ const known = G.flatMap(x => x[2]); return [...m.keys()].filter(c => g[2].includes(c) || (g === G[3] && !known.includes(c))).sort((a, b) => { const i = g[2].indexOf(a), j = g[2].indexOf(b); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j) || a.localeCompare(b); }); }
+const cgiImg = p => { const im = p && imagesOf(p)[0]; return im ? `<img src="${esc(im)}" data-ref="${esc(refsOf(p)[0] || "")}" alt="" loading="lazy">` : ""; };
+const cgiSvg = d => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
+const cgTile = (href, pic, name, note) => `<a class="cgt" href="${href}"><span class="cgi">${pic}</span><b>${esc(name)}</b><span class="xn">${note}</span></a>`;
+function catTileHTML(c, list){ return cgTile("#category-" + catSlug(c), cgiImg(list.find(x => imagesOf(x).length) || list[0]), c, plural(list.length, "item")); }
+function svcTileHTML(c, list){ return cgTile("#scategory-" + catSlug(c), cgiSvg(SVC_ICONS[c] || CG_ICON.svc), c, plural(list.length, "service")); }
+function cgCardsHTML(G, m, tile, pre, extra){
+  return `<div class="catcards">${G.map(g => { const t = groupCats(G, g, m).map(c => tile(c, m.get(c))).concat(g === G[3] && extra ? extra : []); return t.length ? `<section class="cgcard t${g[1]}" aria-label="${esc(g[0])}"><h3><a href="#${pre}-${catSlug(g[0])}">${esc(g[0])}<span aria-hidden="true">›</span></a></h3><div class="cgrid">${t.join("")}</div></section>` : ""; }).join("")}</div>`;
+}
+function catCardsHTML(){ return cgCardsHTML(CAT_GROUPS, catMap(), catTileHTML, "group", [cgTile("#services", cgiSvg(CG_ICON.svc), "Services", SERVICES.length ? `${plural(SERVICES.length, "service")} to book` : "Classes and local help")]); }
+function svcCardsHTML(){ return cgCardsHTML(SVC_GROUPS, svcMap(), svcTileHTML, "sgroup"); }
+const catSortHTML = () => `<label class="catsort"><span>Sort by</span><select id="catsort"><option value="featured"${sortBy === "featured" ? " selected" : ""}>Featured</option><option value="low"${sortBy === "low" ? " selected" : ""}>Price: low to high</option><option value="high"${sortBy === "high" ? " selected" : ""}>Price: high to low</option></select></label>`;
+const catSorted = list => sortBy === "low" ? list.slice().sort((a, b) => (a.price ?? 1e9) - (b.price ?? 1e9)) : sortBy === "high" ? list.slice().sort((a, b) => (b.price ?? -1) - (a.price ?? -1)) : list;
+const cgChip = (attr, k, on, label, n) => `<button type="button" data-${attr}="${esc(k)}" aria-pressed="${on}">${esc(label)} <i>${n}</i></button>`;
+const cgMore = (g, title, tiles, all, allTxt) => tiles.length ? `<section class="hsec catmore t${g[1]}"><div class="h5row"><h2>${title}</h2><a href="${all}">${allTxt}</a></div><div class="catrow">${tiles.join("")}</div></section>` : "";
+function categoryView(){
+  const c = catId || "Other", g = groupOf(CAT_GROUPS, c), m = catMap(), all = m.get(c) || [];
+  if (feedState.new === "loading" && !all.length) return `<div class="sectionhead"><h1>${esc(c)}</h1></div><div class="empty">Loading items…</div>`;
+  const nNew = all.filter(p => p.condition === "new").length, nUsed = all.length - nNew;
+  if (catCond !== "all" && !(nNew && nUsed)) catCond = "all";
+  const list = catSorted(catCond === "all" ? all : all.filter(p => (p.condition === "new") === (catCond === "new")));
+  const others = groupCats(CAT_GROUPS, g, m).filter(x => x !== c);
+  return `<div class="cathead t${g[1]}"><span class="cgi">${cgiImg(all.find(x => imagesOf(x).length))}</span><div><h1>${esc(c)}</h1><p class="count">${plural(all.length, "item")}</p></div></div>
+    ${all.length ? `<div class="cattools"><div class="catchips">${nNew && nUsed ? cgChip("catcond", "all", catCond === "all", "All", all.length) + cgChip("catcond", "new", catCond === "new", "Brand new", nNew) + cgChip("catcond", "used", catCond === "used", "Used", nUsed) : ""}</div>${catSortHTML()}</div>
+    <div class="grid">${productCards(list, {brand: true})}</div>` : `<div class="empty">No items in this category right now. <a href="#shop">See all categories ›</a></div>`}
+    ${cgMore(g, "More in " + esc(g[0]), others.map(x => catTileHTML(x, m.get(x))), "#group-" + catSlug(g[0]), "See all ›")}`;
+}
+function groupView(){
+  const g = groupFromSlug(CAT_GROUPS, catSlug(groupId || "")) || CAT_GROUPS[0], m = catMap(), cs = groupCats(CAT_GROUPS, g, m);
+  const all = cs.flatMap(c => m.get(c));
+  if (feedState.new === "loading" && !all.length) return `<div class="sectionhead"><h1>${esc(g[0])}</h1></div><div class="empty">Loading items…</div>`;
+  if (groupCat !== "all" && !cs.includes(groupCat)) groupCat = "all";
+  const list = catSorted(groupCat === "all" ? all : m.get(groupCat));
+  return `<div class="cathead t${g[1]}"><div><h1>${esc(g[0])}</h1><p class="count">${plural(all.length, "item")} in ${cs.length} categor${cs.length === 1 ? "y" : "ies"}</p></div></div>
+    ${all.length ? `<div class="catrow gtiles t${g[1]}">${cs.map(c => catTileHTML(c, m.get(c))).join("")}</div>
+    <div class="cattools"><div class="catchips">${cs.length > 1 ? cgChip("groupcat", "all", groupCat === "all", "All", all.length) + cs.map(c => cgChip("groupcat", c, groupCat === c, c, m.get(c).length)).join("") : ""}</div>${catSortHTML()}</div>
+    <div class="grid">${productCards(list, {brand: true})}</div>` : `<div class="empty">No items here right now. <a href="#shop">See all categories ›</a></div>`}`;
+}
+function scatName(m){ const known = [...new Set([...SVC_GROUPS.flatMap(g => g[2]), ...m.keys()])]; return known.find(c => catSlug(c) === scatSlug) || ""; }
+function scategoryView(){
+  const m = svcMap(), c = scatName(m);
+  if (!c) return servicesLoaded || fbFailed ? `<div class="empty">This category isn't available. <a href="#services">See all services ›</a></div>` : `<div class="empty">Loading…</div>`;
+  const g = groupOf(SVC_GROUPS, c), all = m.get(c) || [], others = groupCats(SVC_GROUPS, g, m).filter(x => x !== c);
+  return `<div class="cathead t${g[1]}"><span class="cgi">${cgiSvg(SVC_ICONS[c] || CG_ICON.svc)}</span><div><h1>${esc(c)}</h1><p class="count">${plural(all.length, "service")}</p></div></div>
+    ${all.length ? `<div class="svcgrid">${serviceCards(all)}</div>` : `<div class="empty">${servicesLoaded || fbFailed ? `No services in this category right now. <a href="#services">See all services ›</a>` : "Loading…"}</div>`}
+    ${cgMore(g, "More in " + esc(g[0]), others.map(x => svcTileHTML(x, m.get(x))), "#sgroup-" + catSlug(g[0]), "See all ›")}`;
+}
+function sgroupView(){
+  const g = groupFromSlug(SVC_GROUPS, catSlug(sgroupId || "")) || SVC_GROUPS[0], m = svcMap(), cs = groupCats(SVC_GROUPS, g, m), all = cs.flatMap(c => m.get(c));
+  if (sgroupCat !== "all" && !cs.includes(sgroupCat)) sgroupCat = "all";
+  const list = sgroupCat === "all" ? all : m.get(sgroupCat);
+  return `<div class="cathead t${g[1]}"><div><h1>${esc(g[0])}</h1><p class="count">${plural(all.length, "service")} in ${cs.length} categor${cs.length === 1 ? "y" : "ies"}</p></div></div>
+    ${all.length ? `<div class="catrow gtiles t${g[1]}">${cs.map(c => svcTileHTML(c, m.get(c))).join("")}</div>
+    <div class="cattools"><div class="catchips">${cs.length > 1 ? cgChip("sgroupcat", "all", sgroupCat === "all", "All", all.length) + cs.map(c => cgChip("sgroupcat", c, sgroupCat === c, c, m.get(c).length)).join("") : ""}</div></div>
+    <div class="svcgrid">${serviceCards(list)}</div>` : `<div class="empty">${servicesLoaded || fbFailed ? `No services here right now. <a href="#services">See all services ›</a>` : "Loading…"}</div>`}`;
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-catcond],[data-groupcat],[data-sgroupcat]"); if (!b) return;
+  if (b.dataset.catcond) catCond = b.dataset.catcond; else if (b.dataset.groupcat) groupCat = b.dataset.groupcat; else sgroupCat = b.dataset.sgroupcat; render(); });
+document.addEventListener("change", e => { if (e.target.id !== "catsort") return; sortBy = e.target.value; render(); });
 function inPrice(cond, p){ const {min, max, active} = rangeOf(cond); return !active || (p.price != null && p.price >= min && p.price <= max); }
 function facetList(cond, skip){          // everything that passes the other filters (so counts stay honest)
   const F = FLT[cond];
@@ -543,14 +635,14 @@ function shelvesHTML(list, catOf, cards, word){
 function resultsHTML(cond){
   if (cond === "services"){
     const list = listFor("services"), q = query.trim();
-    if (list.length && !activeFilters("services").length && !q) return shelvesHTML(list, s => s.category || "Other services", serviceCards, "service");
+    if (list.length && !activeFilters("services").length && !q) return svcCardsHTML();
     return `<p class="count">${list.length} service${list.length === 1 ? "" : "s"}${q ? ` matching “${esc(q)}” <button class="linkbtn" data-clear>Clear search</button>` : ""}</p>
       ${list.length ? serviceGrid(list) : `<div class="empty">No services match these filters. <button class="linkbtn" type="button" data-fclear>Clear filters</button></div>`}`;
   }
   const f = FEEDS[cond], st = feedState[cond], ig = `https://www.instagram.com/${f.account}/`;
   if (st === "loading") return `<div class="empty">Loading items…</div>`;
   const list = listFor(cond);
-  if (list.length && !activeFilters(cond).length && !query.trim()) return shelvesHTML(list, typeOf, productCards, "item");
+  if (list.length && !activeFilters(cond).length && !query.trim()) return catCardsHTML();
   const ads = groupList(list).length;
   return `<p class="count">${ads} item${ads===1?"":"s"}${query.trim()?` matching “${esc(query.trim())}”`:""}</p>
   ${list.length ? productGrid(list, {brand: true}) : activeFilters(cond).length ? `<div class="empty">No items match these filters. <button class="linkbtn" type="button" data-reset>Clear filters</button> to see everything.</div>` : `<div class="empty">No items here yet. Follow <a href="${ig}" target="_blank" rel="noopener">@${f.account}</a> for new posts.</div>`}`;
@@ -697,6 +789,10 @@ const views = {
   sell(){ return SELLING_ON ? sellView() : sellOff(); },
   event(){ return evOn() ? eventView() : offHTML("events"); },
   shop(){ return listView("shop"); },
+  category(){ return categoryView(); },
+  group(){ return groupView(); },
+  scategory(){ return scategoryView(); },
+  sgroup(){ return sgroupView(); },
   new(){ return listView("shop"); },
   used(){ return listView("shop"); },
   cart(){
@@ -1015,7 +1111,7 @@ function megaCols(key){
     /* v87: the Shop menu shows only the main categories, most items first, in columns of 6 */
     const types = top(PRODUCTS, typeOf, 99).filter(([t]) => t !== "Other"), cols = [];
     if (!types.length) return [{big: true, h: "Shop", links: [{href: "#shop", label: "All items"}]}];
-    for (let i = 0; i < types.length; i += 6) cols.push({cat: true, h: i ? "\u00a0" : "Shop by category", links: types.slice(i, i + 6).map(([t, n]) => ({go: "shop|types|" + t, label: t, n}))});
+    for (let i = 0; i < types.length; i += 6) cols.push({cat: true, h: i ? "\u00a0" : "Shop by category", links: types.slice(i, i + 6).map(([t, n]) => ({href: "#category-" + catSlug(t), label: t, n}))});
     cols.push({cat: true, h: "\u00a0", links: [{href: "#shop", label: "See all items (" + PRODUCTS.length + ")", all: true}]});
     return cols;
   }
@@ -1045,7 +1141,7 @@ function megaCols(key){
 function megaHTML(key){
   return `<div class="mwrap">${megaCols(key).map(c => `<div class="mcol${c.big ? " big" : ""}${c.cat ? " cat" : ""}"><h4>${mgEsc(c.h)}</h4>${c.links.map(l => l.go
     ? `<a href="${l.go.startsWith("services") ? "#services" : l.go.startsWith("shop") ? "#shop" : l.go.startsWith("new") ? "#new-items" : "#used-items"}" data-mgo="${mgEsc(l.go)}">${mgEsc(l.label)}${l.n && !c.big ? `<i>${l.n}</i>` : ""}</a>`
-    : `<a href="${mgEsc(l.href)}"${l.all ? ' class="mall"' : ""}${l.ext ? ' target="_blank" rel="noopener"' : ""}>${mgEsc(l.label)}</a>`).join("")}</div>`).join("")}</div>`;
+    : `<a href="${mgEsc(l.href)}"${l.all ? ' class="mall"' : ""}${l.ext ? ' target="_blank" rel="noopener"' : ""}>${mgEsc(l.label)}${l.n && !c.big ? `<i>${l.n}</i>` : ""}</a>`).join("")}</div>`).join("")}</div>`;
 }
 const megaWide = () => matchMedia("(min-width: 821px)").matches;
 function megaOpen(key){
@@ -1130,7 +1226,7 @@ let bookingId = null, itemId = null, serviceId = null, providerId = null, eventI
 // v93: real page addresses (nojans.com/shop, nojans.com/item-s-U002). preview.html keeps the old #addresses.
 const PREVIEW = /^\/preview(\.html)?$/.test(location.pathname);
 const PATH_MODE = !PREVIEW && /^https?:$/.test(location.protocol);
-const isRouteSlug = s => /^(item|service|provider|event|person|chat|listing|hchat|mybooking)-./.test(s) || Object.prototype.hasOwnProperty.call(VIEW_OF, s);
+const isRouteSlug = s => /^(item|service|provider|event|person|chat|listing|hchat|mybooking|category|group|scategory|sgroup)-./.test(s) || Object.prototype.hasOwnProperty.call(VIEW_OF, s);
 const pathFor = s => !s || s === "home" ? "/" : "/" + encodeURIComponent(s);
 function slugNow(){
   let h = location.hash.slice(1); try { h = decodeURIComponent(h); } catch (_) {}
@@ -1143,6 +1239,10 @@ function viewFromHash(){
   const h = slugNow();
   if (h.startsWith("mybooking-")){ bookingId = h.slice(10); return "mybooking"; }
   if (h.startsWith("item-")){ itemId = h.slice(5); return "item"; }
+  if (h.startsWith("category-")){ const c = catFromSlug(h.slice(9)); if (!c) return PATH_MODE ? "notfound" : "home"; if (c !== catId) catCond = "all"; catId = c; return "category"; }
+  if (h.startsWith("group-")){ const g = groupFromSlug(CAT_GROUPS, h.slice(6)); if (!g) return PATH_MODE ? "notfound" : "home"; if (g[0] !== groupId) groupCat = "all"; groupId = g[0]; return "group"; }
+  if (h.startsWith("sgroup-")){ const g = groupFromSlug(SVC_GROUPS, h.slice(7)); if (!g) return PATH_MODE ? "notfound" : "home"; if (g[0] !== sgroupId) sgroupCat = "all"; sgroupId = g[0]; return "sgroup"; }
+  if (h.startsWith("scategory-")){ scatSlug = h.slice(10).toLowerCase(); return "scategory"; }
   if (h.startsWith("service-")){ serviceId = h.slice(8); return "service"; }
   if (h.startsWith("provider-")){ providerId = h.slice(9); return "provider"; }
   if (h.startsWith("event-")){ eventId = h.slice(6); return "event"; }
@@ -1159,7 +1259,7 @@ if (PATH_MODE && location.hash.length > 1 && isRouteSlug(slugNow())) { try { his
 function current(){ return views[currentView] ? currentView : "home"; }
 // v94: Back (and Forward) return to the same place on the page instead of the top
 const SCR = {key: "", pend: null, from: null, busy: false};
-const SCR_RAILS = ".homegrid,.explore,.news3,.h5tabs";
+const SCR_RAILS = ".homegrid,.explore,.news3,.h5tabs,.catrow";
 try { history.scrollRestoration = "manual"; } catch (_) {}
 function scrStateKey(){ try { return (history.state && history.state.k) || ""; } catch (_) { return ""; } }
 function scrNewKey(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -1189,6 +1289,10 @@ function go(v, id, keepQuery){
   if (!views[v]) v = "home";
   if (!keepQuery){ if (query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } const gs = $("#gsearch"); if (gs && !gs.hidden) toggleSearch(false); }
   if (v === "item") itemId = id;
+  if (v === "category" && id != null){ if (id !== catId) catCond = "all"; catId = id; }
+  if (v === "group" && id != null){ if (id !== groupId) groupCat = "all"; groupId = id; }
+  if (v === "sgroup" && id != null){ if (id !== sgroupId) sgroupCat = "all"; sgroupId = id; }
+  if (v === "scategory" && id != null) scatSlug = id;
   if (v === "mybooking" && id != null) bookingId = id;
   if (v === "service" && id != null && id !== serviceId){ serviceId = id; resetBooking(); }
   if (v === "provider" && id != null) providerId = id;
@@ -1198,7 +1302,7 @@ function go(v, id, keepQuery){
   if (v === "listing" && id != null){ listingId = id; HM.gi = 0; }
   if (v === "hchat" && id != null) hchatId = id;
   currentView = v; render(); window.scrollTo(0,0); pageIn();
-  const slug = v === "mybooking" ? "mybooking-" + bookingId : v === "item" ? "item-" + id : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : v === "listing" ? "listing-" + listingId : v === "hchat" ? "hchat-" + hchatId : SLUG[v];
+  const slug = v === "mybooking" ? "mybooking-" + bookingId : v === "item" ? "item-" + id : v === "category" ? "category-" + catSlug(catId) : v === "group" ? "group-" + catSlug(groupId) : v === "sgroup" ? "sgroup-" + catSlug(sgroupId) : v === "scategory" ? "scategory-" + scatSlug : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : v === "listing" ? "listing-" + listingId : v === "hchat" ? "hchat-" + hchatId : SLUG[v];
   try {
     const k = scrNewKey();
     if (PATH_MODE){ const u = pathFor(slug); if (location.pathname !== u || location.hash){ history.pushState({k}, "", u); SCR.key = k; SCR.from = fromView; } }
@@ -1212,6 +1316,13 @@ document.addEventListener("click", e => {
   const h = a.hasAttribute("data-r") ? a.dataset.r : a.getAttribute("href").slice(1);
   if (h.startsWith("mybooking-")){ e.preventDefault(); go("mybooking", decodeURIComponent(h.slice(10))); return; }
   if (h.startsWith("item-")){ e.preventDefault(); go("item", decodeURIComponent(h.slice(5))); return; }
+  if (h.startsWith("category-")){ const c = catFromSlug(decodeURIComponent(h.slice(9))); if (!c) return; e.preventDefault(); megaClose();
+    if (a.closest("#crumbs") && SCR.from === "category" && c === catId && current() === "item"){ history.back(); return; }
+    go("category", c); return; }
+  if (/^(group|sgroup|scategory)-./.test(h)){ const k = h.slice(0, h.indexOf("-")), sl = decodeURIComponent(h.slice(k.length + 1)).toLowerCase(), g = k === "scategory" ? null : groupFromSlug(k === "group" ? CAT_GROUPS : SVC_GROUPS, sl);
+    if (k !== "scategory" && !g) return; e.preventDefault(); megaClose();
+    if (k === "scategory" && a.closest("#crumbs") && SCR.from === "scategory" && sl === scatSlug && current() === "service"){ history.back(); return; }
+    go(k, g ? g[0] : sl); return; }
   if (h.startsWith("service-")){ e.preventDefault(); go("service", decodeURIComponent(h.slice(8))); return; }
   if (h.startsWith("provider-")){ e.preventDefault(); go("provider", decodeURIComponent(h.slice(9))); return; }
   if (h.startsWith("event-")){ e.preventDefault(); go("event", decodeURIComponent(h.slice(6))); return; }
@@ -1232,7 +1343,7 @@ document.addEventListener("click", e => {
   go("item", decodeURIComponent(a.getAttribute("href").slice(6)));
 });
 // v93: in-site links get real addresses so they can be opened in a new tab, shared and found by search engines
-const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking)-.+)$/;
+const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
 function relink(root){
   if (!PATH_MODE || !root || root.nodeType !== 1) return;
   const fix = a => { const h = a.getAttribute("href"); if (!h || h[0] !== "#") return; let s = h.slice(1); try { s = decodeURIComponent(s); } catch (_) {} if (!R_OK.test(s)) return; a.dataset.r = s; a.setAttribute("href", pathFor(s)); };
@@ -1281,11 +1392,11 @@ function render(){
   if (priceRange[v]) syncPriceUI(v);
   const it = v === "item" ? PRODUCTS.find(p => p.id === itemId) : null;
   const hct = v === "hchat" && (HM.threads || []).find(x => x.id === hchatId), mkt = hct && hct.marketId;
-  const navV = it || v === "item" ? "shop" : v === "hchat" && mkt ? "account" : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : ["person", "matches", "chat", "datingprofile"].includes(v) ? "dating" : ["listing", "listhome", "mylistings", "hchat"].includes(v) ? "homes" : v;
+  const navV = it || v === "item" || v === "category" || v === "group" ? "shop" : v === "scategory" || v === "sgroup" ? "services" : v === "hchat" && mkt ? "account" : ["service", "booked", "provider"].includes(v) ? "services" : v === "event" ? "events" : ["person", "matches", "chat", "datingprofile"].includes(v) ? "dating" : ["listing", "listhome", "mylistings", "hchat"].includes(v) ? "homes" : v;
   if (v === "service") afterServiceRender();
   if (v === "provider") renderLinkedInBadges();
   document.querySelectorAll("header nav a, .tabbar a").forEach(a => (a.dataset.tab===navV || a.dataset.also===navV) ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
-  document.title = it ? `${it.name} · Nojan` : TITLES[v] || "Nojan";
+  document.title = it ? `${it.name} · Nojan` : v === "category" ? `${catId} · Nojan` : v === "group" ? `${groupId} · Nojan` : v === "sgroup" ? `${sgroupId} · Nojan` : v === "scategory" ? `${scatName(svcMap()) || "Services"} · Nojan` : TITLES[v] || "Nojan";
   ["new","used"].forEach(c => { const el = document.querySelector(`[data-count="${c}"]`); if (el) el.textContent = feedState[c]==="loading" ? "" : PRODUCTS.filter(p=>p.condition===c).length; });
   { const el = document.querySelector('[data-count="services"]'); if (el) el.textContent = SERVICES.length || ""; }
   if (v === "service"){ const s = SERVICES.find(x => x.id === serviceId); if (s) document.title = `${s.title} · Nojan`; }
@@ -1296,9 +1407,13 @@ function render(){
   { const mid = v === "item" && String(itemId).startsWith("m-") ? itemId : v === "service" && String(serviceId).startsWith("m-") ? serviceId : v === "event" && String(eventId).startsWith("m-") ? eventId : ""; const md = mid && mkFind(mid.slice(2)); if (md) document.title = md.title + " · Nojan"; }
   if (HM_VIEWS.includes(v)){ const hh = v === "listing" && ((HM.list || []).find(x => x.id === listingId) || HM.extra[listingId]); document.title = (hh ? hh.title : {homes: "Homes", listing: "Home", listhome: "List your home", mylistings: "My listings", hchat: "Messages"}[v]) + " · Nojan"; }
   if (DT_VIEWS.includes(v)) document.title = (v === "person" && dtProfile(personId) ? dtProfile(personId).name : {dating: "Dating", matches: "Matches", chat: "Chat", datingprofile: "My dating profile", person: "Dating"}[v]) + " · Nojan";
-  const trail = v === "item" ? (it ? [["Shop", "#shop"], [it.name]] : [["Shop", "#shop"], ["Item"]])
+  const trail = v === "item" ? (it ? [["Shop", "#shop"], [typeOf(it), "#category-" + catSlug(typeOf(it))], [it.name]] : [["Shop", "#shop"], ["Item"]])
+    : v === "category" ? [["Shop", "#shop"], [groupOf(CAT_GROUPS, catId)[0], "#group-" + catSlug(groupOf(CAT_GROUPS, catId)[0])], [catId || "Category"]]
+    : v === "group" ? [["Shop", "#shop"], [groupId || "Shop"]]
+    : v === "sgroup" ? [["Services", "#services"], [sgroupId || "Services"]]
+    : v === "scategory" ? (c => c ? [["Services", "#services"], [groupOf(SVC_GROUPS, c)[0], "#sgroup-" + catSlug(groupOf(SVC_GROUPS, c)[0])], [c]] : [["Services", "#services"], ["Category"]])(scatName(svcMap()))
     : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], news:[["News"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["My orders & bookings"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
-         service:[["Services","#services"],[(SERVICES.find(s=>s.id===serviceId)||{}).title || "Service"]],
+         service:(s => s && !s.member ? [["Services","#services"],[s.category, "#scategory-" + catSlug(s.category)],[s.title]] : [["Services","#services"],[(s||{}).title || "Service"]])(SERVICES.find(s=>s.id===serviceId)),
          provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]],
          events:[["Events"]], event:[["Events","#events"],[(eventById(eventId)||{}).title || "Event"]],
          dating:[["Dating"]], person:[["Dating","#dating"],[(dtProfile(personId)||{}).name || "Profile"]], matches:[["Dating","#dating"],["Matches"]],
@@ -1353,8 +1468,8 @@ document.addEventListener("change", e => {
 });
 function onRouteChange(){ if (PATH_MODE && location.hash.length > 1 && isRouteSlug(slugNow())) { try { history.replaceState(null, "", pathFor(slugNow())); } catch (_) {} }
   const sk = scrStateKey(), moved = !SCR.busy && sk !== SCR.key; if (moved){ scrSave(); SCR.pend = null; SCR.from = null; }
-  const prevBk = bookingId, prevItem = itemId, prevSvc = serviceId, prevProv = providerId, prevEv = eventId, prevPer = personId, prevChat = chatId, prevLst = listingId, prevHc = hchatId, v = viewFromHash();
-  if (v !== currentView && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "mybooking" && bookingId !== prevBk) || (v === "item" && itemId !== prevItem) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv) || (v === "person" && personId !== prevPer) || (v === "chat" && chatId !== prevChat) || (v === "listing" && listingId !== prevLst) || (v === "hchat" && hchatId !== prevHc)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); if (!(moved && scrBack(sk))) window.scrollTo(0,0); pageIn(); }
+  const prevBk = bookingId, prevItem = itemId, prevSvc = serviceId, prevProv = providerId, prevEv = eventId, prevPer = personId, prevChat = chatId, prevLst = listingId, prevHc = hchatId, prevCat = catId, prevGrp = groupId, prevSg = sgroupId, prevSc = scatSlug, v = viewFromHash();
+  if (v !== currentView && query){ query = ""; const qi = $("#q"); if (qi) qi.value = ""; } if (v !== currentView || (v === "mybooking" && bookingId !== prevBk) || (v === "item" && itemId !== prevItem) || (v === "category" && catId !== prevCat) || (v === "group" && groupId !== prevGrp) || (v === "sgroup" && sgroupId !== prevSg) || (v === "scategory" && scatSlug !== prevSc) || (v === "service" && serviceId !== prevSvc) || (v === "provider" && providerId !== prevProv) || (v === "event" && eventId !== prevEv) || (v === "person" && personId !== prevPer) || (v === "chat" && chatId !== prevChat) || (v === "listing" && listingId !== prevLst) || (v === "hchat" && hchatId !== prevHc)){ if (v === "service" && serviceId !== prevSvc) resetBooking(); currentView = v; render(); if (!(moved && scrBack(sk))) window.scrollTo(0,0); pageIn(); }
   if (moved){ if (sk) SCR.key = sk; else scrMark(); } }
 window.addEventListener("hashchange", onRouteChange);
 window.addEventListener("popstate", onRouteChange);
@@ -4013,7 +4128,7 @@ function fmtChips(s){
   c.push(`<span class="svcchip">${svgI(s.classType === "group" ? "users" : "user")}${s.classType === "group" ? `Group · up to ${s.capacity}` : "1-on-1"}</span>`);
   return `<div class="svcchips">${c.join("")}</div>`;
 }
-function svcCover(s){ const img = imagesOf(s)[0]; return img ? `<img src="${esc(img)}" data-ref="${esc(refsOf(s)[0])}" alt="" loading="lazy">` : svgI(s.format === "in-person" ? "users" : "monitor"); }
+function svcCover(s){ const img = imagesOf(s)[0]; return img ? `<img src="${esc(img)}" data-ref="${esc(refsOf(s)[0])}" alt="" loading="lazy">` : (SVC_ICONS[s.category] ? cgiSvg(SVC_ICONS[s.category]) : svgI(s.format === "in-person" ? "users" : "monitor")); }
 function serviceGrid(list){ return `<div class="svcgrid">${serviceCards(list)}</div>`; }
 function serviceCards(list){
   return list.map(s => `
@@ -4025,7 +4140,7 @@ function serviceCards(list){
         <span class="prov">by ${s.providerUid && PROVIDERS.find(x => x.id === s.providerUid) ? `<a href="#provider-${esc(s.providerUid)}">${esc(s.providerName)}</a>` : esc(s.providerName)}</span>
         ${s.summary ? `<p class="desc">${esc(s.summary)}</p>` : ""}
         ${fmtChips(s)}
-        <div class="foot"><span class="svcprice">${priceTxt(s)}</span><a class="btn small" href="#service-${esc(s.id)}">${s.member ? "View" : "Book a time"}</a></div>
+        <div class="foot"><span class="svcprice">${priceTxt(s)}</span><a class="btn small" href="#service-${esc(s.id)}">${s.member ? "View" : s.price == null ? "Book a free intro call" : "Book a time"}</a></div>
       </div>
     </article>`).join("");
 }
@@ -4159,7 +4274,7 @@ const viewAll = (cls, href, small, big) => `<a class="viewall ${cls}" href="${hr
 function servicesView(){
   const F = FLT.services, n = activeFilters("services").length;
   return `<section class="pagehero lhero services">
-      <div class="phtext"><h1>Services</h1><p>Classes and expert help, online or in person. Pick a time and pay at your session.</p></div>
+      <div class="phtext"><h1>Services</h1><p>Applications, automation, cloud and project work for your business, plus one-on-one classes. Choose a category to see its services.</p></div>
       ${SERVICES.length ? `<label class="sortlbl hsort">Sort by
         <select id="sort"><option value="featured"${sortBy==="featured"?" selected":""}>Featured</option><option value="low"${sortBy==="low"?" selected":""}>Price: low to high</option><option value="high"${sortBy==="high"?" selected":""}>Price: high to low</option></select>
       </label>` : ""}
@@ -4420,10 +4535,10 @@ function provInfo(p){
 const dayTime = ms => `${fmtWhen(ms, {weekday: "short", month: "short", day: "numeric"})}, ${fmtTime(ms)}`;
 
 /* ---- Services page: People | Services ---- */
-const svcTab = () => !PROVIDERS.length ? "services" : (SVC.tab || "people");
+const svcTab = () => !PROVIDERS.length ? "services" : (SVC.tab || "services");
 function svcTabsHTML(){
   if (!PROVIDERS.length) return "";
-  return `<div class="seg svctabs" role="group" aria-label="Show">${[["people", "People"], ["services", "Services"]].map(([v, l]) => `<button type="button" data-svctab="${v}" aria-pressed="${svcTab() === v}">${l}</button>`).join("")}</div>`;
+  return `<div class="seg svctabs" role="group" aria-label="Show">${[["services", "Services"], ["people", "People"]].map(([v, l]) => `<button type="button" data-svctab="${v}" aria-pressed="${svcTab() === v}">${l}</button>`).join("")}</div>`;
 }
 function personCardHTML(p, i){
   const where = [i.online ? "Online" : "", i.inp ? "In person" : ""].filter(Boolean);
