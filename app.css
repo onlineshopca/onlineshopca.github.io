@@ -2434,3 +2434,129 @@ body[data-view="scategory"] .svcgrid,body[data-view="sgroup"] .svcgrid{margin-to
   .catsort span{display:none}
   body[data-view="category"] .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 }
+/* ===== v105: Shop and Services headers are centred ===== */
+html body .pagehero.lhero.shop,html body .pagehero.lhero.services{flex-direction:column;align-items:center;justify-content:center;text-align:center}
+html body .pagehero.lhero.shop .phtext,html body .pagehero.lhero.services .phtext{flex:0 1 auto;justify-items:center;width:100%}
+html body .pagehero.lhero.shop .phtext p,html body .pagehero.lhero.services .phtext p{margin-left:auto;margin-right:auto}
+html body .pagehero.lhero.shop .hsort,html body .pagehero.lhero.services .hsort{justify-content:center}
+/* ===== v105: home tabs (Biggest savings / New arrivals / Services) use the English / Français switch look ===== */
+html body .h5tabs{gap:0;padding:3px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.75),rgba(255,255,255,.45))!important;border:1px solid rgba(0,0,0,.1);
+  box-shadow:inset 0 1px 0 #fff,0 4px 14px rgba(0,0,0,.06);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px)}
+html body .h5tabs button{position:relative;border-radius:9px;padding:9px 18px 11px;color:#6e6e73;background:none!important;box-shadow:none!important;transition:color .25s}
+html body .h5tabs button[aria-selected="true"]{color:#1d1d1f;background:linear-gradient(180deg,#fff,rgba(255,255,255,.86))!important;
+  box-shadow:0 1px 3px rgba(0,0,0,.14),0 0 0 .5px rgba(0,0,0,.06)!important}
+html body .h5tabs button[aria-selected="true"]::after{content:"";position:absolute;left:30%;right:30%;bottom:4px;height:2px;border-radius:2px;background:rgb(var(--vblue))}
+html body .h5tabs button:nth-child(2)[aria-selected="true"]::after{background:rgb(var(--vred))}
+html body .h5tabs button:nth-child(3)[aria-selected="true"]::after{background:rgb(var(--vgrn))}
+html body .h5tabs button:focus-visible{outline:2px solid rgb(var(--vblue));outline-offset:1px}
+@media (max-width:640px){html body .h5tabs button{padding:8px 12px 10px}}
+/* ===== v105: Services / People tabs use the English / Français switch look ===== */
+html body .seg.svctabs{gap:0;padding:3px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.75),rgba(255,255,255,.45))!important;border:1px solid rgba(0,0,0,.1)!important;
+  box-shadow:inset 0 1px 0 #fff,0 4px 14px rgba(0,0,0,.06)!important;backdrop-filter:saturate(180%) blur(14px)!important;-webkit-backdrop-filter:saturate(180%) blur(14px)!important}
+html body .seg.svctabs button{position:relative;border:0!important;border-radius:9px!important;padding:9px 18px 11px;font-size:15px;color:#6e6e73!important;background:none!important;box-shadow:none!important;transition:color .25s}
+html body .seg.svctabs button[aria-pressed="true"]{color:#1d1d1f!important;background:linear-gradient(180deg,#fff,rgba(255,255,255,.86))!important;
+  box-shadow:0 1px 3px rgba(0,0,0,.14),0 0 0 .5px rgba(0,0,0,.06)!important}
+html body .seg.svctabs button[aria-pressed="true"]::after{content:"";position:absolute;left:34%;right:34%;bottom:4px;height:2px;border-radius:2px;background:rgb(var(--vblue))}
+html body .seg.svctabs button:nth-child(2)[aria-pressed="true"]::after{background:rgb(var(--vred))}
+html body .seg.svctabs button:focus-visible{outline:2px solid rgb(var(--vblue));outline-offset:1px}
+/* ===== v105: Contact us header is centred ===== */
+html body .pagehero.contact{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px}
+html body .pagehero.contact .phtext{flex:0 1 auto;justify-items:center;width:100%}
+html body .pagehero.contact .phtext p{margin-left:auto;margin-right:auto}
+html body .pagehero.contact .pharts{display:none}@media (max-width:900px){}
+@media (max-width:640px){}
+/* ===== v105: "You are here" trail — small glass bar, home icon, current page in bold ===== */
+html body .crumbs{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px;max-width:100%;margin:0 0 14px;padding:5px 8px;border-radius:12px;font-size:15px;color:#424245;
+  background:linear-gradient(180deg,#fff,rgba(255,255,255,.88));border:1px solid rgba(0,0,0,.14);
+  box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.09);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px)}
+html body .crumbs[hidden]{display:none}
+html body .crumbs li{display:inline-flex;align-items:center;min-width:0}
+html body .crumbs li+li::before{content:"";width:5px;height:5px;margin:0 4px 0 2px;border-right:2px solid #6e6e73;border-top:2px solid #6e6e73;transform:rotate(45deg);flex:none}
+html body .crumbs a{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:8px;color:#424245!important;text-decoration:none;font-weight:600;transition:background .2s,color .2s}
+html body .crumbs a:hover{background:rgba(0,0,0,.05);color:#1d1d1f!important}
+html body .crumbs li:first-child a::before{content:"";width:15px;height:15px;flex:none;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 11l9-7 9 7'/%3E%3Cpath d='M5 10v10h14V10'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 11l9-7 9 7'/%3E%3Cpath d='M5 10v10h14V10'/%3E%3C/svg%3E") center/contain no-repeat}
+html body .crumbs li:last-child:not(:first-child){padding:5px 9px 5px 0;color:#1d1d1f;font-weight:700}
+html body .crumbs li:last-child:not(:first-child)::before{margin-right:13px}
+/* ===== v105: phone — smaller, centred footer and a lighter page trail ===== */
+@media (max-width:640px){  html body .crumbs{font-size:13px;padding:3px 5px;margin-bottom:10px;border-radius:10px}
+  html body .crumbs a{padding:4px 7px}
+  html body .crumbs li:last-child:not(:first-child){padding:4px 7px 4px 0}
+  html body .crumbs li:last-child:not(:first-child)::before{margin-right:11px}
+  html body .crumbs li:first-child a::before{width:13px;height:13px}
+}
+/* ===== v105: phones — page content about 10% smaller again; the top bar, bottom bar and footer keep their size. Typing boxes stay at 16px on screen. ===== */
+@media (max-width:640px){
+  main{zoom:.9}
+  main input,main select,main textarea{font-size:21px!important}
+}
+/* ===== v105: phones — slimmer typing boxes; the typed text stays at 16px on screen (iPhone rule), the grey hint text is smaller ===== */
+@media (max-width:640px){
+  main input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),main select{min-height:0!important;padding-top:6px!important;padding-bottom:6px!important}
+  main textarea{min-height:84px!important;padding-top:6px!important;padding-bottom:6px!important}
+  main select{font-weight:500!important}
+  main input::placeholder,main textarea::placeholder{font-size:17px}
+  main label{gap:3px}
+  main .panel{padding:14px;gap:10px}
+  html body .h5search{padding:4px;border-radius:14px}
+  html body .h5search input{padding:4px 12px!important}
+  html body .h5search button{padding:0 16px;font-size:14px;border-radius:11px}
+}
+/* ===== v105: phones — smaller text inside typing boxes and drop-downs (app.js stops iPhones zooming in on tap) ===== */
+@media (max-width:640px){
+  main input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),main select,main textarea{font-size:17.5px!important;padding:5px 11px!important;border-radius:10px!important}
+  main textarea{min-height:72px!important}
+  main input::placeholder,main textarea::placeholder{font-size:16.5px}
+  main label{font-size:.9rem}
+  main .panel h2{font-size:1.25rem}
+  main form button.btn[type=submit]{min-height:44px}
+  html body .h5search input{padding:3px 11px!important}
+}
+/* ===== v105: phones — shorter Email / Instagram boxes on Contact us, tighter page headers and info boxes ===== */
+@media (max-width:640px){
+  html body .way{min-height:0;padding:11px 14px 11px 62px;border-radius:18px!important;gap:1px}
+  html body .wayic{width:36px;height:36px;border-radius:11px;left:14px}
+  html body .pagehero{padding:16px 16px 18px!important;margin-bottom:10px}
+  html body .pagehero h1{font-size:1.75rem}
+  main .tiles{gap:10px}
+  main .tile{padding:14px 16px}
+  main .tile h2{font-size:1.1rem;margin-bottom:4px}
+}
+/* ===== v105b: footer is a centred glass card with the soft video colours, Email us and Instagram buttons ===== */
+footer.fx{background:none!important;border:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;padding:0 0 26px}
+footer.fx::before{display:none!important}
+footer.fx .wrap{display:block!important;padding:0 36px!important}
+.fx .fcard{position:relative;overflow:hidden;border-radius:28px;border:1px solid rgba(255,255,255,.9);padding:34px 40px 22px;color:#515154;font-size:14px;
+  box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(0,0,0,.04),0 20px 50px rgba(0,0,0,.08);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);
+  background:linear-gradient(135deg,rgba(255,255,255,.5) 0%,rgba(255,255,255,.14) 45%,rgba(255,255,255,.08) 55%,rgba(255,255,255,.4) 100%),
+  radial-gradient(60% 150% at 0% 0%,rgba(var(--vblue),.42),transparent 70%),
+  radial-gradient(45% 130% at 36% 125%,rgba(var(--vgrn),.3),transparent 70%),
+  radial-gradient(50% 140% at 70% -30%,rgba(var(--vyel),.5),transparent 70%),
+  radial-gradient(50% 150% at 104% 115%,rgba(var(--vred),.3),transparent 70%),rgba(255,255,255,.45)!important}
+.fx .flogo{display:inline-flex;align-items:center;gap:10px;font-size:22px;font-weight:700;letter-spacing:-.02em;color:#1d1d1f;text-decoration:none;line-height:1}
+html body footer.fx .flogo::before{content:"";width:42px;height:42px;flex:none;background-color:transparent!important;background-image:url("data:image/png;base64,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")!important;background-position:center!important;background-size:contain!important;background-repeat:no-repeat!important}
+.fx a{color:#1d1d1f;text-decoration:none}
+.fx .fbtn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:12px;font-weight:600;font-size:14px;color:#1d1d1f;
+  background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.6));border:1px solid rgba(0,0,0,.1);box-shadow:inset 0 1px 0 #fff,0 4px 14px rgba(0,0,0,.06)}
+.fx .fbtn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fx .fbot{display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;margin-top:22px;padding-top:16px;border-top:1px solid rgba(0,0,0,.08);font-size:13px;color:#6e6e73}
+.fx .fbot a{font-weight:600}
+/* A: centred */
+.fa .fcard{text-align:center;display:grid;justify-items:center;gap:12px}
+.fa .ftag{margin:0;font-size:15px}
+.fa .flinks{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 6px;margin-top:6px}
+.fa .flinks a{padding:7px 12px;border-radius:10px;font-weight:600;font-size:14.5px}
+.fa .flinks a:hover{background:rgba(255,255,255,.7)}
+.fa .fbtns{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:6px}
+.fa .fbot{justify-content:center;width:100%;margin-top:14px}
+@media (max-width:640px){
+  footer.fx .wrap{padding:0 14px!important} 
+  .fx .fcard{padding:20px 16px 14px;border-radius:22px;font-size:13px}
+  .fx .flogo{font-size:18px}.fx .flogo::before{width:32px;height:32px}
+  .fx .fbtn{height:36px;padding:0 13px;font-size:13px}
+  .fa .fcard{gap:8px}.fa .ftag{font-size:13px}
+  .fa .flinks a{padding:5px 9px;font-size:13px}
+  .fx .fbot{justify-content:center;padding-right:0;margin-top:14px;padding-top:12px;font-size:12px}
+}
+@media (max-width:640px){html body footer.fx{padding-bottom:58px}}
