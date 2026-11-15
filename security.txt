@@ -1,0 +1,4 @@
+Contact: mailto:info@nojans.com
+Expires: 2027-11-01T00:00:00.000Z
+Preferred-Languages: en, fr
+Canonical: https://nojans.com/security.txt
