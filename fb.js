@@ -19,6 +19,8 @@ let db; try { db = initializeFirestore(app, {localCache: memoryLocalCache(), exp
 const google = new GoogleAuthProvider(); google.setCustomParameters({prompt: "select_account"});
 const microsoft = new OAuthProvider("microsoft.com"); microsoft.setCustomParameters({prompt: "select_account"}); microsoft.addScope("email"); microsoft.addScope("profile");
 const withId = s => ({id: s.id, ...s.data()});
+/* v114: Firestore values as plain data (dates as text), for downloads */
+const plain = v => v && typeof v.toDate === "function" ? v.toDate().toISOString() : Array.isArray(v) ? v.map(plain) : (v && typeof v === "object") ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, plain(x)])) : v;
 
 window.SHOP_FB = {
   onAuth: cb => onAuthStateChanged(auth, cb),
@@ -44,9 +46,20 @@ window.SHOP_FB = {
   idToken: () => auth.currentUser.getIdToken(),
   /* v111: the database decides who is an admin; this read is allowed for admins only */
   async isAdmin(){ try { await getDoc(doc(db, "adminNotes", "_admin")); return true; } catch (e) { return false; } },
+  /* v114: activity log entry for an admin change (allowed for admins only by the rules) */
+  logAdmin: (action, id) => addDoc(collection(db, "adminLog"), {at: serverTimestamp(), uid: auth.currentUser ? auth.currentUser.uid : "", email: (auth.currentUser && auth.currentUser.email) || "", action: String(action).slice(0, 40), id: String(id == null ? "" : id).slice(0, 120)}),
+  /* v114: everything Nojan keeps about the signed-in customer */
+  async myData(uid){
+    const out = {site: "nojans.com", made: new Date().toISOString()};
+    const one = async (n, ref) => { try { const s = await getDoc(ref); out[n] = s.exists() ? plain(s.data()) : null; } catch (_) { out[n] = null; } };
+    const many = async n => { try { const s = await getDocs(query(collection(db, n), where("uid", "==", uid))); out[n] = s.docs.map(d => ({id: d.id, ...plain(d.data())})); } catch (_) { out[n] = []; } };
+    await one("profile", doc(db, "users", uid)); await many("orders"); await many("bookings"); await many("homes"); await many("market");
+    await one("sellerApplication", doc(db, "sellers", uid)); await one("datingProfile", doc(db, "dating", uid));
+    return out;
+  },
   /* v113: admin backup: every collection an admin may read, as one object (dates as text) */
   async backup(){
-    const names = ["products", "productImages", "services", "orders", "bookings", "users", "adminNotes", "counters", "slots", "sellers", "market", "homes", "reports", "dating"];
+    const names = ["products", "productImages", "services", "orders", "bookings", "users", "adminNotes", "counters", "slots", "sellers", "market", "homes", "reports", "dating", "adminLog"];
     const conv = v => v && typeof v.toDate === "function" ? v.toDate().toISOString() : Array.isArray(v) ? v.map(conv) : (v && typeof v === "object") ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, conv(x)])) : v;
     const out = {site: "nojans.com", made: new Date().toISOString(), collections: {}, skipped: {}};
     for (const n of names){

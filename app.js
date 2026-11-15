@@ -1551,7 +1551,14 @@ window.addEventListener("popstate", onRouteChange);
    ACCOUNTS, ORDERS AND ADMIN (Firebase)
    ========================================================= */
 let ADMIN_OK = false;   // v111: true once the database confirms this account is an admin (no addresses are kept in this file)
-async function adminProbe(){ ADMIN_OK = false; if (USER && USER.emailVerified && FB && FB.isAdmin){ try { ADMIN_OK = await FB.isAdmin(); } catch(_) {} } }
+async function adminProbe(){ ADMIN_OK = false; if (USER && USER.emailVerified && FB && FB.isAdmin){ try { ADMIN_OK = await FB.isAdmin(); } catch(_) {} }  if (ADMIN_OK) adminLogWrap(); }
+/* v114: every change an admin makes is written to the activity log (adminLog); a failed log entry never blocks the change */
+const ADMIN_LOGGED = ["updateOrder", "saveImage", "deleteImage", "updateProduct", "saveProduct", "deleteProduct", "importProducts", "saveService", "updateService", "deleteService", "updateBooking", "moveBooking", "setBookingStatus", "hmSetStatus", "hmDelete", "mkSetStatus", "mkAdmin", "mkDelete", "mkSetSeller", "dtDelReport", "dtDeleteProfile", "setTicketStatus", "setOrderStatus", "saveSite", "saveCatalog", "saveNote"];
+function adminLogWrap(){
+  if (!FB || FB._logWrapped || !FB.logAdmin) return; FB._logWrapped = true;
+  ADMIN_LOGGED.forEach(n => { const f = FB[n]; if (typeof f !== "function") return;
+    FB[n] = async (...a) => { const r = await f.apply(FB, a); if (ADMIN_OK){ try { FB.logAdmin(n, typeof a[0] === "string" || typeof a[0] === "number" ? a[0] : "").catch(() => {}); } catch(_) {} } return r; }; });
+}
 const STATUSES = ["New", "Contacted", "Ready for pickup", "Completed", "Cancelled"];
 const STATUS_TEXT = {
   "New": "We received your order and will contact you soon to confirm it.",
@@ -1670,6 +1677,8 @@ function accountView(){
     <aside class="panel">
       <h2>Shortcuts</h2>
       <a class="btn" href="#my-orders">My orders</a>
+      <button class="btn ghost" type="button" data-mydata style="color:var(--fg)">Download my data</button>
+      <button class="linkbtn" type="button" data-deleteme style="text-align:left">Ask us to delete my account</button>
       ${SELLING_ON ? `<a class="btn ghost" href="#selling" style="color:var(--fg)">Sell on Nojan${(() => { mkEnsureSeller(); const m = MK.me; return m && m.status === "approved" ? " ✓" : m && m.status === "pending" ? " · waiting for approval" : ""; })()}</a>` : ""}
       ${isAdmin() ? `<a class="btn ghost" href="#admin" style="color:var(--fg)">Admin: manage orders</a>` : ""}
       <a class="linkbtn" href="#cart" style="text-align:left">Go to cart</a>
@@ -5520,6 +5529,27 @@ document.addEventListener("click", async e => {
     try { if (b.hasAttribute("data-microsoft")) await FB.microsoft(); else await FB.google(); }
     catch(err){ b.disabled = false; if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request"){ const m = $("#authMsg"); if (m) showMsg(m,false,authError(err)); else toast(authError(err)); } }
     return;
+  }
+  if (b.hasAttribute("data-mydata")){   // v114: a customer downloads everything Nojan keeps about them
+    if (!USER || !FB || !FB.myData) return;
+    b.disabled = true;
+    try {
+      const data = await FB.myData(USER.uid), url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], {type: "application/json"}));
+      const a = document.createElement("a"); a.href = url; a.download = "nojan-my-data-" + new Date().toISOString().slice(0, 10) + ".json";
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000);
+      toast("Your data was downloaded.");
+    } catch(err){ console.error(err); toast("Couldn't download your data. Try again."); }
+    b.disabled = false; return;
+  }
+  if (b.hasAttribute("data-deleteme")){   // v114: deletion request goes to the shop, which confirms by email
+    if (!USER) return;
+    if (!confirm("Send a request to delete your account and your information? We'll confirm by email within 30 days.")) return;
+    b.disabled = true;
+    try {
+      await sendEmail("Account deletion request", {Name: (PROFILE && PROFILE.name) || USER.displayName || "", Email: USER.email || "", Account: USER.uid, Request: "Please delete my Nojan account and the information you keep about me."});
+      toast("Request sent. We'll confirm by email.");
+    } catch(err){ console.error(err); toast("Couldn't send the request. Please email us instead."); }
+    b.disabled = false; return;
   }
   if (b.hasAttribute("data-backup")){   // v113: one file with every record an admin can read
     if (!isAdmin() || !FB || !FB.backup) return;
