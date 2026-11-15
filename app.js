@@ -1068,6 +1068,16 @@ async function sendEmail(subject, fields){
   if (j.success === "false" || j.success === false) throw new Error(j.message || "send failed");
 }
 function showMsg(el, ok, text){ el.hidden=false; el.className="msg "+(ok?"ok":"err"); el.textContent=text; }
+/* v112: ordering, booking and tickets need a confirmed email address */
+const VERIFY_MSG = "Please confirm your email address first. We sent you a link. Open it, then send this again.";
+async function needVerified(msg){
+  if (!USER || !FB) return false;
+  if (!USER.emailVerified){ try { USER = await FB.refreshUser(); await adminProbe(); } catch(_) {} }
+  if (USER.emailVerified) return true;
+  try { await FB.resendVerify(); } catch(_) {}
+  if (msg) showMsg(msg, false, VERIFY_MSG);
+  return false;
+}
 function validate(form){
   for (const el of form.querySelectorAll("[required]")){
     if (!el.value.trim()) { el.focus(); return el.closest("label").childNodes[0].textContent.trim() + " is required."; }
@@ -1084,6 +1094,7 @@ document.addEventListener("submit", async e => {
     const msg = $("#orderMsg"), err = validate(f);
     if (err) return showMsg(msg,false,err);
     if (!USER || !FB) return showMsg(msg,false,"Please sign in to place your order.");
+    if (!(await needVerified(msg))) return;
     await catFresh();   // v92: newest prices and stock before checking the cart
     const t = totals(), d = Object.fromEntries(new FormData(f));
     const its = cartItems();
@@ -2340,6 +2351,7 @@ document.addEventListener("submit", async ev => {
   const items = e.tickets.filter(t => EVQ.qty[t.i]).map(t => ({i: t.i, name: t.name, price: t.price, qty: EVQ.qty[t.i], stripe: t.stripe || ""}));
   const qty = items.reduce((a, t) => a + t.qty, 0), total = items.reduce((a, t) => a + t.qty * t.price, 0);
   if (!qty) return;
+  if (!(await needVerified(null))){ EVQ.err = VERIFY_MSG; refreshEvBox(); return; }
   EVQ.busy = true; EVQ.err = ""; refreshEvBox();
   const fd = new FormData(f);
   const b = {kind: "event", uid: USER.uid, eventId: e.id, serviceId: e.id, serviceTitle: e.title, providerName: e.organizer, startMs: e.startMs, durationMin: Math.max(30, Math.round((e.endMs - e.startMs) / 60000)),
@@ -4775,6 +4787,7 @@ document.addEventListener("submit", async e => {
   const f = e.target, msg = $("#bookMsg"), err = validate(f);
   if (err) return showMsg(msg, false, err);
   if (!f.agree.checked) return showMsg(msg, false, "Please tick the box to agree before you send.");
+  if (!(await needVerified(msg))) return;
   const s = SERVICES.find(x => x.id === serviceId); if (!s || !USER) return;
   const day = dayList(s).find(d => d.date === SVC.date), slot = day && slotsFor(s, day.date, day.dow).find(x => x.key === SVC.slot);
   if (!slot || slot.taken || slot.past){ SVC.step = "pick"; refreshBookPanel(); return toast("That time is no longer available. Please pick another."); }
