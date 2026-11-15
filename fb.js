@@ -42,6 +42,8 @@ window.SHOP_FB = {
   resendVerify: () => sendEmailVerification(auth.currentUser),
   signOut: () => signOut(auth),
   idToken: () => auth.currentUser.getIdToken(),
+  /* v111: the database decides who is an admin; this read is allowed for admins only */
+  async isAdmin(){ try { await getDoc(doc(db, "adminNotes", "_admin")); return true; } catch (e) { return false; } },
   async refreshUser(){ await auth.currentUser.reload(); await auth.currentUser.getIdToken(true); return auth.currentUser; },
   async getProfile(uid){ const s = await getDoc(doc(db, "users", uid)); return s.exists() ? s.data() : null; },
   saveProfile: (uid, data, isNew) => setDoc(doc(db, "users", uid), {...data, ...(isNew ? {createdAt: serverTimestamp()} : {}), updatedAt: serverTimestamp()}, {merge: true}),

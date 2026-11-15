@@ -1539,7 +1539,8 @@ window.addEventListener("popstate", onRouteChange);
 /* =========================================================
    ACCOUNTS, ORDERS AND ADMIN (Firebase)
    ========================================================= */
-const ADMIN_EMAILS = ["online.shop.on.ca@gmail.com", "moe.naghavi@outlook.com"];   // these accounts see the Admin page
+let ADMIN_OK = false;   // v111: true once the database confirms this account is an admin (no addresses are kept in this file)
+async function adminProbe(){ ADMIN_OK = false; if (USER && USER.emailVerified && FB && FB.isAdmin){ try { ADMIN_OK = await FB.isAdmin(); } catch(_) {} } }
 const STATUSES = ["New", "Contacted", "Ready for pickup", "Completed", "Cancelled"];
 const STATUS_TEXT = {
   "New": "We received your order and will contact you soon to confirm it.",
@@ -1555,7 +1556,7 @@ let ADM = {orders:null, users:null, unsubO:null, unsubU:null, tab:"orders", stat
 
 const stClass = s => "st-" + String(s).split(" ")[0];
 const pill = s => `<span class="pill ${stClass(s)}">${esc(s)}</span>`;
-const isAdmin = () => !!USER && USER.emailVerified && ADMIN_EMAILS.includes(String(USER.email||"").toLowerCase());
+const isAdmin = () => !!USER && USER.emailVerified && ADMIN_OK;
 const fmtDate = ts => { const d = ts && ts.toDate ? ts.toDate() : (ts ? new Date(ts) : null); return d ? d.toLocaleString("en-CA", {month:"short", day:"numeric", year:"numeric", hour:"numeric", minute:"2-digit"}) : "just now"; };
 const tsNum = ts => ts && ts.toMillis ? ts.toMillis() : (ts ? +new Date(ts) : Date.now());
 const itemPrice = it => it.price == null ? "Price on request" : money(it.price * it.qty);
@@ -5507,7 +5508,7 @@ document.addEventListener("click", async e => {
     return;
   }
   if (b.hasAttribute("data-signout")){ await FB.signOut(); toast("You're signed out"); go("home"); return; }
-  if (b.hasAttribute("data-recheck")){ try { USER = await FB.refreshUser(); updateAcct(); render(); toast(USER.emailVerified ? "Email confirmed" : "Not confirmed yet. Click the link in the email first."); } catch(err){ toast(authError(err)); } return; }
+  if (b.hasAttribute("data-recheck")){ try { USER = await FB.refreshUser(); await adminProbe(); updateAcct(); render(); toast(USER.emailVerified ? "Email confirmed" : "Not confirmed yet. Click the link in the email first."); } catch(err){ toast(authError(err)); } return; }
   if (b.hasAttribute("data-resend")){ try { await FB.resendVerify(); toast("Confirmation email sent"); } catch(err){ toast(authError(err)); } return; }
   if (b.dataset.cancel){
     const o = (MY.orders||[]).find(x=>x.id===b.dataset.cancel); if (!o) return;
@@ -5665,6 +5666,7 @@ function onFirebaseReady(api){
     const prevUid = USER && USER.uid;
     USER = u; PROFILE = null;
     if (u && !u.emailVerified){ try { USER = await FB.refreshUser(); } catch(_) {} }
+    await adminProbe();
     if (isAdmin()) liveStart();   // v92: admin always sees live data and keeps the catalog up to date
     if (u){
       try { PROFILE = await FB.getProfile(u.uid); } catch(_) {}
@@ -5693,7 +5695,7 @@ function onFirebaseReady(api){
 window.addEventListener("firebase-ready", () => onFirebaseReady(window.SHOP_FB));
 window.addEventListener("focus", async () => {   // picks up an email confirmation done in another tab
   if (!FB || !USER || USER.emailVerified) return;
-  try { const u = await FB.refreshUser(); if (u && u.emailVerified){ USER = u; updateAcct(); render(); toast("Email confirmed"); } } catch(_) {}
+  try { const u = await FB.refreshUser(); if (u && u.emailVerified){ USER = u; await adminProbe(); updateAcct(); render(); toast("Email confirmed"); } } catch(_) {}
 });
 if (window.SHOP_FB) setTimeout(() => onFirebaseReady(window.SHOP_FB));
 setTimeout(() => { if (!FB){ fbFailed = true; authReady = true; render(); if (!CAT.applied) loadFromSheet(); } }, 12000);
