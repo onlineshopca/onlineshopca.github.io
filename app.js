@@ -1762,31 +1762,73 @@ function providerView(){
         ${x.issuer ? `<span>${esc(x.issuer)}</span>` : ""}
         ${x.issued ? `<span class="pmuted">Issued ${ymTxt(x.issued)}</span>` : ""}
         ${u ? `<a class="pcred" href="${esc(u)}" target="_blank" rel="noopener nofollow">Show credential ↗</a>` : ""}</div></li>`; }).join("");
-  const web = safeUrl(p.website), li = safeUrl(p.linkedin);
-  return `<div class="pprofile">
+  const web = safeUrl(p.website), li = safeUrl(p.linkedin), co = p.providerType === "Company";
+  const where = pinfo.online && pinfo.inp ? "Online and in person" : pinfo.online ? "Online" : pinfo.inp ? "In person" : "";
+  const ncat = new Set(svcs.map(x => x.category || "Other")).size;
+  const facts = [co && svcs.length ? ["Services", String(svcs.length)] : null, co && ncat ? ["Categories", String(ncat)] : null,
+    where ? ["Works", where] : p.location ? ["Location", esc(p.location)] : null,
+    !co && (p.languages || []).length ? ["Languages", p.languages.slice(0, 3).map(esc).join(", ")] : null, p.reply ? ["Usual reply", esc(p.reply)] : null,
+    pinfo.from ? ["From", `${money(pinfo.from.price)} <small>/ ${esc(pinfo.from.priceUnit)}</small>`] : pinfo.free ? ["Price", "Free"] : svcs.length ? ["Price", "On request"] : null,
+    pinfo.rv.length ? ["Reviews", `${pinfo.avg.toFixed(1)} <small>of 5 (${pinfo.rv.length})</small>`] : null].filter(Boolean).slice(0, 4);
+  const about = p.about || (p.skills || []).length;
+  const tabs = [about ? ["pv-about", "About"] : null, svcs.length ? ["psvcs", "Services"] : null, co ? ["pv-how", "How we work"] : null, exp ? ["pv-exp", "Experience"] : null,
+    edu ? ["pv-edu", "Education"] : null, certs ? ["pv-certs", "Certifications"] : null, ["pv-reviews", "Reviews"]].filter(Boolean);
+  const how = !co ? "" : `<section class="pcard" id="pv-how"><h2>How we work</h2><ol class="pv2how">
+      <li><i>1</i><b>Tell us what you need</b><span>Choose a service, or send us a message about your project.</span></li>
+      <li><i>2</i><b>We agree on work and price</b><span>We agree on the work and the price with you before anything starts.</span></li>
+      <li><i>3</i><b>Stay in control</b><span>See your bookings, message us, and change or cancel in My bookings.</span></li></ol></section>`;
+  return `<div class="pv2${co ? " co" : ""}">
     ${p._hidden ? `<div class="msg err" style="margin-bottom:14px">This profile is hidden from the website. Only admins can see it.</div>` : ""}
-    <section class="pcard phead">
-      <div class="pcover"></div>
-      <div class="pheadin">
-        ${provAvatar(p, 132)}
-        <h1>${esc(p.name)}${p.checked ? CHK : ""}</h1>
-        ${p.headline ? `<p class="phl">${esc(p.headline)}</p>` : ""}
-        <p class="pmuted">${esc([p.location, p.providerType === "Company" ? "Company" : ""].filter(Boolean).join(" · "))}</p>
-        ${provHeadExtra(p, pinfo)}<div class="pbtns">${svcs.length === 1 ? `<a class="btn" href="#service-${esc(svcs[0].id)}">Book a session</a>` : svcs.length ? `<a class="btn" href="#psvcs">Book a session</a>` : ""}<a class="btn ghost" href="#contact-us">Message the shop</a>${admin ? `<button class="btn ghost" type="button" data-pedit="${esc(p.id)}">Edit profile</button>` : ""}</div>
-        ${web || li ? `<p class="plinks">${web ? `<a href="${esc(web)}" target="_blank" rel="noopener nofollow">Website ↗</a>` : ""}${li ? `<a href="${esc(li)}" target="_blank" rel="noopener nofollow">LinkedIn ↗</a>` : ""}</p>` : ""}
+    <div class="pv2cols">
+      <div class="pv2main">
+        <header class="pcard pv2head">
+          <div class="pv2cov" aria-hidden="true"></div>
+          <div class="pv2hin">
+            <div class="pv2htop">${provAvatar(p, 124)}<div class="pbtns">${svcs.length === 1 ? `<a class="btn" href="#service-${esc(svcs[0].id)}">Book a time</a>` : svcs.length ? `<a class="btn" href="#psvcs">${co ? "See services" : "Book a time"}</a>` : ""}<a class="btn ghost" href="#contact-us">${co ? "Ask for a quote" : "Message the shop"}</a>${admin ? `<button class="btn ghost" type="button" data-pedit="${esc(p.id)}">Edit profile</button>` : ""}</div></div>
+            <div class="pv2name"><h1>${esc(p.name)}</h1>${p.checked ? `<span class="pv2ok">${CHK}<span>Checked by Nojan</span></span>` : ""}<span class="pd2kind">${co ? "Company" : "Person"}</span></div>
+            ${p.headline ? `<p class="phl">${esc(p.headline)}</p>` : ""}
+            ${facts.length ? `<dl class="pv2facts">${facts.map(([a, b]) => `<div><dt>${a}</dt><dd>${b}</dd></div>`).join("")}</dl>` : ""}
+            ${web || li ? `<p class="plinks">${web ? `<a href="${esc(web)}" target="_blank" rel="noopener nofollow">Website ↗</a>` : ""}${li ? `<a href="${esc(li)}" target="_blank" rel="noopener nofollow">LinkedIn ↗</a>` : ""}</p>` : ""}
+          </div>
+          ${tabs.length > 1 ? `<nav class="pv2nav" aria-label="Sections of this profile">${tabs.map(([id, l]) => `<button type="button" data-pvgo="${id}">${l}</button>`).join("")}</nav>` : ""}
+        </header>
+        ${about ? `<section class="pcard" id="pv-about"><h2>About</h2>${p.about ? `<p class="pabout">${esc(p.about)}</p>` : ""}${(p.skills || []).length ? `<ul class="pskills pv2skills">${p.skills.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}</section>` : ""}
+        ${provSvcCatsHTML(p, svcs)}
+        ${how}
+        ${exp ? `<section class="pcard pv2exp" id="pv-exp"><h2>Experience</h2><ul class="plist">${exp}</ul></section>` : ""}
+        ${edu || certs ? `<div class="pv2two">${edu ? `<section class="pcard" id="pv-edu"><h2>Education</h2><ul class="plist">${edu}</ul></section>` : ""}${certs ? `<section class="pcard" id="pv-certs"><h2>Licences &amp; certifications</h2><ul class="plist">${certs}</ul></section>` : ""}</div>` : ""}
+        <section class="pcard" id="pv-reviews"><div class="phd"><h2>Reviews</h2><span class="pmuted">Only from people who had a session</span></div>
+          ${pinfo.rv.length ? `<ul class="prevs">${pinfo.rv.map(r => `<li><div class="prevh"><b>${esc(r.name || "Customer")}</b><span class="pmuted">${esc(String(r.stars))} <span>of 5</span>${r.date ? ` · ${esc(r.date)}` : ""}</span></div>${r.text ? `<p>${esc(r.text)}</p>` : ""}</li>`).join("")}</ul>` : `<p class="pv2none">No reviews yet. After a session, customers can leave a rating and a few words here.</p>`}</section>
+        ${liBadgeHTML(p)}
       </div>
-    </section>
-    ${provBookHTML(p, pinfo)}
-    ${liBadgeHTML(p)}
-    ${sec("About", p.about ? `<p class="pabout">${esc(p.about)}</p>` : "")}
-    ${svcs.length ? `<section class="pcard" id="psvcs"><h2>Services</h2><div class="svcgrid">${serviceCards(svcs)}</div></section>` : ""}
-    ${provTrustHTML(p, pinfo)}
-    ${sec("Experience", exp ? `<ul class="plist">${exp}</ul>` : "")}
-    ${sec("Education", edu ? `<ul class="plist">${edu}</ul>` : "")}
-    ${sec("Licences &amp; certifications", certs ? `<ul class="plist">${certs}</ul>` : "")}
-    ${sec("Skills", (p.skills || []).length ? `<ul class="pskills">${p.skills.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : "")}
-    ${sec("Languages", (p.languages || []).length ? `<ul class="pskills">${p.languages.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : "")}
+      <aside class="pv2side">${provSideHTML(p, pinfo, co)}</aside>
+    </div>
   </div>`;
+}
+/* v110: a profile's services, grouped by category */
+function provSvcCatsHTML(p, svcs){
+  if (!svcs.length) return "";
+  const m = new Map(); svcs.forEach(x => { const c = x.category || "Other"; if (!m.has(c)) m.set(c, []); m.get(c).push(x); });
+  const row = x => `<li><div><a class="pv2st" href="#service-${esc(x.id)}">${esc(x.title)}</a>${x.summary ? `<span class="pv2sd">${esc(x.summary)}</span>` : ""}${fmtChips(x)}</div><span class="svcprice">${priceTxt(x)}</span><a class="btn small" href="#service-${esc(x.id)}">${x.member ? "View" : x.price == null ? "Book a free intro call" : "Book a time"}</a></li>`;
+  const cat = (g, c) => { const l = m.get(c); return `<section class="pv2cat t${g[1]}">
+      <div class="pv2cath"><span class="cgi" aria-hidden="true">${cgiSvg(SVC_ICONS[c] || CG_ICON.svc)}</span><div><h4>${esc(c)}</h4><span>${l.length} <span>${l.length === 1 ? "service" : "services"}</span></span></div><a href="#scategory-${catSlug(c)}"><span>See category</span> <span aria-hidden="true">›</span></a></div>
+      <ul class="pv2svcs">${l.slice(0, 3).map(row).join("")}</ul>${l.length > 3 ? `<details class="pv2more"><summary><span>Show more</span> (${l.length - 3})</summary><ul class="pv2svcs">${l.slice(3).map(row).join("")}</ul></details>` : ""}</section>`; };
+  const groups = SVC_GROUPS.map(g => [g, [...m.keys()].filter(c => groupOf(SVC_GROUPS, c) === g).sort((a, b) => { const x = g[2].indexOf(a), y = g[2].indexOf(b); return (x < 0 ? 99 : x) - (y < 0 ? 99 : y) || a.localeCompare(b); })]).filter(x => x[1].length);
+  return `<section class="pcard pv2svc" id="psvcs"><div class="phd"><h2><span>Services by</span> ${esc(p.name)}</h2><span class="pmuted">${svcs.length} <span>${svcs.length === 1 ? "service" : "services"}</span> · ${m.size} <span>${m.size === 1 ? "category" : "categories"}</span></span></div>
+    ${groups.map(([g, cs]) => `<h3 class="pv2glab">${esc(g[0])}</h3>${cs.map(c => cat(g, c)).join("")}`).join("")}</section>`;
+}
+function provSideHTML(p, i, co){
+  const intro = i.sv.find(x => x.price === 0 && x.duration <= 20);
+  const nx = i.sv.filter(x => x !== intro).flatMap(x => nextFree(x, 3)).sort((a, b) => a.ms - b.ms).slice(0, 3);
+  const first = String(p.name || "").split(" ")[0];
+  return `<section class="pcard pv2book"><h2><span>${co ? "Work with" : "Book with"}</span> ${esc(first)}</h2>
+      ${nx.length ? `<div class="phd"><b>Next free times</b><span class="pmuted">Toronto time</span></div>
+        <div class="pnext">${nx.map(x => `<button type="button" data-pslot="${esc(x.sid)}|${x.date}|${esc(x.key)}"><small>${fmtWhen(x.ms, {weekday: "short", month: "short", day: "numeric"})}</small><b>${fmtTime(x.ms)}</b><small>${esc((SERVICES.find(z => z.id === x.sid) || {}).title || "")}</small></button>`).join("")}</div>` : i.sv.length ? `<p class="pmuted">No open times right now</p>` : `<p class="pmuted">No services yet</p>`}
+      ${i.from ? `<div class="pv2price"><span>From</span><b>${money(i.from.price)} <small>/ ${esc(i.from.priceUnit)}</small></b></div>` : ""}
+      <div class="pv2bbtns">${i.sv.length === 1 ? `<a class="btn" href="#service-${esc(i.sv[0].id)}">Book a time</a>` : i.sv.length ? `<a class="btn" href="#psvcs">See services</a>` : ""}<a class="btn ghost" href="#contact-us">${co ? "Ask for a quote" : "Message the shop"}</a></div>
+      ${intro ? `<a class="pintro" href="#service-${esc(intro.id)}"><span><b>Not sure yet?</b> <span>Book a free intro call</span></span><span aria-hidden="true">›</span></a>` : ""}
+      ${i.sv.length ? `<ul class="pknow"><li>No payment online. You pay at the session.</li><li>Your time is held as soon as you send the request.</li><li>Plans changed? Cancel from My bookings.</li></ul>` : ""}</section>
+    ${p.checked || (p.checks || []).length ? `<section class="pcard"><h2>What Nojan checked</h2><ul class="pchecks">${((p.checks || []).length ? p.checks : ["Identity"]).map(c => `<li>${esc(c)}</li>`).join("")}</ul></section>` : ""}`;
 }
 
 /* ---- Admin: list, add and edit profiles ---- */
@@ -4574,7 +4616,7 @@ document.addEventListener("submit", async e => {
    v95: SERVICES — people directory, profile extras, repeat bookings, booking page
    ========================================================= */
 let ALLSLOTS = {}, allSlotsOn = false;
-SVC.tab = null; SVC.pf = {fmt: "", lang: "", week: false}; SVC.often = "one"; SVC.weeks = 4; SVC.lastSeries = [];
+SVC.tab = null; SVC.pf = {fmt: "", lang: "", week: false, chk: false, kind: "", sort: "soon"}; SVC.often = "one"; SVC.weeks = 4; SVC.lastSeries = [];
 BOOK_TEXT["Time changed"] = "Your session has a new time. If it doesn't work for you, reply to this email or cancel from My bookings.";
 BOOK_TEXT["Reminder"] = "A reminder about your session. See you soon!";
 TITLES.mybooking = "Your booking · Nojan";
@@ -4603,28 +4645,52 @@ function svcTabsHTML(){
   return `<div class="seg svctabs" role="group" aria-label="Show">${[["services", "Services"], ["people", "People"]].map(([v, l]) => `<button type="button" data-svctab="${v}" aria-pressed="${svcTab() === v}">${l}</button>`).join("")}</div>`;
 }
 function personCardHTML(p, i){
+  /* v110: rich card for a person or a company */
+  const co = p.providerType === "Company", href = `#provider-${esc(p.id)}`, src = p.photo ? imgSrc(p.photo) : "";
   const where = [i.online ? "Online" : "", i.inp ? "In person" : ""].filter(Boolean);
-  return `<article class="pdcard">
-    <div class="pdtop">${provAvatar(p, 56)}<div><b class="pdname"><span>${esc(p.name)}</span>${p.checked ? CHK : ""}</b>${p.headline ? `<span class="pdhl">${esc(p.headline)}</span>` : ""}</div></div>
-    <div class="pdmeta">${(p.languages || []).length ? `<span>${p.languages.map(esc).join(" · ")}</span>` : ""}${where.map(w => `<span>${w}</span>`).join("")}${p.location ? `<span>${esc(p.location)}</span>` : ""}${i.rv.length ? `<span class="pdrate"><b>${i.avg.toFixed(1)}</b> <span>of 5</span> (${i.rv.length})</span>` : ""}</div>
-    <div class="pdfoot"><div>${i.from ? `<b><span>From</span> ${money(i.from.price)} <small>/ ${esc(i.from.priceUnit)}</small></b>` : i.free ? `<b>Free</b>` : i.sv.length ? `<b>Price on request</b>` : `<span class="note">No services yet</span>`}
-      ${i.next ? `<span class="pdnext"><span>Next free:</span> ${dayTime(i.next.ms)}</span>` : i.sv.length ? `<span class="note">No open times right now</span>` : ""}</div>
-      <a class="btn" href="#provider-${esc(p.id)}">View profile</a></div>
+  const loc = p.location && !where.some(w => w.toLowerCase() === String(p.location).trim().toLowerCase()) ? p.location : "";
+  const cats = [...new Set(i.sv.map(s => s.category || "Other"))];
+  const chips = [...where.map(w => `<li>${w}</li>`), loc ? `<li>${esc(loc)}</li>` : "", ...(co ? [] : (p.languages || []).slice(0, 3).map(l => `<li>${esc(l)}</li>`)),
+    co && i.sv.length ? `<li>${i.sv.length} <span>${i.sv.length === 1 ? "service" : "services"}</span></li>` : "",
+    i.rv.length ? `<li class="pdrate"><b>${i.avg.toFixed(1)}</b> <span>of 5</span> (${i.rv.length})</li>` : ""].join("");
+  const svc = !i.sv.length ? "" : `<div class="pd2svc"><span class="pd2lab">Services</span>${i.sv.length <= 2 ? i.sv.map(x => `<a href="#service-${esc(x.id)}">${esc(x.title)} <span aria-hidden="true">›</span></a>`).join("") : `<span class="pd2cats">${cats.slice(0, 4).map(esc).join(" · ")}${cats.length > 4 ? " · …" : ""}</span>`}</div>`;
+  const main = co ? `<a class="btn" href="#contact-us">Ask for a quote</a>` : i.sv.length === 1 ? `<a class="btn" href="#service-${esc(i.sv[0].id)}">Book a time</a>` : i.sv.length ? `<a class="btn" href="${href}">Book a time</a>` : "";
+  return `<article class="pd2 ${co ? "co" : "pe"}">
+    <div class="pd2cov" aria-hidden="true"></div>
+    <div class="pd2in">
+      <div class="pd2top"><a class="pd2av" href="${href}" aria-label="${esc(p.name)}">${src ? `<img src="${esc(src)}" data-ref="${esc(p.photo)}" alt="">` : `<i>${esc(initials(p.name))}</i>`}</a><span class="pd2kind">${co ? "Company" : "Person"}</span></div>
+      <div class="pd2who"><h3><a href="${href}">${esc(p.name)}</a>${p.checked ? CHK : ""}</h3>${p.headline ? `<p>${esc(p.headline)}</p>` : ""}</div>
+      ${chips ? `<ul class="pd2chips">${chips}</ul>` : ""}
+      ${svc}
+      <div class="pd2foot">${i.from ? `<b><span>From</span> ${money(i.from.price)} <small>/ ${esc(i.from.priceUnit)}</small></b>` : i.free ? `<b>Free</b>` : i.sv.length ? `<b>Price on request</b>` : `<span class="note">No services yet</span>`}
+        ${i.next ? `<span class="pdnext"><span>Next free:</span> ${dayTime(i.next.ms)}</span>` : i.sv.length ? `<span class="note">No open times right now</span>` : ""}</div>
+      <div class="pd2btns">${main}<a class="btn ghost" href="${href}">${co ? "View company" : "View profile"}</a></div>
+    </div>
   </article>`;
 }
 function peopleDirHTML(){
   startAllSlots();
   const f = SVC.pf, q = query.trim().toLowerCase(), wk = Date.now() + 7 * 86400000;
   const langs = [...new Set(PROVIDERS.flatMap(p => p.languages || []))].slice(0, 5);
+  const hasCo = PROVIDERS.some(p => p.providerType === "Company"), hasPe = PROVIDERS.some(p => p.providerType !== "Company");
   const rows = PROVIDERS.map(p => ({p, i: provInfo(p)})).filter(({p, i}) =>
     (!q || [p.name, p.headline, p.about, (p.skills || []).join(" "), i.sv.map(s => s.title + " " + s.category).join(" ")].join(" ").toLowerCase().includes(q)) &&
+    (!f.kind || (f.kind === "co") === (p.providerType === "Company")) && (!f.chk || p.checked) &&
     (f.fmt !== "online" || i.online) && (f.fmt !== "inp" || i.inp) && (!f.lang || (p.languages || []).includes(f.lang)) && (!f.week || (i.next && i.next.ms < wk)));
-  rows.sort((a, b) => (a.i.next ? a.i.next.ms : 9e15) - (b.i.next ? b.i.next.ms : 9e15));
+  const cost = i => i.from ? i.from.price : i.free ? 0 : 9e9;
+  rows.sort(f.sort === "name" ? (a, b) => a.p.name.localeCompare(b.p.name) : f.sort === "price" ? (a, b) => cost(a.i) - cost(b.i) || a.p.name.localeCompare(b.p.name)
+    : (a, b) => (a.i.next ? a.i.next.ms : 9e15) - (b.i.next ? b.i.next.ms : 9e15));
   const chip = (k, v, label, on) => `<button type="button" data-pf="${k}" data-v="${esc(v)}" aria-pressed="${on}">${label}</button>`;
-  return `<div class="chips pdirchips" role="group" aria-label="Filter people">
-      ${chip("all", "", "All", !f.fmt && !f.lang && !f.week)}${chip("fmt", "online", "Online", f.fmt === "online")}${chip("fmt", "inp", "In person", f.fmt === "inp")}${langs.map(l => chip("lang", l, `<span>Speaks</span> ${esc(l)}`, f.lang === l)).join("")}${chip("week", "1", "Free this week", f.week)}</div>
-    ${rows.length ? `<div class="pdir">${rows.map(({p, i}) => personCardHTML(p, i)).join("")}</div>` : `<div class="empty">Nobody matches these filters yet. <button class="linkbtn" type="button" data-pf="all" data-v="">Show everyone</button></div>`}
-    <p class="note" style="text-align:center;margin:16px 0 0">Want to offer a service? <a href="#contact-us" style="color:var(--link)">Tell us about yourself</a></p>`;
+  const opt = (v, l) => `<option value="${v}"${(f.sort || "soon") === v ? " selected" : ""}>${l}</option>`;
+  return `<div class="pd2bar">
+      ${hasCo && hasPe ? `<div class="seg svctabs pd2seg" role="group" aria-label="Show">${chip("kind", "", "All", !f.kind)}${chip("kind", "pe", "People", f.kind === "pe")}${chip("kind", "co", "Companies", f.kind === "co")}</div>` : ""}
+      <label class="sortlbl pd2sort">Sort by <select data-psort aria-label="Sort by">${opt("soon", "Soonest available")}${opt("price", "Price: low to high")}${opt("name", "Name")}</select></label>
+    </div>
+    <div class="chips pdirchips" role="group" aria-label="Filter people">
+      ${chip("all", "", "All", !f.fmt && !f.lang && !f.week && !f.chk && !f.kind)}${chip("fmt", "online", "Online", f.fmt === "online")}${chip("fmt", "inp", "In person", f.fmt === "inp")}${langs.map(l => chip("lang", l, `<span>Speaks</span> ${esc(l)}`, f.lang === l)).join("")}${chip("week", "1", "Free this week", f.week)}${chip("chk", "1", "Checked by Nojan", f.chk)}</div>
+    ${rows.length ? "" : `<div class="empty">Nobody matches these filters yet. <button class="linkbtn" type="button" data-pf="all" data-v="">Show everyone</button></div>`}
+    <div class="pd2grid">${rows.map(({p, i}) => personCardHTML(p, i)).join("")}
+      <aside class="pd2offer"><span class="pd2plus" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><h3>Offer a service on Nojan</h3><p>Are you a tutor, a developer or a company? Tell us about yourself and we will set up your profile.</p><a class="btn" href="#contact-us">Tell us about yourself</a></aside></div>`;
 }
 
 /* ---- Provider profile extras ---- */
@@ -4689,12 +4755,14 @@ document.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.svctab){ SVC.tab = b.dataset.svctab; render(); return; }
   if (b.dataset.pf){ const f = SVC.pf, k = b.dataset.pf, v = b.dataset.v;
-    if (k === "all") SVC.pf = {fmt: "", lang: "", week: false}; else if (k === "week") f.week = !f.week; else f[k] = f[k] === v ? "" : v;
+    if (k === "all") SVC.pf = {fmt: "", lang: "", week: false, chk: false, kind: "", sort: f.sort || "soon"}; else if (k === "week") f.week = !f.week; else if (k === "chk") f.chk = !f.chk; else f[k] = f[k] === v ? "" : v;
     render(); return; }
   if (b.dataset.bkoften){ SVC.often = b.dataset.bkoften; refreshBookPanel(); return; }
+  if (b.dataset.pvgo){ const t = document.getElementById(b.dataset.pvgo); if (t) t.scrollIntoView({behavior: "smooth", block: "start"}); return; }
   if (b.dataset.pslot){ const [sid, date, key] = b.dataset.pslot.split("|"); go("service", sid); SVC.date = date; SVC.slot = key; refreshBookPanel(); return; }
 });
 document.addEventListener("change", e => {
+  if (e.target.matches("[data-psort]")){ SVC.pf.sort = e.target.value; render(); return; }
   if (e.target.matches("[data-bkweeks]")){ SVC.weeks = +e.target.value || 4; refreshBookPanel(); return; }
   if (e.target.matches("[data-bkchk]")){ const m = bkChecks(); m[e.target.dataset.bkchk] = e.target.checked; try { localStorage.setItem("nojanChk", JSON.stringify(m)); } catch (_) {} }
 });

@@ -2602,3 +2602,126 @@ html body::after{content:"";position:fixed;inset:-60%;z-index:-1;pointer-events:
   html body::after{translate:calc(var(--pmx,0) * 11%) calc(var(--pmy,0) * 11%);transition:translate 1s cubic-bezier(.2,.7,.2,1)}
 }
 @media (prefers-reduced-motion:reduce){html body .h5hero.h5hero::after,html body .pagehero.lhero.shop::after,html body .pagehero.lhero.services::after,html body .pagehero.contact::after,html body footer.fx .fcard::after,html body::after{animation:none;translate:none;transition:none}}
+/* ===== v110: People directory (rich cards for people and companies) and the profile page (two columns, services by category) ===== */
+.pd2bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.pd2bar .pd2sort{margin-left:auto}
+.pd2grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.pd2{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(0,0,0,.05);min-width:0}
+html body .pd2 .pd2cov,html body .pv2 .pv2cov{background-color:#f5f7fb;background-repeat:no-repeat!important;background-image:radial-gradient(60% 150% at 0% 0%,rgba(var(--vblue),.4),transparent 72%),radial-gradient(60% 150% at 100% 100%,rgba(var(--vyel),.44),transparent 72%)!important}
+html body .pd2.co .pd2cov,html body .pv2.co .pv2cov{background-color:#f6faf7;background-image:radial-gradient(60% 150% at 0% 0%,rgba(var(--vgrn),.36),transparent 72%),radial-gradient(60% 150% at 100% 100%,rgba(var(--vred),.26),transparent 72%)!important}
+.pd2 .pd2cov{height:84px}
+.pd2in{padding:0 20px 20px;display:flex;flex-direction:column;gap:14px;flex:1}
+.pd2top{display:flex;align-items:flex-end;gap:14px;margin-top:-38px}
+.pd2av{width:76px;height:76px;border-radius:22px;background:#eef2fb;border:4px solid #fff;display:grid;place-items:center;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.08);text-decoration:none;color:#1d1d1f;flex:none}
+.pd2av img{width:100%;height:100%;object-fit:cover}
+.pd2av i{font-style:normal;font-weight:800;font-size:28px;letter-spacing:-.02em}
+.pd2kind{margin-bottom:6px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#1c4fb0;background:#e8effd;border-radius:8px;padding:5px 9px;white-space:nowrap}
+.pd2.co .pd2kind,.pv2.co .pd2kind{color:#0b5c3f;background:#e4f3ec}
+.pd2who{display:grid;gap:6px}
+.pd2who h3{margin:0;font-size:22px;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.pd2who h3 a{color:inherit;text-decoration:none}
+.pd2who h3 a:hover{text-decoration:underline}
+.pd2who h3 .pchk{width:20px;height:20px}
+.pd2who p{margin:0;font-size:15px;line-height:1.4;color:#424245}
+.pd2chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.pd2chips li{font-size:13px;font-weight:600;background:#f5f5f7;border-radius:8px;padding:6px 10px}
+.pd2chips li b{font-weight:800}
+.pd2svc{display:grid;gap:6px}
+.pd2lab{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#56565a}
+.pd2svc a{font-size:14px;font-weight:600;color:var(--fg);text-decoration:none;width:fit-content}
+.pd2svc a:hover{text-decoration:underline}
+.pd2cats{font-size:14px;font-weight:600;line-height:1.5}
+.pd2foot{margin-top:auto;border-top:1px solid var(--line);padding-top:14px;display:grid;gap:4px;font-size:16px}
+.pd2foot .pdnext{font-size:14px;font-weight:600}
+.pd2foot small{font-size:13px;color:#56565a}
+.pd2btns{display:flex;gap:10px}
+html body .pd2btns .btn{flex:1;display:flex;justify-content:center;align-items:center;text-align:center;min-height:46px;white-space:nowrap;padding-left:10px;padding-right:10px}
+.pd2offer{border:2px dashed #c7c7cc;border-radius:22px;padding:28px 24px;display:flex;flex-direction:column;gap:12px;justify-content:center;align-items:flex-start;background:rgba(255,255,255,.5)}
+.pd2offer h3{margin:0;font-size:20px;font-weight:800}
+.pd2offer p{margin:0;font-size:15px;line-height:1.5;color:#424245}
+.pd2plus{width:52px;height:52px;border-radius:16px;background:#fff;border:1px solid var(--line);display:grid;place-items:center}
+.pd2plus svg{width:24px;height:24px;fill:none;stroke:#1d1d1f;stroke-width:2;stroke-linecap:round}
+/* profile page */
+.pv2{max-width:1160px;margin:0 auto}
+.pv2cols{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
+.pv2main{flex:1 1 600px;min-width:0;display:grid;gap:18px}
+.pv2side{flex:1 1 320px;max-width:380px;display:grid;gap:18px;position:sticky;top:84px}
+.pv2 .pcard h2{font-size:22px;font-weight:800;margin:0 0 14px}
+html body .pv2head{padding:0;overflow:hidden;border-radius:26px}
+.pv2 .pv2cov{height:150px}
+.pv2hin{padding:0 28px 24px;display:grid;gap:14px}
+.pv2htop{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;margin-top:-62px}
+.pv2htop .pav{border:6px solid #fff;border-radius:34px;background:#eef2fb;box-shadow:0 6px 18px rgba(0,0,0,.1);font-size:46px!important}
+.pv2htop .pbtns{margin:0}
+.pv2name{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.pv2name h1{margin:0;font-size:34px;font-weight:800;letter-spacing:-.02em}
+.pv2name .pd2kind{margin:0;padding:6px 9px}
+.pv2ok{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#0b5c3f;background:#e4f3ec;border-radius:9px;padding:6px 10px}
+.pv2ok .pchk{width:16px;height:16px;color:#0b5c3f;margin:0}
+.pv2 .phl{font-size:18px;line-height:1.4;color:#424245;margin:0}
+.pv2facts{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.pv2facts div{background:#f5f5f7;border-radius:16px;padding:14px 16px;min-width:0}
+.pv2facts dt{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#56565a}
+.pv2facts dd{margin:4px 0 0;font-size:16px;font-weight:700}
+.pv2facts dd small{font-size:13px;font-weight:600;color:#56565a}
+.pv2 .plinks{margin:0}
+.pv2nav{display:flex;flex-wrap:wrap;gap:4px;padding:6px 20px;border-top:1px solid var(--line)}
+html body .pv2nav button{font:inherit;font-size:14px;font-weight:600;color:#56565a;background:none!important;border:0!important;border-bottom:2px solid transparent!important;border-radius:0!important;box-shadow:none!important;padding:12px;min-height:44px;cursor:pointer}
+html body .pv2nav button:hover{color:#1d1d1f;border-bottom-color:rgb(var(--vblue))!important}
+.pv2skills{margin-top:14px}
+.pv2skills li{background:none;border:1px solid #d2d2d7;border-radius:10px;font-weight:600;padding:7px 12px}
+.pv2none{margin:12px 0 0;font-size:16px;line-height:1.55;color:#424245}
+.pv2two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+/* services by category */
+.pv2svc{display:grid;gap:14px}
+.pv2svc .phd{margin-bottom:2px}
+.pv2glab{margin:6px 0 -4px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#56565a}
+.pv2cat{border:1px solid var(--line);border-radius:20px;padding:18px 20px 6px;display:grid;gap:10px}
+.pv2cath{display:flex;align-items:center;gap:14px}
+.pv2cath .cgi{width:56px;height:56px;flex:none;border-radius:16px;display:grid;place-items:center}
+.pv2cath .cgi svg{width:26px;height:26px;fill:none;stroke:#1d1d1f;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pv2cath>div{flex:1;min-width:0;display:grid;gap:2px;font-size:14px;color:#56565a}
+.pv2cath h4{margin:0;font-size:19px;font-weight:800;color:var(--fg)}
+.pv2cath>a{font-size:14px;font-weight:600;color:var(--fg);white-space:nowrap}
+.pv2svcs{list-style:none;margin:0;padding:0}
+.pv2svcs li{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:14px 0;border-top:1px solid #ececed}
+.pv2svcs li>div{flex:1 1 240px;min-width:0;display:grid;gap:4px}
+.pv2st{font-size:17px;font-weight:700;color:var(--fg);text-decoration:none}
+.pv2st:hover{text-decoration:underline}
+.pv2sd{font-size:14px;color:#56565a;line-height:1.45}
+.pv2svcs .svcprice{font-size:17px;font-weight:800}
+.pv2more summary{cursor:pointer;font-size:14px;font-weight:600;padding:12px 0 14px;border-top:1px solid #ececed;list-style-position:inside}
+/* experience as a timeline */
+.pv2exp .pitem{grid-template-columns:14px minmax(0,1fr);gap:16px;border-top:0;padding:0 0 22px;position:relative}
+.pv2exp .pitem:last-child{padding-bottom:0}
+.pv2exp .plogo{width:14px;height:14px;border-radius:50%;background:rgb(var(--vblue));font-size:0;margin-top:5px}
+.pv2exp .pitem+.pitem .plogo{background:#fff;border:2px solid #8e8e93;box-sizing:border-box}
+.pv2exp .pitem:not(:last-child)::before{content:"";position:absolute;left:6px;top:25px;bottom:4px;width:2px;background:var(--line)}
+.pv2exp .pitem b{font-size:17px}
+/* how we work */
+.pv2how{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.pv2how li{background:#f5f5f7;border-radius:18px;padding:18px;display:grid;gap:8px;align-content:start}
+.pv2how i{font-style:normal;width:34px;height:34px;border-radius:11px;background:#fff;display:grid;place-items:center;font-size:15px;font-weight:800;border-bottom:2px solid rgb(var(--vblue))}
+.pv2how li:nth-child(2) i{border-bottom-color:rgb(var(--vred))}.pv2how li:nth-child(3) i{border-bottom-color:rgb(var(--vgrn))}
+.pv2how b{font-size:17px}.pv2how span{font-size:14px;line-height:1.5;color:#424245}
+/* side panel */
+html body .pv2book{box-shadow:0 12px 34px rgba(0,0,0,.08);display:grid;gap:14px}
+.pv2book h2{margin:0!important}
+.pv2book .pnext{margin-top:0;grid-template-columns:repeat(3,minmax(0,1fr))}
+.pv2price{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding-top:14px;font-size:15px;color:#424245}
+.pv2price b{font-size:20px;font-weight:800;color:var(--fg)}.pv2price small{font-size:13px;font-weight:600;color:#56565a}
+.pv2bbtns{display:grid;gap:10px}
+html body .pv2bbtns .btn{display:flex;justify-content:center;align-items:center;min-height:48px;text-align:center}
+.pv2book .pknow{margin:0;padding-left:18px;list-style:disc;font-size:14px;line-height:1.45;color:#424245;gap:6px}
+.pv2book .pintro{margin:0}
+@media (max-width:900px){.pv2side{max-width:none;position:static}}
+@media (max-width:640px){
+  .pd2grid{grid-template-columns:minmax(0,1fr);gap:12px}
+  .pv2hin{padding:0 18px 20px}.pv2 .pv2cov{height:110px}
+  .pv2htop .pav{width:96px!important;height:96px!important;font-size:36px!important;border-radius:28px}
+  .pv2htop{margin-top:-48px}.pv2name h1{font-size:28px}.pv2 .phl{font-size:16px}
+  .pv2nav{padding:4px 10px;flex-wrap:nowrap;overflow-x:auto}
+  html body .pv2nav button{white-space:nowrap;padding:12px 10px}
+  .pv2cat{padding:14px 14px 4px}.pv2cath .cgi{width:48px;height:48px}.pv2cath h4{font-size:17px}
+  .pv2book .pnext{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}
+}
