@@ -44,6 +44,20 @@ window.SHOP_FB = {
   idToken: () => auth.currentUser.getIdToken(),
   /* v111: the database decides who is an admin; this read is allowed for admins only */
   async isAdmin(){ try { await getDoc(doc(db, "adminNotes", "_admin")); return true; } catch (e) { return false; } },
+  /* v113: admin backup: every collection an admin may read, as one object (dates as text) */
+  async backup(){
+    const names = ["products", "productImages", "services", "orders", "bookings", "users", "adminNotes", "counters", "slots", "sellers", "market", "homes", "reports", "dating"];
+    const conv = v => v && typeof v.toDate === "function" ? v.toDate().toISOString() : Array.isArray(v) ? v.map(conv) : (v && typeof v === "object") ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, conv(x)])) : v;
+    const out = {site: "nojans.com", made: new Date().toISOString(), collections: {}, skipped: {}};
+    for (const n of names){
+      try { const s = await getDocs(collection(db, n)); out.collections[n] = s.docs.map(d => ({id: d.id, ...conv(d.data())})); }
+      catch (e) { out.skipped[n] = String((e && (e.code || e.message)) || e); }
+    }
+    for (const b of (out.collections.bookings || [])){
+      try { const s = await getDocs(collection(db, "bookings", b.id, "messages")); if (s.size) b._messages = s.docs.map(d => ({id: d.id, ...conv(d.data())})); } catch (_) {}
+    }
+    return out;
+  },
   async refreshUser(){ await auth.currentUser.reload(); await auth.currentUser.getIdToken(true); return auth.currentUser; },
   async getProfile(uid){ const s = await getDoc(doc(db, "users", uid)); return s.exists() ? s.data() : null; },
   saveProfile: (uid, data, isNew) => setDoc(doc(db, "users", uid), {...data, ...(isNew ? {createdAt: serverTimestamp()} : {}), updatedAt: serverTimestamp()}, {merge: true}),

@@ -1581,7 +1581,8 @@ function authError(e){
     "auth/wrong-password":"That email and password don't match. Try again, or reset your password.",
     "auth/user-not-found":"No account uses that email. Create an account instead.",
     "auth/email-already-in-use":"An account already uses that email. Sign in instead, or reset your password.",
-    "auth/weak-password":"Use a password with at least 6 characters.",
+    "auth/weak-password":"Use a password with at least 8 characters.",
+    "auth/password-does-not-meet-requirements":"Use a password with at least 8 characters.",
     "auth/invalid-email":"Enter a valid email address, like name@example.com.",
     "auth/too-many-requests":"Too many tries. Wait a few minutes and try again.",
     "auth/network-request-failed":"No connection. Check your internet and try again.",
@@ -1621,7 +1622,7 @@ function accountView(){
           <label>Full name<input name="name" required autocomplete="name"></label>
           <label>Email<input name="email" type="email" required autocomplete="email"></label>
           <label>Phone <small>(optional, so we can call about orders)</small><input name="phone" type="tel" autocomplete="tel"></label>
-          <label>Password <small>(at least 6 characters)</small><input name="password" type="password" required minlength="6" autocomplete="new-password"></label>
+          <label>Password <small>(at least 8 characters)</small><input name="password" type="password" required minlength="8" autocomplete="new-password"></label>
           <div id="authMsg" hidden></div>
           <button class="btn" type="submit">Create account</button>
         </form>` : `<form id="signinForm" novalidate>
@@ -4041,7 +4042,7 @@ function adminView(){
   if (!USER) return needSignIn("admin", "Admin sign-in", "Sign in with the shop's admin account to manage orders.");
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
-  return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them.</p></div>
+  return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them. <button class="linkbtn" type="button" data-backup>Download backup</button></p></div>
     <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
@@ -5520,6 +5521,17 @@ document.addEventListener("click", async e => {
     catch(err){ b.disabled = false; if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request"){ const m = $("#authMsg"); if (m) showMsg(m,false,authError(err)); else toast(authError(err)); } }
     return;
   }
+  if (b.hasAttribute("data-backup")){   // v113: one file with every record an admin can read
+    if (!isAdmin() || !FB || !FB.backup) return;
+    const t0 = b.textContent; b.disabled = true; b.textContent = "Preparing…";
+    try {
+      const data = await FB.backup(), url = URL.createObjectURL(new Blob([JSON.stringify(data)], {type: "application/json"}));
+      const a = document.createElement("a"); a.href = url; a.download = "nojan-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000);
+      toast("Backup downloaded: " + Object.values(data.collections).reduce((x, l) => x + l.length, 0) + " records");
+    } catch(err){ console.error(err); toast("Couldn't make the backup. Try again."); }
+    b.disabled = false; b.textContent = t0; return;
+  }
   if (b.hasAttribute("data-signout")){ await FB.signOut(); toast("You're signed out"); go("home"); return; }
   if (b.hasAttribute("data-recheck")){ try { USER = await FB.refreshUser(); await adminProbe(); updateAcct(); render(); toast(USER.emailVerified ? "Email confirmed" : "Not confirmed yet. Click the link in the email first."); } catch(err){ toast(authError(err)); } return; }
   if (b.hasAttribute("data-resend")){ try { await FB.resendVerify(); toast("Confirmation email sent"); } catch(err){ toast(authError(err)); } return; }
@@ -5561,7 +5573,7 @@ document.addEventListener("submit", async e => {
     try {
       if (f.id === "signinForm") await FB.signIn(d.email.trim(), d.password);
       else if (f.id === "signupForm"){
-        if (d.password.length < 6){ btn.disabled = false; return showMsg(m,false,"Use a password with at least 6 characters."); }
+        if (d.password.length < 8){ btn.disabled = false; return showMsg(m,false,"Use a password with at least 8 characters."); }
         signingUp = true;
         try { await FB.signUp(d.email.trim(), d.password, d.name.trim(), (d.phone||"").trim()); }
         finally { signingUp = false; }
