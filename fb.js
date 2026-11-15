@@ -138,8 +138,8 @@ window.SHOP_FB = {
       const oref = b.slotKey ? doc(db, "slots", b.slotKey) : null, nref = doc(db, "slots", o.slotKey);
       const os = oref ? await tx.get(oref) : null, ns = await tx.get(nref), used = ns.exists() ? (ns.data().count || 0) : 0;
       if (used >= capacity) throw new Error("slot-full");
-      if (os && os.exists() && (os.data().count || 0) > 0) tx.update(oref, {count: os.data().count - 1});
-      if (ns.exists()) tx.update(nref, {count: used + 1}); else tx.set(nref, {serviceId: b.serviceId, startMs: o.startMs, count: 1});
+      if (os && os.exists() && (os.data().count || 0) > 0) tx.update(oref, {count: os.data().count - 1, by: id});
+      if (ns.exists()) tx.update(nref, {count: used + 1, by: id}); else tx.set(nref, {serviceId: b.serviceId, startMs: o.startMs, count: 1, by: id});
       tx.update(bref, {startMs: o.startMs, date: o.date, time: o.time, slotKey: o.slotKey, offer: null, changeReq: null, reminded: false, updatedAt: serverTimestamp(),
         history: arrayUnion({status: "Time changed", by: "customer", from: b.startMs, to: o.startMs, at: new Date().toISOString()})});
     });
@@ -152,7 +152,7 @@ window.SHOP_FB = {
       if (used >= capacity) throw new Error("slot-full");
       const n = c.exists() ? c.data().n + 1 : 1001;
       tx.set(counter, {n});
-      if (sl.exists()) tx.update(slotRef, {count: used + 1}); else tx.set(slotRef, {serviceId: b.serviceId, startMs: b.startMs, count: 1});
+      if (sl.exists()) tx.update(slotRef, {count: used + 1, by: ref.id}); else tx.set(slotRef, {serviceId: b.serviceId, startMs: b.startMs, count: 1, by: ref.id});   // v115: "by" = the booking this change belongs to
       tx.set(ref, {...b, slotKey, number: n, status: "Requested", createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
         history: [{status: "Requested", at: new Date().toISOString(), by: "customer"}]});
       return n;
@@ -182,7 +182,7 @@ window.SHOP_FB = {
       const bref = doc(db, "bookings", id), b = (await tx.get(bref)).data();
       if (!["Requested", "Confirmed"].includes(b.status)) throw new Error("not-cancellable");
       const sref = b.slotKey ? doc(db, "slots", b.slotKey) : null, sl = sref ? await tx.get(sref) : null;
-      if (sl && sl.exists() && (sl.data().count || 0) > 0) tx.update(sref, {count: sl.data().count - 1});
+      if (sl && sl.exists() && (sl.data().count || 0) > 0) tx.update(sref, {count: sl.data().count - 1, by: id});
       tx.update(bref, {status: "Cancelled", updatedAt: serverTimestamp(), history: arrayUnion({status: "Cancelled", by: "customer", at: new Date().toISOString()})});
     });
   },
@@ -271,25 +271,26 @@ window.SHOP_FB = {
   async dtDeleteProfile(uid){ for (let i = 0; i < 4; i++){ try { await deleteDoc(doc(db, "datingPhotos", uid + "_" + i)); } catch (_) {} } await deleteDoc(doc(db, "dating", uid)); },
   /* v65 events: each ticket takes one place in the event's counter (the database rules allow +1 at a time, never past the event's capacity) */
   watchSlotsIn: (ids, cb, err) => onSnapshot(query(collection(db, "slots"), where("serviceId", "in", ids)), s => { const m = {}; s.docs.forEach(d => m[d.id] = d.data().count || 0); cb(m); }, err),
-  async reserveTickets(b, qty, capacity){
-    const slotRef = doc(db, "slots", b.slotKey); let taken = 0;
-    const step = d => runTransaction(db, async tx => { const sl = await tx.get(slotRef), used = sl.exists() ? (sl.data().count || 0) : 0;
-      if (d > 0){ if (used >= capacity) throw new Error("sold-out"); if (sl.exists()) tx.update(slotRef, {count: used + 1}); else tx.set(slotRef, {serviceId: b.eventId, startMs: b.startMs, count: 1}); }
-      else if (sl.exists() && used > 0) tx.update(slotRef, {count: used - 1}); });
-    try {
-      for (let i = 0; i < qty; i++){ await step(1); taken++; }
-      const counter = doc(db, "counters", "tickets"), ref = doc(collection(db, "bookings"));
-      const number = await runTransaction(db, async tx => { const c = await tx.get(counter), n = c.exists() ? c.data().n + 1 : 1001; tx.set(counter, {n});
-        tx.set(ref, {...b, number: n, status: "Requested", createdAt: serverTimestamp(), updatedAt: serverTimestamp(), history: [{status: "Requested", at: new Date().toISOString(), by: "customer"}]}); return n; });
-      return {id: ref.id, number};
-    } catch (e) { for (let i = 0; i < taken; i++){ try { await step(-1); } catch(_) {} } throw e; }
+  async reserveTickets(b, qty, capacity){   // v115: tickets and the places they take are saved together, in one step
+    const slotRef = doc(db, "slots", b.slotKey), counter = doc(db, "counters", "tickets"), ref = doc(collection(db, "bookings"));
+    const number = await runTransaction(db, async tx => {
+      const c = await tx.get(counter), sl = await tx.get(slotRef), used = sl.exists() ? (sl.data().count || 0) : 0;
+      if (used + qty > capacity) throw new Error("sold-out");
+      const n = c.exists() ? c.data().n + 1 : 1001; tx.set(counter, {n});
+      tx.set(ref, {...b, qty, number: n, status: "Requested", createdAt: serverTimestamp(), updatedAt: serverTimestamp(), history: [{status: "Requested", at: new Date().toISOString(), by: "customer"}]});
+      if (sl.exists()) tx.update(slotRef, {count: used + qty, by: ref.id}); else tx.set(slotRef, {serviceId: b.eventId, startMs: b.startMs, count: qty, by: ref.id});
+      return n;
+    });
+    return {id: ref.id, number};
   },
-  async cancelMyTicket(id){
-    const bref = doc(db, "bookings", id), b = (await getDoc(bref)).data();
-    if (!["Requested", "Confirmed"].includes(b.status)) throw new Error("not-cancellable");
-    await updateDoc(bref, {status: "Cancelled", updatedAt: serverTimestamp(), history: arrayUnion({status: "Cancelled", by: "customer", at: new Date().toISOString()})});
-    const sref = doc(db, "slots", b.slotKey);
-    for (let i = 0; i < (b.qty || 1); i++){ try { await runTransaction(db, async tx => { const sl = await tx.get(sref); if (sl.exists() && (sl.data().count || 0) > 0) tx.update(sref, {count: sl.data().count - 1}); }); } catch(_) {} }
+  async cancelMyTicket(id){   // v115: the ticket and its places are released together, in one step
+    return runTransaction(db, async tx => {
+      const bref = doc(db, "bookings", id), b = (await tx.get(bref)).data();
+      if (!["Requested", "Confirmed"].includes(b.status)) throw new Error("not-cancellable");
+      const sref = doc(db, "slots", b.slotKey), sl = await tx.get(sref), q = b.qty || 1, used = sl.exists() ? (sl.data().count || 0) : 0;
+      if (used >= q) tx.update(sref, {count: used - q, by: id});
+      tx.update(bref, {status: "Cancelled", updatedAt: serverTimestamp(), history: arrayUnion({status: "Cancelled", by: "customer", at: new Date().toISOString()})});
+    });
   },
   async setTicketStatus(id, status){
     return runTransaction(db, async tx => {
