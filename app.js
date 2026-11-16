@@ -5773,3 +5773,11 @@ function loadFromSheet(){   // used only when the product database is empty or c
   return sheetLoading;
 }
 
+/* v118: glass edge-bending filter */
+(function(){var ns='http://www.w3.org/2000/svg';var s=document.createElementNS(ns,'svg');
+s.setAttribute('width','0');s.setAttribute('height','0');s.setAttribute('aria-hidden','true');s.style.position='absolute';
+s.innerHTML='<filter id="lg-lens" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">'+
+'<feImage href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27100%27%20height%3D%27100%27%20preserveAspectRatio%3D%27none%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27r%27%20x1%3D%270%27%20x2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27rgb%280%2C0%2C0%29%27/%3E%3Cstop%20offset%3D%27.14%27%20stop-color%3D%27rgb%28128%2C0%2C0%29%27/%3E%3Cstop%20offset%3D%27.86%27%20stop-color%3D%27rgb%28128%2C0%2C0%29%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27rgb%28255%2C0%2C0%29%27/%3E%3C/linearGradient%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20x2%3D%270%27%20y1%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27rgb%280%2C0%2C0%29%27/%3E%3Cstop%20offset%3D%27.22%27%20stop-color%3D%27rgb%280%2C128%2C0%29%27/%3E%3Cstop%20offset%3D%27.78%27%20stop-color%3D%27rgb%280%2C128%2C0%29%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27rgb%280%2C255%2C0%29%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20fill%3D%27url%28%23r%29%27/%3E%3Crect%20width%3D%27100%27%20height%3D%27100%27%20fill%3D%27url%28%23g%29%27%20style%3D%27mix-blend-mode%3Ascreen%27/%3E%3C/svg%3E" preserveAspectRatio="none" result="m"/>'+
+'<feDisplacementMap in="SourceGraphic" in2="m" scale="70" xChannelSelector="R" yChannelSelector="G"/></filter>';
+function go(){document.body.appendChild(s);document.documentElement.classList.add('lg-lens')}
+if(document.body)go();else document.addEventListener('DOMContentLoaded',go);})();
