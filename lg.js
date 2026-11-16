@@ -1,3 +1,4 @@
+(function(){var m={'/glass-home':'/','/glass-shop':'/shop','/glass-services':'/services'};var p=location.pathname.replace(/\.html$/,'');if(m[p]){try{history.replaceState(history.state,'',m[p]+location.search+location.hash)}catch(e){}}})();
 (function(){var ns='http://www.w3.org/2000/svg';var s=document.createElementNS(ns,'svg');
 s.setAttribute('width','0');s.setAttribute('height','0');s.setAttribute('aria-hidden','true');s.style.position='absolute';
 s.innerHTML='<filter id="lg-lens" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">'+
