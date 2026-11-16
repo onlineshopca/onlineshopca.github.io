@@ -2810,14 +2810,14 @@ header.gbar{margin:10px 16px 0;border-radius:22px;top:calc(10px + env(safe-area-
 
 /* ===== v119: phone view sizes — smaller tiles, 2-up service cards, readable small text, bigger tap targets ===== */
 @media (max-width:640px){
- /* Shop + Services: 3 tiles per row */
- .cgcard{padding:14px!important;gap:10px!important}
- .cgcard .cgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+ /* Shop + Services: 4 tiles per row, one short strip per group */
+ .cgcard{padding:12px!important;gap:8px!important}
+ .cgcard .cgrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}
  .cgt{gap:5px!important}
  .cgt .cgi{border-radius:14px!important}
  .cgt .cgi svg{width:38%!important;height:38%!important}
- .cgt b{font-size:15px!important;line-height:1.2!important}
- .cgt .xn{font-size:14.5px!important}
+ .cgt b{font-size:14px!important;line-height:1.2!important}
+ .cgt .xn{font-size:13.5px!important}
  /* service cards: 2 per row like shop items */
  .svcgrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
  .svccard .cover{height:120px!important}
