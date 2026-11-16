@@ -5781,3 +5781,42 @@ s.innerHTML='<filter id="lg-lens" x="0" y="0" width="100%" height="100%" color-i
 '<feDisplacementMap in="SourceGraphic" in2="m" scale="70" xChannelSelector="R" yChannelSelector="G"/></filter>';
 function go(){document.body.appendChild(s);document.documentElement.classList.add('lg-lens')}
 if(document.body)go();else document.addEventListener('DOMContentLoaded',go);})();
+
+/* v121: profile page — slim bar with photo, name and Book button once the big top section scrolls away */
+(function(){
+  var bar=null,tick=false,forKey="";
+  function make(){
+    bar=document.createElement("div");bar.id="pvmini";bar.setAttribute("aria-hidden","true");
+    bar.innerHTML='<button type="button" class="pvm-who" title="Back to top"><span class="pvm-av"></span><span class="pvm-tx"><b></b><small></small></span></button><span class="pvm-act"></span>';
+    document.body.appendChild(bar);
+    bar.querySelector(".pvm-who").addEventListener("click",function(){window.scrollTo({top:0,behavior:"smooth"});});
+  }
+  function fill(h){
+    var av=h.querySelector(".pav"),nm=h.querySelector("h1"),hl=h.querySelector(".phl"),bt=h.querySelector(".pbtns .btn");
+    var a=bar.querySelector(".pvm-av");a.innerHTML="";
+    if(av){var c=av.cloneNode(true);c.removeAttribute("style");a.appendChild(c);}
+    bar.querySelector("b").textContent=nm?nm.textContent:"";
+    bar.querySelector("small").textContent=hl?hl.textContent:"";
+    var act=bar.querySelector(".pvm-act");act.innerHTML="";
+    if(bt){var b=bt.cloneNode(true);b.className="btn small";act.appendChild(b);}
+  }
+  function upd(){
+    tick=false;
+    var h=document.querySelector(".pv2head");
+    if(!h||!h.offsetParent){if(bar)bar.classList.remove("on");forKey="";return;}
+    if(!bar)make();
+    var g=document.querySelector("header.gbar"),gb=g?g.getBoundingClientRect().bottom:0;
+    var on=h.getBoundingClientRect().bottom<gb+4;
+    if(on){
+      var key=location.pathname+"|"+(h.querySelector("h1")?h.querySelector("h1").textContent:"");
+      if(key!==forKey){fill(h);forKey=key;}
+      var z=parseFloat(getComputedStyle(document.documentElement).zoom)||1;
+      bar.style.top=Math.round((gb+8)/z)+"px";
+    }
+    bar.classList.toggle("on",on);
+  }
+  function req(){if(!tick){tick=true;requestAnimationFrame(upd);}}
+  window.addEventListener("scroll",req,{passive:true});
+  window.addEventListener("resize",req);
+  setInterval(req,800);
+})();
