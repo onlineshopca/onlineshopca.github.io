@@ -1,0 +1,80 @@
+/* Nojan — Liquid Glass layer (design preview). Loaded after app.css. */
+:root{
+  --lg-fill:rgba(255,255,255,.16);
+  --lg-fill-strong:rgba(255,255,255,.30);
+  --lg-blur:blur(10px) saturate(2.1) brightness(1.06);
+  --lg-rim:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.45),
+           inset 1px 0 0 rgba(255,255,255,.35),inset -1px 0 0 rgba(255,255,255,.35);
+  --lg-depth:0 10px 30px -8px rgba(30,40,80,.18),0 2px 6px rgba(30,40,80,.06);
+}
+
+/* shared material */
+.annbar,header.gbar,.h5search,.h5tabs,.xtile,.ctile,.newscard,.givecard,.soon,
+.askbtn,.langsw,.crumbs,.tabbar,.btn,.fbtn,.card,.pcard,.scard,.panel,.box{
+  background-color:var(--lg-fill)!important;
+  -webkit-backdrop-filter:var(--lg-blur)!important;backdrop-filter:var(--lg-blur)!important;
+  border:0!important;
+  box-shadow:var(--lg-rim),var(--lg-depth)!important;
+  isolation:isolate;
+}
+.h5search,.h5tabs,.xtile,.ctile,.newscard,.givecard,.soon,.langsw,.crumbs,.btn,.fbtn{position:relative}
+/* lens edge: refraction where the browser supports it (Chrome/Edge); Safari keeps the clean blur */
+@supports (backdrop-filter:url(#x)){
+  html.lg-lens header.gbar,html.lg-lens .tabbar,html.lg-lens .askbtn,html.lg-lens .h5search,
+  html.lg-lens .langsw,html.lg-lens .crumbs{
+    backdrop-filter:url(#lg-lens) blur(14px) saturate(2.1) brightness(1.06)!important;
+  }
+}
+/* bright edge that catches light top-left and bottom-right */
+.annbar::after,header.gbar::after,.h5search::after,.h5tabs::after,.xtile::after,.ctile::after,
+.newscard::after,.givecard::after,.soon::after,.askbtn::after,.langsw::after,.crumbs::after,
+.tabbar::after,.btn::after,.fbtn::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;padding:1.2px;
+  background:linear-gradient(135deg,rgba(255,255,255,.95) 0%,rgba(255,255,255,.15) 30%,rgba(255,255,255,0) 50%,
+             rgba(255,255,255,.12) 70%,rgba(255,255,255,.85) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+}
+/* soft inner sheen (top highlight) */
+.givecard::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 38%);
+}
+
+/* top bar floats like the video's bar */
+.annbar{margin:0;box-shadow:none!important}
+.annbar::after{display:none}
+header.gbar{margin:10px 16px 0;border-radius:22px;top:calc(10px + env(safe-area-inset-top,0px))}
+.gbar nav a[aria-current="page"],.gbar a.on,.gbar .active{
+  background:var(--lg-fill-strong);border-radius:12px;box-shadow:var(--lg-rim),0 2px 8px rgba(30,40,80,.10);
+}
+
+/* tiles and cards: clearer, picture boxes glassy too */
+.xtile,.ctile,.newscard,.soon{background-color:rgba(255,255,255,.20)!important}
+.cimg,.soonic{background:rgba(255,255,255,.35)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+.h5tag,.fundtag{background:rgba(255,255,255,.35)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+.xtile:hover,.ctile:hover,.newscard:hover{background-color:rgba(255,255,255,.34)!important;transform:translateY(-1px)}
+
+/* buttons: light glass, selected = brighter lens (no black, softly rounded) */
+.h5search button,.btn,.fbtn,.bbgo{background:var(--lg-fill-strong)!important;color:#111!important}
+.langsw [aria-pressed="true"],.langsw .on,.h5tabs [aria-selected="true"],.h5tabs .on{
+  background:rgba(255,255,255,.55)!important;box-shadow:var(--lg-rim),0 2px 8px rgba(30,40,80,.12)!important;
+}
+
+/* phone tab bar: the video's bar — floating, see-through, selected tab is a glass lens */
+@media (max-width:760px){
+  header.gbar{margin:8px 10px 0;border-radius:18px}
+  .tabbar{border-radius:24px!important;background:rgba(255,255,255,.14)!important}
+  .tabbar a{border:0!important}
+  .tabbar a[aria-current="page"]{
+    background:rgba(255,255,255,.42)!important;border-radius:18px!important;color:#111!important;
+    box-shadow:var(--lg-rim),0 3px 10px rgba(30,40,80,.14)!important;
+  }
+  .tabbar a[aria-current="page"]::before{display:none}
+}
+
+/* a little more colour behind the glass so it has something to bend (still calm) */
+.bgfield{filter:blur(90px) saturate(1.4)!important}
+
+/* hero and footer keep their own moving colours; just give them the glass rim */
+.h5hero,.pagehero,footer.fx .fcard{box-shadow:var(--lg-rim),var(--lg-depth)!important;border:0!important}
