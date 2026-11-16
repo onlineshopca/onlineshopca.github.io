@@ -2807,3 +2807,46 @@ header.gbar{margin:10px 16px 0;border-radius:22px;top:calc(10px + env(safe-area-
   }
   .tabbar a[aria-current="page"]::before{display:none}
 }
+
+/* ===== v119: phone view sizes — smaller tiles, 2-up service cards, readable small text, bigger tap targets ===== */
+@media (max-width:640px){
+ /* Shop + Services: 3 tiles per row */
+ .cgcard{padding:14px!important;gap:10px!important}
+ .cgcard .cgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+ .cgt{gap:5px!important}
+ .cgt .cgi{border-radius:14px!important}
+ .cgt .cgi svg{width:38%!important;height:38%!important}
+ .cgt b{font-size:15px!important;line-height:1.2!important}
+ .cgt .xn{font-size:14.5px!important}
+ /* service cards: 2 per row like shop items */
+ .svcgrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ .svccard .cover{height:120px!important}
+ .svccard .sb{padding:10px 12px 12px!important;gap:5px!important}
+ .svccard .cat{font-size:13.5px!important}
+ .svccard h3{font-size:16.5px!important;line-height:1.25!important}
+ .svccard .desc{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px!important}
+ .svccard .prov{font-size:15px!important}
+ .svccard .svcchips{flex-wrap:wrap!important;gap:4px!important}
+ .svccard .svcchip{font-size:14px!important;padding:3px 7px!important}
+ .svccard .svcprice{font-size:18px!important}
+ .svccard .svcprice small{font-size:14.5px!important}
+ .svccard .foot .btn{height:46px!important;min-height:46px!important;font-size:16px!important}
+ /* service page: small cover */
+ .svcmain .cover{height:110px!important;aspect-ratio:auto!important}
+ .svcmain .cover svg{width:52px!important;height:52px!important}
+ /* small text up to ~12px on screen */
+ .card .cbrand,.card .chst,.card .csave,.card .cert,.xtile .xn,.count,.itemid,.badge,.eyebrow,.fundtag{font-size:15.5px!important}
+ html body .piclink .pctpill{font-size:15px!important}
+ .card .btn.small,.card .btn{min-height:44px!important;padding:6px 18px!important;font-size:16.5px!important}
+ .catsort select,.catsort{min-height:44px!important}
+ .gnav{min-width:44px!important;min-height:44px!important}
+ .linkbtn{min-height:36px!important;padding:6px 8px!important;font-size:15.5px!important}
+ /* bars */
+ html body .tabbar a{font-size:13px!important}
+ .langsw button{width:44px!important;height:36px!important;font-size:13px!important}
+ header.gbar,.tabbar{background-color:rgba(255,255,255,.55)!important;-webkit-backdrop-filter:blur(16px) saturate(1.7)!important;backdrop-filter:blur(16px) saturate(1.7)!important}
+}
+@media (min-width:641px) and (max-width:1000px){
+ .catcards{grid-template-columns:minmax(0,1fr)!important}
+ .cgcard .cgrid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
