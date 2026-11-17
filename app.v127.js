@@ -6481,7 +6481,7 @@ const acctIco = {
 function acctTile(href, ico, title, text, badge, off){
   return `<${off ? "div" : "a"} class="acttile${off ? " off" : ""}"${off ? "" : ` href="${href}"`}><span class="actico"><svg viewBox="0 0 24 24" aria-hidden="true">${acctIco[ico]}</svg>${badge ? `<b class="actbadge">${badge}</b>` : ""}</span><span class="acttxt"><b>${title}</b><span>${text}</span></span></${off ? "div" : "a"}>`;
 }
-function acctHead(title, sub){ return `<div class="sectionhead acthead"><div><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ""}</div><a class="linkbtn" href="#account">‹ Your account</a></div>`; }
+function acctHead(title, sub){ return `<div class="sectionhead acthead"><div><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ""}</div></div>`; }
 function acctHub(){
   startMyOrders(); startMyBookings();
   const pr = PROFILE || {}, first = String(pr.name || USER.displayName || "").trim().split(/\s+/)[0];
