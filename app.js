@@ -40,7 +40,7 @@ const SAMPLE_PRODUCTS = [
   {id:"n3", name:"LED Desk Lamp with USB Port", price:32.50, was:39.99, condition:"new", icon:"lamp", desc:"3 brightness levels, adjustable arm."},
   {id:"n4", name:"Water-Resistant Rain Jacket", price:44.00, condition:"new", icon:"jacket", desc:"Sizes S–XL, packable hood."},
   {id:"n5", name:"Phone Stand & Charging Dock", price:18.99, condition:"new", icon:"phone", desc:"Fits most phones, non-slip base."},
-  {id:"u1", name:"Wooden Dining Chair", price:22.00, condition:"used", icon:"chair", desc:"Solid wood, light wear on the legs. Pickup in Richmond Hill."},
+  {id:"u1", name:"Wooden Dining Chair", price:22.00, condition:"used", icon:"chair", desc:"Solid wood, light wear on the legs. Local pickup."},
   {id:"u2", name:"Hardcover Novel Bundle (6 books)", price:15.00, condition:"used", icon:"book", desc:"Good condition, no torn pages."},
   {id:"u3", name:"Adult Commuter Bike", price:120.00, was:180.00, condition:"used", icon:"bike", desc:"21 speeds, recently tuned, new tubes."},
   {id:"u4", name:"Floor Lamp", price:19.50, condition:"used", icon:"lamp", desc:"Works perfectly, small scratch on the base."},
@@ -274,7 +274,7 @@ function saveCart(){ try { localStorage.setItem("shopCart2", JSON.stringify(cart
 function cartItems(){ return Object.entries(cart).map(([id,c]) => ({p:PRODUCTS.find(x=>x.id===id) || c.snap, q:c.q})).filter(x=>x.p && x.q>0); }
 function updateCount(){ const n = cartItems().reduce((a,x)=>a+x.q,0); $("#cartCount").textContent = n;
   { const bt = $("#bagTxt"); if (bt) bt.textContent = n ? `${n} item${n === 1 ? "" : "s"} in your bag · ${money(totals().sub)}` : "Your bag is empty"; } document.querySelectorAll("[data-cartnum]").forEach(el=>{ el.textContent=n; el.toggleAttribute("data-zero", n===0); }); }
-function totals(){ const it = cartItems(); const sub = it.reduce((a,x)=>a+(x.p.price||0)*x.q,0); const tax = sub*HST_RATE; const unpriced = it.filter(x=>x.p.price==null).length; return {sub,tax,total:sub+tax,unpriced}; }
+function totals(){ const it = cartItems(); const sub = it.reduce((a,x)=>a+(x.p.price||0)*x.q,0); const off = promoOff(sub), net = sub - off; const tax = net*HST_RATE; const unpriced = it.filter(x=>x.p.price==null).length; return {sub,off,net,tax,total:net+tax,unpriced}; }   // v129: promo code discount before tax
 const lineTotal = (p,q) => p.price==null ? "Price on request" : money(p.price*q);
 const unpricedNote = t => t.unpriced ? `<p class="note">${t.unpriced} item${t.unpriced>1?"s are":" is"} priced on request and not included in the total.</p>` : "";
 const TRASH = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
@@ -335,7 +335,7 @@ function productCards(list, opts){
   return groupList(list).map(p => { const [tg, tc] = cardTag(p), O = offersOf(p), many = O.length > 1;
     const lo = many ? O.filter(o => !o.soldOut && o.price != null).reduce((m, o) => Math.min(m, o.price), Infinity) : null;
     const h = many ? O.find(o => !o.member) || O.slice().sort((a, b) => b.order - a.order)[0] : p; return `
-    <article class="card">
+    <article class="card">${wishBtn(p.id)}
       <a class="piclink tile" href="#item-${esc(p.id)}" aria-label="View ${esc(h.name)}">${!many && saveHST(p) > 0 ? `<span class="pctpill">${Math.round(saveHST(p) / p.was * 100)}% off</span>` : ""}${picHTML(h, false)}</a>
       <div class="body">
         <a class="name namelink" href="#item-${esc(p.id)}">${esc(h.name)}</a>
@@ -744,7 +744,7 @@ const PAGE = {
   used: {
     eyebrow:"Pre-owned & checked", title:"Used",
     lead:"Pre-owned, tested, and honestly described.",
-    perks:[["Tested to work","Powered on, assembled or tried out."],["Wear is disclosed","Scratches and marks named in the listing."],["Pickup in Richmond Hill","See it in person before you pay."]],
+    perks:[["Tested to work","Powered on, assembled or tried out."],["Wear is disclosed","Scratches and marks named in the listing."],["Local pickup","See it in person before you pay."]],
     icons:["chair","bike","book"]
   }
 };
@@ -770,7 +770,7 @@ function listView(cond){
       <div class="guidegrid">
         <div><span class="grade g1">Confirm</span><p>We contact you to confirm stock and your total.</p></div>
         <div><span class="grade g2">Pay</span><p>Pay by e-Transfer or cash at pickup. No card details are entered online.</p></div>
-        <div><span class="grade g3">Receive</span><p>Pick up in Richmond Hill or arrange local delivery.</p></div>
+        <div><span class="grade g3">Receive</span><p>Pick up locally or arrange delivery.</p></div>
       </div>
     </section>`;
   return `
@@ -819,18 +819,18 @@ function filtered(cond){
 }
 
 const ITEMQ = {id: null, q: 1, added: false};
-const POL = {"returns":{"en":{"title":"Test before you pay","upd":"Last updated November 9, 2026","html":"<p class=\"lead\">You test and accept every item before you pay. Nothing is charged online.<\/p>\n<h2>At pickup<\/h2>\n<ul>\n<li>Take as much time as you need to look at the item and test it. You can open the box, turn it on and try it.<\/li>\n<li>If the item works and matches its description, you pay for it and it's yours.<\/li>\n<li>If something is wrong, for example it doesn't work or isn't as described, you don't have to buy it.<\/li>\n<li>If we deliver, you can test the item when it arrives, before you pay.<\/li>\n<\/ul>\n<h2>Sealed items<\/h2>\n<p>Brand new items come sealed. You may open a sealed box to check and test the item. Once a sealed box is opened, you agree to buy the item, unless it doesn't work or isn't as described.<\/p>\n<h2>After you pay<\/h2>\n<p>Because you test and accept the item before paying, the sale is final once you have paid. We don't offer refunds or exchanges after that, and Nojan doesn't give its own warranty after the sale. A manufacturer's warranty may apply to some brand new items. Ask us before you buy.<\/p>\n<p>Nothing on this page limits your rights under Ontario consumer protection law.<\/p>\n<h2>Questions<\/h2>\n<p>Ask before you order: <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a> or <a href=\"#contact-us\">send us a message<\/a>.<\/p>"},"fr":{"title":"Testez avant de payer","upd":"Dernière mise à jour : 9 novembre 2026","html":"<p class=\"lead\">Vous testez et acceptez chaque article avant de payer. Rien n'est facturé en ligne.<\/p>\n<h2>À la cueillette<\/h2>\n<ul>\n<li>Prenez tout le temps nécessaire pour examiner et tester l'article. Vous pouvez ouvrir la boîte, l'allumer et l'essayer.<\/li>\n<li>Si l'article fonctionne et correspond à sa description, vous le payez et il est à vous.<\/li>\n<li>S'il y a un problème, par exemple s'il ne fonctionne pas ou ne correspond pas à la description, vous n'êtes pas obligé de l'acheter.<\/li>\n<li>Si nous livrons, vous pouvez tester l'article à son arrivée, avant de payer.<\/li>\n<\/ul>\n<h2>Articles scellés<\/h2>\n<p>Les articles neufs sont scellés. Vous pouvez ouvrir une boîte scellée pour vérifier et tester l'article. Une fois la boîte ouverte, vous vous engagez à acheter l'article, sauf s'il ne fonctionne pas ou ne correspond pas à sa description.<\/p>\n<h2>Après le paiement<\/h2>\n<p>Comme vous testez et acceptez l'article avant de payer, la vente est finale une fois le paiement fait. Nous n'offrons ni remboursement ni échange par la suite, et Nojan n'offre pas sa propre garantie après la vente. La garantie du fabricant peut s'appliquer à certains articles neufs. Renseignez-vous avant d'acheter.<\/p>\n<p>Rien sur cette page ne limite vos droits en vertu des lois de l'Ontario sur la protection du consommateur.<\/p>\n<h2>Questions<\/h2>\n<p>Posez vos questions avant de commander : <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a> ou <a href=\"#contact-us\">écrivez-nous<\/a>.<\/p>"}},"privacy":{"en":{"title":"Privacy policy","upd":"Last updated November 13, 2026","html":"<p class=\"lead\">We collect only what we need to handle your account and orders. We never sell, rent or share your information for advertising or marketing.<\/p>\n<h2>What we collect<\/h2>\n<ul>\n<li><b>Account:<\/b> your name, email address and how you sign in (email, Google or Microsoft). Passwords are handled by the sign-in service; we never see them.<\/li>\n<li><b>Orders and bookings:<\/b> your name, phone number, email, city, the items or services you chose and any notes you add.<\/li>\n<li><b>Messages:<\/b> what you send us through the contact form.<\/li>\n<\/ul>\n<p>We don't collect payment card or bank details. We don't use advertising, tracking cookies or visitor statistics.<\/p>\n<h2>How we use it<\/h2>\n<p>Only to confirm and complete your orders and bookings, arrange pickup or delivery, answer your messages and keep the business records the law requires.<\/p>\n<h2>Who handles it for us<\/h2>\n<p>We don't give your information to anyone else. A few services are needed to run the site, and they handle it only for that purpose:<\/p>\n<ul>\n<li><b>Google Firebase<\/b> stores accounts, orders and bookings.<\/li>\n<li><b>FormSubmit<\/b> delivers order and contact emails to us.<\/li>\n<li><b>GitHub Pages<\/b> hosts the website.<\/li>\n<li><b>Google<\/b> or <b>Microsoft<\/b> sign you in, if you choose them.<\/li>\n<li><b>Google Gemini<\/b> answers the questions you type into the Ask Nojan assistant. Google may use those questions to improve its services, so please don't type personal details there. The assistant does not see your account, orders or bookings. Google reCAPTCHA runs when you use the assistant, to check that the request comes from this website.<\/li>\n<\/ul>\n<p>Some product photos load from other websites, such as the brand's own site or photo storage. Like any website, they can see your device's internet address. Some of these services may store information outside Canada.<\/p>\n<p>We may disclose information if the law requires it.<\/p>\n<h2>On your device<\/h2>\n<p>Your cart, your language choice and a copy of the catalogue are saved in your browser so the site works quickly. You can clear them in your browser settings at any time.<\/p>\n<h2>How long we keep it<\/h2>\n<p>Account information is kept while your account is open. Order records are kept as long as Canadian tax rules require, generally six years.<\/p>\n<h2>Your choices<\/h2>\n<p>You can ask to see, correct or delete your information, or to close your account, by emailing <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>. We answer within 30 days.<\/p>\n<h2>Security<\/h2>\n<p>The site uses encrypted connections (HTTPS), and we limit who can access your information.<\/p>\n<h2>Questions or concerns<\/h2>\n<p>Email <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>. If you're not satisfied with our answer, you can contact the <a href=\"https://www.priv.gc.ca/\" target=\"_blank\" rel=\"noopener\">Office of the Privacy Commissioner of Canada<\/a>.<\/p>"},"fr":{"title":"Politique de confidentialité","upd":"Dernière mise à jour : 13 novembre 2026","html":"<p class=\"lead\">Nous recueillons seulement ce qu'il faut pour gérer votre compte et vos commandes. Nous ne vendons, ne louons et ne partageons jamais vos renseignements à des fins de publicité ou de marketing.<\/p>\n<h2>Ce que nous recueillons<\/h2>\n<ul>\n<li><b>Compte :<\/b> votre nom, votre adresse courriel et votre mode de connexion (courriel, Google ou Microsoft). Les mots de passe sont gérés par le service de connexion; nous ne les voyons jamais.<\/li>\n<li><b>Commandes et réservations :<\/b> votre nom, votre numéro de téléphone, votre courriel, votre ville, les articles ou services choisis et les notes que vous ajoutez.<\/li>\n<li><b>Messages :<\/b> ce que vous nous envoyez par le formulaire de contact.<\/li>\n<\/ul>\n<p>Nous ne recueillons aucune donnée de carte de paiement ni de compte bancaire. Nous n'utilisons ni publicité, ni témoins de suivi, ni statistiques de visite.<\/p>\n<h2>Comment nous les utilisons<\/h2>\n<p>Uniquement pour confirmer et compléter vos commandes et réservations, organiser la cueillette ou la livraison, répondre à vos messages et tenir les registres exigés par la loi.<\/p>\n<h2>Qui les traite pour nous<\/h2>\n<p>Nous ne donnons vos renseignements à personne d'autre. Quelques services sont nécessaires au fonctionnement du site et ne les traitent qu'à cette fin :<\/p>\n<ul>\n<li><b>Google Firebase<\/b> conserve les comptes, les commandes et les réservations.<\/li>\n<li><b>FormSubmit<\/b> nous transmet les courriels de commande et de contact.<\/li>\n<li><b>GitHub Pages<\/b> héberge le site.<\/li>\n<li><b>Google<\/b> ou <b>Microsoft<\/b> vous connectent, si vous les choisissez.<\/li>\n<li><b>Google Gemini<\/b> répond aux questions que vous écrivez à l'assistant « Demander à Nojan ». Google peut utiliser ces questions pour améliorer ses services; n'y écrivez donc pas de renseignements personnels. L'assistant ne voit ni votre compte, ni vos commandes, ni vos réservations. Google reCAPTCHA s'exécute lorsque vous utilisez l'assistant, pour vérifier que la demande vient bien de ce site.<\/li>\n<\/ul>\n<p>Certaines photos de produits proviennent d'autres sites, comme celui de la marque ou un service de stockage de photos. Comme tout site web, ils peuvent voir l'adresse Internet de votre appareil. Certains de ces services peuvent conserver des renseignements à l'extérieur du Canada.<\/p>\n<p>Nous pouvons communiquer des renseignements si la loi l'exige.<\/p>\n<h2>Sur votre appareil<\/h2>\n<p>Votre panier, votre choix de langue et une copie du catalogue sont enregistrés dans votre navigateur pour que le site soit rapide. Vous pouvez les effacer en tout temps dans les réglages de votre navigateur.<\/p>\n<h2>Durée de conservation<\/h2>\n<p>Les renseignements de compte sont conservés tant que votre compte est ouvert. Les registres de commande sont conservés aussi longtemps que l'exigent les règles fiscales canadiennes, généralement six ans.<\/p>\n<h2>Vos choix<\/h2>\n<p>Vous pouvez demander à consulter, corriger ou supprimer vos renseignements, ou à fermer votre compte, en écrivant à <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>. Nous répondons dans les 30 jours.<\/p>\n<h2>Sécurité<\/h2>\n<p>Le site utilise des connexions chiffrées (HTTPS) et nous limitons l'accès à vos renseignements.<\/p>\n<h2>Questions ou préoccupations<\/h2>\n<p>Écrivez à <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>. Si notre réponse ne vous satisfait pas, vous pouvez communiquer avec le <a href=\"https://www.priv.gc.ca/\" target=\"_blank\" rel=\"noopener\">Commissariat à la protection de la vie privée du Canada<\/a>.<\/p>"}},"terms":{"en":{"title":"Terms of use","upd":"Last updated November 9, 2026","html":"<p class=\"lead\">By using nojans.com you agree to these terms. Please read them together with <a href=\"#returns\">Test before you pay<\/a> and our <a href=\"#privacy\">Privacy policy<\/a>.<\/p>\n<h2>Who we are<\/h2>\n<p>Nojan is a small Canadian business. You can reach us at <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>.<\/p>\n<h2>Accounts<\/h2>\n<p>You need a free account to place an order or book a service. Give accurate information, keep your sign-in private and tell us if someone else uses your account. We may close accounts that are misused.<\/p>\n<h2>Orders<\/h2>\n<ul>\n<li>Placing an order sends us a request. It isn't a payment, and the order is confirmed when we contact you.<\/li>\n<li>Most items are one of a kind or limited in number. If an item sells before we confirm your order, we'll tell you and nothing is owed.<\/li>\n<li>We work to show prices and details correctly. If we find a mistake, we'll tell you before you pay, and you can cancel.<\/li>\n<li>Prices are in Canadian dollars and are shown before tax. If sales tax applies, it is shown at checkout and on your receipt.<\/li>\n<li>Regular prices shown for comparison are the item's usual market price, before tax.<\/li>\n<\/ul>\n<h2>Payment, pickup and delivery<\/h2>\n<p>Nothing is charged online. You pay by Interac e-Transfer or cash at pickup, after testing the item. Pickup is in Richmond Hill, and local delivery can be arranged.<\/p>\n<h2>Testing and final sales<\/h2>\n<p>You test and accept items before you pay. Opening a sealed box means you buy the item unless it doesn't work or isn't as described. Sales are final once paid. The details are on <a href=\"#returns\">Test before you pay<\/a>.<\/p>\n<h2>Services<\/h2>\n<p>Bookings are requests until we confirm them. Pay the provider as shown on the service page. If your plans change, cancel from My orders and bookings.<\/p>\n<h2>Product information<\/h2>\n<p>Brand names and trademarks belong to their owners. Unless a listing says otherwise, photos show the model, not the exact unit.<\/p>\n<h2>Using the site<\/h2>\n<p>Please don't misuse the site, try to reach other people's accounts or information, or copy the site's content for commercial use.<\/p>\n<h2>Limits<\/h2>\n<p>As far as the law allows, Nojan isn't responsible for indirect losses from using the site. Nothing in these terms limits your rights under Ontario consumer protection law.<\/p>\n<h2>Changes<\/h2>\n<p>We may update these terms. The date at the top shows the current version.<\/p>\n<h2>Law<\/h2>\n<p>These terms are governed by the laws of Ontario and the federal laws of Canada that apply there.<\/p>"},"fr":{"title":"Conditions d'utilisation","upd":"Dernière mise à jour : 9 novembre 2026","html":"<p class=\"lead\">En utilisant nojans.com, vous acceptez ces conditions. Lisez-les avec <a href=\"#returns\">Testez avant de payer<\/a> et notre <a href=\"#privacy\">Politique de confidentialité<\/a>.<\/p>\n<h2>Qui nous sommes<\/h2>\n<p>Nojan est une petite entreprise canadienne. Vous pouvez nous joindre à <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>.<\/p>\n<h2>Comptes<\/h2>\n<p>Un compte gratuit est nécessaire pour commander ou réserver un service. Donnez des renseignements exacts, gardez votre connexion privée et avisez-nous si quelqu'un d'autre utilise votre compte. Nous pouvons fermer un compte utilisé de façon abusive.<\/p>\n<h2>Commandes<\/h2>\n<ul>\n<li>Passer une commande nous envoie une demande. Ce n'est pas un paiement, et la commande est confirmée lorsque nous communiquons avec vous.<\/li>\n<li>La plupart des articles sont uniques ou en quantité limitée. Si un article est vendu avant la confirmation de votre commande, nous vous en informons et vous ne devez rien.<\/li>\n<li>Nous veillons à afficher des prix et des détails exacts. Si nous trouvons une erreur, nous vous en informons avant le paiement et vous pouvez annuler.<\/li>\n<li>Les prix sont en dollars canadiens et sont affichés avant taxes. Si une taxe de vente s'applique, elle est indiquée au moment de passer la commande et sur votre reçu.<\/li>\n<li>Les prix courants affichés à titre de comparaison sont le prix habituel de lLes prix courants affichés à titre de comparaison sont le prix habituel de l'article sur le marché, avant taxes.article sur le marché, avant taxes.<\/li>\n<\/ul>\n<h2>Paiement, cueillette et livraison<\/h2>\n<p>Rien n'est facturé en ligne. Vous payez par virement Interac ou comptant à la cueillette, après avoir testé l'article. La cueillette se fait à Richmond Hill, et la livraison locale peut être organisée.<\/p>\n<h2>Tests et ventes finales<\/h2>\n<p>Vous testez et acceptez les articles avant de payer. Ouvrir une boîte scellée signifie que vous achetez l'article, sauf s'il ne fonctionne pas ou ne correspond pas à sa description. La vente est finale une fois payée. Les détails se trouvent sur <a href=\"#returns\">Testez avant de payer<\/a>.<\/p>\n<h2>Services<\/h2>\n<p>Les réservations sont des demandes jusqu'à ce que nous les confirmions. Payez le fournisseur comme indiqué sur la page du service. Si vos plans changent, annulez dans Mes commandes et réservations.<\/p>\n<h2>Renseignements sur les produits<\/h2>\n<p>Les noms de marque et les marques de commerce appartiennent à leurs propriétaires. Sauf indication contraire dans l'annonce, les photos montrent le modèle et non l'unité exacte.<\/p>\n<h2>Utilisation du site<\/h2>\n<p>Veuillez ne pas utiliser le site de façon abusive, tenter d'accéder aux comptes ou aux renseignements d'autres personnes, ni copier le contenu du site à des fins commerciales.<\/p>\n<h2>Limites<\/h2>\n<p>Dans la mesure permise par la loi, Nojan n'est pas responsable des pertes indirectes liées à l'utilisation du site. Rien dans ces conditions ne limite vos droits en vertu des lois de l'Ontario sur la protection du consommateur.<\/p>\n<h2>Modifications<\/h2>\n<p>Nous pouvons mettre à jour ces conditions. La date en haut de la page indique la version en vigueur.<\/p>\n<h2>Loi applicable<\/h2>\n<p>Ces conditions sont régies par les lois de l'Ontario et les lois fédérales du Canada qui s'y appliquent.<\/p>"}},"about":{"en":{"title":"About Nojan","upd":"","html":"<p class=\"lead\">Nojan is a small Canadian-owned business. We sell brand-name items, new and used, for less, and we give part of our profit back to the community.<\/p>\n<h2>What we sell<\/h2>\n<p>Electronics, kitchen appliances, fragrances, personal care and more. Brand new items come sealed. Used items are tested, cleaned and graded before they're listed. <a href=\"#certified\">See what Certified means<\/a>.<\/p>\n<h2>How buying works<\/h2>\n<ol>\n<li>Add items to your bag and send an order request. Nothing is charged online.<\/li>\n<li>We contact you, usually within one business day, to set a pickup time.<\/li>\n<li>At pickup in Richmond Hill, test the item. If it works, pay by e-Transfer or cash. <a href=\"#returns\">Test before you pay<\/a>.<\/li>\n<\/ol>\n<h2>Services<\/h2>\n<p>Classes and expert help, online or in person, are on our <a href=\"#services\">Services<\/a> page.<\/p>\n<h2>Giving back<\/h2>\n<p>We give 3% of our profit to the community, and we'll share where it goes on our <a href=\"#news\">News<\/a> page. We're just starting. If you'd like to help us grow, you can <a href=\"https://gofund.me/dbbc9cd49\" target=\"_blank\" rel=\"noopener\">support us on GoFundMe<\/a>.<\/p>\n<h2>Contact<\/h2>\n<p><a href=\"mailto:info@nojans.com\">info@nojans.com<\/a> · Instagram <a href=\"https://www.instagram.com/nojan_ca/\" target=\"_blank\" rel=\"noopener\">@nojan_ca<\/a><\/p>"},"fr":{"title":"À propos de Nojan","upd":"","html":"<p class=\"lead\">Nojan est une petite entreprise canadienne. Nous vendons des articles de marque, neufs et d'occasion, pour moins cher, et nous remettons une partie de nos profits à la communauté.<\/p>\n<h2>Ce que nous vendons<\/h2>\n<p>Électronique, électroménagers de cuisine, parfums, soins personnels et plus. Les articles neufs sont scellés. Les articles d'occasion sont testés, nettoyés et évalués avant d'être affichés. <a href=\"#certified\">Voir ce que veut dire « Certifié »<\/a>.<\/p>\n<h2>Comment acheter<\/h2>\n<ol>\n<li>Ajoutez des articles à votre sac et envoyez une demande de commande. Rien n'est facturé en ligne.<\/li>\n<li>Nous communiquons avec vous, habituellement en moins d'un jour ouvrable, pour fixer un moment de cueillette.<\/li>\n<li>À la cueillette à Richmond Hill, testez l'article. S'il fonctionne, payez par virement Interac ou comptant. <a href=\"#returns\">Testez avant de payer<\/a>.<\/li>\n<\/ol>\n<h2>Services<\/h2>\n<p>Des cours et l'aide d'experts, en ligne ou en personne, se trouvent sur notre page <a href=\"#services\">Services<\/a>.<\/p>\n<h2>Redonner<\/h2>\n<p>Nous remettons 3 % de nos profits à la communauté, et nous indiquerons où ils vont sur notre page <a href=\"#news\">Nouvelles<\/a>. Nous commençons à peine. Pour nous aider à grandir, vous pouvez <a href=\"https://gofund.me/dbbc9cd49\" target=\"_blank\" rel=\"noopener\">nous soutenir sur GoFundMe<\/a>.<\/p>\n<h2>Nous joindre<\/h2>\n<p><a href=\"mailto:info@nojans.com\">info@nojans.com<\/a> · Instagram <a href=\"https://www.instagram.com/nojan_ca/\" target=\"_blank\" rel=\"noopener\">@nojan_ca<\/a><\/p>"}},"how":{"en":{"title":"How it works","upd":"","html":"<p class=\"lead\">Order an item or book a service online. Nothing is charged online.<\/p>\n<h2>Buying an item<\/h2>\n<ol>\n<li>Add items to your bag and send an order request.<\/li>\n<li>We contact you, usually within one business day, to set a pickup time.<\/li>\n<li>At pickup in Richmond Hill, test the item. If it works, pay by e-Transfer or cash. <a href=\"#returns\">Test before you pay<\/a>.<\/li>\n<\/ol>\n<h2>Booking a service<\/h2>\n<ol>\n<li>Choose a service and a time, then send your booking request.<\/li>\n<li>We confirm your booking by email.<\/li>\n<li>Meet at your booked time. You can message us or ask for another time from your booking page.<\/li>\n<\/ol>\n<p>Questions? <a href=\"#contact-us\">Contact us<\/a>.<\/p>"},"fr":{"title":"Comment ça marche","upd":"","html":"<p class=\"lead\">Commandez un article ou réservez un service en ligne. Rien n'est facturé en ligne.<\/p>\n<h2>Acheter un article<\/h2>\n<ol>\n<li>Ajoutez des articles à votre sac et envoyez une demande de commande.<\/li>\n<li>Nous communiquons avec vous, habituellement en moins d'un jour ouvrable, pour fixer un moment de cueillette.<\/li>\n<li>À la cueillette à Richmond Hill, testez l'article. S'il fonctionne, payez par virement Interac ou comptant. <a href=\"#returns\">Testez avant de payer<\/a>.<\/li>\n<\/ol>\n<h2>Réserver un service<\/h2>\n<ol>\n<li>Choisissez un service et une heure, puis envoyez votre demande de réservation.<\/li>\n<li>Nous confirmons votre réservation par courriel.<\/li>\n<li>Rencontrez-nous à l'heure réservée. Vous pouvez nous écrire ou demander une autre heure à partir de votre page de réservation.<\/li>\n<\/ol>\n<p>Des questions? <a href=\"#contact-us\">Nous joindre<\/a>.<\/p>"}},"certified":{"en":{"title":"What “Certified” means","upd":"","html":"<p class=\"lead\">A Certified badge means Nojan checked the item before listing it.<\/p>\n<h2>Used items<\/h2>\n<ul>\n<li><b>Tested to work:<\/b> powered on, charged, paired, assembled or tried out, depending on the item.<\/li>\n<li><b>Cleaned<\/b> before listing.<\/li>\n<li><b>Graded<\/b> Like new, Good or Fair, with any wear named in the listing.<\/li>\n<li><b>Contents listed:<\/b> what's included is in the description.<\/li>\n<\/ul>\n<h2>Brand new items<\/h2>\n<ul>\n<li><b>Sealed<\/b> in the original packaging, never used.<\/li>\n<li><b>Model and contents confirmed<\/b> before listing.<\/li>\n<\/ul>\n<h2>Condition grades<\/h2>\n<ul>\n<li><b>Like new:<\/b> no visible wear. Works perfectly, often with box or accessories.<\/li>\n<li><b>Good:<\/b> light signs of use, such as small scratches. Fully working.<\/li>\n<li><b>Fair:<\/b> noticeable wear, priced lower. Works as described.<\/li>\n<\/ul>\n<p>Either way, you test the item yourself before you pay. <a href=\"#returns\">Test before you pay<\/a>.<\/p>"},"fr":{"title":"Ce que veut dire « Certifié »","upd":"","html":"<p class=\"lead\">Le badge Certifié signifie que Nojan a vérifié l'article avant de l'afficher.<\/p>\n<h2>Articles d'occasion<\/h2>\n<ul>\n<li><b>Testés :<\/b> allumés, chargés, jumelés, assemblés ou essayés, selon l'article.<\/li>\n<li><b>Nettoyés<\/b> avant d'être affichés.<\/li>\n<li><b>Évalués<\/b> Comme neuf, Bon ou Passable, et toute usure est indiquée dans l'annonce.<\/li>\n<li><b>Contenu indiqué :<\/b> ce qui est inclus figure dans la description.<\/li>\n<\/ul>\n<h2>Articles neufs<\/h2>\n<ul>\n<li><b>Scellés<\/b> dans l'emballage d'origine, jamais utilisés.<\/li>\n<li><b>Modèle et contenu confirmés<\/b> avant d'être affichés.<\/li>\n<\/ul>\n<h2>Cotes d'état<\/h2>\n<ul>\n<li><b>Comme neuf :<\/b> aucune usure visible. Fonctionne parfaitement, souvent avec la boîte ou les accessoires.<\/li>\n<li><b>Bon :<\/b> légers signes d'usure, comme de petites égratignures. Entièrement fonctionnel.<\/li>\n<li><b>Passable :<\/b> usure visible, prix plus bas. Fonctionne comme décrit.<\/li>\n<\/ul>\n<p>Dans tous les cas, vous testez l'article vous-même avant de payer. <a href=\"#returns\">Testez avant de payer<\/a>.<\/p>"}}};
+const POL = {"returns":{"en":{"title":"Test before you pay","upd":"Last updated November 9, 2026","html":"<p class=\"lead\">You test and accept every item before you pay. Nothing is charged online.<\/p>\n<h2>At pickup<\/h2>\n<ul>\n<li>Take as much time as you need to look at the item and test it. You can open the box, turn it on and try it.<\/li>\n<li>If the item works and matches its description, you pay for it and it's yours.<\/li>\n<li>If something is wrong, for example it doesn't work or isn't as described, you don't have to buy it.<\/li>\n<li>If we deliver, you can test the item when it arrives, before you pay.<\/li>\n<\/ul>\n<h2>Sealed items<\/h2>\n<p>Brand new items come sealed. You may open a sealed box to check and test the item. Once a sealed box is opened, you agree to buy the item, unless it doesn't work or isn't as described.<\/p>\n<h2>After you pay<\/h2>\n<p>Because you test and accept the item before paying, the sale is final once you have paid. We don't offer refunds or exchanges after that, and Nojan doesn't give its own warranty after the sale. A manufacturer's warranty may apply to some brand new items. Ask us before you buy.<\/p>\n<p>Nothing on this page limits your rights under Ontario consumer protection law.<\/p>\n<h2>Questions<\/h2>\n<p>Ask before you order: <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a> or <a href=\"#contact-us\">send us a message<\/a>.<\/p>"},"fr":{"title":"Testez avant de payer","upd":"Dernière mise à jour : 9 novembre 2026","html":"<p class=\"lead\">Vous testez et acceptez chaque article avant de payer. Rien n'est facturé en ligne.<\/p>\n<h2>À la cueillette<\/h2>\n<ul>\n<li>Prenez tout le temps nécessaire pour examiner et tester l'article. Vous pouvez ouvrir la boîte, l'allumer et l'essayer.<\/li>\n<li>Si l'article fonctionne et correspond à sa description, vous le payez et il est à vous.<\/li>\n<li>S'il y a un problème, par exemple s'il ne fonctionne pas ou ne correspond pas à la description, vous n'êtes pas obligé de l'acheter.<\/li>\n<li>Si nous livrons, vous pouvez tester l'article à son arrivée, avant de payer.<\/li>\n<\/ul>\n<h2>Articles scellés<\/h2>\n<p>Les articles neufs sont scellés. Vous pouvez ouvrir une boîte scellée pour vérifier et tester l'article. Une fois la boîte ouverte, vous vous engagez à acheter l'article, sauf s'il ne fonctionne pas ou ne correspond pas à sa description.<\/p>\n<h2>Après le paiement<\/h2>\n<p>Comme vous testez et acceptez l'article avant de payer, la vente est finale une fois le paiement fait. Nous n'offrons ni remboursement ni échange par la suite, et Nojan n'offre pas sa propre garantie après la vente. La garantie du fabricant peut s'appliquer à certains articles neufs. Renseignez-vous avant d'acheter.<\/p>\n<p>Rien sur cette page ne limite vos droits en vertu des lois de l'Ontario sur la protection du consommateur.<\/p>\n<h2>Questions<\/h2>\n<p>Posez vos questions avant de commander : <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a> ou <a href=\"#contact-us\">écrivez-nous<\/a>.<\/p>"}},"privacy":{"en":{"title":"Privacy policy","upd":"Last updated November 13, 2026","html":"<p class=\"lead\">We collect only what we need to handle your account and orders. We never sell, rent or share your information for advertising or marketing.<\/p>\n<h2>What we collect<\/h2>\n<ul>\n<li><b>Account:<\/b> your name, email address and how you sign in (email, Google or Microsoft). Passwords are handled by the sign-in service; we never see them.<\/li>\n<li><b>Orders and bookings:<\/b> your name, phone number, email, city, the items or services you chose and any notes you add.<\/li>\n<li><b>Messages:<\/b> what you send us through the contact form.<\/li>\n<\/ul>\n<p>We don't collect payment card or bank details. We don't use advertising, tracking cookies or visitor statistics.<\/p>\n<h2>How we use it<\/h2>\n<p>Only to confirm and complete your orders and bookings, arrange pickup or delivery, answer your messages and keep the business records the law requires.<\/p>\n<h2>Who handles it for us<\/h2>\n<p>We don't give your information to anyone else. A few services are needed to run the site, and they handle it only for that purpose:<\/p>\n<ul>\n<li><b>Google Firebase<\/b> stores accounts, orders and bookings.<\/li>\n<li><b>FormSubmit<\/b> delivers order and contact emails to us.<\/li>\n<li><b>GitHub Pages<\/b> hosts the website.<\/li>\n<li><b>Google<\/b> or <b>Microsoft<\/b> sign you in, if you choose them.<\/li>\n<li><b>Google Gemini<\/b> answers the questions you type into the Ask Nojan assistant. Google may use those questions to improve its services, so please don't type personal details there. The assistant does not see your account, orders or bookings. Google reCAPTCHA runs when you use the assistant, to check that the request comes from this website.<\/li>\n<\/ul>\n<p>Some product photos load from other websites, such as the brand's own site or photo storage. Like any website, they can see your device's internet address. Some of these services may store information outside Canada.<\/p>\n<p>We may disclose information if the law requires it.<\/p>\n<h2>On your device<\/h2>\n<p>Your cart, your language choice and a copy of the catalogue are saved in your browser so the site works quickly. You can clear them in your browser settings at any time.<\/p>\n<h2>How long we keep it<\/h2>\n<p>Account information is kept while your account is open. Order records are kept as long as Canadian tax rules require, generally six years.<\/p>\n<h2>Your choices<\/h2>\n<p>You can ask to see, correct or delete your information, or to close your account, by emailing <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>. We answer within 30 days.<\/p>\n<h2>Security<\/h2>\n<p>The site uses encrypted connections (HTTPS), and we limit who can access your information.<\/p>\n<h2>Questions or concerns<\/h2>\n<p>Email <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>. If you're not satisfied with our answer, you can contact the <a href=\"https://www.priv.gc.ca/\" target=\"_blank\" rel=\"noopener\">Office of the Privacy Commissioner of Canada<\/a>.<\/p>"},"fr":{"title":"Politique de confidentialité","upd":"Dernière mise à jour : 13 novembre 2026","html":"<p class=\"lead\">Nous recueillons seulement ce qu'il faut pour gérer votre compte et vos commandes. Nous ne vendons, ne louons et ne partageons jamais vos renseignements à des fins de publicité ou de marketing.<\/p>\n<h2>Ce que nous recueillons<\/h2>\n<ul>\n<li><b>Compte :<\/b> votre nom, votre adresse courriel et votre mode de connexion (courriel, Google ou Microsoft). Les mots de passe sont gérés par le service de connexion; nous ne les voyons jamais.<\/li>\n<li><b>Commandes et réservations :<\/b> votre nom, votre numéro de téléphone, votre courriel, votre ville, les articles ou services choisis et les notes que vous ajoutez.<\/li>\n<li><b>Messages :<\/b> ce que vous nous envoyez par le formulaire de contact.<\/li>\n<\/ul>\n<p>Nous ne recueillons aucune donnée de carte de paiement ni de compte bancaire. Nous n'utilisons ni publicité, ni témoins de suivi, ni statistiques de visite.<\/p>\n<h2>Comment nous les utilisons<\/h2>\n<p>Uniquement pour confirmer et compléter vos commandes et réservations, organiser la cueillette ou la livraison, répondre à vos messages et tenir les registres exigés par la loi.<\/p>\n<h2>Qui les traite pour nous<\/h2>\n<p>Nous ne donnons vos renseignements à personne d'autre. Quelques services sont nécessaires au fonctionnement du site et ne les traitent qu'à cette fin :<\/p>\n<ul>\n<li><b>Google Firebase<\/b> conserve les comptes, les commandes et les réservations.<\/li>\n<li><b>FormSubmit<\/b> nous transmet les courriels de commande et de contact.<\/li>\n<li><b>GitHub Pages<\/b> héberge le site.<\/li>\n<li><b>Google<\/b> ou <b>Microsoft<\/b> vous connectent, si vous les choisissez.<\/li>\n<li><b>Google Gemini<\/b> répond aux questions que vous écrivez à l'assistant « Demander à Nojan ». Google peut utiliser ces questions pour améliorer ses services; n'y écrivez donc pas de renseignements personnels. L'assistant ne voit ni votre compte, ni vos commandes, ni vos réservations. Google reCAPTCHA s'exécute lorsque vous utilisez l'assistant, pour vérifier que la demande vient bien de ce site.<\/li>\n<\/ul>\n<p>Certaines photos de produits proviennent d'autres sites, comme celui de la marque ou un service de stockage de photos. Comme tout site web, ils peuvent voir l'adresse Internet de votre appareil. Certains de ces services peuvent conserver des renseignements à l'extérieur du Canada.<\/p>\n<p>Nous pouvons communiquer des renseignements si la loi l'exige.<\/p>\n<h2>Sur votre appareil<\/h2>\n<p>Votre panier, votre choix de langue et une copie du catalogue sont enregistrés dans votre navigateur pour que le site soit rapide. Vous pouvez les effacer en tout temps dans les réglages de votre navigateur.<\/p>\n<h2>Durée de conservation<\/h2>\n<p>Les renseignements de compte sont conservés tant que votre compte est ouvert. Les registres de commande sont conservés aussi longtemps que l'exigent les règles fiscales canadiennes, généralement six ans.<\/p>\n<h2>Vos choix<\/h2>\n<p>Vous pouvez demander à consulter, corriger ou supprimer vos renseignements, ou à fermer votre compte, en écrivant à <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>. Nous répondons dans les 30 jours.<\/p>\n<h2>Sécurité<\/h2>\n<p>Le site utilise des connexions chiffrées (HTTPS) et nous limitons l'accès à vos renseignements.<\/p>\n<h2>Questions ou préoccupations<\/h2>\n<p>Écrivez à <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>. Si notre réponse ne vous satisfait pas, vous pouvez communiquer avec le <a href=\"https://www.priv.gc.ca/\" target=\"_blank\" rel=\"noopener\">Commissariat à la protection de la vie privée du Canada<\/a>.<\/p>"}},"terms":{"en":{"title":"Terms of use","upd":"Last updated November 9, 2026","html":"<p class=\"lead\">By using nojans.com you agree to these terms. Please read them together with <a href=\"#returns\">Test before you pay<\/a> and our <a href=\"#privacy\">Privacy policy<\/a>.<\/p>\n<h2>Who we are<\/h2>\n<p>Nojan is a small Canadian business. You can reach us at <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>.<\/p>\n<h2>Accounts<\/h2>\n<p>You need a free account to place an order or book a service. Give accurate information, keep your sign-in private and tell us if someone else uses your account. We may close accounts that are misused.<\/p>\n<h2>Orders<\/h2>\n<ul>\n<li>Placing an order sends us a request. It isn't a payment, and the order is confirmed when we contact you.<\/li>\n<li>Most items are one of a kind or limited in number. If an item sells before we confirm your order, we'll tell you and nothing is owed.<\/li>\n<li>We work to show prices and details correctly. If we find a mistake, we'll tell you before you pay, and you can cancel.<\/li>\n<li>Prices are in Canadian dollars and are shown before tax. If sales tax applies, it is shown at checkout and on your receipt.<\/li>\n<li>Regular prices shown for comparison are the item's usual market price, before tax.<\/li>\n<\/ul>\n<h2>Payment, pickup and delivery<\/h2>\n<p>Nothing is charged online. You pay by Interac e-Transfer or cash at pickup, after testing the item. Pickup is local, and delivery can be arranged.<\/p>\n<h2>Testing and final sales<\/h2>\n<p>You test and accept items before you pay. Opening a sealed box means you buy the item unless it doesn't work or isn't as described. Sales are final once paid. The details are on <a href=\"#returns\">Test before you pay<\/a>.<\/p>\n<h2>Services<\/h2>\n<p>Bookings are requests until we confirm them. Pay the provider as shown on the service page. If your plans change, cancel from My orders and bookings.<\/p>\n<h2>Product information<\/h2>\n<p>Brand names and trademarks belong to their owners. Unless a listing says otherwise, photos show the model, not the exact unit.<\/p>\n<h2>Using the site<\/h2>\n<p>Please don't misuse the site, try to reach other people's accounts or information, or copy the site's content for commercial use.<\/p>\n<h2>Limits<\/h2>\n<p>As far as the law allows, Nojan isn't responsible for indirect losses from using the site. Nothing in these terms limits your rights under Ontario consumer protection law.<\/p>\n<h2>Changes<\/h2>\n<p>We may update these terms. The date at the top shows the current version.<\/p>\n<h2>Law<\/h2>\n<p>These terms are governed by the laws of Ontario and the federal laws of Canada that apply there.<\/p>"},"fr":{"title":"Conditions d'utilisation","upd":"Dernière mise à jour : 9 novembre 2026","html":"<p class=\"lead\">En utilisant nojans.com, vous acceptez ces conditions. Lisez-les avec <a href=\"#returns\">Testez avant de payer<\/a> et notre <a href=\"#privacy\">Politique de confidentialité<\/a>.<\/p>\n<h2>Qui nous sommes<\/h2>\n<p>Nojan est une petite entreprise canadienne. Vous pouvez nous joindre à <a href=\"mailto:info@nojans.com\">info@nojans.com<\/a>.<\/p>\n<h2>Comptes<\/h2>\n<p>Un compte gratuit est nécessaire pour commander ou réserver un service. Donnez des renseignements exacts, gardez votre connexion privée et avisez-nous si quelqu'un d'autre utilise votre compte. Nous pouvons fermer un compte utilisé de façon abusive.<\/p>\n<h2>Commandes<\/h2>\n<ul>\n<li>Passer une commande nous envoie une demande. Ce n'est pas un paiement, et la commande est confirmée lorsque nous communiquons avec vous.<\/li>\n<li>La plupart des articles sont uniques ou en quantité limitée. Si un article est vendu avant la confirmation de votre commande, nous vous en informons et vous ne devez rien.<\/li>\n<li>Nous veillons à afficher des prix et des détails exacts. Si nous trouvons une erreur, nous vous en informons avant le paiement et vous pouvez annuler.<\/li>\n<li>Les prix sont en dollars canadiens et sont affichés avant taxes. Si une taxe de vente s'applique, elle est indiquée au moment de passer la commande et sur votre reçu.<\/li>\n<li>Les prix courants affichés à titre de comparaison sont le prix habituel de lLes prix courants affichés à titre de comparaison sont le prix habituel de l'article sur le marché, avant taxes.article sur le marché, avant taxes.<\/li>\n<\/ul>\n<h2>Paiement, cueillette et livraison<\/h2>\n<p>Rien n'est facturé en ligne. Vous payez par virement Interac ou comptant à la cueillette, après avoir testé l'article. La cueillette est locale, et la livraison peut être organisée.<\/p>\n<h2>Tests et ventes finales<\/h2>\n<p>Vous testez et acceptez les articles avant de payer. Ouvrir une boîte scellée signifie que vous achetez l'article, sauf s'il ne fonctionne pas ou ne correspond pas à sa description. La vente est finale une fois payée. Les détails se trouvent sur <a href=\"#returns\">Testez avant de payer<\/a>.<\/p>\n<h2>Services<\/h2>\n<p>Les réservations sont des demandes jusqu'à ce que nous les confirmions. Payez le fournisseur comme indiqué sur la page du service. Si vos plans changent, annulez dans Mes commandes et réservations.<\/p>\n<h2>Renseignements sur les produits<\/h2>\n<p>Les noms de marque et les marques de commerce appartiennent à leurs propriétaires. Sauf indication contraire dans l'annonce, les photos montrent le modèle et non l'unité exacte.<\/p>\n<h2>Utilisation du site<\/h2>\n<p>Veuillez ne pas utiliser le site de façon abusive, tenter d'accéder aux comptes ou aux renseignements d'autres personnes, ni copier le contenu du site à des fins commerciales.<\/p>\n<h2>Limites<\/h2>\n<p>Dans la mesure permise par la loi, Nojan n'est pas responsable des pertes indirectes liées à l'utilisation du site. Rien dans ces conditions ne limite vos droits en vertu des lois de l'Ontario sur la protection du consommateur.<\/p>\n<h2>Modifications<\/h2>\n<p>Nous pouvons mettre à jour ces conditions. La date en haut de la page indique la version en vigueur.<\/p>\n<h2>Loi applicable<\/h2>\n<p>Ces conditions sont régies par les lois de l'Ontario et les lois fédérales du Canada qui s'y appliquent.<\/p>"}},"about":{"en":{"title":"About Nojan","upd":"","html":"<p class=\"lead\">Nojan is a small Canadian-owned business. We sell brand-name items, new and used, for less, and we give part of our profit back to the community.<\/p>\n<h2>What we sell<\/h2>\n<p>Electronics, kitchen appliances, fragrances, personal care and more. Brand new items come sealed. Used items are tested, cleaned and graded before they're listed. <a href=\"#certified\">See what Certified means<\/a>.<\/p>\n<h2>How buying works<\/h2>\n<ol>\n<li>Add items to your bag and send an order request. Nothing is charged online.<\/li>\n<li>We contact you, usually within one business day, to set a pickup time.<\/li>\n<li>At pickup, test the item. If it works, pay by e-Transfer or cash. <a href=\"#returns\">Test before you pay<\/a>.<\/li>\n<\/ol>\n<h2>Services<\/h2>\n<p>Classes and expert help, online or in person, are on our <a href=\"#services\">Services<\/a> page.<\/p>\n<h2>Giving back<\/h2>\n<p>We give 3% of our profit to the community, and we'll share where it goes on our <a href=\"#news\">News<\/a> page. We're just starting. If you'd like to help us grow, you can <a href=\"https://gofund.me/dbbc9cd49\" target=\"_blank\" rel=\"noopener\">support us on GoFundMe<\/a>.<\/p>\n<h2>Contact<\/h2>\n<p><a href=\"mailto:info@nojans.com\">info@nojans.com<\/a> · Instagram <a href=\"https://www.instagram.com/nojan_ca/\" target=\"_blank\" rel=\"noopener\">@nojan_ca<\/a><\/p>"},"fr":{"title":"À propos de Nojan","upd":"","html":"<p class=\"lead\">Nojan est une petite entreprise canadienne. Nous vendons des articles de marque, neufs et d'occasion, pour moins cher, et nous remettons une partie de nos profits à la communauté.<\/p>\n<h2>Ce que nous vendons<\/h2>\n<p>Électronique, électroménagers de cuisine, parfums, soins personnels et plus. Les articles neufs sont scellés. Les articles d'occasion sont testés, nettoyés et évalués avant d'être affichés. <a href=\"#certified\">Voir ce que veut dire « Certifié »<\/a>.<\/p>\n<h2>Comment acheter<\/h2>\n<ol>\n<li>Ajoutez des articles à votre sac et envoyez une demande de commande. Rien n'est facturé en ligne.<\/li>\n<li>Nous communiquons avec vous, habituellement en moins d'un jour ouvrable, pour fixer un moment de cueillette.<\/li>\n<li>À la cueillette, testez l'article. S'il fonctionne, payez par virement Interac ou comptant. <a href=\"#returns\">Testez avant de payer<\/a>.<\/li>\n<\/ol>\n<h2>Services<\/h2>\n<p>Des cours et l'aide d'experts, en ligne ou en personne, se trouvent sur notre page <a href=\"#services\">Services<\/a>.<\/p>\n<h2>Redonner<\/h2>\n<p>Nous remettons 3 % de nos profits à la communauté, et nous indiquerons où ils vont sur notre page <a href=\"#news\">Nouvelles<\/a>. Nous commençons à peine. Pour nous aider à grandir, vous pouvez <a href=\"https://gofund.me/dbbc9cd49\" target=\"_blank\" rel=\"noopener\">nous soutenir sur GoFundMe<\/a>.<\/p>\n<h2>Nous joindre<\/h2>\n<p><a href=\"mailto:info@nojans.com\">info@nojans.com<\/a> · Instagram <a href=\"https://www.instagram.com/nojan_ca/\" target=\"_blank\" rel=\"noopener\">@nojan_ca<\/a><\/p>"}},"how":{"en":{"title":"How it works","upd":"","html":"<p class=\"lead\">Order an item or book a service online. Nothing is charged online.<\/p>\n<h2>Buying an item<\/h2>\n<ol>\n<li>Add items to your bag and send an order request.<\/li>\n<li>We contact you, usually within one business day, to set a pickup time.<\/li>\n<li>At pickup, test the item. If it works, pay by e-Transfer or cash. <a href=\"#returns\">Test before you pay<\/a>.<\/li>\n<\/ol>\n<h2>Booking a service<\/h2>\n<ol>\n<li>Choose a service and a time, then send your booking request.<\/li>\n<li>We confirm your booking by email.<\/li>\n<li>Meet at your booked time. You can message us or ask for another time from your booking page.<\/li>\n<\/ol>\n<p>Questions? <a href=\"#contact-us\">Contact us<\/a>.<\/p>"},"fr":{"title":"Comment ça marche","upd":"","html":"<p class=\"lead\">Commandez un article ou réservez un service en ligne. Rien n'est facturé en ligne.<\/p>\n<h2>Acheter un article<\/h2>\n<ol>\n<li>Ajoutez des articles à votre sac et envoyez une demande de commande.<\/li>\n<li>Nous communiquons avec vous, habituellement en moins d'un jour ouvrable, pour fixer un moment de cueillette.<\/li>\n<li>À la cueillette, testez l'article. S'il fonctionne, payez par virement Interac ou comptant. <a href=\"#returns\">Testez avant de payer<\/a>.<\/li>\n<\/ol>\n<h2>Réserver un service<\/h2>\n<ol>\n<li>Choisissez un service et une heure, puis envoyez votre demande de réservation.<\/li>\n<li>Nous confirmons votre réservation par courriel.<\/li>\n<li>Rencontrez-nous à l'heure réservée. Vous pouvez nous écrire ou demander une autre heure à partir de votre page de réservation.<\/li>\n<\/ol>\n<p>Des questions? <a href=\"#contact-us\">Nous joindre<\/a>.<\/p>"}},"certified":{"en":{"title":"What “Certified” means","upd":"","html":"<p class=\"lead\">A Certified badge means Nojan checked the item before listing it.<\/p>\n<h2>Used items<\/h2>\n<ul>\n<li><b>Tested to work:<\/b> powered on, charged, paired, assembled or tried out, depending on the item.<\/li>\n<li><b>Cleaned<\/b> before listing.<\/li>\n<li><b>Graded<\/b> Like new, Good or Fair, with any wear named in the listing.<\/li>\n<li><b>Contents listed:<\/b> what's included is in the description.<\/li>\n<\/ul>\n<h2>Brand new items<\/h2>\n<ul>\n<li><b>Sealed<\/b> in the original packaging, never used.<\/li>\n<li><b>Model and contents confirmed<\/b> before listing.<\/li>\n<\/ul>\n<h2>Condition grades<\/h2>\n<ul>\n<li><b>Like new:<\/b> no visible wear. Works perfectly, often with box or accessories.<\/li>\n<li><b>Good:<\/b> light signs of use, such as small scratches. Fully working.<\/li>\n<li><b>Fair:<\/b> noticeable wear, priced lower. Works as described.<\/li>\n<\/ul>\n<p>Either way, you test the item yourself before you pay. <a href=\"#returns\">Test before you pay<\/a>.<\/p>"},"fr":{"title":"Ce que veut dire « Certifié »","upd":"","html":"<p class=\"lead\">Le badge Certifié signifie que Nojan a vérifié l'article avant de l'afficher.<\/p>\n<h2>Articles d'occasion<\/h2>\n<ul>\n<li><b>Testés :<\/b> allumés, chargés, jumelés, assemblés ou essayés, selon l'article.<\/li>\n<li><b>Nettoyés<\/b> avant d'être affichés.<\/li>\n<li><b>Évalués<\/b> Comme neuf, Bon ou Passable, et toute usure est indiquée dans l'annonce.<\/li>\n<li><b>Contenu indiqué :<\/b> ce qui est inclus figure dans la description.<\/li>\n<\/ul>\n<h2>Articles neufs<\/h2>\n<ul>\n<li><b>Scellés<\/b> dans l'emballage d'origine, jamais utilisés.<\/li>\n<li><b>Modèle et contenu confirmés<\/b> avant d'être affichés.<\/li>\n<\/ul>\n<h2>Cotes d'état<\/h2>\n<ul>\n<li><b>Comme neuf :<\/b> aucune usure visible. Fonctionne parfaitement, souvent avec la boîte ou les accessoires.<\/li>\n<li><b>Bon :<\/b> légers signes d'usure, comme de petites égratignures. Entièrement fonctionnel.<\/li>\n<li><b>Passable :<\/b> usure visible, prix plus bas. Fonctionne comme décrit.<\/li>\n<\/ul>\n<p>Dans tous les cas, vous testez l'article vous-même avant de payer. <a href=\"#returns\">Testez avant de payer<\/a>.<\/p>"}}};
 function polView(k){
   const P = POL[k]; if (!P) return views.notfound();
   const blk = (l, x) => `<div class="l-${l}" lang="${l === "fr" ? "fr-CA" : "en"}" data-noi18n><h1>${x.title}</h1>${x.upd ? `<p class="upd">${x.upd}</p>` : ""}${x.html}</div>`;
   return `<article class="policy">${blk("en", P.en)}${blk("fr", P.fr)}</article>`;
 }
-const nextStepsHTML = () => `<div class="nextwrap"><b>What happens next</b><ol class="nextsteps"><li>Send your order request. Nothing is charged.</li><li>We contact you, usually within one business day, to set a pickup time in Richmond Hill.</li><li>Test the item at pickup, then pay by e-Transfer or cash.</li></ol><a class="msglink" href="#returns">Test before you pay ›</a></div>`;
+const nextStepsHTML = () => `<div class="nextwrap"><b>What happens next</b><ol class="nextsteps"><li>Send your order request. Nothing is charged.</li><li>We contact you, usually within one business day, to set a pickup time.</li><li>Test the item at pickup, then pay by e-Transfer or cash.</li></ol><a class="msglink" href="#returns">Test before you pay ›</a></div>`;
 function simHTML(p){
   const t = typeOf(p), list = groupList(PRODUCTS.filter(x => x.id !== p.id && !x.soldOut && !x.member && typeOf(x) === t && x.itemId !== p.itemId)).slice(0, 4);
   return list.length ? `<section class="hsec simsec"><div class="h5row"><h2>Similar items</h2><a href="#shop">See all ›</a></div><div class="homegrid">${productCards(list)}</div></section>` : "";
 }
-const TITLES = {home: "Nojan · Quality products and services, for less", shop: "Shop new and used items · Nojan", services: "Services and classes · Nojan", contact: "Contact us · Nojan", news: "News · Nojan", cart: "Your cart · Nojan", checkout: "Checkout · Nojan", account: "Your account · Nojan", orders: "Your orders · Nojan", mybookings: "Your bookings · Nojan", acctdetails: "Your details and address · Nojan", acctsecurity: "Login and security · Nojan", acctmessages: "Messages · Nojan", acctemail: "Email preferences · Nojan", acctdata: "Your data · Nojan", unsub: "Unsubscribe · Nojan", about: "About Nojan", returns: "Test before you pay · Nojan", privacy: "Privacy policy · Nojan", terms: "Terms of use · Nojan", certified: "What Certified means · Nojan", how: "How it works · Nojan", notfound: "Page not found · Nojan"};
+const TITLES = {home: "Nojan · Quality products and services, for less", shop: "Shop new and used items · Nojan", services: "Services and classes · Nojan", contact: "Contact us · Nojan", news: "News · Nojan", cart: "Your cart · Nojan", checkout: "Checkout · Nojan", account: "Your account · Nojan", orders: "Your orders · Nojan", mybookings: "Your bookings · Nojan", acctdetails: "Your details and address · Nojan", acctsecurity: "Login and security · Nojan", acctmessages: "Messages · Nojan", acctemail: "Email preferences · Nojan", acctdata: "Your data · Nojan", acctlists: "Your lists · Nojan", unsub: "Unsubscribe · Nojan", about: "About Nojan", returns: "Test before you pay · Nojan", privacy: "Privacy policy · Nojan", terms: "Terms of use · Nojan", certified: "What Certified means · Nojan", how: "How it works · Nojan", notfound: "Page not found · Nojan"};
 const views = {
   home(){
     const q = query.trim();
@@ -875,6 +875,7 @@ const views = {
             <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
               <span class="qty"><button type="button" data-dec="${p.id}" aria-label="${q===1?"Remove from cart":"Decrease"}">${q===1?TRASH:"−"}</button><span>${q}</span><button type="button" data-inc="${p.id}" aria-label="Increase">+</button></span>
               <button class="linkbtn" type="button" data-rm="${p.id}">Remove</button>
+              <button class="linkbtn" type="button" data-savelater="${p.id}">Save for later</button>
             </div>
           </div>
           <strong style="font-variant-numeric:tabular-nums">${lineTotal(p,q)}</strong>
@@ -917,7 +918,8 @@ const views = {
               <select id="o-pref" name="contact_preference"><option>Phone call</option><option>Text message</option><option>Email</option></select>
             </label>
           </div>
-          <label>Notes <small>(optional — pickup time, questions)</small><textarea id="o-notes" name="notes"></textarea></label>
+          ${pickupSelectHTML()}
+          <label>Notes <small>(optional — questions)</small><textarea id="o-notes" name="notes"></textarea></label>
           <p class="note">By placing an order you agree to our <a href="#terms">Terms</a> and to <a href="#returns">Test before you pay</a>.</p>
           <div id="orderMsg" hidden></div>
           <button class="btn primary" type="submit" id="orderSubmit">Place order request</button>
@@ -929,6 +931,7 @@ const views = {
       <aside class="panel">
         <h2>Order summary</h2>
         ${items.map(({p,q})=>`<div class="sum"><span style="min-width:0">${q} × ${esc(p.name)}</span><span>${lineTotal(p,q)}</span></div>`).join("")}
+        ${USER ? promoBoxHTML() : ""}
         ${taxLinesHTML(t)}
         ${nextStepsHTML()}
       </aside>
@@ -968,6 +971,7 @@ const views = {
       <div class="iteminfo">
         <span class="badge">${used ? "Used" + (p.grade ? " · " + esc(p.grade) : "") : "Brand new"}</span>
         <h1>${esc(p.name)}</h1>
+        ${reviewSummary(p)}
         <p class="soldby">Sold by <b>Nojan</b> ${certBadge(true)}</p>
         ${itemIdLine(p)}${offersOf(p).length > 1 ? `<p class="itemid"><button type="button" class="linkbtn coffers" data-gooffers>See all ${offersOf(p).length} offers for this item ›</button></p>` : ""}
         ${summary ? `<p class="lead">${esc(summary)}</p>` : ""}
@@ -978,8 +982,10 @@ const views = {
         <span class="meta">${p.brand ? esc(p.brand) : ""}${out ? `${p.brand ? " · " : ""}<b>Sold out</b>` : ""}</span>
         <div class="qtyrow"><span>Quantity</span><span class="qty"><button type="button" data-iq="-1" aria-label="One fewer"${out ? " disabled" : ""}>−</button><span id="iqv">${ITEMQ.q}</span><button type="button" data-iq="1" aria-label="One more"${out ? " disabled" : ""}>+</button></span></div>
         <button type="button" class="btn bagbtn" data-addbag="${esc(p.id)}"${out ? " disabled" : ""}>${out ? "Sold out" : ITEMQ.added ? "Added to Bag ✓" : "Add to Bag"}</button>
+        ${wishWide(p.id)}
+        ${alertsHTML(p)}
         <div class="infobox">
-          <div><span class="ibic">${ICP}</span><span><b>Pickup in Richmond Hill</b><br><span>We'll email you to confirm a pickup time, or ask about local delivery.</span></span></div>
+          <div><span class="ibic">${ICP}</span><span><b>Local pickup</b><br><span>We'll email you to confirm a pickup time, or ask about local delivery.</span></span></div>
           <div><span class="ibic alt">${ICC}</span><span><b>Pay at pickup</b><br><span>e-Transfer or cash, after you test the item. Nothing is charged online.</span></span></div>
           <div><span class="ibic">${ICT}</span><span><b>Test before you pay</b><br><span>Open it and try it at pickup. Once you pay, the sale is final.</span></span></div>
         </div>
@@ -1003,7 +1009,7 @@ const views = {
   booked(){ return bookedView(); },
   account(){ return accountView(); },
   orders(){ return myOrdersView(); },
-  mybookings(){ return myBookingsView(); }, acctsecurity(){ return acctSecurityView(); }, acctmessages(){ return acctMessagesView(); }, acctemail(){ return acctEmailView(); }, acctdata(){ return acctDataView(); }, unsub(){ return unsubView(); },
+  mybookings(){ return myBookingsView(); }, acctsecurity(){ return acctSecurityView(); }, acctmessages(){ return acctMessagesView(); }, acctemail(){ return acctEmailView(); }, acctdata(){ return acctDataView(); }, acctlists(){ return acctListsView(); }, unsub(){ return unsubView(); },
   acctdetails(){ ACCT_SUB = "details"; try { return accountView(); } finally { ACCT_SUB = null; } },
   receipt(){ return receiptView(); },   // v122
   admin(){ return adminView(); },
@@ -1047,7 +1053,7 @@ const views = {
         <details><summary>Can I see a used item before buying?</summary><p>Yes. Pick it up in person and check it before you pay.</p></details>
         <details><summary>Can I test an item before I pay?</summary><p>Yes, always. Take as long as you need at pickup. If it works and matches the listing, you pay. If not, you don't have to buy it.</p></details>
         <details><summary>Can I return an item?</summary><p>Because you test and accept items before paying, sales are final once paid. Opening a sealed box means you buy the item unless it's faulty. <a href="#returns">Read the details</a></p></details>
-        <details><summary>Do you deliver?</summary><p>Local delivery around Richmond Hill can be arranged when we confirm your order.</p></details>
+        <details><summary>Do you deliver?</summary><p>Local delivery can be arranged when we confirm your order.</p></details>
         <details><summary>Is an item still available?</summary><p>Items shown here are available. Sold items are removed from the shop.</p></details>
         <p class="note">We usually reply within one business day.</p>
       </aside>
@@ -1115,7 +1121,8 @@ document.addEventListener("submit", async e => {
         uid: USER.uid, name: d.name.trim(), email: d.email.trim(), phone: d.phone.trim(), city: (d.city||"").trim(),
         contactBy: d.contact_preference, notes: (d.notes||"").trim(),
         items: its.map(({p,q}) => ({id:p.id, name:p.name, condition:p.condition, qty:q, price:p.price==null?null:p.price, image:(/^https?:/.test(refsOf(p)[0]||"") ? refsOf(p)[0] : "")})),
-        subtotal: +t.sub.toFixed(2), tax: +t.tax.toFixed(2), total: +t.total.toFixed(2), unpriced: t.unpriced
+        subtotal: +t.sub.toFixed(2), tax: +t.tax.toFixed(2), total: +t.total.toFixed(2), unpriced: t.unpriced,
+        pickupSlot: (d.pickupSlot || "").slice(0, 60), ...(t.off ? {promo: PROMO.code, discount: +t.off.toFixed(2)} : {})
       });
     } catch(err) {
       console.error(err);
@@ -1126,11 +1133,11 @@ document.addEventListener("submit", async e => {
     PROFILE = {...(PROFILE||{}), name:d.name.trim(), phone:d.phone.trim(), city:(d.city||"").trim()};
     sendEmail(`New order #${placed.number} from ${d.name} — ${money(t.total)}`, {
       Order:"#"+placed.number, Name:d.name, Phone:d.phone, Email:d.email, City:d.city, "Contact by":d.contact_preference,
-      Items:lines, Total:money(t.total)+(t.unpriced?` (+${t.unpriced} item(s) priced on request)`:""), Notes:d.notes||"—",
+      Items:lines, "Pickup time": d.pickupSlot || "Contact me to arrange", ...(t.off ? {Promo: PROMO.code + " (−" + money(t.off) + ")"} : {}), Total:money(t.total)+(t.unpriced?` (+${t.unpriced} item(s) priced on request)`:""), Notes:d.notes||"—",
       "Manage it":location.origin + "/#admin", _replyto:d.email
     }).catch(()=>{});
     lastOrderNo = placed.number;
-    cart = {}; saveCart(); go("thanks");
+    PROMO = null; cart = {}; saveCart(); go("thanks");
   }
   if (f.id === "contactForm"){
     e.preventDefault();
@@ -1299,7 +1306,7 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", mybookings:"my-bookings", acctdetails:"account-details", acctsecurity:"login-security", acctmessages:"messages", acctemail:"email-preferences", acctdata:"your-data", unsub:"unsubscribe", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified", how:"how-it-works"};
+const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", mybookings:"my-bookings", acctdetails:"account-details", acctsecurity:"login-security", acctmessages:"messages", acctemail:"email-preferences", acctdata:"your-data", acctlists:"your-lists", unsub:"unsubscribe", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified", how:"how-it-works"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
 let bookingId = null, receiptId = null, itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
@@ -1426,7 +1433,7 @@ document.addEventListener("click", e => {
   go("item", decodeURIComponent(a.getAttribute("href").slice(6)));
 });
 // v93: in-site links get real addresses so they can be opened in a new tab, shared and found by search engines
-const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|my-bookings|account-details|login-security|messages|email-preferences|your-data|unsubscribe|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
+const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|my-bookings|account-details|login-security|messages|email-preferences|your-data|your-lists|unsubscribe|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
 function relink(root){
   if (!PATH_MODE || !root || root.nodeType !== 1) return;
   const fix = a => { const h = a.getAttribute("href"); if (!h || h[0] !== "#") return; let s = h.slice(1); try { s = decodeURIComponent(s); } catch (_) {} if (!R_OK.test(s)) return; a.dataset.r = s; a.setAttribute("href", pathFor(s)); };
@@ -1495,7 +1502,7 @@ function render(){
     : v === "group" ? [["Shop", "#shop"], [groupId || "Shop"]]
     : v === "sgroup" ? [["Services", "#services"], [sgroupId || "Services"]]
     : v === "scategory" ? (c => c ? [["Services", "#services"], [groupOf(SVC_GROUPS, c)[0], "#sgroup-" + catSlug(groupOf(SVC_GROUPS, c)[0])], [c]] : [["Services", "#services"], ["Category"]])(scatName(svcMap()))
-    : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], news:[["News"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["Your account","#account"],["Your orders"]], mybookings:[["Your account","#account"],["Your bookings"]], acctdetails:[["Your account","#account"],["Your details"]], acctsecurity:[["Your account","#account"],["Login & security"]], acctmessages:[["Your account","#account"],["Messages"]], acctemail:[["Your account","#account"],["Email preferences"]], acctdata:[["Your account","#account"],["Your data"]], unsub:[["Unsubscribe"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
+    : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], news:[["News"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["Your account","#account"],["Your orders"]], mybookings:[["Your account","#account"],["Your bookings"]], acctdetails:[["Your account","#account"],["Your details"]], acctsecurity:[["Your account","#account"],["Login & security"]], acctmessages:[["Your account","#account"],["Messages"]], acctemail:[["Your account","#account"],["Email preferences"]], acctdata:[["Your account","#account"],["Your data"]], acctlists:[["Your account","#account"],["Your lists"]], unsub:[["Unsubscribe"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
          service:(s => s && !s.member ? [["Services","#services"],[s.category, "#scategory-" + catSlug(s.category)],[s.title]] : [["Services","#services"],[(s||{}).title || "Service"]])(SERVICES.find(s=>s.id===serviceId)),
          provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]],
          events:[["Events"]], event:[["Events","#events"],[(eventById(eventId)||{}).title || "Event"]],
@@ -1573,7 +1580,7 @@ const STATUSES = ["New", "Contacted", "Ready for pickup", "Completed", "Cancelle
 const STATUS_TEXT = {
   "New": "We received your order and will contact you soon to confirm it.",
   "Contacted": "We've reached out to confirm your order. Please check your phone and email.",
-  "Ready for pickup": "Your order is ready for pickup in Richmond Hill. Reply to this email to set a pickup time.",
+  "Ready for pickup": "Your order is ready for pickup. Reply to this email to set a pickup time.",
   "Completed": "Your order is complete. Thank you for shopping with Nojan!",
   "Cancelled": "Your order was cancelled. If this is a mistake, just reply to this email."
 };
@@ -4033,10 +4040,13 @@ function myOrdersList(){
       <div class="obody">
         ${ordTimeline(o)}
         <p class="note" style="color:var(--fg)">${esc(STATUS_TEXT[o.status] || "")}</p>
+        ${o.pickupSlot && !["Completed", "Cancelled"].includes(o.status) ? `<p class="note">Pickup time you asked for: <b>${esc(o.pickupSlot)}</b></p>` : ""}
         ${orderItemsHTML(o)}
         <div class="ordacts"><a class="btn small" href="#receipt-o-${o.id}">${o.paid ? "Receipt (paid)" : "Receipt"}</a>
         ${["Completed", "Cancelled"].includes(o.status) && ordBuyAgainOk(o) ? `<button class="btn small ghost" type="button" data-buyagain="${o.id}" style="color:var(--fg)">Buy again</button>` : ""}
         ${ordCanCancel(o) ? `<button class="linkbtn" type="button" data-cancel2="${o.id}" style="color:var(--danger)">Cancel this order</button>` : ""}</div>
+        ${o.status === "Completed" ? `<div class="ordrev">${(o.items || []).filter(it => PRODUCTS.find(p => p.id === it.id)).map(it => myArr("reviews").some(r => r.itemId === it.id) ? `<span class="note">✓ You reviewed ${esc(it.name)}</span>` : `<a class="linkbtn" href="#item-${esc(it.id)}">★ Review ${esc(it.name)}</a>`).join("")}</div>` : ""}
+        ${["Ready for pickup", "Completed"].includes(o.status) ? problemFormHTML(o) : ""}
       </div>
     </details>`).join("")}</div>`;
 }
@@ -4061,7 +4071,7 @@ function adminView(){
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
   return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them. <button class="linkbtn" type="button" data-backup>Download backup</button></p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="billing" aria-pressed="${ADM.tab==="billing"}">Billing</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
+    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="billing" aria-pressed="${ADM.tab==="billing"}">Billing</button><button type="button" data-atab="feedback" aria-pressed="${ADM.tab==="feedback"}">Feedback &amp; promos</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
 }
@@ -4090,6 +4100,7 @@ function adminBody(){
   if (ADM.tab === "bookings") return adminBookingsHTML();
   if (ADM.tab === "billing") return (!ADM.orders || !ADM.bookings) ? `<div class="empty">Loading…</div>` : billingAdminHTML();   // v122
   if (ADM.tab === "providers") return providersAdminHTML();
+  if (ADM.tab === "feedback") return feedbackAdminHTML();   // v129
   if (ADM.tab === "events") return eventsAdminHTML();
   if (ADM.tab === "dating") return datingAdminHTML();
   if (ADM.tab === "homes") return homesAdminHTML();
@@ -4125,6 +4136,7 @@ function adminOrderHTML(o){
           <a href="mailto:${esc(o.email||"")}?subject=${encodeURIComponent("Your Nojan order #"+o.number)}">${esc(o.email||"")}</a>
           <span class="note">${esc(o.city || "City not given")} · prefers ${esc(o.contactBy || "any")}</span>
           ${o.notes ? `<span class="note" style="color:var(--fg)">“${esc(o.notes)}”</span>` : ""}
+          <span class="note" style="color:var(--fg)">Pickup: ${esc(o.pickupSlot || "contact to arrange")}${o.promo ? ` · Promo ${esc(o.promo)} −${money(o.discount || 0)}` : ""}</span>
         </div>
         <div class="obox"><h3>Items</h3>${orderItemsHTML(o)}</div>
       </div>
@@ -4441,7 +4453,7 @@ function serviceView(){
   const how = [
     ["video", "Format", s.format === "both" ? "Online or in person, your choice" : s.format === "online" ? "Online" : "In person"],
     s.format !== "in-person" ? ["monitor", "Online on", s.platform || "Video call, link sent before class"] : null,
-    s.format !== "online" ? ["pin", "Location", s.location || "Richmond Hill, Ontario"] : null,
+    s.format !== "online" ? ["pin", "Location", s.location || "Confirmed with your booking"] : null,
     ["clock", "Session length", durTxt(s.duration)],
     [s.classType === "group" ? "users" : "user", "Class size", s.classType === "group" ? `Small group, up to ${s.capacity}` : "One-on-one"],
     ["level", "Level", s.level]
@@ -4546,7 +4558,7 @@ function icsFor(b){
     `UID:${b.id || Date.now()}@nojan`, `DTSTAMP:${dt(Date.now())}`, `DTSTART:${dt(b.startMs)}`, `DTEND:${dt(b.startMs + b.durationMin * 60000)}`,
     `SUMMARY:${tx(b.serviceTitle)} (Nojan)`,
     `DESCRIPTION:${tx(`Booking #B${b.number} with ${b.providerName}. ${b.format === "online" ? "Online" : "In person"}.${b.meetingLink ? " Join: " + b.meetingLink : ""}`)}`,
-    `LOCATION:${tx(b.format === "online" ? (b.meetingLink || b.platform || "Online") : (b.address || b.location || "Richmond Hill, ON"))}`,
+    `LOCATION:${tx(b.format === "online" ? (b.meetingLink || b.platform || "Online") : (b.address || b.location || "Confirmed by Nojan"))}`,
     "END:VEVENT", "END:VCALENDAR"].join("\r\n");
 }
 function downloadICS(b){
@@ -5716,7 +5728,7 @@ function liveStart(){
     SITE = list.find(d => d.id === "_site") || {}; list = list.filter(d => !String(d.id).startsWith("_"));
     CAT.gotP = true; catSchedule();
     if (!list.length){ ALL_PRODUCTS = []; loadFromSheet(); if (current() === "admin") refreshAdmin(); return; }
-    useProducts(list);
+    useProducts(list); try { alertScan(list); } catch (er){ console.error(er); }   // v129
     if (current() === "admin") refreshAdmin(); else render();
   }, err => { console.error(err); if (!CAT.applied) loadFromSheet(); });
   FB.watchServices(list => {
@@ -5967,7 +5979,7 @@ const rcFacts = rows => `<div class="rcfacts">${rows.filter(Boolean).map(([k, v]
 const rcSec = (title, inner, cls) => `<section class="rcsec${cls ? " " + cls : ""}"><h2>${title}</h2>${inner}</section>`;
 const rcSumRow = (k, v, cls) => `<div class="rcsumrow${cls ? " " + cls : ""}"><span>${k}</span><span>${v}</span></div>`;
 function rcFoot(){
-  return `<div class="rcfoot"><span><b>Nojan Inc.</b> · Richmond Hill, Ontario · ${esc(CONTACT_EMAIL)} · nojans.com</span>${BILL_GST ? `<span>GST/HST no. ${esc(BILL_GST)}</span>` : ""}</div>`;
+  return `<div class="rcfoot"><span><b>Nojan Inc.</b> · Ontario, Canada · ${esc(CONTACT_EMAIL)} · nojans.com</span>${BILL_GST ? `<span>GST/HST no. ${esc(BILL_GST)}</span>` : ""}</div>`;
 }
 function paidLineOf(p, unpaidText){
   if (!p) return unpaidText;
@@ -6450,7 +6462,8 @@ function taxLinesHTML(t){   // v124: Amazon-style order summary at checkout
   return `<div class="osum">
           <div class="sum"><span>Items (${n}):</span><span>${money(t.sub)}</span></div>
           <div class="sum"><span>Pickup or local delivery:</span><span>${money(0)}</span></div>
-          <div class="sum osumline"><span>Total before tax:</span><span>${money(t.sub)}</span></div>
+          ${t.off ? `<div class="sum promoline"><span>Promo ${esc(PROMO ? PROMO.code : "")}:</span><span>−${money(t.off)}</span></div>` : ""}
+          <div class="sum osumline"><span>Total before tax:</span><span>${money(t.net != null ? t.net : t.sub)}</span></div>
           <div class="sum"><span>Estimated HST:</span><span>${money(t.tax)}</span></div>
           <div class="sum total osumtotal"><span>Order total:</span><span>${money(t.total)}</span></div>
         </div>
@@ -6483,6 +6496,7 @@ function acctTile(href, ico, title, text, badge, off){
 }
 function acctHead(title, sub){ return `<div class="sectionhead acthead"><div><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ""}</div></div>`; }
 function acctHub(){
+  wishMerge();
   startMyOrders(); startMyBookings();
   const pr = PROFILE || {}, first = String(pr.name || USER.displayName || "").trim().split(/\s+/)[0];
   const open = (MY.orders || []).filter(o => !["Completed", "Cancelled"].includes(o.status)).length;
@@ -6497,7 +6511,7 @@ function acctHub(){
     ${acctTile("#login-security", "security", "Login &amp; security", "Name, email, password, sign out everywhere")}
     ${acctTile("#account-details", "address", "Your details &amp; address", "Phone, address, date of birth")}
     ${acctTile("#messages", "messages", "Messages", unread ? `${unread} new message${unread > 1 ? "s" : ""} from Nojan` : "Messages from Nojan about your bookings", unread || "")}
-    ${acctTile("", "lists", "Your lists", "Save items for later. Coming soon", "", true)}
+    ${acctTile("#your-lists", "lists", "Your lists", (n => n ? `${n} saved item${n > 1 ? "s" : ""}` : "Items you saved for later")(wishIds().length))}
     ${acctTile("#email-preferences", "email", "Email preferences", p.news || p.offers ? "You get news or offers from Nojan" : "Order and booking emails only")}
     ${acctTile("#your-data", "data", "Your data", "Download your data or delete your account")}
     ${isAdmin() ? acctTile("#admin", "admin", "Admin", "Orders, bookings, inventory, billing") : ""}
@@ -6640,3 +6654,281 @@ document.addEventListener("submit", async e => {
   } catch (er){ console.error(er); say(false, er && er.msg ? er.msg : acctSecErr(er)); }
   btn.disabled = false;
 }, true);
+
+/* =========================================================
+   v128: Your lists (wish list). Signed in: saved in the account (users/{uid}.wishlist). Signed out: on this device; added to the account at sign-in.
+   ========================================================= */
+function WISH_KEY(){ return "nojanWish"; }
+function wishLocal(){ try { const a = JSON.parse(localStorage.getItem(WISH_KEY()) || "[]"); return Array.isArray(a) ? a.filter(x => typeof x === "string") : []; } catch (_) { return []; } }
+function wishIds(){ return USER && PROFILE ? (Array.isArray(PROFILE.wishlist) ? PROFILE.wishlist : []) : wishLocal(); }
+function wishHas(id){ return wishIds().includes(id); }
+function WISH_SVG(){ return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>'; }
+function wishBtn(id){ const on = wishHas(id); return `<button type="button" class="wishbtn${on ? " on" : ""}" data-wish="${esc(id)}" aria-pressed="${on}" aria-label="${on ? "Remove from your list" : "Save to your list"}" title="${on ? "Remove from your list" : "Save to your list"}">${WISH_SVG()}</button>`; }
+function wishWide(id){ const on = wishHas(id); return `<button type="button" class="btn ghost wishwide${on ? " on" : ""}" data-wish="${esc(id)}" aria-pressed="${on}">${WISH_SVG()}<span>${on ? "Saved to your list" : "Save to your list"}</span></button>`; }
+async function wishSet(ids){
+  ids = [...new Set(ids)].slice(0, 100);
+  if (USER && FB){ const before = PROFILE && PROFILE.wishlist; PROFILE = {...(PROFILE || {}), wishlist: ids};
+    try { await FB.saveProfile(USER.uid, {wishlist: ids}); } catch (e){ console.error(e); PROFILE = {...(PROFILE || {}), wishlist: before || []}; toast("Couldn't save your list. Try again."); } }
+  else { try { localStorage.setItem(WISH_KEY(), JSON.stringify(ids)); } catch (_) {} }
+  wishPaint();
+}
+function wishPaint(){
+  document.querySelectorAll("[data-wish]").forEach(b => { const on = wishHas(b.dataset.wish); b.classList.toggle("on", on); b.setAttribute("aria-pressed", on);
+    if (b.classList.contains("wishwide")){ const s = b.querySelector("span"); if (s) s.textContent = on ? "Saved to your list" : "Save to your list"; }
+    else { b.setAttribute("aria-label", on ? "Remove from your list" : "Save to your list"); b.title = on ? "Remove from your list" : "Save to your list"; } });
+}
+var WISH_MERGED = false;
+function wishMerge(){   // at sign-in: add what was saved on this device to the account, once
+  if (WISH_MERGED || !USER || !PROFILE) return; WISH_MERGED = true;
+  const local = wishLocal(); if (!local.length) return;
+  const mine = Array.isArray(PROFILE.wishlist) ? PROFILE.wishlist : [];
+  try { localStorage.removeItem(WISH_KEY()); } catch (_) {}
+  if (local.some(x => !mine.includes(x))) wishSet([...mine, ...local]);
+}
+function acctListsView(){
+  wishMerge();
+  const ids = wishIds(), found = ids.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean), gone = ids.filter(id => !PRODUCTS.find(p => p.id === id));
+  const head = `<div class="sectionhead acthead"><div><h1>Your lists</h1><p>Items you saved for later.</p></div></div>`;
+  const note = !USER ? `<p class="note">Your list is saved on this device only. <button class="linkbtn" type="button" data-auth="signin" data-next="acctlists">Sign in</button> to keep it on all your devices.</p>` : "";
+  if (!PRODUCTS.length && ids.length) return head + `<div class="empty">Loading your list…</div>`;
+  if (!found.length) return head + note + myAlertsHTML() + `<div class="empty" style="margin-top:14px">Nothing saved yet. Tap the heart on any item to save it here. <a href="#shop" style="color:var(--link)">Browse the shop</a></div>`;
+  return head + note + `<div class="grid">${productCards(found)}</div>` + myAlertsHTML() + (gone.length ? `<p class="note" style="margin-top:12px">${gone.length} saved item${gone.length > 1 ? "s are" : " is"} no longer available. <button class="linkbtn" type="button" data-wishclean>Remove ${gone.length > 1 ? "them" : "it"}</button></p>` : "");
+}
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.wish){ e.preventDefault(); e.stopPropagation();
+    const id = b.dataset.wish, on = !wishHas(id); wishMerge();
+    await wishSet(on ? [id, ...wishIds().filter(x => x !== id)] : wishIds().filter(x => x !== id));
+    toast(on ? "Saved to your list" : "Removed from your list");
+    if (!on && current() === "acctlists") render();
+    return; }
+  if (b.dataset.savelater){ const id = b.dataset.savelater; delete cart[id]; saveCart(); if (!wishHas(id)) await wishSet([id, ...wishIds()]); render(); toast("Saved for later"); return; }
+  if (b.hasAttribute("data-wishclean")){ await wishSet(wishIds().filter(id => PRODUCTS.find(p => p.id === id))); render(); return; }
+}, true);
+
+/* =========================================================
+   v129: recently viewed, back-in-stock and price-drop alerts, item reviews (verified purchase), questions and answers,
+   promo codes, pickup time at checkout, report a problem.
+   Customers write only to their own account record (users/{uid}); Nojan approves reviews and answers questions in
+   Admin → Feedback, which copies them onto the item, so the public catalog shows them. No new database collections.
+   ========================================================= */
+function v129uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function myArr(k){ return USER && PROFILE && Array.isArray(PROFILE[k]) ? PROFILE[k] : []; }
+async function mySave(k, val){ PROFILE = {...(PROFILE || {}), [k]: val}; await FB.saveProfile(USER.uid, {[k]: val}); }
+function starsHTML(n, big){ n = Math.max(0, Math.min(5, +n || 0)); const full = Math.round(n * 2) / 2;
+  return `<span class="stars${big ? " big" : ""}" aria-label="${n.toFixed(1)} out of 5 stars">${[1,2,3,4,5].map(i => `<span class="${i <= full ? "on" : i - 0.5 === full ? "half" : ""}">★</span>`).join("")}</span>`; }
+
+/* ---- 11. Recently viewed (kept on this device only) ---- */
+function RV_KEY(){ return "nojanRecent"; }
+function rvList(){ try { const a = JSON.parse(localStorage.getItem(RV_KEY()) || "[]"); return Array.isArray(a) ? a : []; } catch (_) { return []; } }
+function rvAdd(id){ if (!id) return; const a = [id, ...rvList().filter(x => x !== id)].slice(0, 12); try { localStorage.setItem(RV_KEY(), JSON.stringify(a)); } catch (_) {} }
+function rvHTML(skip){
+  const items = rvList().filter(id => id !== skip).map(id => PRODUCTS.find(p => p.id === id)).filter(p => p && !p.member).slice(0, 8);
+  if (!items.length) return "";
+  return `<section class="rvsec"><div class="sectionhead hs"><h2>Recently viewed</h2><button class="linkbtn" type="button" data-rvclear>Clear</button></div><div class="grid rvgrid">${productCards(items)}</div></section>`;
+}
+
+/* ---- 12. Alerts: back in stock, price drop ---- */
+function alertOf(id){ const a = (USER && PROFILE && PROFILE.alerts) || {}; return a[id] || null; }
+function alertsHTML(p){
+  const out = stockOf(p.id) <= 0, a = alertOf(p.id);
+  if (!out && p.price == null) return "";
+  return `<div class="alertbox">${out ? `<button type="button" class="btn ghost small${a && a.back ? " on" : ""}" data-alert="back" data-aid="${esc(p.id)}">🔔 ${a && a.back ? "We'll email you when it's back" : "Tell me when it's back"}</button>` : ""}
+    ${p.price != null ? `<button type="button" class="linkbtn${a && a.drop ? " on" : ""}" data-alert="drop" data-aid="${esc(p.id)}">${a && a.drop ? "✓ We'll email you if the price drops" : "Tell me if the price drops"}</button>` : ""}</div>`;
+}
+function myAlertsHTML(){
+  const a = (USER && PROFILE && PROFILE.alerts) || {}, ids = Object.keys(a).filter(id => a[id] && (a[id].back || a[id].drop));
+  if (!ids.length) return "";
+  return `<section class="panel" style="margin-top:18px"><h2>Your alerts</h2>${ids.map(id => { const p = PRODUCTS.find(x => x.id === id), x = a[id];
+    return `<div class="alertrow"><a href="#item-${esc(id)}">${esc(p ? p.name : "An item no longer listed")}</a><span class="note">${[x.back ? "Back in stock" : "", x.drop ? `Price drop (below ${money(x.price || 0)})` : ""].filter(Boolean).join(" · ")}</span><button class="linkbtn" type="button" data-alertoff="${esc(id)}">Stop</button></div>`; }).join("")}</section>`;
+}
+
+/* ---- 13. Reviews (verified purchase) and 14. Questions and answers ---- */
+function itemReviews(p){ return Array.isArray(p.reviews) ? p.reviews.filter(r => r && r.stars) : []; }
+function itemQA(p){ return Array.isArray(p.qa) ? p.qa.filter(q => q && q.a) : []; }
+function reviewSummary(p){ const r = itemReviews(p); if (!r.length) return ""; const avg = r.reduce((a, x) => a + (+x.stars || 0), 0) / r.length;
+  return `<a class="revsum" href="#item-${esc(p.id)}" data-toreviews>${starsHTML(avg)}<span>${avg.toFixed(1)} · ${r.length} review${r.length > 1 ? "s" : ""}</span></a>`; }
+function boughtItem(id){ return (MY.orders || []).some(o => o.status === "Completed" && (o.items || []).some(it => it.id === id)); }
+function itemExtrasHTML(p){
+  startMyOrders();
+  const revs = itemReviews(p), qa = itemQA(p), mine = myArr("reviews").filter(r => r.itemId === p.id), myQs = myArr("questions").filter(q => q.itemId === p.id && !qa.some(x => x.id === q.id));
+  const avg = revs.length ? revs.reduce((a, x) => a + (+x.stars || 0), 0) / revs.length : 0;
+  const canReview = USER && boughtItem(p.id) && !mine.length;
+  return `<section class="panel itemextra" id="reviews"><h2>Customer reviews</h2>
+    ${revs.length ? `<div class="revhead">${starsHTML(avg, true)}<b>${avg.toFixed(1)} out of 5</b><span class="note">${revs.length} review${revs.length > 1 ? "s" : ""}</span></div>` : `<p class="note">No reviews yet.</p>`}
+    ${revs.slice().reverse().map(r => `<div class="rev"><div class="revtop">${starsHTML(r.stars)}<b>${esc(r.title || "")}</b></div><span class="note">${esc(r.name || "Customer")} · ${esc(r.date || "")} · <span class="verified">✓ Verified purchase</span></span><p>${esc(r.text || "")}</p></div>`).join("")}
+    ${mine.length && !revs.some(r => r.id === mine[0].id) ? `<p class="note">Thanks for your review. It shows here once Nojan checks it.</p>` : ""}
+    ${canReview ? reviewFormHTML(p.id, "") : USER ? "" : `<p class="note">Bought this item? Sign in to review it.</p>`}
+  </section>
+  <section class="panel itemextra" id="questions"><h2>Questions and answers</h2>
+    ${qa.length ? qa.slice().reverse().map(q => `<div class="qa"><p><b>Q:</b> ${esc(q.q)}</p><p><b>A:</b> ${esc(q.a)}</p><span class="note">Answered by Nojan · ${esc(q.date || "")}</span></div>`).join("") : `<p class="note">No questions yet. Ask the first one.</p>`}
+    ${myQs.map(q => `<div class="qa mine"><p><b>Your question:</b> ${esc(q.q)}</p><span class="note">Waiting for an answer. We'll email you.</span></div>`).join("")}
+    ${USER ? `<form class="qform" data-askq="${esc(p.id)}" novalidate><label>Ask a question about this item<textarea name="q" maxlength="500" rows="2" required placeholder="e.g. Does it come with a charger?"></textarea></label><div data-actmsg hidden></div><button class="btn small" type="submit">Ask</button></form>`
+      : `<button class="linkbtn" type="button" data-auth="signin" data-next="item">Sign in to ask a question</button>`}
+  </section>`;
+}
+function reviewFormHTML(itemId, orderId){
+  return `<form class="revform" data-review="${esc(itemId)}" data-revorder="${esc(orderId)}" novalidate><h3>Write a review</h3>
+    <div class="starpick" role="radiogroup" aria-label="Your rating">${[1,2,3,4,5].map(i => `<label><input type="radio" name="stars" value="${i}" required><span>★</span></label>`).join("")}</div>
+    <label>Title<input name="title" maxlength="80" placeholder="e.g. Works like new"></label>
+    <label>Your review<textarea name="text" maxlength="1500" rows="3" required></textarea></label>
+    <p class="note">Your first name shows with the review. Nojan checks reviews before they appear.</p>
+    <div data-actmsg hidden></div><button class="btn small" type="submit">Send review</button></form>`;
+}
+
+/* ---- 15. Promo codes (set in Admin → Feedback & promos; stored with the site settings) ---- */
+var PROMO = null;
+function promoList(){ return Array.isArray(SITE.promos) ? SITE.promos.filter(x => x && x.code && x.active !== false) : []; }
+function promoCheck(code){
+  code = String(code || "").trim().toUpperCase(); if (!code) return {err: "Enter a code."};
+  const p = promoList().find(x => String(x.code).toUpperCase() === code); if (!p) return {err: "That code isn't valid."};
+  if (p.ends && Date.now() > Date.parse(p.ends + "T23:59:59")) return {err: "That code has expired."};
+  if (p.firstOnly && (!USER || (MY.orders || []).some(o => o.status !== "Cancelled"))) return {err: USER ? "That code is for a first order only." : "Sign in to use that code."};
+  const sub = cartItems().reduce((a, x) => a + (x.p.price || 0) * x.q, 0);
+  if (p.min && sub < +p.min) return {err: `That code needs an order of ${money(+p.min)} or more.`};
+  return {ok: p};
+}
+function promoOff(sub){ if (!PROMO) return 0; const c = promoCheck(PROMO.code); if (!c.ok){ PROMO = null; return 0; } const p = c.ok; return Math.min(sub, +(p.pct ? sub * (+p.pct) / 100 : +p.amount || 0).toFixed(2)); }
+function promoBoxHTML(){
+  return `<div class="promobox">${PROMO ? `<div class="sum"><span>Code <b>${esc(PROMO.code)}</b> applied</span><button class="linkbtn" type="button" data-promooff>Remove</button></div>`
+    : `<form id="promoForm" class="promoform" novalidate><input name="code" placeholder="Promo code" aria-label="Promo code" autocomplete="off" maxlength="20"><button class="btn small ghost" type="submit" style="color:var(--fg)">Apply</button></form><div data-actmsg hidden></div>`}</div>`;
+}
+
+/* ---- 16. Pickup time at checkout ---- */
+function pickupSlots(){
+  const cfg = SITE.pickup || {weekday: ["5–7 pm", "7–9 pm"], weekend: ["10 am–1 pm", "1–4 pm", "4–7 pm"], days: 7};
+  const out = [], d = new Date(); d.setHours(12, 0, 0, 0);
+  for (let i = 1; i <= (cfg.days || 7); i++){ const x = new Date(d.getTime() + i * 864e5), we = x.getDay() === 0 || x.getDay() === 6;
+    (we ? cfg.weekend : cfg.weekday).forEach(w => out.push(x.toLocaleDateString("en-CA", {weekday: "short", month: "short", day: "numeric"}) + ", " + w)); }
+  return out;
+}
+function pickupSelectHTML(){
+  return `<label>Pickup time <small>(we confirm it with you)</small><select id="o-slot" name="pickupSlot"><option value="">Contact me to arrange a time</option>${pickupSlots().map(s => `<option>${esc(s)}</option>`).join("")}</select></label>`;
+}
+
+/* ---- 17. Report a problem with an order ---- */
+const PROBLEMS = ["It doesn't work", "Something is missing", "Not as described", "Damaged", "Wrong item", "Other"];
+function problemFormHTML(o){
+  const done = myArr("problems").filter(x => x.orderId === o.id).pop();
+  if (done) return `<p class="note probdone">You reported a problem on ${esc(done.date)}: ${esc(done.reason)}. We'll get back to you by email.</p>`;
+  return `<details class="actmore"><summary class="linkbtn">Report a problem</summary><form class="actform" data-problem="${esc(o.id)}" novalidate>
+    <label>What's wrong?<select name="reason">${PROBLEMS.map(r => `<option>${r}</option>`).join("")}</select></label>
+    <label>Tell us more<textarea name="text" maxlength="1500" rows="3" required></textarea></label>
+    <div data-actmsg hidden></div><button class="btn small" type="submit">Send to Nojan</button></form></details>`;
+}
+
+/* ---- Admin → Feedback & promos ---- */
+const FBK = {notes: null};
+function fbkRejected(){ return (FBK.notes && Array.isArray(FBK.notes.rejected)) ? FBK.notes.rejected : []; }
+function fbkLoad(){ if (FBK.notes || !FB || !FB.getNote) return; FBK.notes = {rejected: []}; FB.getNote("_feedback").then(t => { try { FBK.notes = JSON.parse(t || "{}") || {}; } catch (_) { FBK.notes = {}; } if (!Array.isArray(FBK.notes.rejected)) FBK.notes.rejected = []; refreshAdmin(true); }).catch(() => {}); }
+async function fbkSaveNotes(){ await FB.saveNote("_feedback", JSON.stringify(FBK.notes || {})); }
+function fbkPending(){
+  const out = {reviews: [], questions: [], problems: [], alerts: []}, rej = fbkRejected();
+  (ADM.users || []).forEach(u => {
+    (u.reviews || []).forEach(r => { const p = (ALL_PRODUCTS || []).find(x => x.id === r.itemId); if (!rej.includes(r.id) && !(p && (p.reviews || []).some(x => x.id === r.id))) out.reviews.push({...r, uid: u.id, email: u.email, p}); });
+    (u.questions || []).forEach(q => { const p = (ALL_PRODUCTS || []).find(x => x.id === q.itemId); if (!rej.includes(q.id) && !(p && (p.qa || []).some(x => x.id === q.id))) out.questions.push({...q, uid: u.id, email: u.email, p}); });
+    (u.problems || []).forEach(x => { if (!rej.includes(x.id)) out.problems.push({...x, uid: u.id, email: u.email}); });
+    Object.entries(u.alerts || {}).forEach(([id, a]) => { if (a && (a.back || a.drop)) out.alerts.push({id, ...a, uid: u.id, email: u.email, p: (ALL_PRODUCTS || []).find(x => x.id === id)}); });
+  });
+  return out;
+}
+function feedbackAdminHTML(){
+  fbkLoad();
+  if (!ADM.users) return `<div class="empty">Loading…</div>`;
+  const P = fbkPending(), promos = Array.isArray(SITE.promos) ? SITE.promos : [];
+  return `<div class="fbkgrid">
+    <section class="panel"><h2>Reviews to check (${P.reviews.length})</h2>${P.reviews.map(r => `<div class="fbkrow"><div>${starsHTML(r.stars)} <b>${esc(r.title || "")}</b><p>${esc(r.text)}</p><span class="note">${esc(r.name || "")} · ${esc(r.email || "")} · ${esc(r.p ? r.p.name : r.itemId)} · ${esc(r.date || "")}</span></div>
+      <div class="fbkbtns"><button class="btn small" type="button" data-revok="${esc(r.id)}" data-ruid="${esc(r.uid)}">Publish</button><button class="linkbtn" type="button" data-fbkno="${esc(r.id)}">Don't publish</button></div></div>`).join("") || `<p class="note">Nothing waiting.</p>`}</section>
+    <section class="panel"><h2>Questions to answer (${P.questions.length})</h2>${P.questions.map(q => `<form class="fbkrow" data-answer="${esc(q.id)}" data-quid="${esc(q.uid)}" novalidate><div><p><b>${esc(q.q)}</b></p><span class="note">${esc(q.name || "")} · ${esc(q.email || "")} · ${esc(q.p ? q.p.name : q.itemId)} · ${esc(q.date || "")}</span>
+      <textarea name="a" rows="2" maxlength="1000" required placeholder="Your answer (shown on the item page)"></textarea></div><div class="fbkbtns"><button class="btn small" type="submit">Answer and publish</button><button class="linkbtn" type="button" data-fbkno="${esc(q.id)}">Remove</button></div></form>`).join("") || `<p class="note">Nothing waiting.</p>`}</section>
+    <section class="panel"><h2>Problems reported (${P.problems.length})</h2>${P.problems.map(x => `<div class="fbkrow"><div><b>Order #${esc(String(x.orderNo || ""))} · ${esc(x.reason)}</b><p>${esc(x.text)}</p><span class="note">${esc(x.name || "")} · <a href="mailto:${esc(x.email || "")}">${esc(x.email || "")}</a> · ${esc(x.date || "")}</span></div><div class="fbkbtns"><button class="linkbtn" type="button" data-fbkno="${esc(x.id)}">Mark handled</button></div></div>`).join("") || `<p class="note">No open problems.</p>`}</section>
+    <section class="panel"><h2>Alerts customers asked for (${P.alerts.length})</h2><p class="note">Emails go out by themselves when you put an item back in stock or lower its price here in Admin.</p>${P.alerts.map(a => `<div class="fbkrow"><div><b>${esc(a.p ? a.p.name : a.id)}</b><span class="note">${esc(a.email || "")} · ${[a.back ? "back in stock" : "", a.drop ? "price drop" : ""].filter(Boolean).join(", ")}</span></div></div>`).join("") || `<p class="note">None yet.</p>`}</section>
+    <section class="panel"><h2>Promo codes</h2><p class="note">Codes are checked at checkout. Anyone who knows a code can use it, so share them on purpose. Remember to check the total before taking payment.</p>
+      ${promos.map((x, i) => `<div class="fbkrow"><div><b>${esc(x.code)}</b> · ${x.pct ? esc(String(x.pct)) + "% off" : money(+x.amount || 0) + " off"}${x.firstOnly ? " · first order only" : ""}${x.min ? " · min " + money(+x.min) : ""}${x.ends ? " · ends " + esc(x.ends) : ""}${x.active === false ? " · <i>off</i>" : ""}</div><div class="fbkbtns"><button class="linkbtn" type="button" data-promotoggle="${i}">${x.active === false ? "Turn on" : "Turn off"}</button><button class="linkbtn" type="button" data-promodel="${i}" style="color:var(--danger)">Delete</button></div></div>`).join("") || `<p class="note">No codes yet.</p>`}
+      <form id="promoAdd" class="promoadd" novalidate><input name="code" placeholder="CODE" maxlength="20" required><input name="pct" type="number" min="1" max="90" placeholder="% off"><input name="amount" type="number" min="1" step="0.01" placeholder="or $ off"><input name="min" type="number" min="0" step="0.01" placeholder="Min order $"><input name="ends" type="date" title="Last day"><label class="actcheck" style="border:0;padding:0"><input type="checkbox" name="firstOnly"><span>First order only</span></label><button class="btn small" type="submit">Add code</button><div data-actmsg hidden></div></form></section>
+  </div>`;
+}
+
+/* ---- Alerts: email customers when an admin puts an item back in stock or lowers its price ---- */
+const ALR = {prev: null, sending: false};
+function alertScan(list){
+  if (!isAdmin() || !ADM.users) { ALR.prev = ALR.prev || new Map(list.map(p => [p.id, {stock: stockOf(p.id), price: p.price}])); return; }
+  const prev = ALR.prev; ALR.prev = new Map(list.map(p => [p.id, {stock: stockOf(p.id), price: p.price}])); if (!prev) return;
+  fbkLoad(); const sent = (FBK.notes && FBK.notes.sent) || {};
+  const jobs = [];
+  (ADM.users || []).forEach(u => Object.entries(u.alerts || {}).forEach(([id, a]) => { const was = prev.get(id), now = ALR.prev.get(id), p = list.find(x => x.id === id); if (!was || !now || !p || !u.email) return;
+    if (a.back && was.stock <= 0 && now.stock > 0 && !sent[u.id + id + "b" + now.stock]) jobs.push({u, p, kind: "back", key: u.id + id + "b" + now.stock});
+    if (a.drop && now.price != null && was.price != null && now.price < was.price && now.price < (+a.price || Infinity) && !sent[u.id + id + "d" + now.price]) jobs.push({u, p, kind: "drop", key: u.id + id + "d" + now.price}); }));
+  if (!jobs.length) return;
+  FBK.notes.sent = sent;
+  jobs.forEach(j => { sent[j.key] = new Date().toISOString();
+    sendEmail(j.kind === "back" ? `Back in stock: ${j.p.name}` : `Price drop: ${j.p.name}`, {Item: j.p.name, Price: j.p.price == null ? "Ask for price" : money(j.p.price), Note: j.kind === "back" ? "You asked us to tell you when this item is back. Items sell fast, so order soon." : "You asked us to tell you if the price drops.", "See the item": location.origin + "/item-" + j.p.id, _cc: j.u.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {}); });
+  fbkSaveNotes().catch(() => {});
+  toast(`${jobs.length} customer alert email${jobs.length > 1 ? "s" : ""} sent`);
+}
+
+/* ---- Events ---- */
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button, a[data-toreviews]"); if (!b) return;
+  if (b.hasAttribute("data-toreviews")){ const s = document.getElementById("reviews"); if (s){ e.preventDefault(); s.scrollIntoView({behavior: "smooth"}); } return; }
+  if (b.hasAttribute("data-rvclear")){ try { localStorage.removeItem(RV_KEY()); } catch (_) {} render(); return; }
+  if (b.dataset.alert){ e.preventDefault(); e.stopPropagation();
+    if (!USER){ toast("Sign in to get an email alert"); afterLogin = "item"; authMode = "signin"; go("account"); return; }
+    const id = b.dataset.aid, p = PRODUCTS.find(x => x.id === id), all = {...((PROFILE && PROFILE.alerts) || {})}, cur = {...(all[id] || {})}, k = b.dataset.alert;
+    cur[k] = !cur[k]; if (k === "drop") cur.price = p ? p.price : null; cur.at = new Date().toISOString(); all[id] = cur;
+    try { await mySave("alerts", all); toast(cur[k] ? (k === "back" ? "We'll email you when it's back" : "We'll email you if the price drops") : "Alert stopped"); render(); } catch (er){ console.error(er); toast("Couldn't save. Try again."); }
+    return; }
+  if (b.dataset.alertoff){ const all = {...((PROFILE && PROFILE.alerts) || {})}; delete all[b.dataset.alertoff]; try { await mySave("alerts", all); render(); } catch (_) { toast("Couldn't save. Try again."); } return; }
+  if (b.hasAttribute("data-promooff")){ PROMO = null; render(); return; }
+  if (b.dataset.revok){ const r = fbkPending().reviews.find(x => x.id === b.dataset.revok); if (!r || !r.p) return toast("Item not found");
+    const pub = {id: r.id, stars: +r.stars, title: r.title || "", text: r.text, name: r.name || "Customer", date: r.date || ""};
+    try { await FB.updateProduct(r.p.id, {reviews: [...(r.p.reviews || []), pub]}); toast("Review published"); } catch (er){ console.error(er); toast("Couldn't publish"); } return; }
+  if (b.dataset.fbkno){ fbkLoad(); FBK.notes.rejected = [...fbkRejected(), b.dataset.fbkno]; try { await fbkSaveNotes(); refreshAdmin(true); } catch (_) { toast("Couldn't save"); } return; }
+  if (b.dataset.promotoggle != null || b.dataset.promodel != null){ const list = [...(Array.isArray(SITE.promos) ? SITE.promos : [])];
+    if (b.dataset.promodel != null){ if (!confirm("Delete this code?")) return; list.splice(+b.dataset.promodel, 1); } else { const i = +b.dataset.promotoggle; list[i] = {...list[i], active: list[i].active === false}; }
+    if (await saveSite({promos: list}, null, "Saved")) refreshAdmin(true); return; }
+}, true);
+document.addEventListener("submit", async e => {
+  const f = e.target; const kind = f.id === "promoForm" ? "promo" : f.id === "promoAdd" ? "promoadd" : f.dataset.askq ? "ask" : f.dataset.review ? "review" : f.dataset.problem ? "problem" : f.dataset.answer ? "answer" : "";
+  if (!kind) return; e.preventDefault(); e.stopImmediatePropagation();
+  const d = Object.fromEntries(new FormData(f)), m = f.querySelector("[data-actmsg]") || (f.nextElementSibling && f.nextElementSibling.matches("[data-actmsg]") ? f.nextElementSibling : null), btn = f.querySelector("button[type=submit]");
+  const say = (ok, t) => m ? showMsg(m, ok, t) : toast(t);
+  const today = new Date().toLocaleDateString("en-CA", {month: "short", day: "numeric", year: "numeric"});
+  const first = String((PROFILE && PROFILE.name) || (USER && USER.displayName) || "Customer").trim().split(/\s+/)[0];
+  if (btn) btn.disabled = true;
+  try {
+    if (kind === "promo"){ const c = promoCheck(d.code); if (c.err) throw {msg: c.err}; PROMO = {code: c.ok.code}; render(); toast("Code applied"); return; }
+    if (kind === "ask"){ const q = (d.q || "").trim(); if (q.length < 5) throw {msg: "Please write your question."};
+      const it = PRODUCTS.find(x => x.id === f.dataset.askq), item = {id: v129uid(), itemId: f.dataset.askq, q: q.slice(0, 500), name: first, date: today};
+      await mySave("questions", [...myArr("questions"), item].slice(-50));
+      sendEmail(`New question about ${it ? it.name : "an item"}`, {Item: it ? it.name : item.itemId, Question: q, From: first + " · " + (USER.email || ""), "Answer it": location.origin + "/admin", _replyto: USER.email}).catch(() => {});
+      render(); toast("Question sent. We'll email you the answer."); return; }
+    if (kind === "review"){ const stars = +d.stars; if (!(stars >= 1 && stars <= 5)) throw {msg: "Choose 1 to 5 stars."}; const text = (d.text || "").trim(); if (text.length < 10) throw {msg: "Please write a few words."};
+      const it = PRODUCTS.find(x => x.id === f.dataset.review), item = {id: v129uid(), itemId: f.dataset.review, orderId: f.dataset.revorder || "", stars, title: (d.title || "").trim().slice(0, 80), text: text.slice(0, 1500), name: first, date: today};
+      await mySave("reviews", [...myArr("reviews"), item].slice(-50));
+      sendEmail(`New review (${stars}★) for ${it ? it.name : "an item"}`, {Item: it ? it.name : item.itemId, Stars: String(stars), Review: text, From: first + " · " + (USER.email || ""), "Check it": location.origin + "/admin", _replyto: USER.email}).catch(() => {});
+      render(); toast("Thanks! Your review shows once Nojan checks it."); return; }
+    if (kind === "problem"){ const o = (MY.orders || []).find(x => x.id === f.dataset.problem); const text = (d.text || "").trim(); if (!o) return; if (text.length < 5) throw {msg: "Please tell us what happened."};
+      const item = {id: v129uid(), orderId: o.id, orderNo: o.number, reason: d.reason, text: text.slice(0, 1500), name: first, date: today};
+      await mySave("problems", [...myArr("problems"), item].slice(-50));
+      await sendEmail(`Problem with order #${o.number}: ${d.reason}`, {Order: "#" + o.number, Problem: d.reason, Details: text, Name: o.name, Phone: o.phone, Email: o.email, _replyto: o.email});
+      render(); toast("Sent. We'll get back to you by email."); return; }
+    if (kind === "answer"){ const a = (d.a || "").trim(); if (a.length < 2) throw {msg: "Write an answer."}; const q = fbkPending().questions.find(x => x.id === f.dataset.answer); if (!q || !q.p) throw {msg: "Item not found."};
+      await FB.updateProduct(q.p.id, {qa: [...(q.p.qa || []), {id: q.id, q: q.q, a: a.slice(0, 1000), date: today}]});
+      if (q.email) sendEmail(`Answer to your question about ${q.p.name}`, {Item: q.p.name, "Your question": q.q, Answer: a, "See the item": location.origin + "/item-" + q.p.id, _cc: q.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {});
+      toast("Answer published"); refreshAdmin(true); return; }
+    if (kind === "promoadd"){ const code = (d.code || "").trim().toUpperCase().replace(/[^A-Z0-9-]/g, ""); if (code.length < 3) throw {msg: "Use 3 or more letters or numbers."};
+      if (!(+d.pct > 0) && !(+d.amount > 0)) throw {msg: "Enter a % off or a $ amount off."};
+      const list = [...(Array.isArray(SITE.promos) ? SITE.promos : [])].filter(x => String(x.code).toUpperCase() !== code);
+      list.push({code, pct: +d.pct > 0 ? +d.pct : 0, amount: +d.pct > 0 ? 0 : +d.amount, min: +d.min || 0, ends: d.ends || "", firstOnly: !!d.firstOnly, active: true});
+      if (await saveSite({promos: list}, null, "Code added")) refreshAdmin(true); return; }
+  } catch (er){ console.error(er); say(false, er && er.msg ? er.msg : "Couldn't save. Try again."); }
+  if (btn) btn.disabled = false;
+}, true);
+
+/* v129: page add-ons (recently viewed on Home, Shop and item pages; reviews and questions on item pages) */
+(() => { const _item = views.item, _shop = views.shop, _home = views.home;
+  views.item = function(){ const h = _item.apply(this, arguments); if (String(itemId).startsWith("m-")) return h; const p = PRODUCTS.find(x => x.id === itemId); if (!p || p.member) return h; rvAdd(p.id); return h + itemExtrasHTML(p) + rvHTML(p.id); };
+  views.shop = function(){ return _shop.apply(this, arguments) + rvHTML(); };
+  if (_home) views.home = function(){ return _home.apply(this, arguments) + rvHTML(); };
+})();
