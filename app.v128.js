@@ -274,7 +274,7 @@ function saveCart(){ try { localStorage.setItem("shopCart2", JSON.stringify(cart
 function cartItems(){ return Object.entries(cart).map(([id,c]) => ({p:PRODUCTS.find(x=>x.id===id) || c.snap, q:c.q})).filter(x=>x.p && x.q>0); }
 function updateCount(){ const n = cartItems().reduce((a,x)=>a+x.q,0); $("#cartCount").textContent = n;
   { const bt = $("#bagTxt"); if (bt) bt.textContent = n ? `${n} item${n === 1 ? "" : "s"} in your bag · ${money(totals().sub)}` : "Your bag is empty"; } document.querySelectorAll("[data-cartnum]").forEach(el=>{ el.textContent=n; el.toggleAttribute("data-zero", n===0); }); }
-function totals(){ const it = cartItems(); const sub = it.reduce((a,x)=>a+(x.p.price||0)*x.q,0); const tax = sub*HST_RATE; const unpriced = it.filter(x=>x.p.price==null).length; return {sub,tax,total:sub+tax,unpriced}; }
+function totals(){ const it = cartItems(); const sub = it.reduce((a,x)=>a+(x.p.price||0)*x.q,0); const off = promoOff(sub), net = sub - off; const tax = net*HST_RATE; const unpriced = it.filter(x=>x.p.price==null).length; return {sub,off,net,tax,total:net+tax,unpriced}; }   // v129: promo code discount before tax
 const lineTotal = (p,q) => p.price==null ? "Price on request" : money(p.price*q);
 const unpricedNote = t => t.unpriced ? `<p class="note">${t.unpriced} item${t.unpriced>1?"s are":" is"} priced on request and not included in the total.</p>` : "";
 const TRASH = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
@@ -918,7 +918,8 @@ const views = {
               <select id="o-pref" name="contact_preference"><option>Phone call</option><option>Text message</option><option>Email</option></select>
             </label>
           </div>
-          <label>Notes <small>(optional — pickup time, questions)</small><textarea id="o-notes" name="notes"></textarea></label>
+          ${pickupSelectHTML()}
+          <label>Notes <small>(optional — questions)</small><textarea id="o-notes" name="notes"></textarea></label>
           <p class="note">By placing an order you agree to our <a href="#terms">Terms</a> and to <a href="#returns">Test before you pay</a>.</p>
           <div id="orderMsg" hidden></div>
           <button class="btn primary" type="submit" id="orderSubmit">Place order request</button>
@@ -930,6 +931,7 @@ const views = {
       <aside class="panel">
         <h2>Order summary</h2>
         ${items.map(({p,q})=>`<div class="sum"><span style="min-width:0">${q} × ${esc(p.name)}</span><span>${lineTotal(p,q)}</span></div>`).join("")}
+        ${USER ? promoBoxHTML() : ""}
         ${taxLinesHTML(t)}
         ${nextStepsHTML()}
       </aside>
@@ -969,6 +971,7 @@ const views = {
       <div class="iteminfo">
         <span class="badge">${used ? "Used" + (p.grade ? " · " + esc(p.grade) : "") : "Brand new"}</span>
         <h1>${esc(p.name)}</h1>
+        ${reviewSummary(p)}
         <p class="soldby">Sold by <b>Nojan</b> ${certBadge(true)}</p>
         ${itemIdLine(p)}${offersOf(p).length > 1 ? `<p class="itemid"><button type="button" class="linkbtn coffers" data-gooffers>See all ${offersOf(p).length} offers for this item ›</button></p>` : ""}
         ${summary ? `<p class="lead">${esc(summary)}</p>` : ""}
@@ -980,6 +983,7 @@ const views = {
         <div class="qtyrow"><span>Quantity</span><span class="qty"><button type="button" data-iq="-1" aria-label="One fewer"${out ? " disabled" : ""}>−</button><span id="iqv">${ITEMQ.q}</span><button type="button" data-iq="1" aria-label="One more"${out ? " disabled" : ""}>+</button></span></div>
         <button type="button" class="btn bagbtn" data-addbag="${esc(p.id)}"${out ? " disabled" : ""}>${out ? "Sold out" : ITEMQ.added ? "Added to Bag ✓" : "Add to Bag"}</button>
         ${wishWide(p.id)}
+        ${alertsHTML(p)}
         <div class="infobox">
           <div><span class="ibic">${ICP}</span><span><b>Local pickup</b><br><span>We'll email you to confirm a pickup time, or ask about local delivery.</span></span></div>
           <div><span class="ibic alt">${ICC}</span><span><b>Pay at pickup</b><br><span>e-Transfer or cash, after you test the item. Nothing is charged online.</span></span></div>
@@ -1117,7 +1121,8 @@ document.addEventListener("submit", async e => {
         uid: USER.uid, name: d.name.trim(), email: d.email.trim(), phone: d.phone.trim(), city: (d.city||"").trim(),
         contactBy: d.contact_preference, notes: (d.notes||"").trim(),
         items: its.map(({p,q}) => ({id:p.id, name:p.name, condition:p.condition, qty:q, price:p.price==null?null:p.price, image:(/^https?:/.test(refsOf(p)[0]||"") ? refsOf(p)[0] : "")})),
-        subtotal: +t.sub.toFixed(2), tax: +t.tax.toFixed(2), total: +t.total.toFixed(2), unpriced: t.unpriced
+        subtotal: +t.sub.toFixed(2), tax: +t.tax.toFixed(2), total: +t.total.toFixed(2), unpriced: t.unpriced,
+        pickupSlot: (d.pickupSlot || "").slice(0, 60), ...(t.off ? {promo: PROMO.code, discount: +t.off.toFixed(2)} : {})
       });
     } catch(err) {
       console.error(err);
@@ -1128,11 +1133,11 @@ document.addEventListener("submit", async e => {
     PROFILE = {...(PROFILE||{}), name:d.name.trim(), phone:d.phone.trim(), city:(d.city||"").trim()};
     sendEmail(`New order #${placed.number} from ${d.name} — ${money(t.total)}`, {
       Order:"#"+placed.number, Name:d.name, Phone:d.phone, Email:d.email, City:d.city, "Contact by":d.contact_preference,
-      Items:lines, Total:money(t.total)+(t.unpriced?` (+${t.unpriced} item(s) priced on request)`:""), Notes:d.notes||"—",
+      Items:lines, "Pickup time": d.pickupSlot || "Contact me to arrange", ...(t.off ? {Promo: PROMO.code + " (−" + money(t.off) + ")"} : {}), Total:money(t.total)+(t.unpriced?` (+${t.unpriced} item(s) priced on request)`:""), Notes:d.notes||"—",
       "Manage it":location.origin + "/#admin", _replyto:d.email
     }).catch(()=>{});
     lastOrderNo = placed.number;
-    cart = {}; saveCart(); go("thanks");
+    PROMO = null; cart = {}; saveCart(); go("thanks");
   }
   if (f.id === "contactForm"){
     e.preventDefault();
@@ -4035,10 +4040,13 @@ function myOrdersList(){
       <div class="obody">
         ${ordTimeline(o)}
         <p class="note" style="color:var(--fg)">${esc(STATUS_TEXT[o.status] || "")}</p>
+        ${o.pickupSlot && !["Completed", "Cancelled"].includes(o.status) ? `<p class="note">Pickup time you asked for: <b>${esc(o.pickupSlot)}</b></p>` : ""}
         ${orderItemsHTML(o)}
         <div class="ordacts"><a class="btn small" href="#receipt-o-${o.id}">${o.paid ? "Receipt (paid)" : "Receipt"}</a>
         ${["Completed", "Cancelled"].includes(o.status) && ordBuyAgainOk(o) ? `<button class="btn small ghost" type="button" data-buyagain="${o.id}" style="color:var(--fg)">Buy again</button>` : ""}
         ${ordCanCancel(o) ? `<button class="linkbtn" type="button" data-cancel2="${o.id}" style="color:var(--danger)">Cancel this order</button>` : ""}</div>
+        ${o.status === "Completed" ? `<div class="ordrev">${(o.items || []).filter(it => PRODUCTS.find(p => p.id === it.id)).map(it => myArr("reviews").some(r => r.itemId === it.id) ? `<span class="note">✓ You reviewed ${esc(it.name)}</span>` : `<a class="linkbtn" href="#item-${esc(it.id)}">★ Review ${esc(it.name)}</a>`).join("")}</div>` : ""}
+        ${["Ready for pickup", "Completed"].includes(o.status) ? problemFormHTML(o) : ""}
       </div>
     </details>`).join("")}</div>`;
 }
@@ -4063,7 +4071,7 @@ function adminView(){
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
   return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them. <button class="linkbtn" type="button" data-backup>Download backup</button></p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="billing" aria-pressed="${ADM.tab==="billing"}">Billing</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
+    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="billing" aria-pressed="${ADM.tab==="billing"}">Billing</button><button type="button" data-atab="feedback" aria-pressed="${ADM.tab==="feedback"}">Feedback &amp; promos</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
 }
@@ -4092,6 +4100,7 @@ function adminBody(){
   if (ADM.tab === "bookings") return adminBookingsHTML();
   if (ADM.tab === "billing") return (!ADM.orders || !ADM.bookings) ? `<div class="empty">Loading…</div>` : billingAdminHTML();   // v122
   if (ADM.tab === "providers") return providersAdminHTML();
+  if (ADM.tab === "feedback") return feedbackAdminHTML();   // v129
   if (ADM.tab === "events") return eventsAdminHTML();
   if (ADM.tab === "dating") return datingAdminHTML();
   if (ADM.tab === "homes") return homesAdminHTML();
@@ -4127,6 +4136,7 @@ function adminOrderHTML(o){
           <a href="mailto:${esc(o.email||"")}?subject=${encodeURIComponent("Your Nojan order #"+o.number)}">${esc(o.email||"")}</a>
           <span class="note">${esc(o.city || "City not given")} · prefers ${esc(o.contactBy || "any")}</span>
           ${o.notes ? `<span class="note" style="color:var(--fg)">“${esc(o.notes)}”</span>` : ""}
+          <span class="note" style="color:var(--fg)">Pickup: ${esc(o.pickupSlot || "contact to arrange")}${o.promo ? ` · Promo ${esc(o.promo)} −${money(o.discount || 0)}` : ""}</span>
         </div>
         <div class="obox"><h3>Items</h3>${orderItemsHTML(o)}</div>
       </div>
@@ -5718,7 +5728,7 @@ function liveStart(){
     SITE = list.find(d => d.id === "_site") || {}; list = list.filter(d => !String(d.id).startsWith("_"));
     CAT.gotP = true; catSchedule();
     if (!list.length){ ALL_PRODUCTS = []; loadFromSheet(); if (current() === "admin") refreshAdmin(); return; }
-    useProducts(list);
+    useProducts(list); try { alertScan(list); } catch (er){ console.error(er); }   // v129
     if (current() === "admin") refreshAdmin(); else render();
   }, err => { console.error(err); if (!CAT.applied) loadFromSheet(); });
   FB.watchServices(list => {
@@ -6452,7 +6462,8 @@ function taxLinesHTML(t){   // v124: Amazon-style order summary at checkout
   return `<div class="osum">
           <div class="sum"><span>Items (${n}):</span><span>${money(t.sub)}</span></div>
           <div class="sum"><span>Pickup or local delivery:</span><span>${money(0)}</span></div>
-          <div class="sum osumline"><span>Total before tax:</span><span>${money(t.sub)}</span></div>
+          ${t.off ? `<div class="sum promoline"><span>Promo ${esc(PROMO ? PROMO.code : "")}:</span><span>−${money(t.off)}</span></div>` : ""}
+          <div class="sum osumline"><span>Total before tax:</span><span>${money(t.net != null ? t.net : t.sub)}</span></div>
           <div class="sum"><span>Estimated HST:</span><span>${money(t.tax)}</span></div>
           <div class="sum total osumtotal"><span>Order total:</span><span>${money(t.total)}</span></div>
         </div>
@@ -6680,8 +6691,8 @@ function acctListsView(){
   const head = `<div class="sectionhead acthead"><div><h1>Your lists</h1><p>Items you saved for later.</p></div></div>`;
   const note = !USER ? `<p class="note">Your list is saved on this device only. <button class="linkbtn" type="button" data-auth="signin" data-next="acctlists">Sign in</button> to keep it on all your devices.</p>` : "";
   if (!PRODUCTS.length && ids.length) return head + `<div class="empty">Loading your list…</div>`;
-  if (!found.length) return head + note + `<div class="empty">Nothing saved yet. Tap the heart on any item to save it here. <a href="#shop" style="color:var(--link)">Browse the shop</a></div>`;
-  return head + note + `<div class="grid">${productCards(found)}</div>` + (gone.length ? `<p class="note" style="margin-top:12px">${gone.length} saved item${gone.length > 1 ? "s are" : " is"} no longer available. <button class="linkbtn" type="button" data-wishclean>Remove ${gone.length > 1 ? "them" : "it"}</button></p>` : "");
+  if (!found.length) return head + note + myAlertsHTML() + `<div class="empty" style="margin-top:14px">Nothing saved yet. Tap the heart on any item to save it here. <a href="#shop" style="color:var(--link)">Browse the shop</a></div>`;
+  return head + note + `<div class="grid">${productCards(found)}</div>` + myAlertsHTML() + (gone.length ? `<p class="note" style="margin-top:12px">${gone.length} saved item${gone.length > 1 ? "s are" : " is"} no longer available. <button class="linkbtn" type="button" data-wishclean>Remove ${gone.length > 1 ? "them" : "it"}</button></p>` : "");
 }
 document.addEventListener("click", async e => {
   const b = e.target.closest("button"); if (!b) return;
@@ -6694,3 +6705,230 @@ document.addEventListener("click", async e => {
   if (b.dataset.savelater){ const id = b.dataset.savelater; delete cart[id]; saveCart(); if (!wishHas(id)) await wishSet([id, ...wishIds()]); render(); toast("Saved for later"); return; }
   if (b.hasAttribute("data-wishclean")){ await wishSet(wishIds().filter(id => PRODUCTS.find(p => p.id === id))); render(); return; }
 }, true);
+
+/* =========================================================
+   v129: recently viewed, back-in-stock and price-drop alerts, item reviews (verified purchase), questions and answers,
+   promo codes, pickup time at checkout, report a problem.
+   Customers write only to their own account record (users/{uid}); Nojan approves reviews and answers questions in
+   Admin → Feedback, which copies them onto the item, so the public catalog shows them. No new database collections.
+   ========================================================= */
+function v129uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function myArr(k){ return USER && PROFILE && Array.isArray(PROFILE[k]) ? PROFILE[k] : []; }
+async function mySave(k, val){ PROFILE = {...(PROFILE || {}), [k]: val}; await FB.saveProfile(USER.uid, {[k]: val}); }
+function starsHTML(n, big){ n = Math.max(0, Math.min(5, +n || 0)); const full = Math.round(n * 2) / 2;
+  return `<span class="stars${big ? " big" : ""}" aria-label="${n.toFixed(1)} out of 5 stars">${[1,2,3,4,5].map(i => `<span class="${i <= full ? "on" : i - 0.5 === full ? "half" : ""}">★</span>`).join("")}</span>`; }
+
+/* ---- 11. Recently viewed (kept on this device only) ---- */
+function RV_KEY(){ return "nojanRecent"; }
+function rvList(){ try { const a = JSON.parse(localStorage.getItem(RV_KEY()) || "[]"); return Array.isArray(a) ? a : []; } catch (_) { return []; } }
+function rvAdd(id){ if (!id) return; const a = [id, ...rvList().filter(x => x !== id)].slice(0, 12); try { localStorage.setItem(RV_KEY(), JSON.stringify(a)); } catch (_) {} }
+function rvHTML(skip){
+  const items = rvList().filter(id => id !== skip).map(id => PRODUCTS.find(p => p.id === id)).filter(p => p && !p.member).slice(0, 8);
+  if (!items.length) return "";
+  return `<section class="rvsec"><div class="sectionhead hs"><h2>Recently viewed</h2><button class="linkbtn" type="button" data-rvclear>Clear</button></div><div class="grid rvgrid">${productCards(items)}</div></section>`;
+}
+
+/* ---- 12. Alerts: back in stock, price drop ---- */
+function alertOf(id){ const a = (USER && PROFILE && PROFILE.alerts) || {}; return a[id] || null; }
+function alertsHTML(p){
+  const out = stockOf(p.id) <= 0, a = alertOf(p.id);
+  if (!out && p.price == null) return "";
+  return `<div class="alertbox">${out ? `<button type="button" class="btn ghost small${a && a.back ? " on" : ""}" data-alert="back" data-aid="${esc(p.id)}">🔔 ${a && a.back ? "We'll email you when it's back" : "Tell me when it's back"}</button>` : ""}
+    ${p.price != null ? `<button type="button" class="linkbtn${a && a.drop ? " on" : ""}" data-alert="drop" data-aid="${esc(p.id)}">${a && a.drop ? "✓ We'll email you if the price drops" : "Tell me if the price drops"}</button>` : ""}</div>`;
+}
+function myAlertsHTML(){
+  const a = (USER && PROFILE && PROFILE.alerts) || {}, ids = Object.keys(a).filter(id => a[id] && (a[id].back || a[id].drop));
+  if (!ids.length) return "";
+  return `<section class="panel" style="margin-top:18px"><h2>Your alerts</h2>${ids.map(id => { const p = PRODUCTS.find(x => x.id === id), x = a[id];
+    return `<div class="alertrow"><a href="#item-${esc(id)}">${esc(p ? p.name : "An item no longer listed")}</a><span class="note">${[x.back ? "Back in stock" : "", x.drop ? `Price drop (below ${money(x.price || 0)})` : ""].filter(Boolean).join(" · ")}</span><button class="linkbtn" type="button" data-alertoff="${esc(id)}">Stop</button></div>`; }).join("")}</section>`;
+}
+
+/* ---- 13. Reviews (verified purchase) and 14. Questions and answers ---- */
+function itemReviews(p){ return Array.isArray(p.reviews) ? p.reviews.filter(r => r && r.stars) : []; }
+function itemQA(p){ return Array.isArray(p.qa) ? p.qa.filter(q => q && q.a) : []; }
+function reviewSummary(p){ const r = itemReviews(p); if (!r.length) return ""; const avg = r.reduce((a, x) => a + (+x.stars || 0), 0) / r.length;
+  return `<a class="revsum" href="#item-${esc(p.id)}" data-toreviews>${starsHTML(avg)}<span>${avg.toFixed(1)} · ${r.length} review${r.length > 1 ? "s" : ""}</span></a>`; }
+function boughtItem(id){ return (MY.orders || []).some(o => o.status === "Completed" && (o.items || []).some(it => it.id === id)); }
+function itemExtrasHTML(p){
+  startMyOrders();
+  const revs = itemReviews(p), qa = itemQA(p), mine = myArr("reviews").filter(r => r.itemId === p.id), myQs = myArr("questions").filter(q => q.itemId === p.id && !qa.some(x => x.id === q.id));
+  const avg = revs.length ? revs.reduce((a, x) => a + (+x.stars || 0), 0) / revs.length : 0;
+  const canReview = USER && boughtItem(p.id) && !mine.length;
+  return `<section class="panel itemextra" id="reviews"><h2>Customer reviews</h2>
+    ${revs.length ? `<div class="revhead">${starsHTML(avg, true)}<b>${avg.toFixed(1)} out of 5</b><span class="note">${revs.length} review${revs.length > 1 ? "s" : ""}</span></div>` : `<p class="note">No reviews yet.</p>`}
+    ${revs.slice().reverse().map(r => `<div class="rev"><div class="revtop">${starsHTML(r.stars)}<b>${esc(r.title || "")}</b></div><span class="note">${esc(r.name || "Customer")} · ${esc(r.date || "")} · <span class="verified">✓ Verified purchase</span></span><p>${esc(r.text || "")}</p></div>`).join("")}
+    ${mine.length && !revs.some(r => r.id === mine[0].id) ? `<p class="note">Thanks for your review. It shows here once Nojan checks it.</p>` : ""}
+    ${canReview ? reviewFormHTML(p.id, "") : USER ? "" : `<p class="note">Bought this item? Sign in to review it.</p>`}
+  </section>
+  <section class="panel itemextra" id="questions"><h2>Questions and answers</h2>
+    ${qa.length ? qa.slice().reverse().map(q => `<div class="qa"><p><b>Q:</b> ${esc(q.q)}</p><p><b>A:</b> ${esc(q.a)}</p><span class="note">Answered by Nojan · ${esc(q.date || "")}</span></div>`).join("") : `<p class="note">No questions yet. Ask the first one.</p>`}
+    ${myQs.map(q => `<div class="qa mine"><p><b>Your question:</b> ${esc(q.q)}</p><span class="note">Waiting for an answer. We'll email you.</span></div>`).join("")}
+    ${USER ? `<form class="qform" data-askq="${esc(p.id)}" novalidate><label>Ask a question about this item<textarea name="q" maxlength="500" rows="2" required placeholder="e.g. Does it come with a charger?"></textarea></label><div data-actmsg hidden></div><button class="btn small" type="submit">Ask</button></form>`
+      : `<button class="linkbtn" type="button" data-auth="signin" data-next="item">Sign in to ask a question</button>`}
+  </section>`;
+}
+function reviewFormHTML(itemId, orderId){
+  return `<form class="revform" data-review="${esc(itemId)}" data-revorder="${esc(orderId)}" novalidate><h3>Write a review</h3>
+    <div class="starpick" role="radiogroup" aria-label="Your rating">${[1,2,3,4,5].map(i => `<label><input type="radio" name="stars" value="${i}" required><span>★</span></label>`).join("")}</div>
+    <label>Title<input name="title" maxlength="80" placeholder="e.g. Works like new"></label>
+    <label>Your review<textarea name="text" maxlength="1500" rows="3" required></textarea></label>
+    <p class="note">Your first name shows with the review. Nojan checks reviews before they appear.</p>
+    <div data-actmsg hidden></div><button class="btn small" type="submit">Send review</button></form>`;
+}
+
+/* ---- 15. Promo codes (set in Admin → Feedback & promos; stored with the site settings) ---- */
+var PROMO = null;
+function promoList(){ return Array.isArray(SITE.promos) ? SITE.promos.filter(x => x && x.code && x.active !== false) : []; }
+function promoCheck(code){
+  code = String(code || "").trim().toUpperCase(); if (!code) return {err: "Enter a code."};
+  const p = promoList().find(x => String(x.code).toUpperCase() === code); if (!p) return {err: "That code isn't valid."};
+  if (p.ends && Date.now() > Date.parse(p.ends + "T23:59:59")) return {err: "That code has expired."};
+  if (p.firstOnly && (!USER || (MY.orders || []).some(o => o.status !== "Cancelled"))) return {err: USER ? "That code is for a first order only." : "Sign in to use that code."};
+  const sub = cartItems().reduce((a, x) => a + (x.p.price || 0) * x.q, 0);
+  if (p.min && sub < +p.min) return {err: `That code needs an order of ${money(+p.min)} or more.`};
+  return {ok: p};
+}
+function promoOff(sub){ if (!PROMO) return 0; const c = promoCheck(PROMO.code); if (!c.ok){ PROMO = null; return 0; } const p = c.ok; return Math.min(sub, +(p.pct ? sub * (+p.pct) / 100 : +p.amount || 0).toFixed(2)); }
+function promoBoxHTML(){
+  return `<div class="promobox">${PROMO ? `<div class="sum"><span>Code <b>${esc(PROMO.code)}</b> applied</span><button class="linkbtn" type="button" data-promooff>Remove</button></div>`
+    : `<form id="promoForm" class="promoform" novalidate><input name="code" placeholder="Promo code" aria-label="Promo code" autocomplete="off" maxlength="20"><button class="btn small ghost" type="submit" style="color:var(--fg)">Apply</button></form><div data-actmsg hidden></div>`}</div>`;
+}
+
+/* ---- 16. Pickup time at checkout ---- */
+function pickupSlots(){
+  const cfg = SITE.pickup || {weekday: ["5–7 pm", "7–9 pm"], weekend: ["10 am–1 pm", "1–4 pm", "4–7 pm"], days: 7};
+  const out = [], d = new Date(); d.setHours(12, 0, 0, 0);
+  for (let i = 1; i <= (cfg.days || 7); i++){ const x = new Date(d.getTime() + i * 864e5), we = x.getDay() === 0 || x.getDay() === 6;
+    (we ? cfg.weekend : cfg.weekday).forEach(w => out.push(x.toLocaleDateString("en-CA", {weekday: "short", month: "short", day: "numeric"}) + ", " + w)); }
+  return out;
+}
+function pickupSelectHTML(){
+  return `<label>Pickup time <small>(we confirm it with you)</small><select id="o-slot" name="pickupSlot"><option value="">Contact me to arrange a time</option>${pickupSlots().map(s => `<option>${esc(s)}</option>`).join("")}</select></label>`;
+}
+
+/* ---- 17. Report a problem with an order ---- */
+const PROBLEMS = ["It doesn't work", "Something is missing", "Not as described", "Damaged", "Wrong item", "Other"];
+function problemFormHTML(o){
+  const done = myArr("problems").filter(x => x.orderId === o.id).pop();
+  if (done) return `<p class="note probdone">You reported a problem on ${esc(done.date)}: ${esc(done.reason)}. We'll get back to you by email.</p>`;
+  return `<details class="actmore"><summary class="linkbtn">Report a problem</summary><form class="actform" data-problem="${esc(o.id)}" novalidate>
+    <label>What's wrong?<select name="reason">${PROBLEMS.map(r => `<option>${r}</option>`).join("")}</select></label>
+    <label>Tell us more<textarea name="text" maxlength="1500" rows="3" required></textarea></label>
+    <div data-actmsg hidden></div><button class="btn small" type="submit">Send to Nojan</button></form></details>`;
+}
+
+/* ---- Admin → Feedback & promos ---- */
+const FBK = {notes: null};
+function fbkRejected(){ return (FBK.notes && Array.isArray(FBK.notes.rejected)) ? FBK.notes.rejected : []; }
+function fbkLoad(){ if (FBK.notes || !FB || !FB.getNote) return; FBK.notes = {rejected: []}; FB.getNote("_feedback").then(t => { try { FBK.notes = JSON.parse(t || "{}") || {}; } catch (_) { FBK.notes = {}; } if (!Array.isArray(FBK.notes.rejected)) FBK.notes.rejected = []; refreshAdmin(true); }).catch(() => {}); }
+async function fbkSaveNotes(){ await FB.saveNote("_feedback", JSON.stringify(FBK.notes || {})); }
+function fbkPending(){
+  const out = {reviews: [], questions: [], problems: [], alerts: []}, rej = fbkRejected();
+  (ADM.users || []).forEach(u => {
+    (u.reviews || []).forEach(r => { const p = (ALL_PRODUCTS || []).find(x => x.id === r.itemId); if (!rej.includes(r.id) && !(p && (p.reviews || []).some(x => x.id === r.id))) out.reviews.push({...r, uid: u.id, email: u.email, p}); });
+    (u.questions || []).forEach(q => { const p = (ALL_PRODUCTS || []).find(x => x.id === q.itemId); if (!rej.includes(q.id) && !(p && (p.qa || []).some(x => x.id === q.id))) out.questions.push({...q, uid: u.id, email: u.email, p}); });
+    (u.problems || []).forEach(x => { if (!rej.includes(x.id)) out.problems.push({...x, uid: u.id, email: u.email}); });
+    Object.entries(u.alerts || {}).forEach(([id, a]) => { if (a && (a.back || a.drop)) out.alerts.push({id, ...a, uid: u.id, email: u.email, p: (ALL_PRODUCTS || []).find(x => x.id === id)}); });
+  });
+  return out;
+}
+function feedbackAdminHTML(){
+  fbkLoad();
+  if (!ADM.users) return `<div class="empty">Loading…</div>`;
+  const P = fbkPending(), promos = Array.isArray(SITE.promos) ? SITE.promos : [];
+  return `<div class="fbkgrid">
+    <section class="panel"><h2>Reviews to check (${P.reviews.length})</h2>${P.reviews.map(r => `<div class="fbkrow"><div>${starsHTML(r.stars)} <b>${esc(r.title || "")}</b><p>${esc(r.text)}</p><span class="note">${esc(r.name || "")} · ${esc(r.email || "")} · ${esc(r.p ? r.p.name : r.itemId)} · ${esc(r.date || "")}</span></div>
+      <div class="fbkbtns"><button class="btn small" type="button" data-revok="${esc(r.id)}" data-ruid="${esc(r.uid)}">Publish</button><button class="linkbtn" type="button" data-fbkno="${esc(r.id)}">Don't publish</button></div></div>`).join("") || `<p class="note">Nothing waiting.</p>`}</section>
+    <section class="panel"><h2>Questions to answer (${P.questions.length})</h2>${P.questions.map(q => `<form class="fbkrow" data-answer="${esc(q.id)}" data-quid="${esc(q.uid)}" novalidate><div><p><b>${esc(q.q)}</b></p><span class="note">${esc(q.name || "")} · ${esc(q.email || "")} · ${esc(q.p ? q.p.name : q.itemId)} · ${esc(q.date || "")}</span>
+      <textarea name="a" rows="2" maxlength="1000" required placeholder="Your answer (shown on the item page)"></textarea></div><div class="fbkbtns"><button class="btn small" type="submit">Answer and publish</button><button class="linkbtn" type="button" data-fbkno="${esc(q.id)}">Remove</button></div></form>`).join("") || `<p class="note">Nothing waiting.</p>`}</section>
+    <section class="panel"><h2>Problems reported (${P.problems.length})</h2>${P.problems.map(x => `<div class="fbkrow"><div><b>Order #${esc(String(x.orderNo || ""))} · ${esc(x.reason)}</b><p>${esc(x.text)}</p><span class="note">${esc(x.name || "")} · <a href="mailto:${esc(x.email || "")}">${esc(x.email || "")}</a> · ${esc(x.date || "")}</span></div><div class="fbkbtns"><button class="linkbtn" type="button" data-fbkno="${esc(x.id)}">Mark handled</button></div></div>`).join("") || `<p class="note">No open problems.</p>`}</section>
+    <section class="panel"><h2>Alerts customers asked for (${P.alerts.length})</h2><p class="note">Emails go out by themselves when you put an item back in stock or lower its price here in Admin.</p>${P.alerts.map(a => `<div class="fbkrow"><div><b>${esc(a.p ? a.p.name : a.id)}</b><span class="note">${esc(a.email || "")} · ${[a.back ? "back in stock" : "", a.drop ? "price drop" : ""].filter(Boolean).join(", ")}</span></div></div>`).join("") || `<p class="note">None yet.</p>`}</section>
+    <section class="panel"><h2>Promo codes</h2><p class="note">Codes are checked at checkout. Anyone who knows a code can use it, so share them on purpose. Remember to check the total before taking payment.</p>
+      ${promos.map((x, i) => `<div class="fbkrow"><div><b>${esc(x.code)}</b> · ${x.pct ? esc(String(x.pct)) + "% off" : money(+x.amount || 0) + " off"}${x.firstOnly ? " · first order only" : ""}${x.min ? " · min " + money(+x.min) : ""}${x.ends ? " · ends " + esc(x.ends) : ""}${x.active === false ? " · <i>off</i>" : ""}</div><div class="fbkbtns"><button class="linkbtn" type="button" data-promotoggle="${i}">${x.active === false ? "Turn on" : "Turn off"}</button><button class="linkbtn" type="button" data-promodel="${i}" style="color:var(--danger)">Delete</button></div></div>`).join("") || `<p class="note">No codes yet.</p>`}
+      <form id="promoAdd" class="promoadd" novalidate><input name="code" placeholder="CODE" maxlength="20" required><input name="pct" type="number" min="1" max="90" placeholder="% off"><input name="amount" type="number" min="1" step="0.01" placeholder="or $ off"><input name="min" type="number" min="0" step="0.01" placeholder="Min order $"><input name="ends" type="date" title="Last day"><label class="actcheck" style="border:0;padding:0"><input type="checkbox" name="firstOnly"><span>First order only</span></label><button class="btn small" type="submit">Add code</button><div data-actmsg hidden></div></form></section>
+  </div>`;
+}
+
+/* ---- Alerts: email customers when an admin puts an item back in stock or lowers its price ---- */
+const ALR = {prev: null, sending: false};
+function alertScan(list){
+  if (!isAdmin() || !ADM.users) { ALR.prev = ALR.prev || new Map(list.map(p => [p.id, {stock: stockOf(p.id), price: p.price}])); return; }
+  const prev = ALR.prev; ALR.prev = new Map(list.map(p => [p.id, {stock: stockOf(p.id), price: p.price}])); if (!prev) return;
+  fbkLoad(); const sent = (FBK.notes && FBK.notes.sent) || {};
+  const jobs = [];
+  (ADM.users || []).forEach(u => Object.entries(u.alerts || {}).forEach(([id, a]) => { const was = prev.get(id), now = ALR.prev.get(id), p = list.find(x => x.id === id); if (!was || !now || !p || !u.email) return;
+    if (a.back && was.stock <= 0 && now.stock > 0 && !sent[u.id + id + "b" + now.stock]) jobs.push({u, p, kind: "back", key: u.id + id + "b" + now.stock});
+    if (a.drop && now.price != null && was.price != null && now.price < was.price && now.price < (+a.price || Infinity) && !sent[u.id + id + "d" + now.price]) jobs.push({u, p, kind: "drop", key: u.id + id + "d" + now.price}); }));
+  if (!jobs.length) return;
+  FBK.notes.sent = sent;
+  jobs.forEach(j => { sent[j.key] = new Date().toISOString();
+    sendEmail(j.kind === "back" ? `Back in stock: ${j.p.name}` : `Price drop: ${j.p.name}`, {Item: j.p.name, Price: j.p.price == null ? "Ask for price" : money(j.p.price), Note: j.kind === "back" ? "You asked us to tell you when this item is back. Items sell fast, so order soon." : "You asked us to tell you if the price drops.", "See the item": location.origin + "/item-" + j.p.id, _cc: j.u.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {}); });
+  fbkSaveNotes().catch(() => {});
+  toast(`${jobs.length} customer alert email${jobs.length > 1 ? "s" : ""} sent`);
+}
+
+/* ---- Events ---- */
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button, a[data-toreviews]"); if (!b) return;
+  if (b.hasAttribute("data-toreviews")){ const s = document.getElementById("reviews"); if (s){ e.preventDefault(); s.scrollIntoView({behavior: "smooth"}); } return; }
+  if (b.hasAttribute("data-rvclear")){ try { localStorage.removeItem(RV_KEY()); } catch (_) {} render(); return; }
+  if (b.dataset.alert){ e.preventDefault(); e.stopPropagation();
+    if (!USER){ toast("Sign in to get an email alert"); afterLogin = "item"; authMode = "signin"; go("account"); return; }
+    const id = b.dataset.aid, p = PRODUCTS.find(x => x.id === id), all = {...((PROFILE && PROFILE.alerts) || {})}, cur = {...(all[id] || {})}, k = b.dataset.alert;
+    cur[k] = !cur[k]; if (k === "drop") cur.price = p ? p.price : null; cur.at = new Date().toISOString(); all[id] = cur;
+    try { await mySave("alerts", all); toast(cur[k] ? (k === "back" ? "We'll email you when it's back" : "We'll email you if the price drops") : "Alert stopped"); render(); } catch (er){ console.error(er); toast("Couldn't save. Try again."); }
+    return; }
+  if (b.dataset.alertoff){ const all = {...((PROFILE && PROFILE.alerts) || {})}; delete all[b.dataset.alertoff]; try { await mySave("alerts", all); render(); } catch (_) { toast("Couldn't save. Try again."); } return; }
+  if (b.hasAttribute("data-promooff")){ PROMO = null; render(); return; }
+  if (b.dataset.revok){ const r = fbkPending().reviews.find(x => x.id === b.dataset.revok); if (!r || !r.p) return toast("Item not found");
+    const pub = {id: r.id, stars: +r.stars, title: r.title || "", text: r.text, name: r.name || "Customer", date: r.date || ""};
+    try { await FB.updateProduct(r.p.id, {reviews: [...(r.p.reviews || []), pub]}); toast("Review published"); } catch (er){ console.error(er); toast("Couldn't publish"); } return; }
+  if (b.dataset.fbkno){ fbkLoad(); FBK.notes.rejected = [...fbkRejected(), b.dataset.fbkno]; try { await fbkSaveNotes(); refreshAdmin(true); } catch (_) { toast("Couldn't save"); } return; }
+  if (b.dataset.promotoggle != null || b.dataset.promodel != null){ const list = [...(Array.isArray(SITE.promos) ? SITE.promos : [])];
+    if (b.dataset.promodel != null){ if (!confirm("Delete this code?")) return; list.splice(+b.dataset.promodel, 1); } else { const i = +b.dataset.promotoggle; list[i] = {...list[i], active: list[i].active === false}; }
+    if (await saveSite({promos: list}, null, "Saved")) refreshAdmin(true); return; }
+}, true);
+document.addEventListener("submit", async e => {
+  const f = e.target; const kind = f.id === "promoForm" ? "promo" : f.id === "promoAdd" ? "promoadd" : f.dataset.askq ? "ask" : f.dataset.review ? "review" : f.dataset.problem ? "problem" : f.dataset.answer ? "answer" : "";
+  if (!kind) return; e.preventDefault(); e.stopImmediatePropagation();
+  const d = Object.fromEntries(new FormData(f)), m = f.querySelector("[data-actmsg]") || (f.nextElementSibling && f.nextElementSibling.matches("[data-actmsg]") ? f.nextElementSibling : null), btn = f.querySelector("button[type=submit]");
+  const say = (ok, t) => m ? showMsg(m, ok, t) : toast(t);
+  const today = new Date().toLocaleDateString("en-CA", {month: "short", day: "numeric", year: "numeric"});
+  const first = String((PROFILE && PROFILE.name) || (USER && USER.displayName) || "Customer").trim().split(/\s+/)[0];
+  if (btn) btn.disabled = true;
+  try {
+    if (kind === "promo"){ const c = promoCheck(d.code); if (c.err) throw {msg: c.err}; PROMO = {code: c.ok.code}; render(); toast("Code applied"); return; }
+    if (kind === "ask"){ const q = (d.q || "").trim(); if (q.length < 5) throw {msg: "Please write your question."};
+      const it = PRODUCTS.find(x => x.id === f.dataset.askq), item = {id: v129uid(), itemId: f.dataset.askq, q: q.slice(0, 500), name: first, date: today};
+      await mySave("questions", [...myArr("questions"), item].slice(-50));
+      sendEmail(`New question about ${it ? it.name : "an item"}`, {Item: it ? it.name : item.itemId, Question: q, From: first + " · " + (USER.email || ""), "Answer it": location.origin + "/admin", _replyto: USER.email}).catch(() => {});
+      render(); toast("Question sent. We'll email you the answer."); return; }
+    if (kind === "review"){ const stars = +d.stars; if (!(stars >= 1 && stars <= 5)) throw {msg: "Choose 1 to 5 stars."}; const text = (d.text || "").trim(); if (text.length < 10) throw {msg: "Please write a few words."};
+      const it = PRODUCTS.find(x => x.id === f.dataset.review), item = {id: v129uid(), itemId: f.dataset.review, orderId: f.dataset.revorder || "", stars, title: (d.title || "").trim().slice(0, 80), text: text.slice(0, 1500), name: first, date: today};
+      await mySave("reviews", [...myArr("reviews"), item].slice(-50));
+      sendEmail(`New review (${stars}★) for ${it ? it.name : "an item"}`, {Item: it ? it.name : item.itemId, Stars: String(stars), Review: text, From: first + " · " + (USER.email || ""), "Check it": location.origin + "/admin", _replyto: USER.email}).catch(() => {});
+      render(); toast("Thanks! Your review shows once Nojan checks it."); return; }
+    if (kind === "problem"){ const o = (MY.orders || []).find(x => x.id === f.dataset.problem); const text = (d.text || "").trim(); if (!o) return; if (text.length < 5) throw {msg: "Please tell us what happened."};
+      const item = {id: v129uid(), orderId: o.id, orderNo: o.number, reason: d.reason, text: text.slice(0, 1500), name: first, date: today};
+      await mySave("problems", [...myArr("problems"), item].slice(-50));
+      await sendEmail(`Problem with order #${o.number}: ${d.reason}`, {Order: "#" + o.number, Problem: d.reason, Details: text, Name: o.name, Phone: o.phone, Email: o.email, _replyto: o.email});
+      render(); toast("Sent. We'll get back to you by email."); return; }
+    if (kind === "answer"){ const a = (d.a || "").trim(); if (a.length < 2) throw {msg: "Write an answer."}; const q = fbkPending().questions.find(x => x.id === f.dataset.answer); if (!q || !q.p) throw {msg: "Item not found."};
+      await FB.updateProduct(q.p.id, {qa: [...(q.p.qa || []), {id: q.id, q: q.q, a: a.slice(0, 1000), date: today}]});
+      if (q.email) sendEmail(`Answer to your question about ${q.p.name}`, {Item: q.p.name, "Your question": q.q, Answer: a, "See the item": location.origin + "/item-" + q.p.id, _cc: q.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {});
+      toast("Answer published"); refreshAdmin(true); return; }
+    if (kind === "promoadd"){ const code = (d.code || "").trim().toUpperCase().replace(/[^A-Z0-9-]/g, ""); if (code.length < 3) throw {msg: "Use 3 or more letters or numbers."};
+      if (!(+d.pct > 0) && !(+d.amount > 0)) throw {msg: "Enter a % off or a $ amount off."};
+      const list = [...(Array.isArray(SITE.promos) ? SITE.promos : [])].filter(x => String(x.code).toUpperCase() !== code);
+      list.push({code, pct: +d.pct > 0 ? +d.pct : 0, amount: +d.pct > 0 ? 0 : +d.amount, min: +d.min || 0, ends: d.ends || "", firstOnly: !!d.firstOnly, active: true});
+      if (await saveSite({promos: list}, null, "Code added")) refreshAdmin(true); return; }
+  } catch (er){ console.error(er); say(false, er && er.msg ? er.msg : "Couldn't save. Try again."); }
+  if (btn) btn.disabled = false;
+}, true);
+
+/* v129: page add-ons (recently viewed on Home, Shop and item pages; reviews and questions on item pages) */
+(() => { const _item = views.item, _shop = views.shop, _home = views.home;
+  views.item = function(){ const h = _item.apply(this, arguments); if (String(itemId).startsWith("m-")) return h; const p = PRODUCTS.find(x => x.id === itemId); if (!p || p.member) return h; rvAdd(p.id); return h + itemExtrasHTML(p) + rvHTML(p.id); };
+  views.shop = function(){ return _shop.apply(this, arguments) + rvHTML(); };
+  if (_home) views.home = function(){ return _home.apply(this, arguments) + rvHTML(); };
+})();
