@@ -6647,18 +6647,18 @@ document.addEventListener("submit", async e => {
 /* =========================================================
    v128: Your lists (wish list). Signed in: saved in the account (users/{uid}.wishlist). Signed out: on this device; added to the account at sign-in.
    ========================================================= */
-const WISH_KEY = "nojanWish";
-const wishLocal = () => { try { const a = JSON.parse(localStorage.getItem(WISH_KEY) || "[]"); return Array.isArray(a) ? a.filter(x => typeof x === "string") : []; } catch (_) { return []; } };
+function WISH_KEY(){ return "nojanWish"; }
+function wishLocal(){ try { const a = JSON.parse(localStorage.getItem(WISH_KEY()) || "[]"); return Array.isArray(a) ? a.filter(x => typeof x === "string") : []; } catch (_) { return []; } }
 function wishIds(){ return USER && PROFILE ? (Array.isArray(PROFILE.wishlist) ? PROFILE.wishlist : []) : wishLocal(); }
-const wishHas = id => wishIds().includes(id);
-const WISH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
-function wishBtn(id){ const on = wishHas(id); return `<button type="button" class="wishbtn${on ? " on" : ""}" data-wish="${esc(id)}" aria-pressed="${on}" aria-label="${on ? "Remove from your list" : "Save to your list"}" title="${on ? "Remove from your list" : "Save to your list"}">${WISH_SVG}</button>`; }
-function wishWide(id){ const on = wishHas(id); return `<button type="button" class="btn ghost wishwide${on ? " on" : ""}" data-wish="${esc(id)}" aria-pressed="${on}">${WISH_SVG}<span>${on ? "Saved to your list" : "Save to your list"}</span></button>`; }
+function wishHas(id){ return wishIds().includes(id); }
+function WISH_SVG(){ return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>'; }
+function wishBtn(id){ const on = wishHas(id); return `<button type="button" class="wishbtn${on ? " on" : ""}" data-wish="${esc(id)}" aria-pressed="${on}" aria-label="${on ? "Remove from your list" : "Save to your list"}" title="${on ? "Remove from your list" : "Save to your list"}">${WISH_SVG()}</button>`; }
+function wishWide(id){ const on = wishHas(id); return `<button type="button" class="btn ghost wishwide${on ? " on" : ""}" data-wish="${esc(id)}" aria-pressed="${on}">${WISH_SVG()}<span>${on ? "Saved to your list" : "Save to your list"}</span></button>`; }
 async function wishSet(ids){
   ids = [...new Set(ids)].slice(0, 100);
   if (USER && FB){ const before = PROFILE && PROFILE.wishlist; PROFILE = {...(PROFILE || {}), wishlist: ids};
     try { await FB.saveProfile(USER.uid, {wishlist: ids}); } catch (e){ console.error(e); PROFILE = {...(PROFILE || {}), wishlist: before || []}; toast("Couldn't save your list. Try again."); } }
-  else { try { localStorage.setItem(WISH_KEY, JSON.stringify(ids)); } catch (_) {} }
+  else { try { localStorage.setItem(WISH_KEY(), JSON.stringify(ids)); } catch (_) {} }
   wishPaint();
 }
 function wishPaint(){
@@ -6666,12 +6666,12 @@ function wishPaint(){
     if (b.classList.contains("wishwide")){ const s = b.querySelector("span"); if (s) s.textContent = on ? "Saved to your list" : "Save to your list"; }
     else { b.setAttribute("aria-label", on ? "Remove from your list" : "Save to your list"); b.title = on ? "Remove from your list" : "Save to your list"; } });
 }
-let WISH_MERGED = false;
+var WISH_MERGED = false;
 function wishMerge(){   // at sign-in: add what was saved on this device to the account, once
   if (WISH_MERGED || !USER || !PROFILE) return; WISH_MERGED = true;
   const local = wishLocal(); if (!local.length) return;
   const mine = Array.isArray(PROFILE.wishlist) ? PROFILE.wishlist : [];
-  try { localStorage.removeItem(WISH_KEY); } catch (_) {}
+  try { localStorage.removeItem(WISH_KEY()); } catch (_) {}
   if (local.some(x => !mine.includes(x))) wishSet([...mine, ...local]);
 }
 function acctListsView(){
