@@ -6509,7 +6509,7 @@ function ordTimeline(o){
   if (o.status === "Cancelled") return `<div class="otl cancelled"><span class="otlx">Cancelled${(o.history || []).some(h => h.status === "Cancelled" && h.by === "customer") ? " by you" : ""}</span></div>`;
   const at = Math.max(0, ORD_STEPS.findIndex(s => s[1].includes(o.status)));
   const when = st => { const h = (o.history || []).filter(x => st[1].includes(x.status)).pop(); return h && h.at ? new Date(h.at).toLocaleDateString("en-CA", {month: "short", day: "numeric"}) : ""; };
-  return `<ol class="otl" aria-label="Order progress">${ORD_STEPS.map((s, i) => `<li class="${i < at ? "done" : i === at ? "now" : ""}"><span class="otldot"></span><b>${s[0]}</b><small>${i === 0 ? fmtDate(o.createdAt).replace(/,[^,]*$/, "") : i <= at ? when(s) : ""}</small></li>`).join("")}</ol>`;
+  return `<ol class="otl" aria-label="Order progress">${ORD_STEPS.map((s, i) => `<li class="${i < at || o.status === "Completed" ? "done" : i === at ? "now" : ""}"><span class="otldot"></span><b>${s[0]}</b><small>${i <= at ? (when(s) || (i === 0 && o.createdAt ? new Date(o.createdAt.toDate ? o.createdAt.toDate() : o.createdAt).toLocaleDateString("en-CA", {month: "short", day: "numeric"}) : "")) : ""}</small></li>`).join("")}</ol>`;
 }
 const ordCanCancel = o => ["New", "Contacted", "Ready for pickup"].includes(o.status);
 function ordBuyAgainOk(o){ return (o.items || []).some(it => { const p = PRODUCTS.find(x => x.id === it.id); return p && !p.member && stockOf(p.id) > 0; }); }
