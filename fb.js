@@ -2,7 +2,7 @@
 /* Firebase: sign-in (email or Google) and the order database. These keys are public by design;
    the database's security rules decide who can read or change what. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect, sendPasswordResetEmail, sendEmailVerification, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect, sendPasswordResetEmail, sendEmailVerification, updateProfile, signOut, updatePassword, verifyBeforeUpdateEmail, reauthenticateWithCredential, reauthenticateWithPopup, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, initializeFirestore, memoryLocalCache, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, writeBatch, collection, query, where, orderBy, onSnapshot, getDocs, limit, runTransaction, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
@@ -70,6 +70,21 @@ window.SHOP_FB = {
       try { const s = await getDocs(collection(db, "bookings", b.id, "messages")); if (s.size) b._messages = s.docs.map(d => ({id: d.id, ...conv(d.data())})); } catch (_) {}
     }
     return out;
+  },
+  /* v127: Login & security. Each of these asks for the password again (or the Google/Microsoft window) first. */
+  async reauth(pw){
+    const u = auth.currentUser; if (!u) throw {code: "auth/no-user"};
+    const pid = (u.providerData.find(p => p.providerId === "password") ? "password" : (u.providerData[0] || {}).providerId) || "password";
+    if (pid === "password") return reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pw || ""));
+    return reauthenticateWithPopup(u, pid === "microsoft.com" ? microsoft : google);
+  },
+  async setName(name){ await updateProfile(auth.currentUser, {displayName: name}); await setDoc(doc(db, "users", auth.currentUser.uid), {name, updatedAt: serverTimestamp()}, {merge: true}); },
+  async changeEmail(pw, email){ await this.reauth(pw); return verifyBeforeUpdateEmail(auth.currentUser, email, {url: location.origin + "/login-security"}); },
+  async changePassword(pw, npw){ await this.reauth(pw); return updatePassword(auth.currentUser, npw); },
+  async deleteMe(pw){
+    const u = auth.currentUser; await this.reauth(pw);
+    await setDoc(doc(db, "users", u.uid), {name: "", phone: "", dob: "", street: "", address: "", unit: "", city: "", postal: "", lat: null, lng: null, emailPrefs: {news: false, offers: false}, deletedAt: serverTimestamp(), updatedAt: serverTimestamp()}, {merge: true});
+    return deleteUser(u);
   },
   async refreshUser(){ await auth.currentUser.reload(); await auth.currentUser.getIdToken(true); return auth.currentUser; },
   async getProfile(uid){ const s = await getDoc(doc(db, "users", uid)); return s.exists() ? s.data() : null; },

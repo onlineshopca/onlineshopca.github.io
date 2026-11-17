@@ -830,7 +830,7 @@ function simHTML(p){
   const t = typeOf(p), list = groupList(PRODUCTS.filter(x => x.id !== p.id && !x.soldOut && !x.member && typeOf(x) === t && x.itemId !== p.itemId)).slice(0, 4);
   return list.length ? `<section class="hsec simsec"><div class="h5row"><h2>Similar items</h2><a href="#shop">See all ›</a></div><div class="homegrid">${productCards(list)}</div></section>` : "";
 }
-const TITLES = {home: "Nojan · Quality products and services, for less", shop: "Shop new and used items · Nojan", services: "Services and classes · Nojan", contact: "Contact us · Nojan", news: "News · Nojan", cart: "Your cart · Nojan", checkout: "Checkout · Nojan", account: "Your account · Nojan", orders: "My orders and bookings · Nojan", about: "About Nojan", returns: "Test before you pay · Nojan", privacy: "Privacy policy · Nojan", terms: "Terms of use · Nojan", certified: "What Certified means · Nojan", how: "How it works · Nojan", notfound: "Page not found · Nojan"};
+const TITLES = {home: "Nojan · Quality products and services, for less", shop: "Shop new and used items · Nojan", services: "Services and classes · Nojan", contact: "Contact us · Nojan", news: "News · Nojan", cart: "Your cart · Nojan", checkout: "Checkout · Nojan", account: "Your account · Nojan", orders: "Your orders · Nojan", mybookings: "Your bookings · Nojan", acctdetails: "Your details and address · Nojan", acctsecurity: "Login and security · Nojan", acctmessages: "Messages · Nojan", acctemail: "Email preferences · Nojan", acctdata: "Your data · Nojan", unsub: "Unsubscribe · Nojan", about: "About Nojan", returns: "Test before you pay · Nojan", privacy: "Privacy policy · Nojan", terms: "Terms of use · Nojan", certified: "What Certified means · Nojan", how: "How it works · Nojan", notfound: "Page not found · Nojan"};
 const views = {
   home(){
     const q = query.trim();
@@ -1003,6 +1003,8 @@ const views = {
   booked(){ return bookedView(); },
   account(){ return accountView(); },
   orders(){ return myOrdersView(); },
+  mybookings(){ return myBookingsView(); }, acctsecurity(){ return acctSecurityView(); }, acctmessages(){ return acctMessagesView(); }, acctemail(){ return acctEmailView(); }, acctdata(){ return acctDataView(); }, unsub(){ return unsubView(); },
+  acctdetails(){ ACCT_SUB = "details"; try { return accountView(); } finally { ACCT_SUB = null; } },
   receipt(){ return receiptView(); },   // v122
   admin(){ return adminView(); },
   about(){ return polView("about"); }, returns(){ return polView("returns"); }, privacy(){ return polView("privacy"); }, terms(){ return polView("terms"); }, certified(){ return polView("certified"); }, how(){ return polView("how"); },
@@ -1057,6 +1059,7 @@ const MAIL_URL = "https://script.google.com/macros/s/AKfycbxvHu5BN9-l6MjcKR2cwab
 async function sendEmail(subject, fields){
   try {   // v97: send from the shop Gmail as "Nojan"; FormSubmit below stays as the backup
     const f = {...fields}, cc = f._cc || "", replyTo = f._replyto || "";
+    if (cc && !f["Email preferences"]) f["Email preferences"] = EMAIL_PREFS_URL();   // v127: every email to a customer links to email preferences
     delete f._cc; delete f._replyto; delete f._template;
     let idToken = ""; try { idToken = await window.SHOP_FB.idToken(); } catch (e) {}
     const r = await fetch(MAIL_URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({subject, fields:f, cc, replyTo, idToken})});
@@ -1296,7 +1299,7 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified", how:"how-it-works"};
+const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", mybookings:"my-bookings", acctdetails:"account-details", acctsecurity:"login-security", acctmessages:"messages", acctemail:"email-preferences", acctdata:"your-data", unsub:"unsubscribe", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified", how:"how-it-works"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
 let bookingId = null, receiptId = null, itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
@@ -1423,7 +1426,7 @@ document.addEventListener("click", e => {
   go("item", decodeURIComponent(a.getAttribute("href").slice(6)));
 });
 // v93: in-site links get real addresses so they can be opened in a new tab, shared and found by search engines
-const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
+const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|my-bookings|account-details|login-security|messages|email-preferences|your-data|unsubscribe|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
 function relink(root){
   if (!PATH_MODE || !root || root.nodeType !== 1) return;
   const fix = a => { const h = a.getAttribute("href"); if (!h || h[0] !== "#") return; let s = h.slice(1); try { s = decodeURIComponent(s); } catch (_) {} if (!R_OK.test(s)) return; a.dataset.r = s; a.setAttribute("href", pathFor(s)); };
@@ -1492,7 +1495,7 @@ function render(){
     : v === "group" ? [["Shop", "#shop"], [groupId || "Shop"]]
     : v === "sgroup" ? [["Services", "#services"], [sgroupId || "Services"]]
     : v === "scategory" ? (c => c ? [["Services", "#services"], [groupOf(SVC_GROUPS, c)[0], "#sgroup-" + catSlug(groupOf(SVC_GROUPS, c)[0])], [c]] : [["Services", "#services"], ["Category"]])(scatName(svcMap()))
-    : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], news:[["News"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["My orders & bookings"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
+    : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], news:[["News"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["Your account","#account"],["Your orders"]], mybookings:[["Your account","#account"],["Your bookings"]], acctdetails:[["Your account","#account"],["Your details"]], acctsecurity:[["Your account","#account"],["Login & security"]], acctmessages:[["Your account","#account"],["Messages"]], acctemail:[["Your account","#account"],["Email preferences"]], acctdata:[["Your account","#account"],["Your data"]], unsub:[["Unsubscribe"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
          service:(s => s && !s.member ? [["Services","#services"],[s.category, "#scategory-" + catSlug(s.category)],[s.title]] : [["Services","#services"],[(s||{}).title || "Service"]])(SERVICES.find(s=>s.id===serviceId)),
          provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]],
          events:[["Events"]], event:[["Events","#events"],[(eventById(eventId)||{}).title || "Event"]],
@@ -1500,7 +1503,7 @@ function render(){
          chat:[["Dating","#dating"],["Matches","#matches"],["Chat"]], datingprofile:[["Dating","#dating"],["My profile"]],
          homes:[["Homes"]], listing:[["Homes","#homes"],[(((HM.list || []).find(x => x.id === listingId) || HM.extra[listingId] || {}).city) || "Listing"]], listhome:[["Homes","#homes"],["List your home"]],
          mylistings:[["Homes","#homes"],["My listings"]], hchat: mkt ? [["Sell on Nojan","#selling"],["Messages"]] : [["Homes","#homes"],["My listings","#my-listings"],["Messages"]],
-         mybooking:[["My orders & bookings","#my-orders"],["Booking"]],
+         mybooking:[["Your bookings","#my-bookings"],["Booking"]],
          about:[["About Nojan"]], returns:[["Test before you pay"]], privacy:[["Privacy policy"]], terms:[["Terms of use"]], certified:[["What Certified means"]], how:[["How it works"]], notfound:[["Page not found"]],
          selling:[["Your account","#account"],["Sell on Nojan"]], sell:[["Sell on Nojan","#selling"],[MK.form && MK.form.id ? "Edit listing" : "New listing"]]}[v];
   const cr = $("#crumbs");
@@ -1649,9 +1652,10 @@ function accountView(){
       <p class="note">You can browse without an account. You need one to place an order.</p>`}
     </div>`;
   }
+  if (ACCT_SUB !== "details") return acctHub();
   const pr = PROFILE || {};
   const viaGoogle = (USER.providerData||[]).some(p => p.providerId === "google.com");
-  return `<div class="sectionhead"><h1>Your account</h1><button class="linkbtn" type="button" data-signout>Sign out</button></div>
+  return `${acctHead("Your details &amp; address", "Used for your orders, bookings and receipts.")}
   <div class="two">
     <div class="panel">
       <h2>Your details</h2>
@@ -1682,13 +1686,10 @@ function accountView(){
       </form>
     </div>
     <aside class="panel">
-      <h2>Shortcuts</h2>
-      <a class="btn" href="#my-orders">My orders</a>
-      <button class="btn ghost" type="button" data-mydata style="color:var(--fg)">Download my data</button>
-      <button class="linkbtn" type="button" data-deleteme style="text-align:left">Ask us to delete my account</button>
-      ${SELLING_ON ? `<a class="btn ghost" href="#selling" style="color:var(--fg)">Sell on Nojan${(() => { mkEnsureSeller(); const m = MK.me; return m && m.status === "approved" ? " ✓" : m && m.status === "pending" ? " · waiting for approval" : ""; })()}</a>` : ""}
-      ${isAdmin() ? `<a class="btn ghost" href="#admin" style="color:var(--fg)">Admin: manage orders</a>` : ""}
-      <a class="linkbtn" href="#cart" style="text-align:left">Go to cart</a>
+      <h2>More in your account</h2>
+      <a class="linkbtn" href="#login-security" style="text-align:left">Login &amp; security (name, email, password)</a>
+      <a class="linkbtn" href="#my-orders" style="text-align:left">Your orders</a>
+      <a class="linkbtn" href="#your-data" style="text-align:left">Download or delete your data</a>
       <p class="note">Signed in ${viaGoogle ? "with Google" : "with email"} as ${esc(USER.email || "")}.</p>
     </aside>
   </div>`;
@@ -4020,10 +4021,8 @@ function orderItemsHTML(o){
 function myOrdersView(){
   if (!USER) return needSignIn("orders", "Sign in to see your orders and bookings", "Your orders, bookings and their status show here after you sign in.");
   startMyOrders(); startMyBookings();
-  return `<div class="sectionhead"><h1>My orders &amp; bookings</h1></div>
-    <h2 style="margin:6px 0 12px">Event tickets</h2>${myTicketsHTML()}
-    <h2 style="margin:26px 0 12px">Bookings</h2>${myBookingsHTML()}
-    <h2 style="margin:26px 0 12px">Orders</h2>${myOrdersList()}`;
+  return acctHead("Your orders", "Track, cancel before pickup, buy again and see receipts.") + myOrdersList()
+    + `<p class="note" style="margin-top:16px">Looking for a class or service? <a href="#my-bookings" style="color:var(--link)">Your bookings</a></p>`;
 }
 function myOrdersList(){
   if (!MY.orders) return `<div class="empty">Loading your orders…</div>`;
@@ -4032,10 +4031,12 @@ function myOrdersList(){
     <details class="ord"${i===0?" open":""}>
       <summary><span class="onum">Order #${o.number}</span><span class="oright">${pill(o.status)}<b>${money(o.total||0)}</b></span><span class="ometa">${fmtDate(o.createdAt)} · ${(o.items||[]).reduce((a,x)=>a+x.qty,0)} item(s)</span></summary>
       <div class="obody">
+        ${ordTimeline(o)}
         <p class="note" style="color:var(--fg)">${esc(STATUS_TEXT[o.status] || "")}</p>
         ${orderItemsHTML(o)}
-        <a class="linkbtn rclinkbtn" href="#receipt-o-${o.id}">${o.paid ? "Receipt (paid)" : "Order confirmation and receipt"}</a>
-        ${o.status === "New" ? `<button class="linkbtn" type="button" data-cancel="${o.id}" style="justify-self:start;color:var(--danger)">Cancel this order</button>` : ""}
+        <div class="ordacts"><a class="btn small" href="#receipt-o-${o.id}">${o.paid ? "Receipt (paid)" : "Receipt"}</a>
+        ${["Completed", "Cancelled"].includes(o.status) && ordBuyAgainOk(o) ? `<button class="btn small ghost" type="button" data-buyagain="${o.id}" style="color:var(--fg)">Buy again</button>` : ""}
+        ${ordCanCancel(o) ? `<button class="linkbtn" type="button" data-cancel2="${o.id}" style="color:var(--danger)">Cancel this order</button>` : ""}</div>
       </div>
     </details>`).join("")}</div>`;
 }
@@ -6455,3 +6456,187 @@ function taxLinesHTML(t){   // v124: Amazon-style order summary at checkout
         </div>
         <p class="notax">You pay at pickup, after you test the item. Nothing is charged online.</p>`;
 }
+
+/* =========================================================
+   v127: Your account (tiles), orders timeline, login & security, messages, email preferences, your data
+   ========================================================= */
+let ACCT_SUB = null;
+const ACCT = {busy: false};
+const EMAIL_PREFS_URL = () => location.origin + "/email-preferences";
+const acctViaPw = () => !!(USER && (USER.providerData || []).some(p => p.providerId === "password"));
+const acctVia = () => { const p = USER && (USER.providerData || [])[0]; return !p ? "email" : p.providerId === "google.com" ? "Google" : p.providerId === "microsoft.com" ? "Microsoft" : "email"; };
+const acctPrefs = () => Object.assign({news: false, offers: false}, (PROFILE && PROFILE.emailPrefs) || {});
+const acctUnread = () => (MY.bookings || []).filter(b => b.msgFrom === "admin" && b.msgAt && b.msgSeenC !== b.msgAt).length;
+const acctIco = {
+  orders: '<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>',
+  bookings: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  security: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  address: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  messages: '<path d="M4 5h16v11H8l-4 4z"/>',
+  lists: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  email: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  data: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/>',
+  admin: '<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/>'
+};
+function acctTile(href, ico, title, text, badge, off){
+  return `<${off ? "div" : "a"} class="acttile${off ? " off" : ""}"${off ? "" : ` href="${href}"`}><span class="actico"><svg viewBox="0 0 24 24" aria-hidden="true">${acctIco[ico]}</svg>${badge ? `<b class="actbadge">${badge}</b>` : ""}</span><span class="acttxt"><b>${title}</b><span>${text}</span></span></${off ? "div" : "a"}>`;
+}
+function acctHead(title, sub){ return `<div class="sectionhead acthead"><div><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ""}</div></div>`; }
+function acctHub(){
+  startMyOrders(); startMyBookings();
+  const pr = PROFILE || {}, first = String(pr.name || USER.displayName || "").trim().split(/\s+/)[0];
+  const open = (MY.orders || []).filter(o => !["Completed", "Cancelled"].includes(o.status)).length;
+  const now = Date.now(), up = (MY.bookings || []).filter(b => b.kind !== "event" && b.startMs >= now && !["Cancelled"].includes(b.status)).length;
+  const unread = acctUnread(), p = acctPrefs();
+  const verified = USER.emailVerified || acctVia() !== "email";
+  return `<div class="sectionhead acthead"><div><h1>Your account</h1><p>${first ? `Hello, ${esc(first)}. ` : ""}Signed in with ${acctVia()} as ${esc(USER.email || "")}.</p></div><button class="linkbtn" type="button" data-signout>Sign out</button></div>
+  ${!verified ? `<div class="verify"><span>Please confirm your email address. We sent a link to ${esc(USER.email)}.</span><span style="display:flex;gap:14px"><button class="linkbtn" type="button" data-recheck>I've confirmed it</button><button class="linkbtn" type="button" data-resend>Send it again</button></span></div>` : ""}
+  <div class="actgrid">
+    ${acctTile("#my-orders", "orders", "Your orders", MY.orders ? (open ? `${open} open order${open > 1 ? "s" : ""}. Track, cancel, buy again, receipts` : "Track, cancel, buy again, receipts") : "Track, cancel, buy again, receipts")}
+    ${acctTile("#my-bookings", "bookings", "Your bookings", up ? `${up} coming up. Change, cancel, add to calendar` : "Classes and services you booked")}
+    ${acctTile("#login-security", "security", "Login &amp; security", "Name, email, password, sign out everywhere")}
+    ${acctTile("#account-details", "address", "Your details &amp; address", "Phone, address, date of birth")}
+    ${acctTile("#messages", "messages", "Messages", unread ? `${unread} new message${unread > 1 ? "s" : ""} from Nojan` : "Messages from Nojan about your bookings", unread || "")}
+    ${acctTile("", "lists", "Your lists", "Save items for later. Coming soon", "", true)}
+    ${acctTile("#email-preferences", "email", "Email preferences", p.news || p.offers ? "You get news or offers from Nojan" : "Order and booking emails only")}
+    ${acctTile("#your-data", "data", "Your data", "Download your data or delete your account")}
+    ${isAdmin() ? acctTile("#admin", "admin", "Admin", "Orders, bookings, inventory, billing") : ""}
+  </div>`;
+}
+/* ---- Orders: timeline, cancel before pickup, buy again ---- */
+const ORD_STEPS = [["Ordered", ["New"]], ["Confirmed", ["Contacted"]], ["Ready for pickup", ["Ready for pickup"]], ["Picked up", ["Completed"]]];
+function ordTimeline(o){
+  if (o.status === "Cancelled") return `<div class="otl cancelled"><span class="otlx">Cancelled${(o.history || []).some(h => h.status === "Cancelled" && h.by === "customer") ? " by you" : ""}</span></div>`;
+  const at = Math.max(0, ORD_STEPS.findIndex(s => s[1].includes(o.status)));
+  const when = st => { const h = (o.history || []).filter(x => st[1].includes(x.status)).pop(); return h && h.at ? new Date(h.at).toLocaleDateString("en-CA", {month: "short", day: "numeric"}) : ""; };
+  return `<ol class="otl" aria-label="Order progress">${ORD_STEPS.map((s, i) => `<li class="${i < at || o.status === "Completed" ? "done" : i === at ? "now" : ""}"><span class="otldot"></span><b>${s[0]}</b><small>${i <= at ? (when(s) || (i === 0 && o.createdAt ? new Date(o.createdAt.toDate ? o.createdAt.toDate() : o.createdAt).toLocaleDateString("en-CA", {month: "short", day: "numeric"}) : "")) : ""}</small></li>`).join("")}</ol>`;
+}
+const ordCanCancel = o => ["New", "Contacted", "Ready for pickup"].includes(o.status);
+function ordBuyAgainOk(o){ return (o.items || []).some(it => { const p = PRODUCTS.find(x => x.id === it.id); return p && !p.member && stockOf(p.id) > 0; }); }
+/* ---- Bookings on their own page ---- */
+function myBookingsView(){
+  if (!USER) return needSignIn("mybookings", "Sign in to see your bookings", "Your bookings and their status show here after you sign in.");
+  startMyBookings();
+  return acctHead("Your bookings", "Classes and services you booked with Nojan.") + myBookingsHTML();
+}
+/* ---- Login & security ---- */
+function acctSecurityView(){
+  if (!USER) return needSignIn("acctsecurity", "Sign in to manage your login", "");
+  const pw = acctViaPw(), via = acctVia(), verified = USER.emailVerified || via !== "email";
+  const pwField = (id) => pw ? `<label>Current password<input name="cur" type="password" autocomplete="current-password" required id="${id}"></label>` : `<p class="note">We'll ask you to confirm with ${via} first.</p>`;
+  return acctHead("Login &amp; security", "Keep your Nojan account safe.") + `<div class="actstack">
+    <form class="panel actrow" id="secName" novalidate><div><h2>Name</h2><p class="note">Shown on your orders, bookings and receipts.</p></div>
+      <label>Full name<input name="name" required autocomplete="name" maxlength="80" value="${esc((PROFILE && PROFILE.name) || USER.displayName || "")}"></label>
+      <div data-actmsg hidden></div><button class="btn" type="submit">Save name</button></form>
+    <div class="panel actrow"><div><h2>Email</h2><p class="note">${esc(USER.email || "")} · ${verified ? `<span class="okword">Confirmed</span>` : `<span class="badword">Not confirmed yet</span>`}</p></div>
+      ${!verified ? `<div style="display:flex;gap:14px;flex-wrap:wrap"><button class="btn small" type="button" data-resend>Send the confirmation link again</button><button class="linkbtn" type="button" data-recheck>I've confirmed it</button></div>` : ""}
+      ${pw ? `<details class="actmore"><summary class="linkbtn">Change email</summary><form id="secEmail" novalidate class="actform">
+        <label>New email<input name="email" type="email" required autocomplete="email"></label>${pwField("cur1")}
+        <p class="note">We send a link to the new address. Your email changes when you click it.</p><div data-actmsg hidden></div><button class="btn" type="submit">Send the link</button></form></details>`
+        : `<p class="note">You sign in with ${via}, so your email is managed by your ${via} account.</p>`}</div>
+    <div class="panel actrow"><div><h2>Password</h2><p class="note">${pw ? "Use at least 8 characters. Changing it also signs you out on your other phones and computers." : `You sign in with ${via}. Your password is kept by ${via}, not by Nojan.`}</p></div>
+      ${pw ? `<details class="actmore"><summary class="linkbtn">Change password</summary><form id="secPw" novalidate class="actform">${pwField("cur2")}
+        <label>New password<input name="npw" type="password" minlength="8" autocomplete="new-password" required></label>
+        <label>New password again<input name="npw2" type="password" minlength="8" autocomplete="new-password" required></label>
+        <div data-actmsg hidden></div><button class="btn" type="submit">Change password</button></form></details>
+        <button class="linkbtn" type="button" data-pwreset style="justify-self:start">Forgot it? Email me a reset link</button>` : ""}</div>
+    <div class="panel actrow"><div><h2>Sign out everywhere</h2><p class="note">${pw ? "Change your password above: every other phone and computer is signed out within about an hour." : `Use your ${via} account's security page to sign out other devices.`} This device signs out now.</p></div>
+      <button class="btn ghost" type="button" data-signout style="justify-self:start;color:var(--fg)">Sign out on this device</button></div>
+  </div>`;
+}
+/* ---- Messages ---- */
+function acctMessagesView(){
+  if (!USER) return needSignIn("acctmessages", "Sign in to see your messages", "");
+  startMyBookings();
+  if (!MY.bookings) return acctHead("Messages") + `<div class="empty">Loading your messages…</div>`;
+  const list = MY.bookings.filter(b => b.msgAt).sort((a, b) => String(b.msgAt).localeCompare(String(a.msgAt)));
+  const rows = list.map(b => { const isNew = b.msgFrom === "admin" && b.msgSeenC !== b.msgAt;
+    return `<a class="actmsgrow${isNew ? " new" : ""}" href="#mybooking-${esc(b.id)}"><span class="actico"><svg viewBox="0 0 24 24" aria-hidden="true">${acctIco.messages}</svg></span>
+      <span class="acttxt"><b>${esc(b.serviceTitle || "Booking")} · #B${b.number}</b><span>${b.msgFrom === "admin" ? "Nojan" : "You"}: ${esc(b.msgText || "")}</span></span>
+      <span class="actwhen">${isNew ? `<b class="actnew">New</b>` : ""}<small>${esc(fmtDate(b.msgAt))}</small></span></a>`; }).join("");
+  return acctHead("Messages", "Your conversations with Nojan about your bookings.") + `<div class="panel" style="gap:0">${rows || `<p class="note">No messages yet. You can send a message from any booking.</p>`}</div>
+    <div class="panel" style="margin-top:14px"><h2>Something else?</h2><p class="note">For an order or a general question, message us and we'll reply by email.</p><a class="btn" href="#contact-us" style="justify-self:start">Message Nojan</a></div>`;
+}
+/* ---- Email preferences and unsubscribe ---- */
+function acctEmailView(){
+  if (!USER) return unsubView();
+  const p = acctPrefs();
+  return acctHead("Email preferences", "Choose what Nojan emails you.") + `<form class="panel" id="emailPrefs" novalidate>
+    <label class="actcheck"><input type="checkbox" checked disabled><span><b>Orders, bookings and receipts</b><small>Always on. These emails are needed to serve you (confirmations, pickup times, reminders, receipts).</small></span></label>
+    <label class="actcheck"><input type="checkbox" name="news"${p.news ? " checked" : ""}><span><b>Nojan news</b><small>New services, new arrivals and what Nojan is doing in the community. About once a month.</small></span></label>
+    <label class="actcheck"><input type="checkbox" name="offers"${p.offers ? " checked" : ""}><span><b>Deals and offers</b><small>Price drops and special offers.</small></span></label>
+    <div data-actmsg hidden></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center"><button class="btn" type="submit">Save preferences</button><button class="linkbtn" type="button" data-unsuball>Unsubscribe from all news and offers</button></div>
+    <p class="note">Every news or offer email has an unsubscribe link at the bottom. Unsubscribing takes effect right away.</p></form>`;
+}
+function unsubView(){
+  if (USER) return acctEmailView();
+  return `<div class="panel" style="max-width:560px;margin:20px auto"><h1 style="font-size:1.5rem">Unsubscribe</h1>
+    <p class="note">Sign in to change your email preferences right away, or enter your email and we'll stop sending you news and offers within 10 business days. Order and booking emails still arrive.</p>
+    <form id="unsubForm" novalidate class="actform"><label>Your email<input name="email" type="email" required autocomplete="email"></label><div data-actmsg hidden></div><button class="btn" type="submit">Unsubscribe me</button></form>
+    <button class="linkbtn" type="button" data-auth="signin" data-next="acctemail" style="justify-self:start">Sign in instead</button></div>`;
+}
+/* ---- Your data ---- */
+function acctDataView(){
+  if (!USER) return needSignIn("acctdata", "Sign in to see your data", "");
+  const pw = acctViaPw(), via = acctVia();
+  return acctHead("Your data", "What Nojan keeps about you, and how to remove it.") + `<div class="actstack">
+    <div class="panel actrow"><div><h2>Download your data</h2><p class="note">One file with your account details, orders and bookings, ready right away.</p></div>
+      <button class="btn" type="button" data-mydata style="justify-self:start">Download my data</button></div>
+    <div class="panel actrow"><div><h2>Delete your account</h2><p class="note">This removes your sign-in and clears your saved details (name, phone, address, date of birth) right away. It can't be undone.</p>
+      <p class="note">Your past orders, bookings and receipts are kept for 6 years because Canadian tax law requires business records. Nothing else is kept. Nojan confirms by email when it's done.</p></div>
+      ${isAdmin() ? `<p class="note">Admin accounts can't be deleted here.</p>` : `<details class="actmore"><summary class="linkbtn" style="color:var(--danger)">Delete my account</summary><form id="delMe" novalidate class="actform">
+        <label>Type DELETE to confirm<input name="word" autocomplete="off" required></label>
+        ${pw ? `<label>Your password<input name="cur" type="password" autocomplete="current-password" required></label>` : `<p class="note">We'll ask you to confirm with ${via}.</p>`}
+        <div data-actmsg hidden></div><button class="btn danger" type="submit">Delete my account for good</button></form></details>`}</div>
+    <div class="panel actrow"><div><h2>Privacy</h2><p class="note">Nojan doesn't share or sell your information. Read the <a href="#privacy">privacy policy</a>.</p></div></div>
+  </div>`;
+}
+const acctSecErr = e => { const c = (e && e.code) || ""; return c === "auth/wrong-password" || c === "auth/invalid-credential" ? "That password isn't right." : c === "auth/too-many-requests" ? "Too many tries. Wait a few minutes and try again." : c === "auth/email-already-in-use" ? "Another account already uses that email." : c === "auth/invalid-email" ? "Please check the email address." : c === "auth/weak-password" ? "Use at least 8 characters." : c === "auth/popup-closed-by-user" ? "The confirmation window was closed. Try again." : c === "auth/requires-recent-login" ? "For your safety, sign out and sign in again, then try once more." : (typeof authError === "function" ? authError(e) : "Something went wrong. Try again."); };
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.cancel2 != null){
+    const o = (MY.orders || []).find(x => x.id === b.dataset.cancel2); if (!o || !ordCanCancel(o)) return;
+    if (!confirm(`Cancel order #${o.number}?`)) return;
+    b.disabled = true;
+    try { await FB.updateOrder(o.id, {status: "Cancelled"}, {status: "Cancelled", by: "customer", at: new Date().toISOString()}); toast("Order cancelled");
+      sendEmail(`Order #${o.number} was cancelled by the customer`, {Order: "#" + o.number, Name: o.name, Email: o.email, Phone: o.phone, Status: "was " + o.status, _replyto: o.email}).catch(() => {}); }
+    catch (er){ console.error(er); b.disabled = false;
+      try { await sendEmail(`Customer asks to cancel order #${o.number}`, {Order: "#" + o.number, Name: o.name, Email: o.email, Phone: o.phone, Status: o.status, _replyto: o.email}); toast("We got your request and will confirm the cancellation by email."); }
+      catch (_) { toast("Couldn't cancel. Please contact us."); } }
+    return;
+  }
+  if (b.dataset.buyagain != null){
+    const o = (MY.orders || []).find(x => x.id === b.dataset.buyagain); if (!o) return;
+    let n = 0; (o.items || []).forEach(it => { const p = PRODUCTS.find(x => x.id === it.id); if (p && !p.member && stockOf(p.id) > ((cart[p.id] && cart[p.id].q) || 0)){ cart[p.id] = {q: ((cart[p.id] && cart[p.id].q) || 0) + 1, snap: p}; n++; } });
+    if (n){ saveCart(); toast(n === 1 ? "Added to your cart" : `${n} items added to your cart`); go("cart"); } else toast("Sorry, these items are sold out now.");
+    return;
+  }
+  if (b.hasAttribute("data-pwreset")){ try { await FB.reset(USER.email); toast("Reset link sent to " + USER.email); } catch (er){ toast(acctSecErr(er)); } return; }
+  if (b.hasAttribute("data-unsuball")){
+    try { await FB.saveProfile(USER.uid, {emailPrefs: {news: false, offers: false, changedAt: new Date().toISOString()}}); PROFILE = {...(PROFILE || {}), emailPrefs: {news: false, offers: false}}; toast("Unsubscribed from news and offers"); render(); }
+    catch (er){ console.error(er); toast("Couldn't save. Try again."); }
+    return;
+  }
+});
+document.addEventListener("submit", async e => {
+  const f = e.target; if (!["secName", "secEmail", "secPw", "emailPrefs", "unsubForm", "delMe"].includes(f.id)) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  const d = Object.fromEntries(new FormData(f)), m = f.querySelector("[data-actmsg]"), btn = f.querySelector("button[type=submit]");
+  const say = (ok, t) => showMsg(m, ok, t);
+  btn.disabled = true;
+  try {
+    if (f.id === "secName"){ const name = (d.name || "").trim(); if (name.length < 2) throw {msg: "Please enter your name."}; await FB.setName(name); PROFILE = {...(PROFILE || {}), name}; updateAcct(); say(true, "Name saved."); }
+    if (f.id === "secEmail"){ const em = (d.email || "").trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) throw {msg: "Please check the email address."}; await FB.changeEmail(d.cur, em); f.reset(); say(true, `We sent a link to ${em}. Click it to finish the change.`); }
+    if (f.id === "secPw"){ if ((d.npw || "").length < 8) throw {msg: "Use at least 8 characters."}; if (d.npw !== d.npw2) throw {msg: "The two new passwords don't match."}; await FB.changePassword(d.cur, d.npw); f.reset(); say(true, "Password changed. Other devices will be signed out."); }
+    if (f.id === "emailPrefs"){ const p = {news: !!d.news, offers: !!d.offers, changedAt: new Date().toISOString()}; await FB.saveProfile(USER.uid, {emailPrefs: p}); PROFILE = {...(PROFILE || {}), emailPrefs: p}; say(true, "Preferences saved."); }
+    if (f.id === "unsubForm"){ const em = (d.email || "").trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) throw {msg: "Please check the email address."};
+      await sendEmail("Unsubscribe request", {Email: em, Request: "Stop sending news and offers to this address (within 10 business days).", _replyto: em}); f.reset(); say(true, "Done. We'll stop news and offers to that address within 10 business days."); }
+    if (f.id === "delMe"){ if ((d.word || "").trim().toUpperCase() !== "DELETE") throw {msg: "Type DELETE to confirm."};
+      const info = {Name: (PROFILE && PROFILE.name) || USER.displayName || "", Email: USER.email || "", Account: USER.uid};
+      await FB.deleteMe(d.cur);
+      sendEmail("Account deleted by the customer", {...info, Note: "The customer deleted their account on nojans.com. Saved details were cleared. Remove any other personal information not needed for tax records, then confirm by email within 30 days.", _cc: info.Email, _replyto: info.Email}).catch(() => {});
+      toast("Your account was deleted."); go("home"); return; }
+  } catch (er){ console.error(er); say(false, er && er.msg ? er.msg : acctSecErr(er)); }
+  btn.disabled = false;
+}, true);
