@@ -3066,3 +3066,7 @@ html body .crumbs li:nth-last-child(2) a::before{content:""!important;display:in
 .rcadmin .obox{background:#fff;border-radius:16px;padding:16px 18px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .pill.rcp-paid{background:#e3f3e8!important;color:#1f6b38!important}
 .pill.rcp-due{background:#fbecd6!important;color:#7a4100!important}
+
+/* ===== v123: prices before tax, "+ HST" next to shop prices when HST is on ===== */
+.plushst{display:inline-block;margin-left:5px;font-size:12px;font-weight:600;color:#555;letter-spacing:0;vertical-align:middle;white-space:nowrap}
+.price .plushst{font-size:14px;margin-left:8px;vertical-align:middle}

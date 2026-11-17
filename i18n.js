@@ -5,6 +5,8 @@
    2) visitors in Quebec see French (checked once from their internet address — nothing is saved or sent to us), else English. */
 (function(){
 const FR = {
+/* ---- v123: tax only at checkout and on receipts ---- */
+"Subtotal (before tax)": "Sous-total (avant taxes)", "HST 13% (Ontario)": "TVH 13 % (Ontario)", "You pay at pickup, after you test the item. Nothing is charged online.": "Vous payez au ramassage, après avoir testé l'article. Rien n'est facturé en ligne.",
 /* ---- v122: receipts ---- */
 "Receipt": "Reçu", "Client receipt": "Reçu du client", "Student copy": "Copie de l'élève", "Print or save as PDF": "Imprimer ou enregistrer en PDF", "Email me a copy": "M'envoyer une copie par courriel",
 "Not paid yet": "Pas encore payé", "Paid in full": "Payé en entier", "Payment pending": "Paiement en attente", "Shop receipt · goods": "Reçu de la boutique · articles", "Service receipt · classes and services": "Reçu de service · cours et services",
