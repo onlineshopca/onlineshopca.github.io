@@ -1002,6 +1002,7 @@ const views = {
   booked(){ return bookedView(); },
   account(){ return accountView(); },
   orders(){ return myOrdersView(); },
+  receipt(){ return receiptView(); },   // v122
   admin(){ return adminView(); },
   about(){ return polView("about"); }, returns(){ return polView("returns"); }, privacy(){ return polView("privacy"); }, terms(){ return polView("terms"); }, certified(){ return polView("certified"); }, how(){ return polView("how"); },
   notfound(){ return `<div class="nf"><h1>Page not found</h1><p class="note">This page doesn't exist or has moved.</p><div class="nfbtns"><a class="btn primary" href="#shop">Go to the shop</a><a class="btn" href="#contact-us">Contact us</a></div></div>`; },
@@ -1297,11 +1298,11 @@ document.addEventListener("click", e => {
 const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified", how:"how-it-works"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
-let bookingId = null, itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
+let bookingId = null, receiptId = null, itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
 // v93: real page addresses (nojans.com/shop, nojans.com/item-s-U002). preview.html keeps the old #addresses.
 const PREVIEW = /^\/preview(\.html)?$/.test(location.pathname);
 const PATH_MODE = !PREVIEW && /^https?:$/.test(location.protocol);
-const isRouteSlug = s => /^(item|service|provider|event|person|chat|listing|hchat|mybooking|category|group|scategory|sgroup)-./.test(s) || Object.prototype.hasOwnProperty.call(VIEW_OF, s);
+const isRouteSlug = s => /^(item|service|provider|event|person|chat|listing|hchat|mybooking|receipt|category|group|scategory|sgroup)-./.test(s) || Object.prototype.hasOwnProperty.call(VIEW_OF, s);
 const pathFor = s => !s || s === "home" ? "/" : "/" + encodeURIComponent(s);
 function slugNow(){
   let h = location.hash.slice(1); try { h = decodeURIComponent(h); } catch (_) {}
@@ -1313,6 +1314,7 @@ function slugNow(){
 function viewFromHash(){
   const h = slugNow();
   if (h.startsWith("mybooking-")){ bookingId = h.slice(10); return "mybooking"; }
+  if (h.startsWith("receipt-")){ receiptId = h.slice(8); return "receipt"; }   // v122
   if (h.startsWith("item-")){ itemId = h.slice(5); return "item"; }
   if (h.startsWith("category-")){ const c = catFromSlug(h.slice(9)); if (!c) return PATH_MODE ? "notfound" : "home"; if (c !== catId) catCond = "all"; catId = c; return "category"; }
   if (h.startsWith("group-")){ const g = groupFromSlug(CAT_GROUPS, h.slice(6)); if (!g) return PATH_MODE ? "notfound" : "home"; if (g[0] !== groupId) groupCat = "all"; groupId = g[0]; return "group"; }
@@ -1369,6 +1371,7 @@ function go(v, id, keepQuery){
   if (v === "sgroup" && id != null){ if (id !== sgroupId) sgroupCat = "all"; sgroupId = id; }
   if (v === "scategory" && id != null) scatSlug = id;
   if (v === "mybooking" && id != null) bookingId = id;
+  if (v === "receipt" && id != null) receiptId = id;   // v122
   if (v === "service" && id != null && id !== serviceId){ serviceId = id; resetBooking(); }
   if (v === "provider" && id != null) providerId = id;
   if (v === "event" && id != null) eventId = id;
@@ -1377,7 +1380,7 @@ function go(v, id, keepQuery){
   if (v === "listing" && id != null){ listingId = id; HM.gi = 0; }
   if (v === "hchat" && id != null) hchatId = id;
   currentView = v; render(); window.scrollTo(0,0); pageIn();
-  const slug = v === "mybooking" ? "mybooking-" + bookingId : v === "item" ? "item-" + id : v === "category" ? "category-" + catSlug(catId) : v === "group" ? "group-" + catSlug(groupId) : v === "sgroup" ? "sgroup-" + catSlug(sgroupId) : v === "scategory" ? "scategory-" + scatSlug : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : v === "listing" ? "listing-" + listingId : v === "hchat" ? "hchat-" + hchatId : SLUG[v];
+  const slug = v === "mybooking" ? "mybooking-" + bookingId : v === "receipt" ? "receipt-" + receiptId : v === "item" ? "item-" + id : v === "category" ? "category-" + catSlug(catId) : v === "group" ? "group-" + catSlug(groupId) : v === "sgroup" ? "sgroup-" + catSlug(sgroupId) : v === "scategory" ? "scategory-" + scatSlug : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : v === "listing" ? "listing-" + listingId : v === "hchat" ? "hchat-" + hchatId : SLUG[v];
   try {
     const k = scrNewKey();
     if (PATH_MODE){ const u = pathFor(slug); if (location.pathname !== u || location.hash){ history.pushState({k}, "", u); SCR.key = k; SCR.from = fromView; } }
@@ -1390,6 +1393,7 @@ document.addEventListener("click", e => {
   if (!a || a.hasAttribute("data-top")) return;
   const h = a.hasAttribute("data-r") ? a.dataset.r : a.getAttribute("href").slice(1);
   if (h.startsWith("mybooking-")){ e.preventDefault(); go("mybooking", decodeURIComponent(h.slice(10))); return; }
+  if (h.startsWith("receipt-")){ e.preventDefault(); go("receipt", decodeURIComponent(h.slice(8))); return; }   // v122
   if (h.startsWith("item-")){ e.preventDefault(); go("item", decodeURIComponent(h.slice(5))); return; }
   if (h.startsWith("category-")){ const c = catFromSlug(decodeURIComponent(h.slice(9))); if (!c) return; e.preventDefault(); megaClose();
     if (a.closest("#crumbs") && SCR.from === "category" && c === catId && current() === "item"){ history.back(); return; }
@@ -4029,6 +4033,7 @@ function myOrdersList(){
       <div class="obody">
         <p class="note" style="color:var(--fg)">${esc(STATUS_TEXT[o.status] || "")}</p>
         ${orderItemsHTML(o)}
+        <a class="linkbtn rclinkbtn" href="#receipt-o-${o.id}">${o.paid ? "Receipt (paid)" : "Order confirmation and receipt"}</a>
         ${o.status === "New" ? `<button class="linkbtn" type="button" data-cancel="${o.id}" style="justify-self:start;color:var(--danger)">Cancel this order</button>` : ""}
       </div>
     </details>`).join("")}</div>`;
@@ -4054,7 +4059,7 @@ function adminView(){
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
   return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them. <button class="linkbtn" type="button" data-backup>Download backup</button></p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
+    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="billing" aria-pressed="${ADM.tab==="billing"}">Billing</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
 }
@@ -4081,6 +4086,7 @@ function adminBody(){
   if (ADM.tab === "products") return productsAdminHTML();
   if (ADM.tab === "services") return servicesAdminHTML();
   if (ADM.tab === "bookings") return adminBookingsHTML();
+  if (ADM.tab === "billing") return (!ADM.orders || !ADM.bookings) ? `<div class="empty">Loading…</div>` : billingAdminHTML();   // v122
   if (ADM.tab === "providers") return providersAdminHTML();
   if (ADM.tab === "events") return eventsAdminHTML();
   if (ADM.tab === "dating") return datingAdminHTML();
@@ -4152,6 +4158,7 @@ async function emailCustomer(o, status, message){
     ...(message ? {"Message from the shop": message} : {}),
     Items: (o.items||[]).map(it=>`${it.qty} x ${it.name} — ${itemPrice(it)}`).join("\n"),
     "Estimated total": money(o.total||0),
+    "Your receipt": location.origin + "/receipt-o-" + o.id,
     "Your orders": location.origin + "/#my-orders",
     _cc: o.email, _replyto: CONTACT_EMAIL, _template: "box"
   };
@@ -4560,6 +4567,7 @@ function bookingCardHTML(b, admin){
       ${!admin && b.status === "Confirmed" && b.meetingLink ? `<a href="${esc(b.meetingLink)}" target="_blank" rel="noopener" style="color:var(--link);font-weight:600">Join the online session</a>` : ""}
       ${!admin && b.status === "Confirmed" && b.format !== "online" && b.locationNote ? `<span class="bkmeta">Where: ${esc(b.locationNote)}</span>` : ""}
       ${!admin ? `<span class="bkmeta" style="color:var(--fg)">${esc(BOOK_TEXT[b.status] || "")}</span>` : ""}
+      ${b.kind !== "event" ? `<a href="#receipt-b-${esc(b.seriesId || b.id)}" class="rclinkbtn" style="color:var(--link);font-weight:600">${b.paid ? "Receipt (paid)" : "Receipt"}</a>` : ""}
     </div>
     <div style="display:grid;gap:6px;justify-items:end">${pill(b.status)}
       ${!admin ? `<span style="display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end">${["Requested","Confirmed"].includes(b.status) && b.startMs > Date.now() ? `<button class="linkbtn" type="button" data-ics="${b.id}">Add to calendar</button><button class="linkbtn" type="button" data-bkcancel="${b.id}" style="color:var(--danger)">Cancel</button>` : ""}</span>` : ""}
@@ -5820,3 +5828,617 @@ if(document.body)go();else document.addEventListener('DOMContentLoaded',go);})()
   window.addEventListener("resize",req);
   setInterval(req,800);
 })();
+
+/* ===== v122: billing — a receipt for each type of user, payments, Nojan's fee on classes =====
+   Goods (shop orders) and services (bookings) get different receipts and records:
+     /receipt-o-ORDERID            shop receipt (goods)                  customer + admin
+     /receipt-b-KEY                service receipt for the client who paid   customer + admin
+     /receipt-b-KEY.student        student copy (no prices)              customer + admin
+     /receipt-b-KEY.provider       provider / teacher copy (earnings)    admin
+     /receipt-b-KEY.record  /receipt-o-ID.record   Nojan's record      admin
+     /receipt-f-PRV001.2026-11     monthly fee statement for a provider  admin
+   KEY is a package's seriesId, or the booking id for a single session.
+   Payments are saved on the order / bookings themselves ("paid"), so no new database rules are needed.
+   Admin-only data (fee %, Nojan's own providers, cost of goods, fee statement status) lives in adminNotes. */
+var BILL = null;
+function bill(){
+  if (!BILL) BILL = {tab: "receipts", month: new Date().toISOString().slice(0, 7), kind: "all", pay: "all", q: "", set: null, setLoad: false, fees: {}, feesLoad: {}, rec: {}, recLoad: {}, form: null};
+  return BILL;
+}
+const BILL_GST = "";   // Nojan's GST/HST number (e.g. 123456789RT0001). Leave empty until registered; receipts then show it automatically.
+const BILL_METHODS = ["Interac e-Transfer", "Cash", "Debit card", "Credit card", "Other"];
+
+/* settings (admins only) */
+function billSet(){
+  const B = bill();
+  if (!B.set && !B.setLoad && FB && isAdmin()){
+    B.setLoad = true;
+    FB.getNote("_billing").then(t => { let s = {}; try { s = JSON.parse(t || "{}") || {}; } catch (_) {} B.set = s; billRefresh(); }).catch(() => { B.set = {}; billRefresh(); });
+  }
+  const s = B.set || {};
+  const own = Array.isArray(s.own) ? s.own : ALL_PROVIDERS.filter(p => /\b(nojan|moe)\b/i.test(p.name || "")).map(p => p.id);
+  return {feePct: s.feePct == null ? 2 : +s.feePct, own};
+}
+function billJSONNote(store, loadMap, id){
+  const B = bill();
+  if (B[store][id] === undefined && !B[loadMap][id] && FB && isAdmin()){
+    B[loadMap][id] = true;
+    FB.getNote(id).then(t => { let v = {}; try { v = JSON.parse(t || "{}") || {}; } catch (_) {} B[store][id] = v; billRefresh(); }).catch(() => { B[store][id] = {}; billRefresh(); });
+  }
+  return B[store][id];
+}
+async function billSaveNote(store, id, val){ await FB.saveNote(id, JSON.stringify(val)); bill()[store][id] = val; }
+function billRefresh(){ const v = current(); if (v === "receipt") setTimeout(softRender); else if (v === "admin" && ADM.tab === "billing") refreshAdmin(); }
+
+/* data */
+const bkGroupKey = b => b.seriesId || b.id;
+const isOwnProvider = (uid, set) => !!uid && set.own.includes(uid);
+function billOrders(){ return isAdmin() && ADM.orders ? ADM.orders : (MY.orders || null); }
+function billBookings(){ return isAdmin() && ADM.bookings ? ADM.bookings : (MY.bookings || null); }
+function billGroup(key){
+  const all = billBookings(); if (!all) return null;
+  return all.filter(b => b.kind !== "event" && bkGroupKey(b) === key).sort((a, b) => a.startMs - b.startMs);
+}
+function svcSums(list){
+  const act = list.filter(b => b.status !== "Cancelled" && b.status !== "No-show" || b.paid);
+  const s = ALL_SERVICES.find(x => x.id === list[0].serviceId) || SERVICES.find(x => x.id === list[0].serviceId);
+  const unit = list[0].price, list1 = s && s.price != null && unit != null && +s.price > +unit ? +s.price : unit;
+  const priced = act.filter(b => b.price != null);
+  const total = priced.reduce((a, b) => a + (+b.price || 0), 0), full = list1 == null ? total : priced.length * list1;
+  return {act, unit, full, total, disc: Math.max(0, full - total), onReq: act.length - priced.length};
+}
+const paidOf = list => { const p = list.find(b => b.paid); return p ? p.paid : null; };
+const firstName = n => String(n || "").trim().split(/\s+/)[0] || "";
+const rcDate = v => { const d = v && v.toDate ? v.toDate() : v ? new Date(v) : null; return d && !isNaN(d) ? fmtWhen(+d, {day: "numeric", month: "short", year: "numeric"}) : "—"; };
+const monthOf = ms => new Date(ms).toLocaleDateString("en-CA", {timeZone: TZ, year: "numeric", month: "2-digit"}).slice(0, 7);
+const monthName = ym => { const [y, m] = ym.split("-").map(Number); return new Date(Date.UTC(y, m - 1, 15)).toLocaleDateString("en-CA", {month: "long", year: "numeric", timeZone: "UTC"}); };
+function feeRows(month, set){
+  const all = (ADM.bookings || []).filter(b => b.kind !== "event" && b.status === "Completed" && b.paid && monthOf(b.startMs) === month);
+  const by = {};
+  all.forEach(b => {
+    const id = b.providerUid || ("name:" + (b.providerName || "?"));
+    const r = by[id] = by[id] || {id, name: b.providerName || "Provider", sessions: [], paid: 0};
+    r.sessions.push(b); r.paid += +b.price || 0;
+  });
+  return Object.values(by).map(r => ({...r, own: isOwnProvider(r.id, set), fee: isOwnProvider(r.id, set) ? 0 : Math.round(r.paid * set.feePct) / 100}))
+    .sort((a, b) => a.own - b.own || b.fee - a.fee);
+}
+
+/* routing helpers */
+function rcParse(id){
+  const m = String(id || "").match(/^([obf])-([^.]+)(?:\.(.+))?$/);
+  return m ? {kind: m[1], key: m[2], copy: m[3] || ""} : null;
+}
+const rcLink = (kind, key, copy) => `#receipt-${kind}-${key}${copy ? "." + copy : ""}`;
+const rcAbs = (kind, key, copy) => location.origin + "/receipt-" + kind + "-" + key + (copy ? "." + copy : "");
+
+/* ---------- the receipt page ---------- */
+function receiptView(){
+  if (!USER) return needSignIn("orders", "Sign in to see your receipt", "Your receipts show here after you sign in.");
+  const r = rcParse(receiptId);
+  if (!r) return views.notfound();
+  if (r.kind === "f" || ["provider", "record"].includes(r.copy)){ if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.</div>`; }
+  if (isAdmin()) startAdmin(); else { startMyOrders(); startMyBookings(); }
+  billSet();
+  if (r.kind === "f") return statementView(r);
+  if (r.kind === "o"){
+    const all = billOrders(); if (!all){ setTimeout(softRender, 800); return `<div class="empty">Loading your receipt…</div>`; }
+    const o = all.find(x => x.id === r.key); if (!o) return `<div class="empty">We couldn't find this receipt. <a href="#my-orders" style="color:var(--link)">See my orders</a></div>`;
+    return rcShell(r, goodsCopies(o), r.copy === "record" ? goodsRecordHTML(o) : goodsReceiptHTML(o), r.copy === "record" ? "" : goodsAdminHTML(o));
+  }
+  const list = billGroup(r.key);
+  if (!list){ setTimeout(softRender, 800); return `<div class="empty">Loading your receipt…</div>`; }
+  if (!list.length) return `<div class="empty">We couldn't find this receipt. <a href="#my-orders" style="color:var(--link)">See my orders and bookings</a></div>`;
+  const body = r.copy === "student" ? studentCopyHTML(list) : r.copy === "provider" ? providerCopyHTML(list) : r.copy === "record" ? serviceRecordHTML(list) : serviceReceiptHTML(list);
+  return rcShell(r, serviceCopies(list), body, r.copy ? "" : serviceAdminHTML(list));
+}
+function goodsCopies(o){ return [["", "Receipt"], ...(isAdmin() ? [["record", "Nojan record"]] : [])]; }
+function serviceCopies(list){
+  const forOther = list[0].who && list[0].who !== "Me" || !!list[0].forName;
+  return [["", "Client receipt"], ...(forOther || isAdmin() ? [["student", "Student copy"]] : []), ...(isAdmin() ? [["provider", "Provider copy"], ["record", "Nojan record"]] : [])];
+}
+function rcShell(r, copies, body, admin){
+  return `<div class="rcwrap">
+    <div class="rcbar">
+      <nav class="rccrumb"><a href="#my-orders">${isAdmin() ? "Orders and bookings" : "My orders &amp; bookings"}</a><span> › </span><span>Receipt</span></nav>
+      <div class="rcbtns">
+        ${copies.length > 1 ? `<div class="rccopies" role="group" aria-label="Which copy">${copies.map(([c, label]) => `<a href="${rcLink(r.kind, r.key, c)}" aria-current="${c === r.copy ? "page" : "false"}">${label}</a>`).join("")}</div>` : ""}
+        <button class="btn small" type="button" data-rcprint>Print or save as PDF</button>
+        ${r.copy === "" || r.copy === "student" ? `<button class="btn small" type="button" data-rcmail="${esc(receiptId)}">Email me a copy</button>` : ""}
+        ${r.copy === "provider" ? `<button class="btn small" type="button" data-rcprov="${esc(r.key)}">Email to the provider</button>` : ""}
+      </div>
+    </div>
+    ${body}
+    ${isAdmin() && admin ? `<div class="rcadmin">${admin}</div>` : ""}
+  </div>`;
+}
+const rcCheck = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L19 7"/></svg>';
+function rcHead(kindLabel, paidLine, big, sub, unpaid){
+  return `<div class="rchead">
+    <div class="rcbrand"><span class="rclogo" aria-hidden="true">N</span><span><b>Nojan</b><small>${kindLabel}</small></span></div>
+    <div class="rcstatus">${unpaid ? `<span class="rcpill due">Not paid yet</span>` : `<span class="rcpill paid">${rcCheck}<span>Paid in full</span></span>`}<span class="rcwhen">${paidLine}</span></div>
+    <div class="rcbig">${big}</div>
+    ${sub ? `<div class="rcsub">${sub}</div>` : ""}
+  </div>`;
+}
+const rcFacts = rows => `<div class="rcfacts">${rows.filter(Boolean).map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("")}</div>`;
+const rcSec = (title, inner, cls) => `<section class="rcsec${cls ? " " + cls : ""}"><h2>${title}</h2>${inner}</section>`;
+const rcSumRow = (k, v, cls) => `<div class="rcsumrow${cls ? " " + cls : ""}"><span>${k}</span><span>${v}</span></div>`;
+function rcFoot(){
+  return `<div class="rcfoot"><span><b>Nojan Inc.</b> · Richmond Hill, Ontario · ${esc(CONTACT_EMAIL)} · nojans.com</span>${BILL_GST ? `<span>GST/HST no. ${esc(BILL_GST)}</span>` : ""}</div>`;
+}
+function paidLineOf(p, unpaidText){
+  if (!p) return unpaidText;
+  return `${rcDate(p.at)} · ${esc(p.method || "")}`;
+}
+function payBlock(p, who, email){
+  return `<div class="rcpay">
+    ${who ? `<div><h3>Billed to</h3><p>${who}${email ? `<br>${esc(email)}` : ""}</p></div>` : ""}
+    <div><h3>Payment</h3><p>${p ? `${esc(p.method || "")}${p.ref ? ` · ref. ${esc(p.ref)}` : ""}<br>Received by Nojan Inc. on ${rcDate(p.at)}` : `Not paid yet. Pay by Interac e-Transfer to ${esc(SHOP_EMAIL)}, or cash at pickup or at the session.`}</p></div>
+  </div>`;
+}
+
+/* goods */
+function goodsSteps(o){
+  const at = s => { const h = (o.history || []).find(x => x.status === s); return h ? h.at : null; };
+  const steps = [["Ordered", o.createdAt], ["Confirmed", at("Contacted")], ["Ready for pickup", at("Ready for pickup")], ["Picked up", at("Completed")], ["Paid", o.paid ? o.paid.at : null]];
+  if (o.status === "Cancelled") return `<p class="note">This order was cancelled.</p>`;
+  return `<ol class="rcsteps">${steps.map(([k, v]) => `<li class="${v ? "on" : ""}"><b>${k}</b><small>${v ? rcDate(v) : "—"}</small></li>`).join("")}</ol>`;
+}
+function goodsReceiptHTML(o){
+  const p = o.paid, t = o.test || null, its = o.items || [];
+  const saved = its.reduce((a, it) => { const pr = PRODUCTS.find(x => x.id === it.id || x.id === String(it.id).replace(/^s-/, "")); return pr && it.price != null && pr.was ? a + Math.max(0, withHST(pr.was) - it.price) * it.qty : a; }, 0);
+  const total = p && p.amount != null ? +p.amount : +(o.total || 0);
+  return `<article class="rcpaper">
+    ${rcHead("Shop receipt · goods", paidLineOf(p, "Order confirmation"), `${money(total)} <small>CAD</small>`, saved > 0 ? `You saved ${money(saved)} compared with the new price.` : "", !p)}
+    ${rcFacts([["Receipt no.", "NJ-" + o.number], ["Order no.", "#" + o.number], ["Ordered", rcDate(o.createdAt)], ["Received by", o.status === "Completed" ? "Pick-up, tested" : esc(o.status || "")]])}
+    ${rcSec("Order progress", goodsSteps(o))}
+    ${rcSec("What you got", `<div class="rcitems">${its.map(it => `<div class="rcitem">
+        <div class="rcimg">${it.image ? `<img src="${esc(it.image)}" alt="">` : ""}</div>
+        <div><b>${esc(it.name)}</b><small>${esc(String(it.id).replace(/^s-/, ""))} · ${it.condition === "new" ? "New" : "Used"} · Qty ${it.qty}</small></div>
+        <div class="rcamt">${itemPrice(it)}</div></div>`).join("")}</div>
+      ${t ? `<div class="rctest"><h3>Tested in front of you · ${rcDate(t.at)}</h3><div class="rcgrid2">
+        ${t.serial ? `<div><span>Serial no.</span><b>${esc(t.serial)}</b></div>` : ""}
+        <div><span>Powers on</span><b>${t.powers === "no" ? "No" : t.powers === "na" ? "Not needed" : "Yes"}</b></div>
+        ${t.notes ? `<div><span>Condition</span><b>${esc(t.notes)}</b></div>` : ""}
+        ${t.included ? `<div><span>Included</span><b>${esc(t.included)}</b></div>` : ""}
+      </div></div>` : ""}`)}
+    <div class="rcbottom">
+      ${payBlock(p, esc(o.name || ""), o.email)}
+      <div class="rcsum">
+        ${rcSumRow(`Items (${its.reduce((a, x) => a + (x.qty || 0), 0)})`, money(+(o.subtotal || o.total || 0)))}
+        ${rcSumRow("Delivery", "Free (pick-up)")}
+        ${rcSumRow("HST", money(+(o.tax || 0)))}
+        ${rcSumRow(p ? "Total paid" : "Amount due", money(total), "big")}
+        ${p ? rcSumRow("Balance due", money(0), "muted") : ""}
+        ${o.unpriced ? `<p class="note">Plus ${o.unpriced} item(s) priced on request.</p>` : ""}
+      </div>
+    </div>
+    <p class="rcpolicy">You test and accept items before paying, so the sale is final once paid. A manufacturer's warranty may apply to some brand new items. <a href="#returns">Read the details</a></p>
+    ${rcFoot()}
+  </article>`;
+}
+function goodsRecordHTML(o){
+  const rec = billJSONNote("rec", "recLoad", "rec_o_" + o.id), p = o.paid, sold = p && p.amount != null ? +p.amount : +(o.total || 0);
+  const cost = rec && rec.cost !== "" && rec.cost != null ? +rec.cost : null;
+  return `<article class="rcpaper rcrecord">
+    ${rcHead("Nojan record · goods sale", paidLineOf(p, "Not paid yet"), "NJ-" + o.number, esc(o.name || ""), !p)}
+    ${rcSec("Item", `<div class="rcgrid2">${(o.items || []).map(it => `<div><span>${esc(String(it.id).replace(/^s-/, ""))}</span><b>${it.qty} × ${esc(it.name)} (${it.condition === "new" ? "New" : "Used"})</b></div>`).join("")}
+      ${o.test && o.test.serial ? `<div><span>Serial no.</span><b>${esc(o.test.serial)}</b></div>` : ""}</div>`)}
+    ${rcSec("Money", rec === undefined ? `<p class="note">Loading…</p>` : `<div class="rcgrid2">
+      <div><span>Sold for</span><b>${money(sold)}</b></div>
+      <div><span>Nojan paid</span><b>${cost == null ? "—" : money(cost)}${rec.source ? ` (${esc(rec.source)})` : ""}</b></div>
+      <div><span>Profit</span><b>${cost == null ? "—" : money(sold - cost)}</b></div>
+      <div><span>Paid by</span><b>${p ? `${esc(p.method || "")}, ${rcDate(p.at)}` : "Not paid yet"}</b></div></div>
+      <form class="rcform" data-rcrec="${o.id}">
+        <label>What Nojan paid for it<input name="cost" inputmode="decimal" value="${cost == null ? "" : cost}" placeholder="e.g. 60"></label>
+        <label>Bought from<input name="source" value="${esc(rec.source || "")}" placeholder="e.g. Facebook Marketplace"></label>
+        <button class="btn small" type="submit">Save</button>
+      </form>`)}
+    ${rcSec("Stock and test", `<div class="rcgrid2">
+      <div><span>Taken out of stock</span><b>${o.stockApplied ? "Yes" : "Not yet"}</b></div>
+      <div><span>Tested with customer</span><b>${o.test ? `${rcDate(o.test.at)}${o.test.notes ? " · " + esc(o.test.notes) : ""}` : "Not recorded"}</b></div>
+      <div><span>Status</span><b>${esc(o.status || "")}</b></div></div>`)}
+    ${rcFoot()}
+  </article>`;
+}
+
+/* services */
+function sessionsTable(list, mode){
+  const rows = list.map((b, i) => `<tr${b.status === "Cancelled" ? ' class="off"' : ""}>
+      <td>${list.length > 1 ? b.seriesI || i + 1 : 1}</td>
+      <td>${esc(fmtWhen(b.startMs, {weekday: "short", day: "numeric", month: "short", year: "numeric"}))}, ${esc(fmtTime(b.startMs))}</td>
+      <td>${esc(durTxt(b.durationMin || 60))}</td>
+      ${mode === "price" ? `<td class="num">${b.price == null ? "On request" : money(+b.price)}</td>` : ""}
+      ${mode === "fee" ? `<td class="num">${b.status === "Completed" && b.paid ? money(+b.price || 0) : "—"}</td>` : ""}
+      ${mode === "student" ? `<td>${b.sessionNotes ? `<a href="#mybooking-${b.id}">Notes${b.tasks ? " and practice" : ""}</a>` : b.status === "Confirmed" && b.startMs > Date.now() - 3600e3 ? `<a href="#mybooking-${b.id}">Open</a>` : ""}</td>` : ""}
+      <td>${pill(b.status)}</td></tr>`).join("");
+  const head = mode === "price" ? "<th>Price</th>" : mode === "fee" ? "<th>Paid</th>" : mode === "student" ? "<th>Notes and practice</th>" : "";
+  return `<div class="tablewrap"><table class="rctable"><thead><tr><th>#</th><th>Date and time</th><th>Length</th>${head}<th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+const doneOf = list => list.filter(b => b.status === "Completed").length;
+function serviceFacts(list){
+  const b = list[0];
+  return rcFacts([["Receipt no.", "SV-" + b.number], ["Booking no.", "B-" + b.number + (list.length > 1 ? ` (+${list.length - 1})` : "")], ["Booked", rcDate(b.createdAt)], ["Format", b.format === "online" ? `Online${b.platform ? " (" + esc(b.platform) + ")" : ""}` : "In person"]]);
+}
+function serviceWho(list){
+  const b = list[0], pp = b.providerUid ? (ALL_PROVIDERS.find(x => x.id === b.providerUid) || PROVIDERS.find(x => x.id === b.providerUid)) : null;
+  return `<div class="rcwho"><span class="rcav" aria-hidden="true">${esc((b.providerName || "N").slice(0, 1).toUpperCase())}</span>
+    <div><small>Service</small><b>${esc(b.serviceTitle || "")}</b><span>${esc(b.serviceId || "")} · Provided by ${esc(b.providerName || "Nojan")}${b.providerUid ? `, ${esc(b.providerUid)}` : ""}${pp && pp.checked ? ` · <em>Checked by Nojan</em>` : ""}</span></div>
+    ${list.length > 1 ? `<div class="rcprog"><small>${b.seriesKind === "pack" ? "Package" : "Weekly"}</small><b>${doneOf(list)} of ${list.length} done</b></div>` : ""}</div>`;
+}
+function serviceReceiptHTML(list){
+  const b = list[0], p = paidOf(list), S = svcSums(list), total = p && p.amount != null ? +p.amount : S.total;
+  const sub = S.disc > 0 ? `${b.seriesKind === "pack" ? `Package of ${list.length}` : "Discount"}: you saved ${money(S.disc)}.` : "";
+  return `<article class="rcpaper">
+    ${rcHead("Service receipt · classes and services", paidLineOf(p, "Booking confirmation"), `${money(total)} <small>CAD</small>`, sub, !p)}
+    ${serviceFacts(list)}
+    ${serviceWho(list)}
+    ${rcSec(list.length > 1 ? "Your sessions" : "Your session", sessionsTable(list, "price") + `<p class="rcpolicy">You can cancel from My orders and bookings while a booking is Requested or Confirmed. Cancelled sessions are not charged. If a session can't happen because of Nojan or the provider, we move it or refund it. Services have no warranty or returns.</p>`)}
+    <div class="rcbottom">
+      ${payBlock(p, `${esc(b.name || "")}${b.forName ? `<br>For: ${esc(b.forName)}` : ""}`, b.email)}
+      <div class="rcsum">
+        ${rcSumRow(`${S.act.length} session${S.act.length === 1 ? "" : "s"}${S.unit != null ? ` × ${money(+(S.disc > 0 ? S.full / Math.max(1, S.act.length - S.onReq) : S.unit))}` : ""}`, money(S.full))}
+        ${S.disc > 0 ? rcSumRow(b.seriesKind === "pack" ? "Package discount" : "Discount", "−" + money(S.disc)) : ""}
+        ${rcSumRow("HST", money(0))}
+        ${rcSumRow(p ? "Total paid" : "Amount due", money(total), "big")}
+        ${p ? rcSumRow("Balance due", money(0), "muted") : ""}
+        ${S.onReq ? `<p class="note">${S.onReq} session(s) priced on request.</p>` : ""}
+      </div>
+    </div>
+    ${rcFoot()}
+  </article>`;
+}
+function studentCopyHTML(list){
+  const b = list[0], p = paidOf(list);
+  return `<article class="rcpaper">
+    <div class="rchead">
+      <div class="rcbrand"><span class="rclogo" aria-hidden="true">N</span><span><b>Nojan</b><small>Student copy · class record</small></span></div>
+      <div class="rcbig rcbig2">${esc(b.serviceTitle || "")}<small>with ${esc(b.providerName || "Nojan")}</small></div>
+      <div class="rcstatus">${p ? `<span class="rcpill paid">${rcCheck}<span>Paid in full</span></span>` : `<span class="rcpill due">Payment pending</span>`}${list.length > 1 ? `<span class="rcpill info">${doneOf(list)} of ${list.length} classes done</span>` : ""}</div>
+    </div>
+    ${rcFacts([["Student", esc(b.forName || b.name || "")], ["Booked by", esc(firstName(b.name))], ["Copy no.", "SV-" + b.number + "-S"], ["Where", b.format === "online" ? "Online" + (b.platform ? " (" + esc(b.platform) + ")" : "") : "In person"]])}
+    ${rcSec(list.length > 1 ? "Your classes" : "Your class", sessionsTable(list, "student"))}
+    <p class="rcpolicy">This is your record of classes. It has no prices: the receipt went to the person who paid. Need another time? Ask from the booking page.</p>
+    ${rcFoot()}
+  </article>`;
+}
+function providerMoney(list){
+  const set = billSet(), b = list[0], own = isOwnProvider(b.providerUid, set), S = svcSums(list);
+  const done = list.filter(x => x.status === "Completed" && x.paid), doneAmt = done.reduce((a, x) => a + (+x.price || 0), 0);
+  const fee = own ? 0 : Math.round(S.total * set.feePct) / 100, feeSoFar = own ? 0 : Math.round(doneAmt * set.feePct) / 100;
+  return {set, own, S, fee, feeSoFar, keep: S.total - fee, done};
+}
+function providerCopyHTML(list){
+  const b = list[0], p = paidOf(list), M = providerMoney(list);
+  return `<article class="rcpaper">
+    <div class="rchead">
+      <div class="rcbrand"><span class="rclogo" aria-hidden="true">N</span><span><b>Nojan</b><small>Provider copy · earnings</small></span></div>
+      <div class="rcstatus"><span class="rcpill info">${p ? "Client paid" : "Client hasn't paid yet"}${list.length > 1 ? ` · ${doneOf(list)} of ${list.length} sessions given` : ""}</span></div>
+      <div class="rcsmall">You keep</div>
+      <div class="rcbig">${money(M.keep)} <small>CAD</small></div>
+    </div>
+    ${rcFacts([["Provider", esc(b.providerName || "")], ["Provider no.", esc(b.providerUid || "—")], ["Booking no.", "B-" + b.number], ["Student", esc(firstName(b.forName || b.name))]])}
+    ${rcSec(`Sessions you give · ${esc(b.serviceTitle || "")}`, sessionsTable(list, ""))}
+    <div class="rcbottom">
+      <div class="rcpay"><div><h3>How the fee works</h3><p>${M.own ? "This is one of Nojan's own services, so no fee is charged." : `Nojan's fee is ${M.set.feePct}% of what the client paid. It is counted for each completed session and billed once a month on your fee statement. Cancelled or refunded sessions are not charged.`}</p></div></div>
+      <div class="rcsum">
+        ${rcSumRow(`Client paid${list.length > 1 ? ` (${M.S.act.length} sessions${M.S.disc > 0 ? ", with discount" : ""})` : ""}`, money(M.S.total))}
+        ${rcSumRow(M.own ? "Nojan fee" : `Nojan fee ${M.set.feePct}%`, M.own ? "Not charged" : "−" + money(M.fee))}
+        ${rcSumRow("You keep", money(M.keep), "big")}
+        ${M.own ? "" : rcSumRow(`Fee so far (${M.done.length} session${M.done.length === 1 ? "" : "s"})`, money(M.feeSoFar), "muted")}
+      </div>
+    </div>
+    ${rcFoot()}
+  </article>`;
+}
+function serviceRecordHTML(list){
+  const b = list[0], p = paidOf(list), M = providerMoney(list);
+  return `<article class="rcpaper rcrecord">
+    ${rcHead("Nojan record · service", paidLineOf(p, "Not paid yet"), "SV-" + b.number, `${esc(b.serviceTitle || "")} · ${list.length > 1 ? `${doneOf(list)} of ${list.length} done` : esc(b.status || "")}`, !p)}
+    ${rcSec("Service", `<div class="rcgrid2">
+      <div><span>Service</span><b>${esc(b.serviceTitle || "")} · ${esc(b.serviceId || "")}</b></div>
+      <div><span>Provider</span><b>${esc(b.providerName || "")}${b.providerUid ? " · " + esc(b.providerUid) : ""}</b></div>
+      <div><span>Booking</span><b>B-${b.number}${list.length > 1 ? ` · ${b.seriesKind === "pack" ? "package" : "weekly"} of ${list.length}` : ""}</b></div>
+      <div><span>Client / student</span><b>${esc(b.name || "")}${b.forName ? " → " + esc(b.forName) : ""} · ${b.format === "online" ? "Online" : "In person"}</b></div></div>`)}
+    ${rcSec("Money", `<div class="rcgrid2">
+      <div><span>Client paid</span><b>${p ? money(p.amount != null ? +p.amount : M.S.total) : "Not paid yet (" + money(M.S.total) + " due)"}</b></div>
+      <div><span>Nojan fee ${M.set.feePct}%</span><b>${M.own ? `${money(Math.round(M.S.total * M.set.feePct) / 100)} · not charged: Nojan's own service` : money(M.fee)}</b></div>
+      <div><span>Provider keeps</span><b>${money(M.keep)}</b></div>
+      <div><span>Fee counted</span><b>Per completed, paid session</b></div></div>`)}
+    ${rcSec("Attendance", sessionsTable(list, "fee"))}
+    ${rcFoot()}
+  </article>`;
+}
+
+/* admin panels under a receipt */
+function payFormHTML(kind, id, due, p){
+  if (p) return `<div class="obox"><h3>Payment</h3><p>Paid ${money(p.amount != null ? +p.amount : due)} by ${esc(p.method || "")} on ${rcDate(p.at)}${p.ref ? ` (ref. ${esc(p.ref)})` : ""}.</p>
+    <span style="display:flex;gap:14px;flex-wrap:wrap"><button class="linkbtn" type="button" data-rcresend="${kind}:${id}">Email the receipt again</button><button class="linkbtn" type="button" data-rcunpay="${kind}:${id}" style="color:var(--danger)">Undo payment</button></span></div>`;
+  return `<form class="obox rcform" data-rcpay="${kind}:${id}"><h3>Mark as paid</h3>
+    <label>Paid by<select name="method">${BILL_METHODS.map(m => `<option>${m}</option>`).join("")}</select></label>
+    <label>Amount received<input name="amount" inputmode="decimal" value="${due.toFixed(2)}"></label>
+    <label>Reference <small>(optional, e.g. last 4)</small><input name="ref" maxlength="20"></label>
+    <label>Date<input name="date" type="date" value="${new Date().toLocaleDateString("en-CA", {timeZone: TZ})}"></label>
+    <label class="check"><input type="checkbox" name="email" checked> Email the paid receipt to the customer</label>
+    <button class="btn small primary" type="submit">Save and send receipt</button></form>`;
+}
+function goodsAdminHTML(o){
+  const t = o.test || {};
+  return `<h2>Admin</h2>
+    ${payFormHTML("o", o.id, +(o.total || 0), o.paid)}
+    <form class="obox rcform" data-rctest="${o.id}"><h3>Test at pick-up <small>(shows on the customer's receipt)</small></h3>
+      <label>Serial no.<input name="serial" value="${esc(t.serial || "")}" maxlength="60"></label>
+      <label>Powers on<select name="powers"><option value="yes"${t.powers === "yes" || !t.powers ? " selected" : ""}>Yes</option><option value="no"${t.powers === "no" ? " selected" : ""}>No</option><option value="na"${t.powers === "na" ? " selected" : ""}>Not needed</option></select></label>
+      <label>Condition<input name="notes" value="${esc(t.notes || "")}" maxlength="140" placeholder="e.g. Light scratches on the back"></label>
+      <label>Included<input name="included" value="${esc(t.included || "")}" maxlength="140" placeholder="e.g. Charger, box"></label>
+      <button class="btn small" type="submit">Save test record</button></form>`;
+}
+function serviceAdminHTML(list){
+  const S = svcSums(list);
+  return `<h2>Admin</h2>${payFormHTML("b", bkGroupKey(list[0]), S.total, paidOf(list))}
+    <p class="note">Payment is saved on every session in this booking. Nojan's fee is counted when a session is set to Completed in Admin → Bookings.</p>`;
+}
+
+/* monthly fee statement for one provider */
+function statementView(r){
+  const [pid, month] = r.key.split("~");
+  if (!ADM.bookings){ setTimeout(softRender, 800); return `<div class="empty">Loading…</div>`; }
+  const set = billSet(), row = feeRows(month, set).find(x => x.id === pid);
+  const pp = ALL_PROVIDERS.find(x => x.id === pid), name = (row && row.name) || (pp && pp.name) || pid;
+  const sessions = row ? row.sessions.sort((a, b) => a.startMs - b.startMs) : [];
+  const fee = row ? row.fee : 0, [y, m] = month.split("-").map(Number), last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const due = new Date(Date.UTC(y, m, 15)).toLocaleDateString("en-CA", {day: "numeric", month: "long", year: "numeric", timeZone: "UTC"});
+  const no = `NJ-FEE-${month}-${pid}`;
+  return `<div class="rcwrap">
+    <div class="rcbar"><nav class="rccrumb"><a href="#admin" data-rcfees>Billing › Provider fees</a></nav>
+      <div class="rcbtns"><button class="btn small" type="button" data-rcprint>Print or save as PDF</button><button class="btn small" type="button" data-rcstmail="${esc(pid)}~${month}">Email to the provider</button></div></div>
+    <article class="rcpaper">
+      <div class="rchead">
+        <div class="rcbrand"><span class="rclogo" aria-hidden="true">N</span><span><b>Nojan</b><small>Fee statement · ${esc(monthName(month))}</small></span></div>
+        <div class="rcsmall">Amount due</div>
+        <div class="rcbig">${money(fee)} <small>CAD</small></div>
+        <div class="rcsub">Due by ${due}</div>
+      </div>
+      ${rcFacts([["To", esc(name)], ["Provider no.", esc(pid)], ["Statement no.", no], ["Period", `1–${last} ${esc(monthName(month))}`]])}
+      <p class="rcpolicy">Nojan's service fee is ${set.feePct}% of what clients paid for your completed classes booked through nojans.com.</p>
+      ${rcSec("Completed, paid sessions", sessions.length ? `<div class="tablewrap"><table class="rctable"><thead><tr><th>Booking</th><th>Class</th><th>Date</th><th>Receipt</th><th class="num">Client paid</th><th class="num">Fee ${set.feePct}%</th></tr></thead><tbody>
+        ${sessions.map(b => `<tr><td>B-${b.number}</td><td>${esc(b.serviceTitle || "")}</td><td>${esc(fmtWhen(b.startMs, {day: "numeric", month: "short"}))}</td><td>SV-${(billGroup(bkGroupKey(b)) || [b])[0].number}</td><td class="num">${money(+b.price || 0)}</td><td class="num">${row.own ? "—" : money(Math.round((+b.price || 0) * set.feePct) / 100)}</td></tr>`).join("")}
+        <tr class="tot"><td colspan="4">Total · ${sessions.length} session${sessions.length === 1 ? "" : "s"}</td><td class="num">${money(row.paid)}</td><td class="num">${money(fee)}</td></tr></tbody></table></div>` : `<p class="note">No completed, paid sessions this month.</p>`)}
+      <div class="rcbottom"><div class="rcpay"><div><h3>How to pay</h3><p>${row && row.own ? "Nojan's own services: no fee." : `Interac e-Transfer to ${esc(SHOP_EMAIL)}, message “${no}”.`}</p></div></div>
+        <div class="rcsum">${rcSumRow("Fees", money(fee))}${rcSumRow("GST/HST", money(0))}${rcSumRow("Total due", money(fee), "big")}</div></div>
+      ${rcFoot()}
+    </article></div>`;
+}
+
+/* ---------- Admin → Billing ---------- */
+function billingAdminHTML(){
+  const B = bill(), set = billSet();
+  const tabs = [["receipts", "Receipts"], ["fees", `Provider fees (${set.feePct}%)`], ["settings", "Settings"]];
+  return `<div class="chips" role="group" aria-label="Billing" style="margin-bottom:14px">${tabs.map(([k, l]) => `<button type="button" data-btab="${k}" aria-pressed="${B.tab === k}">${l}</button>`).join("")}</div>
+    ${B.tab === "fees" ? billFeesHTML(set) : B.tab === "settings" ? billSettingsHTML(set) : billReceiptsHTML(set)}`;
+}
+function billRows(){
+  const rows = [];
+  (ADM.orders || []).forEach(o => { if (o.status === "Cancelled" && !o.paid) return;
+    rows.push({kind: "o", key: o.id, no: "NJ-" + o.number, type: "Goods", who: o.name || "", email: o.email || "", ms: tsNum(o.createdAt), total: o.paid && o.paid.amount != null ? +o.paid.amount : +(o.total || 0), paid: o.paid || null, text: (o.items || []).map(i => i.name).join(", ")}); });
+  const groups = {};
+  (ADM.bookings || []).filter(b => b.kind !== "event").forEach(b => { (groups[bkGroupKey(b)] = groups[bkGroupKey(b)] || []).push(b); });
+  Object.entries(groups).forEach(([k, list]) => { list.sort((a, b) => a.startMs - b.startMs);
+    if (list.every(b => b.status === "Cancelled") && !paidOf(list)) return;
+    const S = svcSums(list), p = paidOf(list);
+    rows.push({kind: "b", key: k, no: "SV-" + list[0].number, type: "Service", who: list[0].name || "", email: list[0].email || "", ms: tsNum(list[0].createdAt), total: p && p.amount != null ? +p.amount : S.total, paid: p, text: list[0].serviceTitle + (list.length > 1 ? ` · ${list.length} sessions` : "")}); });
+  return rows.sort((a, b) => b.ms - a.ms);
+}
+function billReceiptsHTML(set){
+  const B = bill();
+  if (!ADM.orders || !ADM.bookings) return `<div class="empty">Loading…</div>`;
+  const all = billRows(), inMonth = r => monthOf(r.paid ? +new Date(r.paid.at) : r.ms) === B.month;
+  const q = B.q.trim().toLowerCase();
+  const list = all.filter(r => (B.kind === "all" || r.kind === B.kind) && (B.pay === "all" || (B.pay === "paid") === !!r.paid) && (B.pay === "unpaid" || inMonth(r)) && (!q || [r.no, r.who, r.email, r.text].join(" ").toLowerCase().includes(q)));
+  const paidM = all.filter(r => r.paid && inMonth(r)).reduce((a, r) => a + r.total, 0), wait = all.filter(r => !r.paid).reduce((a, r) => a + r.total, 0);
+  const fees = feeRows(B.month, set).reduce((a, r) => a + r.fee, 0);
+  const months = billMonths();
+  return `<div class="billtiles">
+      <div><span>Paid in ${esc(monthName(B.month))}</span><b>${money(paidM)}</b></div>
+      <div><span>Waiting for payment</span><b>${money(wait)}</b></div>
+      <div><span>${set.feePct}% fees owed to Nojan</span><b>${money(fees)}</b></div></div>
+    <div class="admintools billtools">
+      <input id="billQ" type="search" placeholder="Receipt no., customer, item or class" value="${esc(B.q)}" aria-label="Search receipts">
+      <label>Type<select data-bset="kind"><option value="all"${B.kind === "all" ? " selected" : ""}>Goods and services</option><option value="o"${B.kind === "o" ? " selected" : ""}>Goods</option><option value="b"${B.kind === "b" ? " selected" : ""}>Services</option></select></label>
+      <label>Status<select data-bset="pay"><option value="all"${B.pay === "all" ? " selected" : ""}>All</option><option value="unpaid"${B.pay === "unpaid" ? " selected" : ""}>Not paid (any month)</option><option value="paid"${B.pay === "paid" ? " selected" : ""}>Paid</option></select></label>
+      <label>Month<select data-bset="month">${months.map(m => `<option value="${m}"${m === B.month ? " selected" : ""}>${esc(monthName(m))}</option>`).join("")}</select></label>
+      <button class="btn small" type="button" data-bcsv>Download CSV for the accountant</button>
+    </div>
+    ${list.length ? `<div class="tablewrap"><table class="ctable billtable"><thead><tr><th>Receipt</th><th>Type</th><th>Customer</th><th>For</th><th>Date</th><th class="num">Total</th><th>Status</th><th></th></tr></thead><tbody>
+      ${list.map(r => `<tr><td><b>${r.no}</b></td><td>${r.type}</td><td>${esc(r.who)}</td><td>${esc(r.text).slice(0, 80)}</td><td>${r.paid ? "Paid " + rcDate(r.paid.at) : rcDate(r.ms)}</td><td class="num">${money(r.total)}</td>
+        <td>${r.paid ? `<span class="pill rcp-paid">Paid</span>` : `<span class="pill rcp-due">Not paid</span>`}</td>
+        <td class="billact"><a class="btn small${r.paid ? "" : " primary"}" href="${rcLink(r.kind, r.key, "")}">${r.paid ? "Open" : "Mark as paid"}</a>${r.kind === "b" ? `<a class="linkbtn" href="${rcLink("b", r.key, "provider")}">Provider copy</a>` : ""}<a class="linkbtn" href="${rcLink(r.kind, r.key, "record")}">Record</a></td></tr>`).join("")}
+    </tbody></table></div>` : `<div class="empty">No receipts match.</div>`}`;
+}
+function billMonths(){
+  const set = new Set([bill().month, new Date().toISOString().slice(0, 7)]);
+  (ADM.orders || []).forEach(o => set.add(monthOf(tsNum(o.createdAt))));
+  (ADM.bookings || []).forEach(b => { if (b.startMs) set.add(monthOf(b.startMs)); });
+  return [...set].sort().reverse();
+}
+function billFeesHTML(set){
+  const B = bill();
+  if (!ADM.bookings) return `<div class="empty">Loading…</div>`;
+  const rows = feeRows(B.month, set), st = billJSONNote("fees", "feesLoad", "fees_" + B.month) || {};
+  return `<div class="obox" style="margin-bottom:14px"><p style="margin:0"><b>Nojan fee: ${set.feePct}%</b> of what clients paid for each class. A session counts when it is <b>Completed</b> and <b>paid</b>. Refunded or cancelled sessions don't count. Change the % and Nojan's own providers in Settings.</p></div>
+    <div class="admintools billtools"><label>Month<select data-bset="month">${billMonths().map(m => `<option value="${m}"${m === B.month ? " selected" : ""}>${esc(monthName(m))}</option>`).join("")}</select></label></div>
+    ${rows.length ? `<div class="tablewrap"><table class="ctable billtable"><thead><tr><th>Provider</th><th class="num">Sessions</th><th class="num">Clients paid</th><th class="num">Fee ${set.feePct}%</th><th>Status</th><th></th></tr></thead><tbody>
+      ${rows.map(r => { const s = st[r.id] || {}; return `<tr><td><b>${esc(r.name)}</b><br><small class="note">${esc(r.id.startsWith("name:") ? "No provider profile" : r.id)}${r.own ? " · Nojan's own" : ""}</small></td><td class="num">${r.sessions.length}</td><td class="num">${money(r.paid)}</td><td class="num"><b>${r.own ? "No fee" : money(r.fee)}</b></td>
+        <td>${r.own ? `<span class="pill">Owner</span>` : s.received ? `<span class="pill st-Completed">Fee received</span>` : s.sent ? `<span class="pill st-Contacted">Sent ${esc(s.sent)}</span>` : `<span class="pill st-New">Not sent</span>`}</td>
+        <td class="billact">${r.own ? "" : `<a class="btn small" href="${rcLink("f", r.id + "~" + B.month, "")}">Statement</a>${!s.sent ? `<button class="linkbtn" type="button" data-bfee="sent:${esc(r.id)}">Mark sent</button>` : ""}${!s.received ? `<button class="linkbtn" type="button" data-bfee="received:${esc(r.id)}">Mark fee received</button>` : `<button class="linkbtn" type="button" data-bfee="undo:${esc(r.id)}">Undo</button>`}`}</td></tr>`; }).join("")}
+    </tbody></table></div>` : `<div class="empty">No completed, paid sessions in ${esc(monthName(B.month))}.</div>`}`;
+}
+function billSettingsHTML(set){
+  if (!bill().set) return `<div class="empty">Loading…</div>`;
+  return `<form class="obox rcform" data-bsettings style="max-width:640px">
+    <h3>Nojan's fee on classes and services</h3>
+    <label>Fee in %<input name="feePct" inputmode="decimal" value="${set.feePct}"></label>
+    <fieldset class="rcfs"><legend>Nojan's own providers (no fee)</legend>
+      ${ALL_PROVIDERS.map(p => `<label class="check"><input type="checkbox" name="own" value="${esc(p.id)}"${set.own.includes(p.id) ? " checked" : ""}> ${esc(p.name || p.id)} <small class="note">${esc(p.id)}</small></label>`).join("") || `<p class="note">No provider profiles yet.</p>`}
+    </fieldset>
+    <p class="note">Tax: receipts show HST $0.00 while Nojan is a small supplier. Once Nojan Inc. registers for GST/HST, the number goes on every receipt (ask Claude to switch it on).</p>
+    <button class="btn small primary" type="submit">Save settings</button></form>`;
+}
+
+/* ---------- actions ---------- */
+function rcPaidFrom(f){
+  const d = Object.fromEntries(new FormData(f)), amt = parseFloat(String(d.amount || "").replace(/[^\d.]/g, ""));
+  const at = d.date ? new Date(d.date + "T12:00:00").toISOString() : new Date().toISOString();
+  return {paid: {at, method: d.method || "Other", amount: isNaN(amt) ? null : Math.round(amt * 100) / 100, ref: String(d.ref || "").trim().slice(0, 20), by: (USER && USER.email) || "admin"}, email: !!d.email};
+}
+async function rcEmailReceipt(kind, key, to){
+  if (kind === "o"){
+    const o = (ADM.orders || MY.orders || []).find(x => x.id === key); if (!o) return;
+    const p = o.paid;
+    await sendEmail(`Your Nojan receipt NJ-${o.number}${p ? "" : " (not paid yet)"}`, {
+      Receipt: "NJ-" + o.number, Status: p ? `Paid ${rcDate(p.at)} by ${p.method}` : "Order confirmation, not paid yet",
+      Items: (o.items || []).map(it => `${it.qty} x ${it.name} — ${itemPrice(it)}`).join("\n"),
+      [p ? "Total paid" : "Amount due"]: money(p && p.amount != null ? +p.amount : +(o.total || 0)),
+      "View, print or save your receipt": rcAbs("o", o.id, ""), _cc: to || o.email, _replyto: CONTACT_EMAIL, _template: "box"});
+    return;
+  }
+  const list = billGroup(key); if (!list || !list.length) return;
+  const b = list[0], p = paidOf(list), S = svcSums(list);
+  await sendEmail(`Your Nojan receipt SV-${b.number}${p ? "" : " (not paid yet)"}`, {
+    Receipt: "SV-" + b.number, Service: `${b.serviceTitle} with ${b.providerName}`, Status: p ? `Paid ${rcDate(p.at)} by ${p.method}` : "Booking confirmation, not paid yet",
+    Sessions: list.map(x => `${fmtLong(x.startMs)} — ${x.status}${x.price != null ? " — " + money(+x.price) : ""}`).join("\n"),
+    [p ? "Total paid" : "Amount due"]: money(p && p.amount != null ? +p.amount : S.total),
+    "View, print or save your receipt": rcAbs("b", key, ""), ...(b.forName ? {"Student copy (no prices)": rcAbs("b", key, "student")} : {}),
+    _cc: to || b.email, _replyto: CONTACT_EMAIL, _template: "box"});
+}
+function rcAskEmail(remember){
+  const v = prompt("Send it to which email address?", remember || ""); if (v == null) return null;
+  const e = v.trim(); if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){ toast("That email address doesn't look right"); return null; }
+  return e;
+}
+async function provEmail(pid){
+  let saved = ""; try { saved = (await FB.getNote("pe_" + pid)) || ""; } catch (_) {}
+  const e = rcAskEmail(saved); if (!e) return null;
+  if (e !== saved) FB.saveNote("pe_" + pid, e).catch(() => {});
+  return e;
+}
+document.addEventListener("click", async e => {
+  const t = e.target.closest && e.target.closest("[data-rcprint],[data-rcmail],[data-rcprov],[data-rcstmail],[data-rcresend],[data-rcunpay],[data-btab],[data-bfee],[data-bcsv],[data-rcfees]");
+  if (!t) return;
+  if (t.hasAttribute("data-rcprint")){ window.print(); return; }
+  if (t.hasAttribute("data-rcfees")){ e.preventDefault(); ADM.tab = "billing"; bill().tab = "fees"; go("admin"); return; }
+  if (t.dataset.btab){ bill().tab = t.dataset.btab; refreshAdmin(true); return; }
+  if (t.dataset.rcmail){
+    const r = rcParse(t.dataset.rcmail); if (!r) return;
+    const to = isAdmin() ? rcAskEmail(USER.email) : USER.email; if (!to) return;
+    t.disabled = true;
+    try {
+      if (r.copy === "student"){ const list = billGroup(r.key), b = list[0];
+        await sendEmail(`Class record SV-${b.number}-S: ${b.serviceTitle}`, {Student: b.forName || b.name, Class: `${b.serviceTitle} with ${b.providerName}`, Classes: list.map(x => `${fmtLong(x.startMs)} — ${x.status}`).join("\n"), "Open the class record": rcAbs("b", r.key, "student"), _cc: to, _replyto: CONTACT_EMAIL, _template: "box"}); }
+      else await rcEmailReceipt(r.kind, r.key, to);
+      toast("Sent to " + to);
+    } catch (er){ console.error(er); toast("Couldn't send the email"); }
+    t.disabled = false; return;
+  }
+  if (t.dataset.rcprov){
+    const list = billGroup(t.dataset.rcprov); if (!list || !list.length) return;
+    const b = list[0], M = providerMoney(list), to = await provEmail(b.providerUid || b.providerName); if (!to) return;
+    try { await sendEmail(`Nojan provider copy SV-${b.number}-P: ${b.serviceTitle}`, {
+      Provider: `${b.providerName}${b.providerUid ? " (" + b.providerUid + ")" : ""}`, Booking: "B-" + b.number, Student: firstName(b.forName || b.name),
+      Sessions: list.map(x => `${fmtLong(x.startMs)} — ${x.status}`).join("\n"), "Client paid": money(M.S.total) + (paidOf(list) ? "" : " (not paid yet)"),
+      "Nojan fee": M.own ? "Not charged (Nojan's own service)" : `${M.set.feePct}% = ${money(M.fee)}, billed monthly`, "You keep": money(M.keep),
+      _cc: to, _replyto: CONTACT_EMAIL, _template: "box"}); toast("Sent to " + to); }
+    catch (er){ console.error(er); toast("Couldn't send the email"); }
+    return;
+  }
+  if (t.dataset.rcstmail){
+    const [pid, month] = t.dataset.rcstmail.split("~"), set = billSet(), row = feeRows(month, set).find(x => x.id === pid); if (!row) return toast("Nothing to send for this month");
+    const to = await provEmail(pid); if (!to) return;
+    const no = `NJ-FEE-${month}-${pid}`;
+    try { await sendEmail(`Nojan fee statement ${no}: ${money(row.fee)} due`, {
+      Statement: no, Provider: `${row.name} (${pid})`, Period: monthName(month),
+      Sessions: row.sessions.map(b => `B-${b.number} ${b.serviceTitle}, ${fmtWhen(b.startMs, {day: "numeric", month: "short"})} — paid ${money(+b.price || 0)} — fee ${money(Math.round((+b.price || 0) * set.feePct) / 100)}`).join("\n"),
+      "Clients paid": money(row.paid), [`Nojan fee ${set.feePct}%`]: money(row.fee), "Total due": money(row.fee),
+      "How to pay": `Interac e-Transfer to ${SHOP_EMAIL}, message "${no}"`, _cc: to, _replyto: CONTACT_EMAIL, _template: "box"});
+      const id = "fees_" + month, st = {...(bill().fees[id] || {})}; st[pid] = {...(st[pid] || {}), sent: new Date().toLocaleDateString("en-CA", {timeZone: TZ})};
+      await billSaveNote("fees", id, st); toast("Sent to " + to); }
+    catch (er){ console.error(er); toast("Couldn't send the email"); }
+    return;
+  }
+  if (t.dataset.bfee){
+    const [act, pid] = t.dataset.bfee.split(":"), id = "fees_" + bill().month, st = {...(bill().fees[id] || {})}, cur = {...(st[pid] || {})};
+    const today = new Date().toLocaleDateString("en-CA", {timeZone: TZ});
+    if (act === "sent") cur.sent = today; else if (act === "received"){ cur.received = today; cur.sent = cur.sent || today; } else delete cur.received;
+    st[pid] = cur;
+    try { await billSaveNote("fees", id, st); refreshAdmin(true); } catch (er){ console.error(er); toast("Couldn't save"); }
+    return;
+  }
+  if (t.hasAttribute("data-bcsv")){
+    const B = bill(), rows = billRows().filter(r => monthOf(r.paid ? +new Date(r.paid.at) : r.ms) === B.month);
+    const cell = v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+    const csv = [["Receipt", "Type", "Customer", "Email", "For", "Date", "Total", "Paid", "Paid on", "Paid by", "Reference"].map(cell).join(","),
+      ...rows.map(r => [r.no, r.type, r.who, r.email, r.text, new Date(r.ms).toISOString().slice(0, 10), r.total.toFixed(2), r.paid ? "Yes" : "No", r.paid ? String(r.paid.at).slice(0, 10) : "", r.paid ? r.paid.method : "", r.paid ? r.paid.ref : ""].map(cell).join(","))].join("\r\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + csv], {type: "text/csv"})); a.download = `nojan-receipts-${B.month}.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    return;
+  }
+  const [kind, id] = (t.dataset.rcresend || t.dataset.rcunpay || "").split(":");
+  if (t.dataset.rcresend){ try { await rcEmailReceipt(kind, id); toast("Receipt emailed"); } catch (er){ console.error(er); toast("Couldn't send the email"); } return; }
+  if (t.dataset.rcunpay){
+    if (!confirm("Undo this payment? The receipt goes back to Not paid.")) return;
+    try {
+      if (kind === "o") await FB.updateOrder(id, {paid: null}, {status: "Payment undone", by: "admin"});
+      else for (const b of billGroup(id) || []) if (b.paid) await FB.updateBooking(b.id, {paid: null}, {status: "Payment undone", by: "admin"});
+      FB.logAdmin && FB.logAdmin("unpay", kind + ":" + id).catch(() => {});
+      toast("Payment undone"); setTimeout(softRender, 300);
+    } catch (er){ console.error(er); toast("Couldn't save"); }
+  }
+});
+document.addEventListener("submit", async e => {
+  const f = e.target;
+  if (f.dataset.rcpay){
+    e.preventDefault();
+    const [kind, id] = f.dataset.rcpay.split(":"), {paid, email} = rcPaidFrom(f), btn = f.querySelector("button[type=submit]");
+    if (paid.amount == null) return toast("Enter the amount received");
+    btn.disabled = true; btn.textContent = "Saving…";
+    try {
+      if (kind === "o") await FB.updateOrder(id, {paid}, {status: "Paid", by: "admin"});
+      else { const list = (billGroup(id) || []).filter(b => b.status !== "Cancelled"); for (const b of list) await FB.updateBooking(b.id, {paid}, {status: "Paid", by: "admin"}); }
+      FB.logAdmin && FB.logAdmin("paid", kind + ":" + id).catch(() => {});
+      if (kind === "o"){ const o = (ADM.orders || []).find(x => x.id === id); if (o) o.paid = paid; } else (billGroup(id) || []).forEach(b => { if (b.status !== "Cancelled") b.paid = paid; });
+      if (email){ try { await rcEmailReceipt(kind, id); toast("Paid. Receipt emailed to the customer"); } catch (_) { toast("Paid. The email didn't send — use Email the receipt again"); } }
+      else toast("Marked as paid");
+    } catch (er){ console.error(er); toast("Couldn't save the payment"); }
+    setTimeout(softRender, 200); return;
+  }
+  if (f.dataset.rctest){
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(f)), test = {serial: (d.serial || "").trim(), powers: d.powers || "yes", notes: (d.notes || "").trim(), included: (d.included || "").trim(), at: new Date().toISOString(), by: (USER && USER.email) || "admin"};
+    try { await FB.updateOrder(f.dataset.rctest, {test}); const o = (ADM.orders || []).find(x => x.id === f.dataset.rctest); if (o) o.test = test; toast("Test record saved"); setTimeout(softRender, 200); }
+    catch (er){ console.error(er); toast("Couldn't save"); }
+    return;
+  }
+  if (f.dataset.rcrec){
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(f)), c = parseFloat(String(d.cost || "").replace(/[^\d.]/g, ""));
+    try { await billSaveNote("rec", "rec_o_" + f.dataset.rcrec, {cost: isNaN(c) ? "" : c, source: (d.source || "").trim().slice(0, 80)}); toast("Saved"); setTimeout(softRender, 100); }
+    catch (er){ console.error(er); toast("Couldn't save"); }
+    return;
+  }
+  if (f.hasAttribute("data-bsettings")){
+    e.preventDefault();
+    const pct = parseFloat(String(f.feePct.value).replace(",", "."));
+    if (isNaN(pct) || pct < 0 || pct > 50) return toast("Enter a fee between 0 and 50%");
+    const val = {feePct: Math.round(pct * 100) / 100, own: [...f.querySelectorAll('input[name="own"]:checked')].map(x => x.value)};
+    try { await FB.saveNote("_billing", JSON.stringify(val)); bill().set = val; toast("Settings saved"); refreshAdmin(true); } catch (er){ console.error(er); toast("Couldn't save"); }
+  }
+});
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset || !t.dataset.bset) return;
+  bill()[t.dataset.bset] = t.value; refreshAdmin(true);
+});
+document.addEventListener("input", e => {
+  if (e.target.id !== "billQ") return;
+  bill().q = e.target.value; clearTimeout(billingAdminHTML._t);
+  billingAdminHTML._t = setTimeout(() => { refreshAdmin(true); const q = $("#billQ"); if (q){ q.focus(); q.setSelectionRange(q.value.length, q.value.length); } }, 250);
+});

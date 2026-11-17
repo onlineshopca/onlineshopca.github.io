@@ -5,6 +5,21 @@
    2) visitors in Quebec see French (checked once from their internet address — nothing is saved or sent to us), else English. */
 (function(){
 const FR = {
+/* ---- v122: receipts ---- */
+"Receipt": "Reçu", "Client receipt": "Reçu du client", "Student copy": "Copie de l'élève", "Print or save as PDF": "Imprimer ou enregistrer en PDF", "Email me a copy": "M'envoyer une copie par courriel",
+"Not paid yet": "Pas encore payé", "Paid in full": "Payé en entier", "Payment pending": "Paiement en attente", "Shop receipt · goods": "Reçu de la boutique · articles", "Service receipt · classes and services": "Reçu de service · cours et services",
+"Order confirmation": "Confirmation de commande", "Booking confirmation": "Confirmation de réservation", "Receipt no.": "No de reçu", "Order no.": "No de commande", "Ordered": "Commandé", "Received by": "Reçu par",
+"Order progress": "Suivi de la commande", "Picked up": "Ramassé", "Paid": "Payé", "What you got": "Ce que vous avez reçu",
+"Serial no.": "No de série", "Powers on": "S'allume", "Included": "Inclus", "Not needed": "Sans objet", "Billed to": "Facturé à", "Payment": "Paiement",
+"Delivery": "Livraison", "Free (pick-up)": "Gratuit (ramassage)", "Total paid": "Total payé", "Amount due": "Montant dû", "Balance due": "Solde dû", "Pick-up, tested": "Ramassage, testé",
+"Booking no.": "No de réservation", "Your sessions": "Vos séances", "Your session": "Votre séance", "Date and time": "Date et heure", "Length": "Durée",
+"Package discount": "Rabais forfait", "Discount": "Rabais", "Student copy · class record": "Copie de l'élève · relevé de cours", "Student": "Élève", "Booked by": "Réservé par", "Copy no.": "No de copie",
+"Where": "Où", "Your classes": "Vos cours", "Your class": "Votre cours", "Notes and practice": "Notes et exercices", "Receipt (paid)": "Reçu (payé)", "Order confirmation and receipt": "Confirmation de commande et reçu",
+"Sign in to see your receipt": "Connectez-vous pour voir votre reçu", "Your receipts show here after you sign in.": "Vos reçus s'affichent ici une fois connecté.", "Loading your receipt…": "Chargement de votre reçu…",
+"You test and accept items before paying, so the sale is final once paid. A manufacturer's warranty may apply to some brand new items.": "Vous testez et acceptez les articles avant de payer : la vente est donc finale une fois payée. Une garantie du fabricant peut s'appliquer à certains articles neufs.",
+"You can cancel from My orders and bookings while a booking is Requested or Confirmed. Cancelled sessions are not charged. If a session can't happen because of Nojan or the provider, we move it or refund it. Services have no warranty or returns.": "Vous pouvez annuler depuis Mes commandes et réservations tant que la réservation est Demandée ou Confirmée. Les séances annulées ne sont pas facturées. Si une séance ne peut pas avoir lieu à cause de Nojan ou du prestataire, nous la déplaçons ou la remboursons. Les services n'ont ni garantie ni retour.",
+"This is your record of classes. It has no prices: the receipt went to the person who paid. Need another time? Ask from the booking page.": "Voici le relevé de vos cours. Il n'indique pas de prix : le reçu a été envoyé à la personne qui a payé. Besoin d'une autre heure? Demandez-la depuis la page de réservation.",
+"This order was cancelled.": "Cette commande a été annulée.",
 /* ---- v96: booking messages, time changes, reviews ---- */
 "Messages": "Messages", "Loading messages…": "Chargement des messages…", "No messages yet. Ask anything about this booking.": "Aucun message pour l'instant. Posez vos questions sur cette réservation.",
 "I'm running late": "Je serai en retard", "I can't find the link": "Je ne trouve pas le lien", "Can we change the time?": "Peut-on changer l'heure?", "Write a message": "Écrire un message", "Send": "Envoyer",
