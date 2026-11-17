@@ -6,6 +6,7 @@
 (function(){
 const FR = {
 /* ---- v123: tax only at checkout and on receipts ---- */
+"Pickup or local delivery:": "Ramassage ou livraison locale :", "Total before tax:": "Total avant taxes :", "Estimated HST:": "TVH estimée :", "Order total:": "Total de la commande :",
 "Subtotal (before tax)": "Sous-total (avant taxes)", "HST 13% (Ontario)": "TVH 13 % (Ontario)", "You pay at pickup, after you test the item. Nothing is charged online.": "Vous payez au ramassage, après avoir testé l'article. Rien n'est facturé en ligne.",
 /* ---- v122: receipts ---- */
 "Receipt": "Reçu", "Client receipt": "Reçu du client", "Student copy": "Copie de l'élève", "Print or save as PDF": "Imprimer ou enregistrer en PDF", "Email me a copy": "M'envoyer une copie par courriel",

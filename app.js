@@ -6444,11 +6444,14 @@ document.addEventListener("input", e => {
 });
 
 /* ===== v123: prices before tax; HST added at checkout (shop items only) ===== */
-function taxLinesHTML(t){
-  if (!HST_RATE) return `<div class="sum total"><span>Total</span><span>${money(t.total)}</span></div>
-        <p class="notax">Nothing is charged online.</p>`;
-  return `<div class="sum"><span>Subtotal (before tax)</span><span>${money(t.sub)}</span></div>
-        <div class="sum"><span>HST 13% (Ontario)</span><span>${money(t.tax)}</span></div>
-        <div class="sum total"><span>Total</span><span>${money(t.total)}</span></div>
+function taxLinesHTML(t){   // v124: Amazon-style order summary at checkout
+  const n = cartItems().reduce((a, x) => a + x.q, 0);
+  return `<div class="osum">
+          <div class="sum"><span>Items (${n}):</span><span>${money(t.sub)}</span></div>
+          <div class="sum"><span>Pickup or local delivery:</span><span>${money(0)}</span></div>
+          <div class="sum osumline"><span>Total before tax:</span><span>${money(t.sub)}</span></div>
+          <div class="sum"><span>Estimated HST:</span><span>${money(t.tax)}</span></div>
+          <div class="sum total osumtotal"><span>Order total:</span><span>${money(t.total)}</span></div>
+        </div>
         <p class="notax">You pay at pickup, after you test the item. Nothing is charged online.</p>`;
 }
