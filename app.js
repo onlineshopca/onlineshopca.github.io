@@ -5858,7 +5858,7 @@ function billSet(){
   }
   const s = B.set || {};
   const own = Array.isArray(s.own) ? s.own : ALL_PROVIDERS.filter(p => /\b(nojan|moe)\b/i.test(p.name || "")).map(p => p.id);
-  return {feePct: s.feePct == null ? 2 : +s.feePct, own};
+  return {feePct: s.feePct == null ? 10 : +s.feePct, own};
 }
 function billJSONNote(store, loadMap, id){
   const B = bill();
