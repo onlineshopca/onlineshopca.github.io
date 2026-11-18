@@ -4737,7 +4737,7 @@ function peopleDirHTML(){
       ${chip("all", "", "All", !f.fmt && !f.lang && !f.week && !f.chk && !f.kind)}${chip("fmt", "online", "Online", f.fmt === "online")}${chip("fmt", "inp", "In person", f.fmt === "inp")}${langs.map(l => chip("lang", l, `<span>Speaks</span> ${esc(l)}`, f.lang === l)).join("")}${chip("week", "1", "Free this week", f.week)}${chip("chk", "1", "Checked by Nojan", f.chk)}</div>
     ${rows.length ? "" : `<div class="empty">Nobody matches these filters yet. <button class="linkbtn" type="button" data-pf="all" data-v="">Show everyone</button></div>`}
     <div class="pd2grid">${rows.map(({p, i}) => personCardHTML(p, i)).join("")}
-      <aside class="pd2offer"><span class="pd2plus" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><h3>Offer a service on Nojan</h3><p>Are you a tutor, a developer or a company? Tell us about yourself and we will set up your profile.</p><a class="btn" href="#contact-us">Tell us about yourself</a></aside></div>`;
+      <aside class="pd2offer"><span class="pd2plus" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><h3>Offer a service on Nojan</h3><p>Are you a tutor, a developer or a company? Tell us about yourself and we will set up your profile.</p><a class="btn" href="#become-a-provider">Become a provider</a></aside></div>`;
 }
 
 /* ---- Provider profile extras ---- */
