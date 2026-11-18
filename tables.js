@@ -1,4 +1,4 @@
-/* Nojan v133: the data layer shaped like the Azure SQL tables.
+/* Nojan v134: the data layer shaped like the Azure SQL tables.
    One place that says which tables Nojan will have in Azure SQL and how each Firebase record becomes rows.
    Admin → "Download as Azure tables" uses it to turn the backup into an .sql file that SQL Server or Azure SQL can run.
    Loaded only when an admin asks for that file. Nothing here reads or writes the live database by itself. */

@@ -5580,11 +5580,11 @@ document.addEventListener("click", async e => {
     } catch(err){ console.error(err); toast("Couldn't send the request. Please email us instead."); }
     b.disabled = false; return;
   }
-  if (b.hasAttribute("data-azsql")){   // v133: the same backup, shaped like the Azure SQL tables, as an .sql file
+  if (b.hasAttribute("data-azsql")){   // v134: the same backup, shaped like the Azure SQL tables, as an .sql file
     if (!isAdmin() || !FB || !FB.backup) return;
     const t0 = b.textContent; b.disabled = true; b.textContent = "Preparing…";
     try {
-      if (!window.NOJAN_TABLES) await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "/tables.js?v=133"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+      if (!window.NOJAN_TABLES) await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "/tables.js?v=134"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
       const NT = window.NOJAN_TABLES, data = await FB.backup(), T = NT.fromBackup(data), sql = NT.toSQL(T, data.made);
       const url = URL.createObjectURL(new Blob([sql], {type: "text/plain"}));
       const a = document.createElement("a"); a.href = url; a.download = "nojan-azure-tables-" + new Date().toISOString().slice(0, 10) + ".sql";
