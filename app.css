@@ -3254,3 +3254,36 @@ html body footer.fx .fcard .nlbox .nlform{width:100%}
 html body .piclink.tile,html body a.tile,html body .tile{background:#fff!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* ===== v137: five items in a row on the home page rows (Biggest savings / New arrivals / Services) on computers; app.js shows 5 instead of 4. ===== */
 @media (min-width:900px){html body .hsec .homegrid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:14px!important}}
+/* ===== v138: no pink anywhere. Pink tints become the logo blue (one colour); pink-red accents become the site red #c0262d. ===== */
+html body .tb .cgi,html body .ty .cgi,html body .tr .cgi,html body .tg .cgi{background:rgba(43,111,234,.08)!important}
+html body .pd2.co .pd2cov,html body .pv2.co .pv2cov,html body .pd2 .pd2cov,html body .pv2 .pv2cov{background-color:#f5f8fe!important;background-image:radial-gradient(60% 150% at 0% 0%,rgba(43,111,234,.30),transparent 72%),radial-gradient(60% 150% at 100% 100%,rgba(43,111,234,.16),transparent 72%)!important}
+html body .wayic.ig{background:rgba(43,111,234,.12)!important}
+html body .fundtag{background:#eef3fd!important;color:#1f4fbf!important}
+html body .fundbar{background:#e6ecf7!important}
+html body .hmbar [data-hmsaved][aria-pressed="true"]{background:#eef3fd!important;border-color:#c0262d!important;color:#c0262d!important}
+html body .hmbar [data-hmsaved][aria-pressed="true"] svg,html body .hmheart[aria-pressed="true"] svg,html body .hmacts [aria-pressed="true"] svg,html body .hmdrag svg{fill:#c0262d!important;stroke:#c0262d!important}
+html body .dtbar a.morefl svg,html body .dtempty svg,html body .dtstate svg{fill:#c0262d!important}
+html body .dtyes,html body .dtbtnyes{background:#c0262d!important;border-color:#c0262d!important}
+html body .dtmbox h2{color:#c0262d!important}
+html body .dtdot,html body a[data-tab="dating"].hasdot::after,html body a[data-tab="homes"].hasdot::after,html body a.gicon.hasdot::after{background:#c0262d!important}
+html body .dtnoimg{background-image:linear-gradient(135deg,#2b6fea,#2d2d2e)!important}
+html body .evph.c1{background-image:linear-gradient(135deg,#2b6fea,#1c4fb0)!important}
+html body .evdate small{color:#1f4fbf!important}
+html body .evtag.sold,html body .hmst.no{background:#f0f0f2!important}
+html body .cartcount,html body .gicon .cartcount{background:#c0262d!important;background-image:none!important}
+html body .wishbtn[aria-pressed="true"] svg{fill:#c0262d!important;stroke:#c0262d!important}
+/* v138: three promises on the home page (replace the small tick line) */
+.promise3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:28px 0 8px}
+.promise3>div{border-top:1px solid #e5e5ea;padding-top:18px;display:flex;flex-direction:column;gap:6px}
+.promise3 svg{width:26px;height:26px;fill:none;stroke:#2b6fea;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.promise3 b{font-size:18px;font-weight:600;color:#1d1d1f}
+.promise3 b a{color:inherit;text-decoration:none}.promise3 b a:hover{text-decoration:underline}
+.promise3 span{font-size:15px;line-height:1.5;color:#6e6e73}
+@media (max-width:700px){.promise3{grid-template-columns:1fr;gap:14px}}
+/* v138: simpler item cards: name in 2 lines, no "Used · by Nojan" line, no "Regular" word */
+html body article.card .name{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+html body article.card .cseller>span:not(.cert){display:none!important}
+html body article.card .cpwrap{display:flex!important;flex-wrap:wrap;align-items:baseline;column-gap:6px}
+html body article.card .chst{font-size:0!important}
+html body article.card .chst s{font-size:12.5px;color:#86868b}
+html body article.card .csave{flex-basis:100%}

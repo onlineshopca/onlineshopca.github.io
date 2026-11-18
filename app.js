@@ -4356,7 +4356,7 @@ function homeHTML(){
       </div>
     </section>
     <section aria-label="Shop by category"><div class="explore cats">${cats.map(catTile).join("")}${svcTile}</div>
-      <div class="trustline">${tick("Used items 40% below market")}${tick(`<a href="#certified">Checked and certified by Nojan</a>`)}${tick("Test before you pay")}${tick("3% of profit to the community")}</div></section>
+      <div class="promise3"><div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 1.8 3-.3 1 2.9 2.5 1.7-1 2.9 1 2.9-2.5 1.7-1 2.9-3-.3L12 22l-2.4-1.8-3 .3-1-2.9L3.1 15.9l1-2.9-1-2.9 2.5-1.7 1-2.9 3 .3z"/><path d="M8.5 12l2.3 2.3 4.7-4.7"/></svg><b><a href="#certified">Certified by Nojan</a></b><span>Every item is checked in person and its condition is written down honestly.</span></div><div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h3l2-6 4 12 2-6h5"/></svg><b>Test before you pay</b><span>See it and try it at pickup before you pay. Used items are about 40% below market.</span></div><div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><b>3% to the community</b><span>A part of every sale goes to people in need. Used items also get a second life.</span></div></div></section>
     <section class="hsec">
       <div class="h5row"><div class="h5tabs" role="tablist" aria-label="What to show">${tabs.map(([k, l]) => `<button type="button" role="tab" data-htab="${k}" aria-selected="${HOMETAB === k}">${l}</button>`).join("")}</div><a href="${HOMETAB === "svc" ? "#services" : "#shop"}">See all ›</a></div>
       <div class="homegrid">${rail}</div>
