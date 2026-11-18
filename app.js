@@ -4318,11 +4318,11 @@ function homeHTML(){
   const pct = goal > 0 ? Math.min(100, Math.max(2, raised / goal * 100)) : 2;
   const fundLine = raised > 0 ? `${dollars(raised)} raised${goal ? " of " + dollars(goal) : ""}${donors ? ` · ${donors} donor${donors === 1 ? "" : "s"}` : ""}` : "Be the first to donate";
   const loading = feedState.new === "loading", live = PRODUCTS.filter(p => !p.soldOut);
-  const deals = groupList(live.filter(p => p.was && p.price != null)).sort((a, b) => (b.was - b.price) / b.was - (a.was - a.price) / a.was).slice(0, 4);
-  const fresh = groupList(live.slice().sort((a, b) => (b.added || 0) - (a.added || 0) || (b.order - a.order))).slice(0, 4);
+  const deals = groupList(live.filter(p => p.was && p.price != null)).sort((a, b) => (b.was - b.price) / b.was - (a.was - a.price) / a.was).slice(0, 5);
+  const fresh = groupList(live.slice().sort((a, b) => (b.added || 0) - (a.added || 0) || (b.order - a.order))).slice(0, 5);
   const tabs = [deals.length ? ["deals", "Biggest savings"] : null, ["new", "New arrivals"], ["svc", "Services"]].filter(Boolean);
   if (!tabs.some(t => t[0] === HOMETAB)) HOMETAB = tabs[0][0];
-  const rail = HOMETAB === "svc" ? (SERVICES.length ? serviceCards(SERVICES.slice(0, 4)) : soon("monitor", "Services are coming soon", servicesLoaded || fbFailed ? "Classes and expert help, online or in person." : "Loading services…"))
+  const rail = HOMETAB === "svc" ? (SERVICES.length ? serviceCards(SERVICES.slice(0, 5)) : soon("monitor", "Services are coming soon", servicesLoaded || fbFailed ? "Classes and expert help, online or in person." : "Loading services…"))
     : loading ? soon("clock", "Loading items…", "") : productCards(HOMETAB === "deals" ? deals : fresh);
   const I = {shop: "M5 8h14l-1 13H6L5 8zM9 8V6a3 3 0 0 1 6 0v2", svc: "M4 6h16v10H4zM8 20h8M12 16v4", ev: "M5 5h14v15H5zM5 10h14M9 3v4M15 3v4", hm: "M4 11l8-7 8 7v9H4zM10 20v-5h4v5",
     dt: "M12 20s-7-4.4-9-8.5A4.8 4.8 0 0 1 12 7a4.8 4.8 0 0 1 9 4.5C19 15.6 12 20 12 20z", cm: "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c.8-3 2.8-5 5-5s4.2 2 5 5M13 17c.7-1.3 1.8-2 3-2 2.2 0 4.2 2 5 5"};

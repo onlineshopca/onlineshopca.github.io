@@ -3252,3 +3252,5 @@ html body footer.fx .fcard .nlbox{display:flex!important;flex-direction:column!i
 html body footer.fx .fcard .nlbox .nlform{width:100%}
 @media (max-width:720px){html body footer.fx .fcard .fbtns{justify-self:center!important}html body footer.fx .fcard .nlbox{align-items:center!important}}
 html body .piclink.tile,html body a.tile,html body .tile{background:#fff!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* ===== v137: five items in a row on the home page rows (Biggest savings / New arrivals / Services) on computers; app.js shows 5 instead of 4. ===== */
+@media (min-width:900px){html body .hsec .homegrid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:14px!important}}
