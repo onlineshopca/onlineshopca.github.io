@@ -3170,3 +3170,21 @@ a.acttile:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
 .fbkbtns{display:flex;gap:12px;align-items:center}
 .promoadd{display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);padding-top:12px}
 .promoadd input{width:120px}
+
+/* v130: share + QR, become a provider, also booked */
+.sharebar{display:flex;justify-content:flex-end;margin:0 0 10px}
+.sharepanel{display:grid;grid-template-columns:200px minmax(0,1fr);gap:20px;align-items:center;margin-bottom:16px}
+.shareqr{width:200px;height:200px;background:#fff;border-radius:12px;padding:6px;box-shadow:0 0 0 1px var(--line)}
+.shareqr svg{width:100%;height:100%;display:block}
+.sharetxt{display:grid;gap:10px}.sharetxt h2{margin:0}
+.sharelink{display:flex;gap:8px}.sharelink input{flex:1;min-width:0}
+.sharebtns{display:flex;gap:16px;flex-wrap:wrap}
+.qrcap{display:none}
+@media (max-width:560px){.sharepanel{grid-template-columns:1fr;justify-items:center;text-align:center}.sharelink{width:100%}}
+@media print{body.qrprint *{visibility:hidden}body.qrprint #sharePanel,body.qrprint #sharePanel *{visibility:visible}
+  body.qrprint #sharePanel{position:fixed;inset:0;display:grid;place-items:center;align-content:center;gap:12px;background:#fff;box-shadow:none;border:0}
+  body.qrprint .shareqr{width:9cm;height:9cm;box-shadow:none}body.qrprint .sharelink,body.qrprint .sharebtns,body.qrprint .sharetxt .note{display:none}
+  body.qrprint .qrcap{display:block;font-size:14pt;text-align:center}body.qrprint .sharetxt{text-align:center}}
+.provhow ol{margin:0}
+.alsosec{margin-top:28px}.alsosec h2{margin:0 0 12px}
+.prevh .verified{font-size:.8rem}

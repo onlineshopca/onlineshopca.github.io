@@ -830,7 +830,7 @@ function simHTML(p){
   const t = typeOf(p), list = groupList(PRODUCTS.filter(x => x.id !== p.id && !x.soldOut && !x.member && typeOf(x) === t && x.itemId !== p.itemId)).slice(0, 4);
   return list.length ? `<section class="hsec simsec"><div class="h5row"><h2>Similar items</h2><a href="#shop">See all ›</a></div><div class="homegrid">${productCards(list)}</div></section>` : "";
 }
-const TITLES = {home: "Nojan · Quality products and services, for less", shop: "Shop new and used items · Nojan", services: "Services and classes · Nojan", contact: "Contact us · Nojan", news: "News · Nojan", cart: "Your cart · Nojan", checkout: "Checkout · Nojan", account: "Your account · Nojan", orders: "Your orders · Nojan", mybookings: "Your bookings · Nojan", acctdetails: "Your details and address · Nojan", acctsecurity: "Login and security · Nojan", acctmessages: "Messages · Nojan", acctemail: "Email preferences · Nojan", acctdata: "Your data · Nojan", acctlists: "Your lists · Nojan", unsub: "Unsubscribe · Nojan", about: "About Nojan", returns: "Test before you pay · Nojan", privacy: "Privacy policy · Nojan", terms: "Terms of use · Nojan", certified: "What Certified means · Nojan", how: "How it works · Nojan", notfound: "Page not found · Nojan"};
+const TITLES = {home: "Nojan · Quality products and services, for less", shop: "Shop new and used items · Nojan", services: "Services and classes · Nojan", contact: "Contact us · Nojan", news: "News · Nojan", cart: "Your cart · Nojan", checkout: "Checkout · Nojan", account: "Your account · Nojan", orders: "Your orders · Nojan", mybookings: "Your bookings · Nojan", acctdetails: "Your details and address · Nojan", acctsecurity: "Login and security · Nojan", acctmessages: "Messages · Nojan", acctemail: "Email preferences · Nojan", acctdata: "Your data · Nojan", acctlists: "Your lists · Nojan", provapply: "Become a provider · Nojan", unsub: "Unsubscribe · Nojan", about: "About Nojan", returns: "Test before you pay · Nojan", privacy: "Privacy policy · Nojan", terms: "Terms of use · Nojan", certified: "What Certified means · Nojan", how: "How it works · Nojan", notfound: "Page not found · Nojan"};
 const views = {
   home(){
     const q = query.trim();
@@ -1009,7 +1009,7 @@ const views = {
   booked(){ return bookedView(); },
   account(){ return accountView(); },
   orders(){ return myOrdersView(); },
-  mybookings(){ return myBookingsView(); }, acctsecurity(){ return acctSecurityView(); }, acctmessages(){ return acctMessagesView(); }, acctemail(){ return acctEmailView(); }, acctdata(){ return acctDataView(); }, acctlists(){ return acctListsView(); }, unsub(){ return unsubView(); },
+  mybookings(){ return myBookingsView(); }, acctsecurity(){ return acctSecurityView(); }, acctmessages(){ return acctMessagesView(); }, acctemail(){ return acctEmailView(); }, acctdata(){ return acctDataView(); }, acctlists(){ return acctListsView(); }, provapply(){ return provApplyView(); }, unsub(){ return unsubView(); },
   acctdetails(){ ACCT_SUB = "details"; try { return accountView(); } finally { ACCT_SUB = null; } },
   receipt(){ return receiptView(); },   // v122
   admin(){ return adminView(); },
@@ -1219,7 +1219,7 @@ function megaCols(key){
     const cats = SERVICES.length ? top(SERVICES, s => s.category, 7).map(([c, n]) => ({go: "services|cats|" + c, label: c, n})) : SVC_CATS.slice(0, 6).map(c => ({href: "#services", label: c}));
     return [{big: true, h: "Explore Services", links: cats},
       {h: "How it's held", links: [{go: "services|fmts|Online", label: "Online classes"}, {go: "services|fmts|In person", label: "In person"}, {go: "services|sizes|1-on-1", label: "One-on-one"}, {go: "services|sizes|Group class", label: "Small groups"}]},
-      {h: "Quick links", links: [{href: "#services", label: "All services" + (SERVICES.length ? " (" + SERVICES.length + ")" : "")}, {href: "#my-orders", label: "My bookings"}, {href: "#contact-us", label: "Offer a service"}]}];
+      {h: "Quick links", links: [{href: "#services", label: "All services" + (SERVICES.length ? " (" + SERVICES.length + ")" : "")}, {href: "#my-orders", label: "My bookings"}, {href: "#become-a-provider", label: "Become a provider"}]}];
   }
   return [{big: true, h: "Get help", links: [{href: "#contact-us", label: "Contact us"}, {href: "#contact-us", label: "Pickup & delivery"}, {href: "#contact-us", label: "Paying for your order"}, {href: "#contact-us", label: "Questions & answers"}]},
     {h: "Your account", links: [{href: "#account", label: USER ? "Your account" : "Sign in"}, {href: "#my-orders", label: "My orders & bookings"}, {href: "#cart", label: "Bag"}]},
@@ -1306,7 +1306,7 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", mybookings:"my-bookings", acctdetails:"account-details", acctsecurity:"login-security", acctmessages:"messages", acctemail:"email-preferences", acctdata:"your-data", acctlists:"your-lists", unsub:"unsubscribe", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified", how:"how-it-works"};
+const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", mybookings:"my-bookings", acctdetails:"account-details", acctsecurity:"login-security", acctmessages:"messages", acctemail:"email-preferences", acctdata:"your-data", acctlists:"your-lists", unsub:"unsubscribe", provapply:"become-a-provider", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified", how:"how-it-works"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
 let bookingId = null, receiptId = null, itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
@@ -1433,7 +1433,7 @@ document.addEventListener("click", e => {
   go("item", decodeURIComponent(a.getAttribute("href").slice(6)));
 });
 // v93: in-site links get real addresses so they can be opened in a new tab, shared and found by search engines
-const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|my-bookings|account-details|login-security|messages|email-preferences|your-data|your-lists|unsubscribe|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
+const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|my-bookings|account-details|login-security|messages|email-preferences|your-data|your-lists|unsubscribe|become-a-provider|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
 function relink(root){
   if (!PATH_MODE || !root || root.nodeType !== 1) return;
   const fix = a => { const h = a.getAttribute("href"); if (!h || h[0] !== "#") return; let s = h.slice(1); try { s = decodeURIComponent(s); } catch (_) {} if (!R_OK.test(s)) return; a.dataset.r = s; a.setAttribute("href", pathFor(s)); };
@@ -1502,7 +1502,7 @@ function render(){
     : v === "group" ? [["Shop", "#shop"], [groupId || "Shop"]]
     : v === "sgroup" ? [["Services", "#services"], [sgroupId || "Services"]]
     : v === "scategory" ? (c => c ? [["Services", "#services"], [groupOf(SVC_GROUPS, c)[0], "#sgroup-" + catSlug(groupOf(SVC_GROUPS, c)[0])], [c]] : [["Services", "#services"], ["Category"]])(scatName(svcMap()))
-    : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], news:[["News"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["Your account","#account"],["Your orders"]], mybookings:[["Your account","#account"],["Your bookings"]], acctdetails:[["Your account","#account"],["Your details"]], acctsecurity:[["Your account","#account"],["Login & security"]], acctmessages:[["Your account","#account"],["Messages"]], acctemail:[["Your account","#account"],["Email preferences"]], acctdata:[["Your account","#account"],["Your data"]], acctlists:[["Your account","#account"],["Your lists"]], unsub:[["Unsubscribe"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
+    : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], news:[["News"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["Your account","#account"],["Your orders"]], mybookings:[["Your account","#account"],["Your bookings"]], acctdetails:[["Your account","#account"],["Your details"]], acctsecurity:[["Your account","#account"],["Login & security"]], acctmessages:[["Your account","#account"],["Messages"]], acctemail:[["Your account","#account"],["Email preferences"]], acctdata:[["Your account","#account"],["Your data"]], acctlists:[["Your account","#account"],["Your lists"]], provapply:[["Services","#services"],["Become a provider"]], unsub:[["Unsubscribe"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
          service:(s => s && !s.member ? [["Services","#services"],[s.category, "#scategory-" + catSlug(s.category)],[s.title]] : [["Services","#services"],[(s||{}).title || "Service"]])(SERVICES.find(s=>s.id===serviceId)),
          provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]],
          events:[["Events"]], event:[["Events","#events"],[(eventById(eventId)||{}).title || "Event"]],
@@ -1834,8 +1834,8 @@ function providerView(){
         ${how}
         ${exp ? `<section class="pcard pv2exp" id="pv-exp"><h2>Experience</h2><ul class="plist">${exp}</ul></section>` : ""}
         ${edu || certs ? `<div class="pv2two">${edu ? `<section class="pcard" id="pv-edu"><h2>Education</h2><ul class="plist">${edu}</ul></section>` : ""}${certs ? `<section class="pcard" id="pv-certs"><h2>Licences &amp; certifications</h2><ul class="plist">${certs}</ul></section>` : ""}</div>` : ""}
-        <section class="pcard" id="pv-reviews"><div class="phd"><h2>Reviews</h2><span class="pmuted">Only from people who had a session</span></div>
-          ${pinfo.rv.length ? `<ul class="prevs">${pinfo.rv.map(r => `<li><div class="prevh"><b>${esc(r.name || "Customer")}</b><span class="pmuted">${esc(String(r.stars))} <span>of 5</span>${r.date ? ` · ${esc(r.date)}` : ""}</span></div>${r.text ? `<p>${esc(r.text)}</p>` : ""}</li>`).join("")}</ul>` : `<p class="pv2none">No reviews yet. After a session, customers can leave a rating and a few words here.</p>`}</section>
+        <section class="pcard" id="pv-reviews"><div class="phd"><h2>Reviews</h2><span class="pmuted">“Verified” means the review came from a booked session</span></div>
+          ${pinfo.rv.length ? `<ul class="prevs">${pinfo.rv.map(r => `<li><div class="prevh"><b>${esc(r.name || "Customer")}</b>${r.verified ? `<span class="verified">✓ Verified session</span>` : ""}<span class="pmuted">${starsHTML(r.stars)}${r.date ? ` · ${esc(r.date)}` : ""}</span></div>${r.text ? `<p>${esc(r.text)}</p>` : ""}</li>`).join("")}</ul>` : `<p class="pv2none">No reviews yet. After a session, customers can leave a rating and a few words here.</p>`}</section>
         ${liBadgeHTML(p)}
       </div>
       <aside class="pv2side">${provSideHTML(p, pinfo, co)}</aside>
@@ -4057,7 +4057,7 @@ function startAdmin(){
   ADM.unsubO = ADM.unsubU = () => {};
   ADM.unsubO = FB.watchAllOrders(list => { ADM.orders = list; refreshAdmin(); }, err => { console.error(err); ADM.error = err.code || String(err); refreshAdmin(true); });
   ADM.unsubU = FB.watchUsers(list => { ADM.users = list; refreshAdmin(); }, err => console.error(err));
-  ADM.unsubB = FB.watchAllBookings(list => { ADM.bookings = list; refreshAdmin(); autoRemind(); }, err => console.error(err));
+  ADM.unsubB = FB.watchAllBookings(list => { ADM.bookings = list; refreshAdmin(); autoRemind(); try { alsoCompute(); autoStatements(); } catch (er){ console.error(er); } }, err => console.error(err));   // v130
 }
 function refreshAdmin(force){
   if (current() !== "admin") return;
@@ -4584,7 +4584,7 @@ function bookingCardHTML(b, admin){
       ${b.kind !== "event" ? `<a href="#receipt-b-${esc(b.seriesId || b.id)}" class="rclinkbtn" style="color:var(--link);font-weight:600">${b.paid ? "Receipt (paid)" : "Receipt"}</a>` : ""}
     </div>
     <div style="display:grid;gap:6px;justify-items:end">${pill(b.status)}
-      ${!admin ? `<span style="display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end">${["Requested","Confirmed"].includes(b.status) && b.startMs > Date.now() ? `<button class="linkbtn" type="button" data-ics="${b.id}">Add to calendar</button><button class="linkbtn" type="button" data-bkcancel="${b.id}" style="color:var(--danger)">Cancel</button>` : ""}</span>` : ""}
+      ${!admin ? `<span style="display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end">${["Requested","Confirmed"].includes(b.status) && b.startMs > Date.now() ? `<button class="linkbtn" type="button" data-ics="${b.id}">Add to calendar</button><a class="linkbtn" href="${esc(gcalLink(b))}" target="_blank" rel="noopener">Google Calendar</a><button class="linkbtn" type="button" data-bkcancel="${b.id}" style="color:var(--danger)">Cancel</button>` : b.status === "Completed" && !b.review && p2on() ? `<a class="linkbtn" href="#mybooking-${esc(b.id)}">★ Review this session</a>` : ""}</span>` : ""}
     </div>
   </div>`;
 }
@@ -4755,8 +4755,8 @@ function provBookHTML(p, i){
 }
 function provTrustHTML(p, i){
   return `${p.checked || (p.checks || []).length ? `<section class="pcard"><h2>What Nojan checked</h2><ul class="pchecks">${((p.checks || []).length ? p.checks : ["Identity"]).map(c => `<li>${esc(c)}</li>`).join("")}</ul></section>` : ""}
-    ${i.rv.length ? `<section class="pcard"><div class="phd"><h2>Reviews</h2><span class="pmuted">Only from people who had a session</span></div>
-      <ul class="prevs">${i.rv.map(r => `<li><div class="prevh"><b>${esc(r.name || "Customer")}</b><span class="pmuted">${esc(String(r.stars))} <span>of 5</span>${r.date ? ` · ${esc(r.date)}` : ""}</span></div>${r.text ? `<p>${esc(r.text)}</p>` : ""}</li>`).join("")}</ul></section>` : ""}
+    ${i.rv.length ? `<section class="pcard"><div class="phd"><h2>Reviews</h2><span class="pmuted">“Verified” means the review came from a booked session</span></div>
+      <ul class="prevs">${i.rv.map(r => `<li><div class="prevh"><b>${esc(r.name || "Customer")}</b>${r.verified ? `<span class="verified">✓ Verified session</span>` : ""}<span class="pmuted">${starsHTML(r.stars)}${r.date ? ` · ${esc(r.date)}` : ""}</span></div>${r.text ? `<p>${esc(r.text)}</p>` : ""}</li>`).join("")}</ul></section>` : ""}
     ${i.sv.length ? `<section class="pcard"><h2>Good to know</h2><ul class="pknow"><li>No payment online. You pay at the session.</li><li>Your time is held as soon as you send the request.</li><li>Plans changed? Cancel from My bookings.</li></ul></section>` : ""}`;
 }
 
@@ -4899,7 +4899,7 @@ function bookingView(){
           <p class="note">${b.format === "online" ? "Online" : "In person"} · <span>with</span> ${esc(b.providerName)}${b.price ? ` · ${money(b.price)}` : ""}</p></div></div>
       ${b.status === "Confirmed" && b.format === "online" ? (joinOpen ? `<a class="btn bkjoin" href="${esc(b.meetingLink)}" target="_blank" rel="noopener">Join the online session</a>` : `<button class="btn bkjoin" type="button" disabled>${b.meetingLink ? "Join opens 10 minutes before" : "The meeting link will show here"}</button>`) : ""}
       ${b.status === "Confirmed" && b.format !== "online" && b.locationNote ? `<p class="picked" style="margin:0"><b>Where:</b> ${esc(b.locationNote)}</p>` : ""}
-      <div class="bkacts">${up ? `<button class="btn small ghost" type="button" data-ics="${b.id}">Add to calendar</button>` : ""}${p2on() && up && s && !b.changeReq ? `<button class="btn small ghost" type="button" data-chgopen="${b.id}">Ask for another time</button>` : `<a class="btn small ghost" href="#contact-us">${up && !p2on() ? "Ask for another time" : "Message us"}</a>`}${s ? `<a class="btn small ghost" href="#service-${esc(s.id)}">${up ? "See the service" : "Book again"}</a>` : ""}${up ? `<button class="linkbtn" type="button" data-bkcancel="${b.id}" style="color:var(--danger)">Cancel booking</button>` : ""}</div>
+      <div class="bkacts">${up ? `<button class="btn small ghost" type="button" data-ics="${b.id}">Add to calendar</button><a class="btn small ghost" href="${esc(gcalLink(b))}" target="_blank" rel="noopener" style="color:var(--fg)">Google Calendar</a>` : ""}${p2on() && up && s && !b.changeReq ? `<button class="btn small ghost" type="button" data-chgopen="${b.id}">Ask for another time</button>` : `<a class="btn small ghost" href="#contact-us">${up && !p2on() ? "Ask for another time" : "Message us"}</a>`}${s ? `<a class="btn small ghost" href="#service-${esc(s.id)}">${up ? "See the service" : "Book again"}</a>` : ""}${up ? `<button class="linkbtn" type="button" data-bkcancel="${b.id}" style="color:var(--danger)">Cancel booking</button>` : ""}</div>
     </section>
     ${bkTopP2(b, s)}
     <section class="panel"><h2>Where things stand</h2><ol class="tline">${steps.join("")}</ol></section>
@@ -5147,7 +5147,7 @@ document.addEventListener("click", async e => {
     else if (d.revpub){
       const p = PROVIDERS.find(x => x.id === b.providerUid), rv = b.review; if (!p || !rv) return toast("No provider profile for this service");
       const when = new Date(rv.at || Date.now()).toLocaleDateString("en-CA", {month: "short", year: "numeric"});
-      await FB.saveService(p.id, {reviews: [{name: rv.showName ? rv.name : "", stars: rv.stars, date: when, text: rv.text || ""}, ...(p.reviews || [])].slice(0, 50)}, false);
+      await FB.saveService(p.id, {reviews: [{name: rv.showName ? rv.name : "", stars: rv.stars, date: when, text: rv.text || "", verified: true, bk: b.id}, ...(p.reviews || [])].slice(0, 50)}, false);
       await FB.updateBooking(id, {review: {...rv, published: true}}, {status: "Review published", by: USER.email});
       toast("Review published");
     }
@@ -5210,7 +5210,8 @@ async function emailBooking(b, status, message, extra){
     ...(["Confirmed", "Reminder", "Time changed"].includes(status) && b.format === "online" && link ? {"Join link": link} : {}),
     ...(["Confirmed", "Reminder", "Time changed"].includes(status) && b.format !== "online" && where ? {"Where": where} : {}),
     ...(message ? {"Message": message} : {}),
-    "Your bookings": location.origin + "/#my-orders",
+    ...(["Requested", "Confirmed", "Reminder", "Time changed"].includes(status) ? {"Add to your calendar": gcalLink(b)} : {}),
+    "Your bookings": location.origin + "/my-bookings",
     _cc: b.email, _replyto: CONTACT_EMAIL, _template: "box"
   });
 }
@@ -6843,6 +6844,7 @@ function feedbackAdminHTML(){
       <textarea name="a" rows="2" maxlength="1000" required placeholder="Your answer (shown on the item page)"></textarea></div><div class="fbkbtns"><button class="btn small" type="submit">Answer and publish</button><button class="linkbtn" type="button" data-fbkno="${esc(q.id)}">Remove</button></div></form>`).join("") || `<p class="note">Nothing waiting.</p>`}</section>
     <section class="panel"><h2>Problems reported (${P.problems.length})</h2>${P.problems.map(x => `<div class="fbkrow"><div><b>Order #${esc(String(x.orderNo || ""))} · ${esc(x.reason)}</b><p>${esc(x.text)}</p><span class="note">${esc(x.name || "")} · <a href="mailto:${esc(x.email || "")}">${esc(x.email || "")}</a> · ${esc(x.date || "")}</span></div><div class="fbkbtns"><button class="linkbtn" type="button" data-fbkno="${esc(x.id)}">Mark handled</button></div></div>`).join("") || `<p class="note">No open problems.</p>`}</section>
     <section class="panel"><h2>Alerts customers asked for (${P.alerts.length})</h2><p class="note">Emails go out by themselves when you put an item back in stock or lower its price here in Admin.</p>${P.alerts.map(a => `<div class="fbkrow"><div><b>${esc(a.p ? a.p.name : a.id)}</b><span class="note">${esc(a.email || "")} · ${[a.back ? "back in stock" : "", a.drop ? "price drop" : ""].filter(Boolean).join(", ")}</span></div></div>`).join("") || `<p class="note">None yet.</p>`}</section>
+    ${provAppsHTML()}
     <section class="panel"><h2>Promo codes</h2><p class="note">Codes are checked at checkout. Anyone who knows a code can use it, so share them on purpose. Remember to check the total before taking payment.</p>
       ${promos.map((x, i) => `<div class="fbkrow"><div><b>${esc(x.code)}</b> · ${x.pct ? esc(String(x.pct)) + "% off" : money(+x.amount || 0) + " off"}${x.firstOnly ? " · first order only" : ""}${x.min ? " · min " + money(+x.min) : ""}${x.ends ? " · ends " + esc(x.ends) : ""}${x.active === false ? " · <i>off</i>" : ""}</div><div class="fbkbtns"><button class="linkbtn" type="button" data-promotoggle="${i}">${x.active === false ? "Turn on" : "Turn off"}</button><button class="linkbtn" type="button" data-promodel="${i}" style="color:var(--danger)">Delete</button></div></div>`).join("") || `<p class="note">No codes yet.</p>`}
       <form id="promoAdd" class="promoadd" novalidate><input name="code" placeholder="CODE" maxlength="20" required><input name="pct" type="number" min="1" max="90" placeholder="% off"><input name="amount" type="number" min="1" step="0.01" placeholder="or $ off"><input name="min" type="number" min="0" step="0.01" placeholder="Min order $"><input name="ends" type="date" title="Last day"><label class="actcheck" style="border:0;padding:0"><input type="checkbox" name="firstOnly"><span>First order only</span></label><button class="btn small" type="submit">Add code</button><div data-actmsg hidden></div></form></section>
@@ -6931,4 +6933,175 @@ document.addEventListener("submit", async e => {
   views.item = function(){ const h = _item.apply(this, arguments); if (String(itemId).startsWith("m-")) return h; const p = PRODUCTS.find(x => x.id === itemId); if (!p || p.member) return h; rvAdd(p.id); return h + itemExtrasHTML(p) + rvHTML(p.id); };
   views.shop = function(){ return _shop.apply(this, arguments) + rvHTML(); };
   if (_home) views.home = function(){ return _home.apply(this, arguments) + rvHTML(); };
+})();
+
+
+/* =========================================================
+   v130: services — share link + QR, verified provider reviews, calendar links, become a provider,
+   customers also booked, monthly fee statements sent automatically
+   ========================================================= */
+/* ---- 19. Share a provider's booking link with a QR code ---- */
+var SHARE = {pid: null};
+function provUrl(id){ return location.origin + "/provider-" + id; }
+function loadQR(){ return window.qrcode ? Promise.resolve() : new Promise((ok, no) => { const s = document.createElement("script"); s.src = "/qr.js?v=1"; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); }
+function qrSVG(url){ const q = window.qrcode(0, "M"); q.addData(url); q.make(); return q.createSvgTag({cellSize: 6, margin: 2, scalable: true}); }
+function shareBarHTML(p){
+  const url = provUrl(p.id), open = SHARE.pid === p.id;
+  return `<div class="sharebar"><button class="btn small ghost" type="button" data-share="${esc(p.id)}" aria-expanded="${open}" style="color:var(--fg)">${open ? "Close" : "Share · QR code"}</button></div>
+  ${open ? `<section class="panel sharepanel" id="sharePanel"><div class="shareqr" id="shareQR" aria-label="QR code for ${esc(url)}"></div>
+    <div class="sharetxt"><h2>Book ${esc(p.name)} on Nojan</h2><p class="note">Share this link or the QR code. People who scan it open this profile and can book a time.</p>
+      <div class="sharelink"><input value="${esc(url)}" readonly aria-label="Booking link"><button class="btn small" type="button" data-sharecopy="${esc(url)}">Copy link</button></div>
+      <div class="sharebtns"><button class="linkbtn" type="button" data-qrdl="${esc(p.id)}">Download QR code</button><button class="linkbtn" type="button" data-qrprint>Print a QR card</button>${navigator.share ? `<button class="linkbtn" type="button" data-sharenative="${esc(url)}">Share…</button>` : ""}</div>
+      <p class="qrcap">${esc(p.name)} · nojans.com</p></div></section>` : ""}`;
+}
+async function paintQR(){ const box = document.getElementById("shareQR"); if (!box || !SHARE.pid) return; try { await loadQR(); box.innerHTML = qrSVG(provUrl(SHARE.pid)); } catch (_) { box.textContent = "The QR code couldn't load. Refresh and try again."; } }
+function qrPNG(pid){
+  const svg = document.querySelector("#shareQR svg"); if (!svg) return;
+  const img = new Image(), c = document.createElement("canvas"); c.width = c.height = 720;
+  img.onload = () => { const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, 720, 720); x.drawImage(img, 20, 20, 680, 680);
+    c.toBlob(bl => { const a = document.createElement("a"); a.href = URL.createObjectURL(bl); a.download = "nojan-qr-" + pid + ".png"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 10000); }, "image/png"); };
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+}
+
+/* ---- 21. Calendar links (Google Calendar link works in emails too) ---- */
+function gcalLink(b){
+  const dt = ms => new Date(ms).toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  const where = b.format === "online" ? (b.meetingLink || "Online") : (b.locationNote || b.address || b.location || "Confirmed by Nojan");
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent((b.serviceTitle || "Booking") + " (Nojan)")
+    + "&dates=" + dt(b.startMs) + "/" + dt(b.startMs + (b.durationMin || 60) * 60000)
+    + "&details=" + encodeURIComponent(`Booking #B${b.number} with ${b.providerName || "Nojan"}. ${location.origin}/mybooking-${b.id}`)
+    + "&location=" + encodeURIComponent(where);
+}
+
+/* ---- 22. Become a provider ---- */
+const PROV_CATS = ["Tutoring and classes", "Technology help", "Apps, websites and CRM", "Assembly and handy work", "Home and cleaning", "Beauty and wellness", "Other"];
+function provApplyView(){
+  const head = `<div class="sectionhead acthead"><div><h1>Become a provider</h1><p>Offer your classes or services on Nojan.</p></div></div>`;
+  const how = `<div class="panel provhow"><h2>How it works</h2><ol class="nextsteps"><li>Send this form. It's free.</li><li>Nojan meets you by video or in person, checks your ID and a sample of your work.</li><li>We build your profile and booking page with you, with a link and QR code to share.</li><li>Customers book and pay for completed sessions. Nojan keeps a fixed 10% of each completed, paid booking. No monthly fee.</li></ol></div>`;
+  if (!authReady) return head + `<div class="empty">Loading…</div>`;
+  if (!USER) return head + how + `<div class="panel"><p class="note">Sign in or create a free account to apply.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" type="button" data-auth="signin" data-next="provapply">Sign in</button><button class="btn ghost" type="button" data-auth="signup" data-next="provapply" style="color:var(--fg)">Create account</button></div></div>`;
+  const a = PROFILE && PROFILE.providerApp;
+  if (a && a.at) return head + `<div class="panel"><h2>Application sent</h2><p class="note">Thank you, ${esc(String(a.name || "").split(/\s+/)[0])}. We got your application on ${esc(a.date || "")} and will contact you at ${esc(a.email || USER.email || "")} within a few business days.</p><a class="btn ghost" href="#services" style="justify-self:start;color:var(--fg)">See services on Nojan</a></div>`;
+  const pr = PROFILE || {};
+  return head + `<div class="two"><form class="panel" id="provApply" novalidate>
+      <h2>About you</h2>
+      <div class="row"><label>Full name<input name="name" required maxlength="80" autocomplete="name" value="${esc(pr.name || USER.displayName || "")}"></label><label>Phone<input name="phone" type="tel" required autocomplete="tel" value="${esc(pr.phone || "")}"></label></div>
+      <label>Email<input name="email" type="email" required value="${esc(USER.email || "")}"></label>
+      <label>City<input name="city" maxlength="40" autocomplete="address-level2" value="${esc(pr.city || "")}"></label>
+      <h2>What you offer</h2>
+      <label>Kind of service<select name="cat">${PROV_CATS.map(c => `<option>${c}</option>`).join("")}</select></label>
+      <label>Services you'd like to offer<textarea name="services" required maxlength="800" rows="3" placeholder="e.g. Grade 9–12 math tutoring, Excel for beginners"></textarea></label>
+      <label>Your experience<textarea name="experience" required maxlength="1500" rows="4" placeholder="Years of experience, training, certificates, where you've worked"></textarea></label>
+      <div class="row"><label>How you work<select name="format"><option>Online and in person</option><option>Online only</option><option>In person only</option></select></label><label>Usual price<input name="price" maxlength="40" placeholder="e.g. $40 an hour"></label></div>
+      <label>When you're available<input name="avail" maxlength="200" placeholder="e.g. Weekday evenings, Saturdays"></label>
+      <label>Website or LinkedIn <small>(optional)</small><input name="link" maxlength="200" placeholder="https://"></label>
+      <label class="check"><input type="checkbox" name="agree" required> <span>I understand Nojan keeps 10% of each completed, paid booking, and I agree to the <a href="#terms">Terms</a>.</span></label>
+      <div data-actmsg hidden></div><button class="btn primary" type="submit" style="justify-self:start">Send application</button>
+    </form>${how}</div>`;
+}
+function provAppsHTML(){
+  const done = (FBK.notes && FBK.notes.prov) || {};
+  const list = (ADM.users || []).filter(u => u.providerApp && u.providerApp.at && !done[u.id]);
+  return `<section class="panel"><h2>Provider applications (${list.length})</h2>${list.map(u => { const a = u.providerApp; return `<div class="fbkrow"><div><b>${esc(a.name)}</b> · ${esc(a.cat || "")}
+    <span class="note">${esc(a.email || u.email || "")} · ${esc(a.phone || "")} · ${esc(a.city || "")} · ${esc(a.format || "")}${a.price ? " · " + esc(a.price) : ""} · sent ${esc(a.date || "")}</span>
+    <p><b>Offers:</b> ${esc(a.services || "")}</p><p><b>Experience:</b> ${esc(a.experience || "")}</p>${a.avail ? `<p><b>Available:</b> ${esc(a.avail)}</p>` : ""}${a.link ? `<p><a href="${esc(safeUrl(a.link))}" target="_blank" rel="noopener">${esc(a.link)}</a></p>` : ""}</div>
+    <div class="fbkbtns"><button class="btn small" type="button" data-provok="${esc(u.id)}">Create their profile</button><button class="linkbtn" type="button" data-provno="${esc(u.id)}">Decline</button></div></div>`; }).join("") || `<p class="note">No new applications.</p>`}</section>`;
+}
+
+/* ---- 23. Customers also booked (worked out in Admin from bookings; only service ids are published) ---- */
+var ALSO_SIG = "";
+function alsoCompute(){
+  if (!isAdmin() || !ADM.bookings || !FB || !FB.saveSite) return;
+  const by = {};
+  ADM.bookings.filter(b => b.kind !== "event" && b.uid && b.serviceId && b.status !== "Cancelled").forEach(b => { (by[b.uid] = by[b.uid] || new Set()).add(b.serviceId); });
+  const co = {};
+  Object.values(by).forEach(set => { const a = [...set]; a.forEach(x => a.forEach(y => { if (x !== y){ co[x] = co[x] || {}; co[x][y] = (co[x][y] || 0) + 1; } })); });
+  const out = {}; Object.keys(co).sort().forEach(x => { out[x] = Object.entries(co[x]).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, 4).map(e => e[0]); });
+  const sig = JSON.stringify(out); if (sig === ALSO_SIG || sig === JSON.stringify(SITE.alsoBooked || {})) { ALSO_SIG = sig; return; }
+  ALSO_SIG = sig; FB.saveSite({alsoBooked: out}).then(() => { SITE = {...SITE, alsoBooked: out}; }).catch(e => console.error(e));
+}
+function alsoHTML(s){
+  const ok = x => x && x.id !== s.id && !x.member && x.active !== false;
+  const ids = ((SITE.alsoBooked || {})[s.id] || []);
+  let list = ids.map(id => SERVICES.find(x => x.id === id)).filter(ok), title = "Customers also booked";
+  if (!list.length){ list = SERVICES.filter(x => ok(x) && x.category === s.category).slice(0, 4); title = "More services like this"; }
+  if (list.length < 2 && title !== "Customers also booked"){ const more = SERVICES.filter(x => ok(x) && !list.includes(x) && x.providerUid && x.providerUid === s.providerUid).slice(0, 4 - list.length); list = list.concat(more); }
+  if (!list.length) return "";
+  return `<section class="alsosec"><h2>${title}</h2><div class="svcgrid">${serviceCards(list.slice(0, 4))}</div></section>`;
+}
+
+/* ---- 24. Monthly fee statements, sent automatically when an admin opens Admin in a new month ---- */
+var AUTO_ST = {running: false, done: ""};
+function stmtFields(row, month, set){
+  const no = `NJ-FEE-${month}-${row.id}`;
+  return {no, fields: {Statement: no, Provider: `${row.name} (${row.id})`, Period: monthName(month),
+    Sessions: row.sessions.map(b => `B-${b.number} ${b.serviceTitle}, ${fmtWhen(b.startMs, {day: "numeric", month: "short"})} — paid ${money(+b.price || 0)} — fee ${money(Math.round((+b.price || 0) * set.feePct) / 100)}`).join("\n"),
+    "Clients paid": money(row.paid), [`Nojan fee ${set.feePct}%`]: money(row.fee), "Total due": money(row.fee),
+    "How to pay": `Interac e-Transfer to ${SHOP_EMAIL}, message "${no}"`, "Statement online": location.origin + "/receipt-f-" + row.id + "~" + month}};
+}
+async function autoStatements(){
+  if (AUTO_ST.running || !isAdmin() || !ADM.bookings || !FB) return;
+  const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); const month = monthOf(d.getTime() + 15 * 864e5);
+  if (AUTO_ST.done === month) return; AUTO_ST.running = true;
+  try {
+    let s = {}; try { s = JSON.parse((await FB.getNote("_billing")) || "{}") || {}; } catch (_) {}
+    const own = Array.isArray(s.own) ? s.own : ALL_PROVIDERS.filter(p => /\b(nojan|moe)\b/i.test(p.name || "")).map(p => p.id);
+    const set = {feePct: s.feePct == null ? 10 : +s.feePct, own};
+    const id = "fees_" + month; let st = {}; try { st = JSON.parse((await FB.getNote(id)) || "{}") || {}; } catch (_) {}
+    const rows = feeRows(month, set).filter(r => !r.own && r.fee > 0 && !(st[r.id] && st[r.id].sent));
+    let sent = 0, missing = [];
+    for (const r of rows){
+      let to = ""; try { to = (await FB.getNote("pe_" + r.id)) || ""; } catch (_) {}
+      if (!to){ const p = ALL_PROVIDERS.find(x => x.id === r.id); to = (p && p.email) || ""; }
+      if (!to){ missing.push(r.name); continue; }
+      const {no, fields} = stmtFields(r, month, set);
+      await sendEmail(`Nojan fee statement ${no}: ${money(r.fee)} due`, {...fields, _cc: to, _replyto: CONTACT_EMAIL, _template: "box"});
+      st[r.id] = {...(st[r.id] || {}), sent: new Date().toLocaleDateString("en-CA", {timeZone: TZ}), auto: true}; sent++;
+    }
+    if (sent){ await FB.saveNote(id, JSON.stringify(st)); bill().fees[id] = st; }
+    AUTO_ST.done = month;
+    if (sent) toast(`${monthName(month)} fee statements emailed to ${sent} provider${sent > 1 ? "s" : ""}`);
+    if (missing.length) setTimeout(() => toast(`Add an email for ${missing.join(", ")} in Billing → Provider fees to send their statement`), sent ? 2600 : 0);
+  } catch (e){ console.error("auto statements", e); }
+  AUTO_ST.running = false;
+}
+
+/* ---- Events ---- */
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.share){ SHARE.pid = SHARE.pid === b.dataset.share ? null : b.dataset.share; render(); setTimeout(paintQR); return; }
+  if (b.dataset.sharecopy){ try { await navigator.clipboard.writeText(b.dataset.sharecopy); toast("Link copied"); } catch (_) { const i = b.parentElement.querySelector("input"); if (i){ i.select(); document.execCommand("copy"); toast("Link copied"); } } return; }
+  if (b.dataset.sharenative){ try { await navigator.share({title: "Book on Nojan", url: b.dataset.sharenative}); } catch (_) {} return; }
+  if (b.dataset.qrdl){ qrPNG(b.dataset.qrdl); return; }
+  if (b.hasAttribute("data-qrprint")){ document.body.classList.add("qrprint"); setTimeout(() => { window.print(); setTimeout(() => document.body.classList.remove("qrprint"), 500); }, 50); return; }
+  if (b.dataset.provok){ const u = (ADM.users || []).find(x => x.id === b.dataset.provok); if (!u || !u.providerApp) return; const a = u.providerApp;
+    PED = {id: null, data: JSON.parse(JSON.stringify({...blankProvider(), name: a.name || "", headline: a.services ? String(a.services).split(/[\n.]/)[0].slice(0, 120) : "", location: a.city || "", about: [a.experience, a.avail ? "Available: " + a.avail : ""].filter(Boolean).join("\n\n"), website: /linkedin\.com/i.test(a.link || "") ? "" : (a.link || ""), linkedin: /linkedin\.com/i.test(a.link || "") ? a.link : "", email: a.email || u.email || ""})), photo: null};
+    fbkLoad(); FBK.notes.prov = {...(FBK.notes.prov || {}), [u.id]: "approved " + new Date().toISOString().slice(0, 10)};
+    try { await fbkSaveNotes(); } catch (_) {}
+    if (a.email) sendEmail("Your Nojan provider application", {Hello: a.name, Update: "Thank you for applying to offer your services on Nojan. We'd like to set up your profile with you. We'll contact you soon to meet, check your ID and a sample of your work, and finish your booking page.", _cc: a.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {});
+    if (a.email) FB.saveNote("pe_pending_" + u.id, a.email).catch(() => {});
+    ADM.tab = "providers"; refreshAdmin(true); toast("Profile started from the application. Finish it and save."); return; }
+  if (b.dataset.provno){ if (!confirm("Decline this application? We'll send a polite email.")) return; const u = (ADM.users || []).find(x => x.id === b.dataset.provno); fbkLoad(); FBK.notes.prov = {...(FBK.notes.prov || {}), [b.dataset.provno]: "declined " + new Date().toISOString().slice(0, 10)};
+    try { await fbkSaveNotes(); } catch (_) {}
+    const a = u && u.providerApp; if (a && a.email) sendEmail("Your Nojan provider application", {Hello: a.name, Update: "Thank you for applying to offer your services on Nojan. We can't add your service right now. You're welcome to apply again later.", _cc: a.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {});
+    refreshAdmin(true); return; }
+}, true);
+document.addEventListener("submit", async e => {
+  const f = e.target; if (f.id !== "provApply") return; e.preventDefault(); e.stopImmediatePropagation();
+  const d = Object.fromEntries(new FormData(f)), m = f.querySelector("[data-actmsg]"), btn = f.querySelector("button[type=submit]");
+  const need = [["name", "your name"], ["phone", "your phone"], ["email", "your email"], ["services", "the services you'd offer"], ["experience", "your experience"]].find(([k]) => !String(d[k] || "").trim());
+  if (need) return showMsg(m, false, "Please add " + need[1] + ".");
+  if (!d.agree) return showMsg(m, false, "Please tick the box about the 10% fee and the Terms.");
+  const app = {name: d.name.trim().slice(0, 80), phone: d.phone.trim().slice(0, 30), email: d.email.trim().slice(0, 120), city: (d.city || "").trim().slice(0, 40), cat: d.cat, services: d.services.trim().slice(0, 800), experience: d.experience.trim().slice(0, 1500), format: d.format, price: (d.price || "").trim().slice(0, 40), avail: (d.avail || "").trim().slice(0, 200), link: (d.link || "").trim().slice(0, 200), agreed: true, at: new Date().toISOString(), date: new Date().toLocaleDateString("en-CA", {month: "short", day: "numeric", year: "numeric"})};
+  btn.disabled = true;
+  try { await mySave("providerApp", app);
+    sendEmail(`New provider application: ${app.name} (${app.cat})`, {Name: app.name, Email: app.email, Phone: app.phone, City: app.city, Kind: app.cat, Offers: app.services, Experience: app.experience, Format: app.format, Price: app.price, Available: app.avail, Link: app.link, "Review it": location.origin + "/admin", _replyto: app.email}).catch(() => {});
+    render(); toast("Application sent"); }
+  catch (er){ console.error(er); btn.disabled = false; showMsg(m, false, "Couldn't send. Try again, or email us."); }
+}, true);
+
+/* ---- Page add-ons ---- */
+(() => { const _prov = views.provider, _svc = views.service;
+  views.provider = function(){ const h = _prov.apply(this, arguments); const p = providerById(providerId); if (!p) return h; if (SHARE.pid) setTimeout(paintQR); return shareBarHTML(p) + h; };
+  views.service = function(){ const h = _svc.apply(this, arguments); if (String(serviceId).startsWith("m-")) return h; const s = SERVICES.find(x => x.id === serviceId); return s ? h + alsoHTML(s) : h; };
 })();
