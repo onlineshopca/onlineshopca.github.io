@@ -3217,3 +3217,6 @@ a.acttile:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
 html body .h5hero.h5hero::after,html body .pagehero.lhero.shop::after,html body .pagehero.lhero.services::after,html body .pagehero.contact::after,html body footer.fx .fcard::after{--vred:43,111,234}
 html body::after{display:none!important;animation:none!important}
 html,html body{background:#fff!important}
+/* ===== v133: plain edges on every box (thin light-grey outline + soft grey shadow) instead of the glowing glass edges; no edge bending / colour boost behind boxes in Chrome. ===== */
+:root,:root[data-theme]{--lg-body:inset 0 0 0 1px #e2e2e7,0 1px 2px rgba(0,0,0,.05),0 6px 16px -8px rgba(0,0,0,.12);--lg-lensbody:inset 0 0 0 1px #d8d8de,0 2px 6px -2px rgba(0,0,0,.12)}
+@supports (backdrop-filter:url(#x)){html.lg-lens header.gbar,html.lg-lens .tabbar,html.lg-lens .askbtn,html.lg-lens .h5search,html.lg-lens .h5tabs,html.lg-lens .langsw,html.lg-lens .crumbs,html.lg-lens .xtile,html.lg-lens .ctile,html.lg-lens .newscard,html.lg-lens .givecard,html.lg-lens .soon,html.lg-lens .btn,html.lg-lens .fbtn{backdrop-filter:blur(7px)!important}}
