@@ -3220,3 +3220,35 @@ html,html body{background:#fff!important}
 /* ===== v133: plain edges on every box (thin light-grey outline + soft grey shadow) instead of the glowing glass edges; no edge bending / colour boost behind boxes in Chrome. ===== */
 :root,:root[data-theme]{--lg-body:inset 0 0 0 1px #e2e2e7,0 1px 2px rgba(0,0,0,.05),0 6px 16px -8px rgba(0,0,0,.12);--lg-lensbody:inset 0 0 0 1px #d8d8de,0 2px 6px -2px rgba(0,0,0,.12)}
 @supports (backdrop-filter:url(#x)){html.lg-lens header.gbar,html.lg-lens .tabbar,html.lg-lens .askbtn,html.lg-lens .h5search,html.lg-lens .h5tabs,html.lg-lens .langsw,html.lg-lens .crumbs,html.lg-lens .xtile,html.lg-lens .ctile,html.lg-lens .newscard,html.lg-lens .givecard,html.lg-lens .soon,html.lg-lens .btn,html.lg-lens .fbtn{backdrop-filter:blur(7px)!important}}
+/* ===== v135: smaller footer (two columns on computers: logo, tagline, buttons left; news sign-up right; links in one row) and white background behind item pictures (was #f5f5f7). ===== */
+html body footer.fx .fcard{padding:20px 28px 12px!important;display:grid!important;grid-template-columns:1fr 1fr;column-gap:32px;row-gap:10px;align-items:center;text-align:left}
+html body footer.fx .flogo{font-size:18px!important;gap:8px!important;grid-column:1;justify-self:start}
+html body footer.fx .flogo img,html body footer.fx .flogo svg{width:30px!important;height:30px!important}
+html body footer.fx .ftag{margin:0!important;font-size:13px!important;grid-column:1;justify-self:start}
+html body footer.fx .fbtns{grid-column:1;justify-content:flex-start!important;margin:0!important;gap:8px!important}
+html body footer.fx .fbtn{padding:6px 12px!important;font-size:13px!important;min-height:0!important}
+html body footer.fx .nlbox{grid-column:2;grid-row:1 / span 3;margin:0!important;text-align:left!important;align-items:stretch!important;gap:4px!important;max-width:none!important}
+html body footer.fx .nlbox>b{font-size:14px!important}
+html body footer.fx .nlbox>span{font-size:12.5px!important}
+html body footer.fx .nlform{display:grid!important;grid-template-columns:1fr auto;gap:6px 8px!important;margin-top:4px!important;max-width:none!important}
+html body footer.fx .nlform input[type=email],html body footer.fx .nlform input:not([type]){grid-column:1;min-height:36px!important;height:36px!important;padding:6px 12px!important;font-size:14px!important}
+html body footer.fx .nlform .btn{grid-column:2;grid-row:1;min-height:36px!important;padding:6px 16px!important;margin:0!important}
+html body footer.fx .nlagree{grid-column:1 / span 2;display:flex!important;align-items:center;gap:8px;justify-content:flex-start!important;font-size:12.5px!important;margin:0!important;text-align:left}
+html body footer.fx .nlagree span{white-space:normal}
+html body footer.fx .flinks{grid-column:1 / span 2;justify-content:center!important;gap:6px 22px!important;margin:6px 0 0!important;padding-top:10px;border-top:1px solid rgba(0,0,0,.08);font-size:13.5px!important}
+html body footer.fx .flinks a{font-size:13.5px!important;padding:2px 0!important}
+html body footer.fx .fbot{grid-column:1 / span 2;margin:0!important;padding:6px 0 0!important;border:0!important;font-size:12px!important;justify-content:center}
+@media (max-width:720px){html body footer.fx .fcard{grid-template-columns:1fr;text-align:center}html body footer.fx .flogo,html body footer.fx .ftag{justify-self:center}html body footer.fx .fbtns{justify-content:center!important}html body footer.fx .nlbox{grid-column:1;grid-row:auto}html body footer.fx .flinks,html body footer.fx .fbot{grid-column:1}}
+html body footer.fx .flogo{grid-row:1}html body footer.fx .ftag{grid-row:2}html body footer.fx .fbtns{grid-row:3;align-self:start}
+html body footer.fx .nlbox{grid-row:1 / span 3}
+html body footer.fx .nlbox>b,html body footer.fx .nlbox>span{text-align:left!important;display:block}
+html body footer.fx .flinks{grid-row:4}html body footer.fx .fbot{grid-row:5}
+html body footer.fx .nlagree input{width:16px!important;height:16px!important;min-height:0!important;flex:none;margin:0!important;padding:0!important}
+html body footer.fx .nlagree span{flex:1;text-align:left!important}
+@media (max-width:720px){html body footer.fx .flogo,html body footer.fx .ftag,html body footer.fx .fbtns,html body footer.fx .nlbox,html body footer.fx .flinks,html body footer.fx .fbot{grid-row:auto}}
+html body footer.fx .fcard .fbtns{justify-self:start!important;width:auto!important;justify-content:flex-start!important}
+html body footer.fx .fcard .nlbox>b{width:100%;text-align:left!important;justify-self:start}
+html body footer.fx .fcard .nlbox{display:flex!important;flex-direction:column!important;align-items:flex-start!important}
+html body footer.fx .fcard .nlbox .nlform{width:100%}
+@media (max-width:720px){html body footer.fx .fcard .fbtns{justify-self:center!important}html body footer.fx .fcard .nlbox{align-items:center!important}}
+html body .piclink.tile,html body a.tile,html body .tile{background:#fff!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
