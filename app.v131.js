@@ -5787,7 +5787,7 @@ setTimeout(() => { if (!FB){ fbFailed = true; authReady = true; render(); if (!C
 
 $("#yr").textContent = new Date().getFullYear();
 $("#infoEmail").textContent = CONTACT_EMAIL;
-updateCount(); render();
+updateCount(); try { render(); } catch (er){ console.warn("first draw waits for the rest of the code", er); setTimeout(render); }   // v131: a view that needs code further down this file no longer stops the page from starting
 let sheetLoading = null;
 function loadFromSheet(){   // used only when the product database is empty or can't be reached
   if (sheetLoading) return sheetLoading;
