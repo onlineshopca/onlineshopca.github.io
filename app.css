@@ -3213,3 +3213,7 @@ a.acttile:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
 /* v131: accessibility — skip link, stronger green */
 .skiplink{position:absolute;left:12px;top:-60px;z-index:9999;background:#fff;color:#1d1d1f;padding:10px 16px;border-radius:10px;box-shadow:0 4px 16px #0003;font-weight:700;text-decoration:none}
 .skiplink:focus{top:12px}
+/* ===== v132: plain white page background (no moving colour layer behind the page) and no pink in the header / footer colour washes (the red wash uses blue instead). Logo, top colour line and red buttons unchanged. ===== */
+html body .h5hero.h5hero::after,html body .pagehero.lhero.shop::after,html body .pagehero.lhero.services::after,html body .pagehero.contact::after,html body footer.fx .fcard::after{--vred:43,111,234}
+html body::after{display:none!important;animation:none!important}
+html,html body{background:#fff!important}
