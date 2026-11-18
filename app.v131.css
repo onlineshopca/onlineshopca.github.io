@@ -2222,7 +2222,7 @@ html body .dtbtnyes{background:#e0245e!important;border-color:#e0245e!important;
 /* inventory */
 @media (max-width:900px){html body .tabbar.hasinv{grid-template-columns:repeat(6,minmax(0,1fr))!important}html body .tabbar.hasinv a{font-size:10px!important}}
 .invhero{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:22px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);padding:20px;margin:0 0 14px;position:relative;overflow:hidden}
-.invhero::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#2b6fea 0 25%,#e8334a 25% 50%,#fbbc05 50% 75%,#1e8e3e 75%)}
+.invhero::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#2b6fea 0 25%,#e8334a 25% 50%,#fbbc05 50% 75%,#18753a 75%)}
 .invhero h2{margin:0;font-size:1.6rem;font-weight:800;letter-spacing:-.02em}
 .invhero p{margin:4px 0 16px;color:var(--muted)}
 .invacts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -2234,7 +2234,7 @@ html body .btn.invbig{min-height:64px!important;font-size:17px!important;font-we
 .invst{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
 .invpill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.05);font-size:12.5px;font-weight:600;color:#1d1d1f;white-space:nowrap}
 .invdot{width:8px;height:8px;border-radius:30%;background:#8e8e93;flex:none}
-.invdot.ok{background:#1e8e3e}.invdot.sold{background:#e8334a}.invdot.ord{background:#2b6fea}.invdot.hid{background:#fbbc05}
+.invdot.ok{background:#18753a}.invdot.sold{background:#e8334a}.invdot.ord{background:#2b6fea}.invdot.hid{background:#fbbc05}
 .invunit,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;color:var(--muted)}
 .invhead{display:flex;align-items:center;gap:10px;margin:0 0 14px}
 .invhead h2{margin:0;font-size:1.35rem;font-weight:800;flex:1;letter-spacing:-.01em}
@@ -2245,7 +2245,7 @@ html body .btn.invbig{min-height:64px!important;font-size:17px!important;font-we
 .invdone h3{margin:10px 0 4px;font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
 .invdone p{margin:0;color:var(--muted)}
 .invok{display:inline-grid;place-items:center;width:64px;height:64px;border-radius:30%;background:rgba(232,51,74,.12);color:#c0262d}
-.invok.ok{background:rgba(30,142,62,.14);color:#1e8e3e}.invok.ord{background:rgba(43,111,234,.12);color:#2b6fea}.invok.hid{background:rgba(251,188,5,.2);color:#8a6100}
+.invok.ok{background:rgba(30,142,62,.14);color:#18753a}.invok.ord{background:rgba(43,111,234,.12);color:#2b6fea}.invok.hid{background:rgba(251,188,5,.2);color:#8a6100}
 .invok svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .invcard,.invbox,.invsoft{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:22px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);padding:14px 16px;margin:0 0 12px}
 .invcard{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center;text-align:left}
@@ -2257,7 +2257,7 @@ html body .btn.invbig{min-height:64px!important;font-size:17px!important;font-we
 .invnum{display:inline-flex;align-items:center;gap:8px;font-size:17px}
 .invnum i{font-style:normal;color:var(--muted);font-weight:500}
 .invnum svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.invgood{margin:8px 0 0;font-size:14px;color:#1e8e3e;font-weight:600}
+.invgood{margin:8px 0 0;font-size:14px;color:#18753a;font-weight:600}
 .invbtns{display:grid;gap:10px;margin:16px 0 0}
 .invbtns .note{margin:-4px 0 4px;text-align:center}
 html body .btn.invmain{min-height:54px!important;font-size:17px!important;font-weight:600!important;justify-content:center}
@@ -3209,3 +3209,7 @@ a.acttile:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
 .dtable{width:100%;border-collapse:collapse;font-size:.9rem}.dtable th,.dtable td{text-align:left;padding:6px 4px;border-top:1px solid var(--line)}
 .dlist{margin:0;padding-left:18px;display:grid;gap:6px}.dlist li span{margin-right:8px}.dlist li{font-size:.9rem}
 .hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}
+
+/* v131: accessibility — skip link, stronger green */
+.skiplink{position:absolute;left:12px;top:-60px;z-index:9999;background:#fff;color:#1d1d1f;padding:10px 16px;border-radius:10px;box-shadow:0 4px 16px #0003;font-weight:700;text-decoration:none}
+.skiplink:focus{top:12px}

@@ -7229,3 +7229,8 @@ document.addEventListener("submit", async e => {
 }, true);
 (() => { const _render = render; render = function(){ const r = _render.apply(this, arguments); try { nlPaint(); } catch (_) {} return r; }; })();
 setTimeout(nlPaint, 0);
+
+/* v131: accessibility — "Skip to main content" for keyboard users */
+(() => { if (document.querySelector(".skiplink")) return; const a = document.createElement("a"); a.className = "skiplink"; a.href = "#main-content"; a.textContent = "Skip to main content";
+  a.addEventListener("click", e => { e.preventDefault(); const v = document.getElementById("view"); if (v){ v.setAttribute("tabindex", "-1"); v.focus(); } });
+  document.body.insertBefore(a, document.body.firstChild); })();

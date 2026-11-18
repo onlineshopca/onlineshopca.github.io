@@ -6,7 +6,8 @@
 (function(){
 const FR = {
 /* ---- v127/v128: Your account pages, your lists ---- */
-/* v131 */ "Get Nojan news": "Recevez les nouvelles de Nojan",
+/* v131 */ "Skip to main content": "Passer au contenu principal",
+"Get Nojan news": "Recevez les nouvelles de Nojan",
 "New arrivals, new services and offers. About once a month. Unsubscribe any time.": "Nouveaux arrivages, nouveaux services et offres. Environ une fois par mois. Désabonnement en tout temps.",
 "Yes, email me Nojan news and offers.": "Oui, envoyez-moi les nouvelles et les offres de Nojan.",
 "Sign up": "M'inscrire",
