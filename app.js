@@ -4073,7 +4073,7 @@ function adminView(){
   if (!USER) return needSignIn("admin", "Admin sign-in", "Sign in with the shop's admin account to manage orders.");
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
-  return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them. <button class="linkbtn" type="button" data-backup>Download backup</button></p></div>
+  return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them. <button class="linkbtn" type="button" data-backup>Download backup</button> · <button class="linkbtn" type="button" data-azsql>Download as Azure tables</button></p></div>
     <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="dash" aria-pressed="${ADM.tab==="dash"}">Dashboard</button><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="billing" aria-pressed="${ADM.tab==="billing"}">Billing</button><button type="button" data-atab="feedback" aria-pressed="${ADM.tab==="feedback"}">Feedback &amp; promos</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
@@ -5579,6 +5579,20 @@ document.addEventListener("click", async e => {
       toast("Request sent. We'll confirm by email.");
     } catch(err){ console.error(err); toast("Couldn't send the request. Please email us instead."); }
     b.disabled = false; return;
+  }
+  if (b.hasAttribute("data-azsql")){   // v134: the same backup, shaped like the Azure SQL tables, as an .sql file
+    if (!isAdmin() || !FB || !FB.backup) return;
+    const t0 = b.textContent; b.disabled = true; b.textContent = "Preparing…";
+    try {
+      if (!window.NOJAN_TABLES) await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "/tables.js?v=134"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+      const NT = window.NOJAN_TABLES, data = await FB.backup(), T = NT.fromBackup(data), sql = NT.toSQL(T, data.made);
+      const url = URL.createObjectURL(new Blob([sql], {type: "text/plain"}));
+      const a = document.createElement("a"); a.href = url; a.download = "nojan-azure-tables-" + new Date().toISOString().slice(0, 10) + ".sql";
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000);
+      const rows = NT.counts(T).reduce((x, [, n]) => x + n, 0);
+      toast(`Azure tables downloaded: ${rows} rows in ${NT.counts(T).length} tables`);
+    } catch(err){ console.error(err); toast("Couldn't make the Azure tables file. Try again."); }
+    b.disabled = false; b.textContent = t0; return;
   }
   if (b.hasAttribute("data-backup")){   // v113: one file with every record an admin can read
     if (!isAdmin() || !FB || !FB.backup) return;
