@@ -249,6 +249,7 @@ function imgSrc(ref, p, i){
   return (i === 0 && p && p.thumb) ? p.thumb : BLANK;
 }
 const imagesOf = p => refsOf(p).map((r, i) => imgSrc(r, p, i));
+function smallImg(u){ return /^https:\/\/m\.media-amazon\.com\//.test(u || "") ? String(u).replace(/\._[A-Z0-9_,]+_\.(jpg|png|webp)$/i, "._AC_SL500_.$1") : u; }   // v131: cards load a 500 px picture
 function picHTML(p, gallery){
   const imgs = imagesOf(p), refs = refsOf(p);
   if (imgs.length && gallery && imgs.length > 1) return `<div class="pic gal" data-gal="${esc(p.id)}" data-i="0">
@@ -257,7 +258,7 @@ function picHTML(p, gallery){
     <button type="button" class="gnav gnext" data-gstep="1" aria-label="Next photo">›</button>
     <div class="gdots" aria-hidden="true">${imgs.map((_, i) => `<span${i ? "" : ' class="on"'}></span>`).join("")}</div>
   </div>`;
-  if (imgs.length) return `<div class="pic"><img src="${esc(imgs[0])}" data-ref="${esc(refs[0])}" alt="${esc(p.name)}" loading="lazy"></div>`;
+  if (imgs.length) return `<div class="pic"><img src="${esc(smallImg(imgs[0]))}" data-ref="${esc(refs[0])}" alt="${esc(p.name)}" loading="lazy" decoding="async"></div>`;
   const c = p.condition === "used" ? "var(--used)" : "var(--new)";
   return `<div class="pic" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="${c}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${ICONS[p.icon]||ICONS.box}</svg></div>`;
 }
@@ -830,7 +831,7 @@ function simHTML(p){
   const t = typeOf(p), list = groupList(PRODUCTS.filter(x => x.id !== p.id && !x.soldOut && !x.member && typeOf(x) === t && x.itemId !== p.itemId)).slice(0, 4);
   return list.length ? `<section class="hsec simsec"><div class="h5row"><h2>Similar items</h2><a href="#shop">See all ›</a></div><div class="homegrid">${productCards(list)}</div></section>` : "";
 }
-const TITLES = {home: "Nojan · Quality products and services, for less", shop: "Shop new and used items · Nojan", services: "Services and classes · Nojan", contact: "Contact us · Nojan", news: "News · Nojan", cart: "Your cart · Nojan", checkout: "Checkout · Nojan", account: "Your account · Nojan", orders: "Your orders · Nojan", mybookings: "Your bookings · Nojan", acctdetails: "Your details and address · Nojan", acctsecurity: "Login and security · Nojan", acctmessages: "Messages · Nojan", acctemail: "Email preferences · Nojan", acctdata: "Your data · Nojan", acctlists: "Your lists · Nojan", provapply: "Become a provider · Nojan", unsub: "Unsubscribe · Nojan", about: "About Nojan", returns: "Test before you pay · Nojan", privacy: "Privacy policy · Nojan", terms: "Terms of use · Nojan", certified: "What Certified means · Nojan", how: "How it works · Nojan", notfound: "Page not found · Nojan"};
+const TITLES = {home: "Nojan · Quality products and services, for less", shop: "Shop new and used items · Nojan", services: "Services and classes · Nojan", contact: "Contact us · Nojan", news: "News · Nojan", cart: "Your cart · Nojan", checkout: "Checkout · Nojan", account: "Your account · Nojan", orders: "Your orders · Nojan", mybookings: "Your bookings · Nojan", acctdetails: "Your details and address · Nojan", acctsecurity: "Login and security · Nojan", acctmessages: "Messages · Nojan", acctemail: "Email preferences · Nojan", acctdata: "Your data · Nojan", acctlists: "Your lists · Nojan", provapply: "Become a provider · Nojan", help: "Help centre · Nojan", unsub: "Unsubscribe · Nojan", about: "About Nojan", returns: "Test before you pay · Nojan", privacy: "Privacy policy · Nojan", terms: "Terms of use · Nojan", certified: "What Certified means · Nojan", how: "How it works · Nojan", notfound: "Page not found · Nojan"};
 const views = {
   home(){
     const q = query.trim();
@@ -920,6 +921,7 @@ const views = {
           </div>
           ${pickupSelectHTML()}
           <label>Notes <small>(optional — questions)</small><textarea id="o-notes" name="notes"></textarea></label>
+          <label class="check"><input type="checkbox" name="newsletter"> <span>Email me Nojan news and offers (optional, unsubscribe any time)</span></label>
           <p class="note">By placing an order you agree to our <a href="#terms">Terms</a> and to <a href="#returns">Test before you pay</a>.</p>
           <div id="orderMsg" hidden></div>
           <button class="btn primary" type="submit" id="orderSubmit">Place order request</button>
@@ -1009,7 +1011,7 @@ const views = {
   booked(){ return bookedView(); },
   account(){ return accountView(); },
   orders(){ return myOrdersView(); },
-  mybookings(){ return myBookingsView(); }, acctsecurity(){ return acctSecurityView(); }, acctmessages(){ return acctMessagesView(); }, acctemail(){ return acctEmailView(); }, acctdata(){ return acctDataView(); }, acctlists(){ return acctListsView(); }, provapply(){ return provApplyView(); }, unsub(){ return unsubView(); },
+  mybookings(){ return myBookingsView(); }, acctsecurity(){ return acctSecurityView(); }, acctmessages(){ return acctMessagesView(); }, acctemail(){ return acctEmailView(); }, acctdata(){ return acctDataView(); }, acctlists(){ return acctListsView(); }, provapply(){ return provApplyView(); }, help(){ return helpView(); }, unsub(){ return unsubView(); },
   acctdetails(){ ACCT_SUB = "details"; try { return accountView(); } finally { ACCT_SUB = null; } },
   receipt(){ return receiptView(); },   // v122
   admin(){ return adminView(); },
@@ -1129,7 +1131,8 @@ document.addEventListener("submit", async e => {
       btn.disabled = false; btn.textContent = "Place order request";
       return showMsg(msg,false,`We couldn't save your order. Check your connection and try again, or email us at ${CONTACT_EMAIL}.`);
     }
-    FB.saveProfile(USER.uid, {name:d.name.trim(), phone:d.phone.trim(), city:(d.city||"").trim()}).catch(()=>{});
+    FB.saveProfile(USER.uid, {name:d.name.trim(), phone:d.phone.trim(), city:(d.city||"").trim(), ...(d.newsletter ? {emailPrefs: {...acctPrefs(), news: true, offers: true, changedAt: new Date().toISOString(), consent: "checkout box " + new Date().toISOString()}} : {})}).catch(()=>{});
+    if (d.newsletter){ PROFILE = {...(PROFILE||{}), emailPrefs: {...acctPrefs(), news: true, offers: true}}; sendEmail("Newsletter sign-up", {Email: d.email.trim(), Consent: "Ticked at checkout: \"Email me Nojan news and offers\"", When: new Date().toISOString(), Account: USER.email || "", _replyto: d.email.trim()}).catch(() => {}); }
     PROFILE = {...(PROFILE||{}), name:d.name.trim(), phone:d.phone.trim(), city:(d.city||"").trim()};
     sendEmail(`New order #${placed.number} from ${d.name} — ${money(t.total)}`, {
       Order:"#"+placed.number, Name:d.name, Phone:d.phone, Email:d.email, City:d.city, "Contact by":d.contact_preference,
@@ -1306,7 +1309,7 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", mybookings:"my-bookings", acctdetails:"account-details", acctsecurity:"login-security", acctmessages:"messages", acctemail:"email-preferences", acctdata:"your-data", acctlists:"your-lists", unsub:"unsubscribe", provapply:"become-a-provider", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified", how:"how-it-works"};
+const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", mybookings:"my-bookings", acctdetails:"account-details", acctsecurity:"login-security", acctmessages:"messages", acctemail:"email-preferences", acctdata:"your-data", acctlists:"your-lists", unsub:"unsubscribe", provapply:"become-a-provider", help:"help", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified", how:"how-it-works"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
 let bookingId = null, receiptId = null, itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
@@ -1433,7 +1436,7 @@ document.addEventListener("click", e => {
   go("item", decodeURIComponent(a.getAttribute("href").slice(6)));
 });
 // v93: in-site links get real addresses so they can be opened in a new tab, shared and found by search engines
-const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|my-bookings|account-details|login-security|messages|email-preferences|your-data|your-lists|unsubscribe|become-a-provider|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
+const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|my-bookings|account-details|login-security|messages|email-preferences|your-data|your-lists|unsubscribe|become-a-provider|help|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
 function relink(root){
   if (!PATH_MODE || !root || root.nodeType !== 1) return;
   const fix = a => { const h = a.getAttribute("href"); if (!h || h[0] !== "#") return; let s = h.slice(1); try { s = decodeURIComponent(s); } catch (_) {} if (!R_OK.test(s)) return; a.dataset.r = s; a.setAttribute("href", pathFor(s)); };
@@ -1502,7 +1505,7 @@ function render(){
     : v === "group" ? [["Shop", "#shop"], [groupId || "Shop"]]
     : v === "sgroup" ? [["Services", "#services"], [sgroupId || "Services"]]
     : v === "scategory" ? (c => c ? [["Services", "#services"], [groupOf(SVC_GROUPS, c)[0], "#sgroup-" + catSlug(groupOf(SVC_GROUPS, c)[0])], [c]] : [["Services", "#services"], ["Category"]])(scatName(svcMap()))
-    : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], news:[["News"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["Your account","#account"],["Your orders"]], mybookings:[["Your account","#account"],["Your bookings"]], acctdetails:[["Your account","#account"],["Your details"]], acctsecurity:[["Your account","#account"],["Login & security"]], acctmessages:[["Your account","#account"],["Messages"]], acctemail:[["Your account","#account"],["Email preferences"]], acctdata:[["Your account","#account"],["Your data"]], acctlists:[["Your account","#account"],["Your lists"]], provapply:[["Services","#services"],["Become a provider"]], unsub:[["Unsubscribe"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
+    : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], news:[["News"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["Your account","#account"],["Your orders"]], mybookings:[["Your account","#account"],["Your bookings"]], acctdetails:[["Your account","#account"],["Your details"]], acctsecurity:[["Your account","#account"],["Login & security"]], acctmessages:[["Your account","#account"],["Messages"]], acctemail:[["Your account","#account"],["Email preferences"]], acctdata:[["Your account","#account"],["Your data"]], acctlists:[["Your account","#account"],["Your lists"]], provapply:[["Services","#services"],["Become a provider"]], help:[["Help centre"]], unsub:[["Unsubscribe"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
          service:(s => s && !s.member ? [["Services","#services"],[s.category, "#scategory-" + catSlug(s.category)],[s.title]] : [["Services","#services"],[(s||{}).title || "Service"]])(SERVICES.find(s=>s.id===serviceId)),
          provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]],
          events:[["Events"]], event:[["Events","#events"],[(eventById(eventId)||{}).title || "Event"]],
@@ -4071,7 +4074,7 @@ function adminView(){
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
   startAdmin();
   return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them. <button class="linkbtn" type="button" data-backup>Download backup</button></p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="billing" aria-pressed="${ADM.tab==="billing"}">Billing</button><button type="button" data-atab="feedback" aria-pressed="${ADM.tab==="feedback"}">Feedback &amp; promos</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
+    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="dash" aria-pressed="${ADM.tab==="dash"}">Dashboard</button><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="billing" aria-pressed="${ADM.tab==="billing"}">Billing</button><button type="button" data-atab="feedback" aria-pressed="${ADM.tab==="feedback"}">Feedback &amp; promos</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
     <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
     <div id="adminBody">${adminBody()}</div>`;
 }
@@ -4101,6 +4104,7 @@ function adminBody(){
   if (ADM.tab === "billing") return (!ADM.orders || !ADM.bookings) ? `<div class="empty">Loading…</div>` : billingAdminHTML();   // v122
   if (ADM.tab === "providers") return providersAdminHTML();
   if (ADM.tab === "feedback") return feedbackAdminHTML();   // v129
+  if (ADM.tab === "dash") return dashView();   // v131
   if (ADM.tab === "events") return eventsAdminHTML();
   if (ADM.tab === "dating") return datingAdminHTML();
   if (ADM.tab === "homes") return homesAdminHTML();
@@ -5783,7 +5787,7 @@ setTimeout(() => { if (!FB){ fbFailed = true; authReady = true; render(); if (!C
 
 $("#yr").textContent = new Date().getFullYear();
 $("#infoEmail").textContent = CONTACT_EMAIL;
-updateCount(); render();
+updateCount(); try { render(); } catch (er){ console.warn("first draw waits for the rest of the code", er); setTimeout(render); }   // v131: a view that needs code further down this file no longer stops the page from starting
 let sheetLoading = null;
 function loadFromSheet(){   // used only when the product database is empty or can't be reached
   if (sheetLoading) return sheetLoading;
@@ -7105,3 +7109,128 @@ document.addEventListener("submit", async e => {
   views.provider = function(){ const h = _prov.apply(this, arguments); const p = providerById(providerId); if (!p) return h; if (SHARE.pid) setTimeout(paintQR); return shareBarHTML(p) + h; };
   views.service = function(){ const h = _svc.apply(this, arguments); if (String(serviceId).startsWith("m-")) return h; const s = SERVICES.find(x => x.id === serviceId); return s ? h + alsoHTML(s) : h; };
 })();
+
+
+/* =========================================================
+   v131: newsletter, help centre, admin dashboard, form bot check, visit counts (off until a Cloudflare token is set),
+   lighter pictures
+   ========================================================= */
+/* ---- 28. Newsletter sign-up with consent ---- */
+function nlBoxHTML(){
+  const on = USER && PROFILE && PROFILE.emailPrefs && PROFILE.emailPrefs.news;
+  return `<div class="nlbox" id="nlBox"><b>Get Nojan news</b><span>New arrivals, new services and offers. About once a month. Unsubscribe any time.</span>
+    ${on ? `<p class="nlok">✓ You get Nojan news. <a href="/email-preferences" data-r="email-preferences">Change</a></p>` : `<form id="nlForm" class="nlform" novalidate><input name="email" type="email" autocomplete="email" placeholder="Your email" aria-label="Your email" value="${esc((USER && USER.email) || "")}" required>
+    <label class="nlagree"><input type="checkbox" name="agree" required> <span>Yes, email me Nojan news and offers.</span></label><button class="btn small" type="submit">Sign up</button></form><div data-actmsg hidden></div>`}</div>`;
+}
+function nlPaint(){
+  const card = document.querySelector("footer .fcard"); if (!card) return;
+  const old = document.getElementById("nlBox"), html = nlBoxHTML();
+  if (old){ if (!old.contains(document.activeElement) && old.outerHTML !== html) old.outerHTML = html; return; }
+  const bot = card.querySelector(".fbot"); bot ? bot.insertAdjacentHTML("beforebegin", html) : card.insertAdjacentHTML("beforeend", html);
+}
+
+/* ---- 41. Help centre ---- */
+const HELP = [
+  ["Orders and pickup", [
+    ["How do I order?", "Add items to your bag and send an order request. Nothing is charged online. We contact you, usually within one business day, to confirm the item and set a pickup time."],
+    ["Where and when do I pick up?", "Pickup is local. You choose a pickup time at checkout, or ask us to contact you, and we confirm the place and time by email or phone."],
+    ["Do you deliver?", "Local delivery can be arranged when we confirm your order."],
+    ["Can I cancel an order?", "Yes, any time before pickup. Go to Your account, then Your orders, and choose Cancel this order."],
+    ["How do I track my order?", "Your account → Your orders shows each step: ordered, confirmed, ready for pickup and picked up."]]],
+  ["Paying, testing and returns", [
+    ["How do I pay?", "At pickup, by Interac e-Transfer or cash, after you test the item. We never ask for card or bank details online."],
+    ["Can I test an item before I pay?", "Yes, always. Take as long as you need at pickup. If it works and matches the listing, you pay. If not, you don't have to buy it."],
+    ["Can I return an item?", "Because you test and accept items before paying, sales are final once paid. Opening a sealed box means you buy the item, unless it's faulty."],
+    ["Something is wrong with my order. What do I do?", "Go to Your orders and choose Report a problem on that order. We reply by email."]]],
+  ["Classes and services", [
+    ["How do I book a class or service?", "Open the service, choose a time and send the booking. You pay at the session, not online."],
+    ["Can I change or cancel a booking?", "Yes. Go to Your account, then Your bookings. You can ask for another time or cancel."],
+    ["Can I add a booking to my calendar?", "Yes. Each upcoming booking has Add to calendar and Google Calendar buttons, and our booking emails include a calendar link."],
+    ["I want to offer my services on Nojan.", "Send the Become a provider form. Nojan keeps a fixed 10% of each completed, paid booking, with no monthly fee."]]],
+  ["Your account and privacy", [
+    ["How do I change my email or password?", "Your account → Login & security."],
+    ["How do I stop news and offers?", "Your account → Email preferences, or the unsubscribe link at the bottom of any news email. Order and booking emails still arrive."],
+    ["Can I download or delete my data?", "Yes. Your account → Your data. Past orders and receipts are kept for 6 years because Canadian tax law requires business records."],
+    ["Does Nojan share my information?", "No. Nojan doesn't share or sell your information."]]]
+];
+function helpView(){
+  return `<div class="sectionhead acthead"><div><h1>Help centre</h1><p>Answers to common questions. Can't find yours? <a href="#contact-us">Message us</a>.</p></div></div>
+    <div class="helpgrid">${HELP.map(([h, qs]) => `<section class="panel helpsec"><h2>${h}</h2>${qs.map(([q, a]) => `<details class="helpq"><summary>${q}</summary><p>${a}</p></details>`).join("")}</section>`).join("")}</div>
+    <div class="panel" style="margin-top:16px"><h2>Still need help?</h2><p class="note">Email <a href="mailto:${esc(CONTACT_EMAIL)}">${esc(CONTACT_EMAIL)}</a> or use the contact form. We usually reply within one business day.</p><a class="btn" href="#contact-us" style="justify-self:start">Contact us</a></div>`;
+}
+
+/* ---- 34. Admin dashboard ---- */
+function dashView(){
+  if (!ADM.orders || !ADM.bookings) return `<div class="empty">Loading…</div>`;
+  const now = Date.now(), d30 = now - 30 * 864e5, d7 = now - 7 * 864e5, ms = x => tsNum(x.createdAt) || 0;
+  const mStart = new Date(); mStart.setDate(1); mStart.setHours(0, 0, 0, 0); const lmStart = new Date(mStart); lmStart.setMonth(lmStart.getMonth() - 1);
+  const done = ADM.orders.filter(o => o.status === "Completed"), when = o => { const h = (o.history || []).filter(x => x.status === "Completed").pop(); return h && h.at ? Date.parse(h.at) : ms(o); };
+  const sum = list => list.reduce((a, o) => a + (+o.total || 0), 0);
+  const thisM = done.filter(o => when(o) >= mStart.getTime()), lastM = done.filter(o => when(o) >= lmStart.getTime() && when(o) < mStart.getTime());
+  const bk = ADM.bookings.filter(b => b.kind !== "event"), bkDone = bk.filter(b => b.status === "Completed"), bkPaidM = bkDone.filter(b => b.paid && b.startMs >= mStart.getTime());
+  const open = ADM.orders.filter(o => ["New", "Contacted", "Ready for pickup"].includes(o.status));
+  const up = bk.filter(b => b.startMs >= now && ["Requested", "Confirmed"].includes(b.status)).sort((a, b) => a.startMs - b.startMs);
+  const top = {}; done.forEach(o => (o.items || []).forEach(it => { top[it.name] = (top[it.name] || 0) + (+it.qty || 1); }));
+  const topList = Object.entries(top).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const sales30 = done.filter(o => when(o) >= d30).length + bkDone.filter(b => b.startMs >= d30).length, sales7 = done.filter(o => when(o) >= d7).length + bkDone.filter(b => b.startMs >= d7 && b.startMs <= now).length;
+  const buyers = {}; done.concat([]).forEach(o => { (buyers[o.uid] = buyers[o.uid] || []).push(when(o)); }); bkDone.forEach(b => { (buyers[b.uid] = buyers[b.uid] || []).push(b.startMs); });
+  const cust = Object.values(buyers).filter(a => a.length), ret = cust.filter(a => a.length > 1 && (Math.max(...a) - Math.min(...a)) <= 90 * 864e5).length;
+  const provActive = new Set(bk.filter(b => b.startMs >= d30).map(b => b.providerUid || b.providerName)).size;
+  const waiting = (ALL_PRODUCTS || []).filter(p => p.condition === "used" && stockOf(p.id) > 0 && tsNum(p.createdAt) && tsNum(p.createdAt) < d30);
+  const low = (ALL_PRODUCTS || []).filter(p => p.condition === "new" && stockOf(p.id) > 0 && stockOf(p.id) <= 2);
+  const reviews = (ALL_PRODUCTS || []).reduce((a, p) => a + ((p.reviews || []).length), 0) + (ALL_PROVIDERS || []).reduce((a, p) => a + ((p.reviews || []).length), 0);
+  const tile = (n, l, sub) => `<div class="dtile"><b>${n}</b><span>${l}</span>${sub ? `<small>${sub}</small>` : ""}</div>`;
+  return `<div class="dtiles">
+      ${tile(money(sum(thisM) + bkPaidM.reduce((a, b) => a + (+b.price || 0), 0)), "Sales this month", `Last month ${money(sum(lastM))} in shop orders`)}
+      ${tile(open.length, "Open orders", open.filter(o => o.status === "New").length + " new")}
+      ${tile(up.length, "Upcoming bookings", up[0] ? "Next: " + esc(fmtWhen(up[0].startMs, {weekday: "short", hour: "numeric", minute: "2-digit"})) : "")}
+      ${tile(sales30, "Completed sales, 30 days", sales7 + " in the last 7 days")}
+    </div>
+    <div class="dgrid">
+      <section class="panel"><h2>Weekly scorecard</h2><table class="dtable"><tr><th>Number</th><th>Now</th><th>Stage 2 target</th></tr>
+        <tr><td>Completed sales (30 days)</td><td>${sales30}</td><td>300 a month</td></tr>
+        <tr><td>Active providers (30 days)</td><td>${provActive}</td><td>25</td></tr>
+        <tr><td>Customers who came back within 90 days</td><td>${cust.length ? ret + " of " + cust.length : "—"}</td><td>3 in 10</td></tr>
+        <tr><td>Published reviews</td><td>${reviews}</td><td>Half of sales</td></tr>
+        <tr><td>Used items waiting over 30 days</td><td>${waiting.length}</td><td>As few as possible</td></tr></table></section>
+      <section class="panel"><h2>Top items</h2>${topList.length ? `<ol class="dlist">${topList.map(([n, q]) => `<li><span>${esc(n)}</span><b>${q}</b></li>`).join("")}</ol>` : `<p class="note">No completed orders yet.</p>`}</section>
+      <section class="panel"><h2>Next bookings</h2>${up.length ? `<ol class="dlist">${up.slice(0, 5).map(b => `<li><span>${esc(fmtWhen(b.startMs, {weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"}))} · ${esc(b.serviceTitle)} · ${esc(b.name || "")}</span><b>${esc(b.status)}</b></li>`).join("")}</ol>` : `<p class="note">No upcoming bookings.</p>`}</section>
+      <section class="panel"><h2>Needs attention</h2>${[open.filter(o => o.status === "New" && ms(o) < now - 2 * 864e5).length ? `<p>⚠ ${open.filter(o => o.status === "New" && ms(o) < now - 2 * 864e5).length} order(s) still New after 2 days</p>` : "", low.length ? `<p>⚠ Low stock: ${low.map(p => esc(p.name)).slice(0, 4).join(", ")}</p>` : "", waiting.length ? `<p>⚠ ${waiting.length} used item(s) unsold for over 30 days. Consider a lower price.</p>` : ""].join("") || `<p class="note">All clear.</p>`}</section>
+    </div>`;
+}
+
+/* ---- 39. Invisible bot check on public forms: a hidden field people never see, and a minimum time to fill the form ---- */
+const BOT_FORMS = ["contactForm", "bookForm", "signupForm", "provApply", "nlForm", "unsubForm"];
+document.addEventListener("focusin", e => { const f = e.target.closest && e.target.closest("form"); if (f && BOT_FORMS.includes(f.id) && !f.dataset.t0) f.dataset.t0 = Date.now(); }, true);
+new MutationObserver(() => { BOT_FORMS.forEach(id => { const f = document.getElementById(id); if (f && !f.querySelector("[name=website_url]")) f.insertAdjacentHTML("beforeend", `<div class="hp" aria-hidden="true"><label>Website<input name="website_url" tabindex="-1" autocomplete="off"></label></div>`); }); }).observe(document.documentElement, {childList: true, subtree: true});
+document.addEventListener("submit", e => {
+  const f = e.target; if (!BOT_FORMS.includes(f.id)) return;
+  const hp = f.querySelector("[name=website_url]"), t0 = +f.dataset.t0 || 0;
+  if ((hp && hp.value) || !t0 || Date.now() - t0 < 2500){ e.preventDefault(); e.stopImmediatePropagation(); if (hp && hp.value) return; toast("Please check the form and try again."); f.dataset.t0 = Date.now() - 2000; }
+}, true);
+
+/* ---- 30. Cookie-free visit counts (Cloudflare Web Analytics). Off until the token is set. ---- */
+const CF_BEACON = "";   // paste the Cloudflare Web Analytics token here to turn visit counts on
+if (CF_BEACON && !PREVIEW){ const s = document.createElement("script"); s.defer = true; s.src = "https://static.cloudflareinsights.com/beacon.min.js"; s.setAttribute("data-cf-beacon", JSON.stringify({token: CF_BEACON})); document.head.appendChild(s); }
+
+/* ---- Events ---- */
+document.addEventListener("submit", async e => {
+  const f = e.target; if (f.id !== "nlForm") return; e.preventDefault(); e.stopImmediatePropagation();
+  const d = Object.fromEntries(new FormData(f)), m = f.parentElement.querySelector("[data-actmsg]"), em = (d.email || "").trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return showMsg(m, false, "Please check your email address.");
+  if (!d.agree) return showMsg(m, false, "Please tick the box to say yes.");
+  const btn = f.querySelector("button"); btn.disabled = true;
+  const at = new Date().toISOString();
+  try {
+    if (USER && (USER.email || "").toLowerCase() === em.toLowerCase()){ const p = {...acctPrefs(), news: true, offers: true, changedAt: at, consent: "footer form " + at}; await FB.saveProfile(USER.uid, {emailPrefs: p}); PROFILE = {...(PROFILE || {}), emailPrefs: p}; }
+    await sendEmail("Newsletter sign-up", {Email: em, Consent: "Ticked: \"Yes, email me Nojan news and offers.\"", When: at, Page: location.pathname, Account: USER ? "signed in as " + (USER.email || "") : "not signed in", _replyto: em});
+    showMsg(m, true, "Thanks! You're signed up."); f.reset();
+  } catch (er){ console.error(er); btn.disabled = false; showMsg(m, false, "Couldn't sign you up. Try again."); }
+}, true);
+(() => { const _render = render; render = function(){ const r = _render.apply(this, arguments); try { nlPaint(); } catch (_) {} return r; }; })();
+setTimeout(nlPaint, 0);
+
+/* v131: accessibility — "Skip to main content" for keyboard users */
+(() => { if (document.querySelector(".skiplink")) return; const a = document.createElement("a"); a.className = "skiplink"; a.href = "#main-content"; a.textContent = "Skip to main content";
+  a.addEventListener("click", e => { e.preventDefault(); const v = document.getElementById("view"); if (v){ v.setAttribute("tabindex", "-1"); v.focus(); } });
+  document.body.insertBefore(a, document.body.firstChild); })();
