@@ -930,11 +930,14 @@ async function cvSend(c, text, asAdmin, extra){
 }
 function cvNotice(c, toCustomer){
   const what = {software: "your software request", services: "your question about a service", shop: "your question about an item", general: "your message"}[c.section] || "your message";
-  if (toCustomer) sendEmail("You have a new message from Nojan", {
+  // v144: specific subject and plain wording; Outlook sent the old generic "new message, sign in to read it" wording to Junk
+  const t = cvTitle(c), gen = !(c.about && c.about.title), byAdmin = c.by === "admin";
+  const short = t.length > 60 ? t.slice(0, 57).trim() + "…" : t;
+  if (toCustomer) sendEmail(gen ? (byAdmin ? "Nojan wrote to you" : "Nojan replied to your message") : `Nojan ${byAdmin ? "wrote to you" : "replied"} about ${short}`, {
       "Hello": cvFirst(c.name) || "there",
-      "What's new": `You have a new message from Nojan about ${what}: ${cvTitle(c)}.`,
-      "Read your message": location.origin + "/message-" + c.id,
-      "Why the message isn't here": "To keep your messages private, the message itself is not in this email. Sign in to your Nojan account to read it and reply.",
+      "Update": gen ? (byAdmin ? "Nojan wrote to you." : "Nojan replied to your message.") : `Nojan ${byAdmin ? "wrote to you" : "replied"} about ${what}: ${t}.`,
+      "Your messages": location.origin + "/message-" + c.id,
+      "Privacy": "The conversation stays on nojans.com, so only you and Nojan can see it.",
       _cc: c.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {});
   else sendEmail(`New message from ${c.name || "a customer"} (${CV_SEC[c.section] || "Messages"})`, {
       From: c.name || c.email || "Customer", About: cvTitle(c), Section: CV_SEC[c.section] || "",
@@ -5725,7 +5728,7 @@ async function sendBkMsg(id, text, admin){
   const quiet = b.msgFrom === (admin ? "admin" : "customer") && b.msgAt && Date.now() - Date.parse(b.msgAt) < 600000;
   await FB.addBookingMsg(id, {from: USER.uid, role: admin ? "admin" : "customer", text});
   if (!quiet){
-    if (admin && b.email) sendEmail("You have a new message from Nojan", {Booking: "#B" + b.number, Service: b.serviceTitle, "What's new": "You have a new message from Nojan about your booking.", "Read your message": location.origin + "/mybooking-" + b.id, "Why the message isn't here": "To keep your messages private, the message itself is not in this email. Sign in to your Nojan account to read it and reply.", _cc: b.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {});   // v143: a notice only
+    if (admin && b.email) sendEmail("Nojan replied about your booking #B" + b.number, {Booking: "#B" + b.number, Service: b.serviceTitle, "Update": "Nojan replied about your booking.", "Your booking": location.origin + "/mybooking-" + b.id, "Privacy": "The conversation stays on nojans.com, so only you and Nojan can see it.", _cc: b.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {});   // v143: a notice only
     if (!admin) sendEmail(`New message from ${b.name || "a customer"} about booking #B${b.number}`, {Booking: "#B" + b.number, Service: b.serviceTitle, From: b.name || "", "Read and reply": location.origin + "/admin", Note: "The message is in Admin → Bookings. Only a notice is emailed.", _replyto: b.email || CONTACT_EMAIL, _template: "box"}).catch(() => {});
   }
   return true;
