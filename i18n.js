@@ -5,6 +5,26 @@
    2) visitors in Quebec see French (checked once from their internet address — nothing is saved or sent to us), else English. */
 (function(){
 const FR = {
+/* v140: top menu, Home, Software page */
+"Software": "Logiciels", "Software by Nojan": "Logiciels de Nojan", "Coming later": "À venir",
+"SharePoint web parts": "Composants WebPart SharePoint", "Custom websites": "Sites web sur mesure", "Custom applications": "Applications sur mesure",
+"Services, software and products, for less.": "Services, logiciels et produits, pour moins cher.",
+"Nojan is a small Canadian business. We provide services by appointment, sell software we build ourselves, and sell new and used brand-name items. 3% of our profit goes to the community and people in need.": "Nojan est une petite entreprise canadienne. Nous offrons des services sur rendez-vous, vendons des logiciels que nous concevons nous-mêmes, et vendons des articles de marque neufs et d'occasion. 3 % de nos profits vont à la communauté et aux personnes dans le besoin.",
+"A small Canadian business. Services by appointment, software we build ourselves, and brand-name items for less. 3% of our profit goes to people in need.": "Une petite entreprise canadienne : services sur rendez-vous, logiciels conçus par nous et articles de marque pour moins cher. 3 % de nos profits vont aux personnes dans le besoin.",
+"Search services, software and items": "Rechercher des services, des logiciels et des articles",
+"Classes, assembly, apps and websites.": "Cours, assemblage, applications et sites Web.",
+"SharePoint web parts built by Nojan, set up for you.": "Composants WebPart SharePoint conçus par Nojan, installés pour vous.",
+"New and used brand-name items, checked by us.": "Articles de marque neufs et d'occasion, vérifiés par nous.",
+"We are getting our first software ready to sell.": "Nous préparons nos premiers logiciels.",
+"Tell us what your business needs": "Dites-nous ce dont votre entreprise a besoin", "Tell us what your business needs ›": "Dites-nous ce dont votre entreprise a besoin ›",
+"Coming next": "Prochainement", "to rent or buy": "à louer ou à acheter", "to meet new people": "pour faire de nouvelles rencontres",
+"Services by appointment": "Services sur rendez-vous", "Software built by Nojan": "Logiciels conçus par Nojan", "Items checked and certified by Nojan": "Articles vérifiés et certifiés par Nojan",
+"Services to book": "Services à réserver", "Classes, assembly, and app and website development, by appointment.": "Cours, assemblage, et création d'applications et de sites Web, sur rendez-vous.",
+"Built by us. Send a request and we reply in your account.": "Conçus par nous. Envoyez une demande et nous répondons dans votre compte.",
+"In the shop": "En boutique", "Used items are 40% below market. Test before you pay.": "Les articles d'occasion sont 40 % sous le prix du marché. Testez avant de payer.",
+"Software built by Nojan. Choose one and send us a request. We reply in your account.": "Logiciels conçus par Nojan. Choisissez-en un et envoyez-nous une demande. Nous répondons dans votre compte.",
+"Our software is coming soon.": "Nos logiciels arrivent bientôt.", "What we build": "Ce que nous concevons", "More categories are coming": "D'autres catégories s'en viennent",
+"Send a request": "Envoyer une demande", "Example": "Exemple", "/ hour": "/ heure",
 /* ---- v127/v128: Your account pages, your lists ---- */
 /* v131 */ "Skip to main content": "Passer au contenu principal",
 "Get Nojan news": "Recevez les nouvelles de Nojan",
@@ -572,6 +592,14 @@ const DAY = {Sunday:"dimanche",Monday:"lundi",Tuesday:"mardi",Wednesday:"mercred
 const pl = (n, one, many) => (+n > 1 ? many : one);
 const dateFR = (m, d, y) => d + " " + (MON[m] || m) + " " + y;
 const FRP = [
+  [/^(\d+) products?$/, (_, n) => n + pl(n, " produit", " produits")],
+  [/^All software \((\d+)\)$/, (_, n) => "Tous les logiciels (" + n + ")"],
+  [/^(\d+) to book$/, (_, n) => n + " à réserver"],
+  [/^(\d+) to request$/, (_, n) => n + " à demander"],
+  [/^All (\d+) services ›$/, (_, n) => "Tous les " + n + " services ›"],
+  [/^All (\d+) products? ›$/, (_, n) => "Tous les " + n + " produits ›"],
+  [/^All (\d+) items ›$/, (_, n) => "Tous les " + n + " articles ›"],
+  [/^(\d+) products? in (\d+) categor(?:y|ies)$/, (_, n, c) => n + pl(n, " produit", " produits") + " dans " + c + pl(c, " catégorie", " catégories")],
   [/^Email (.+) or use the contact form\. We usually reply within one business day\.$/, (_, e) => "Écrivez à " + e + " ou utilisez le formulaire. Nous répondons habituellement en moins d'un jour ouvrable."],
   [/^Book (.+) on Nojan$/, (_, n) => "Réservez " + n + " sur Nojan"],
   [/^Thank you, (.*)\. We got your application on (.+) and will contact you at (.+) within a few business days\.$/, (_, n, d, e) => "Merci, " + n + ". Nous avons reçu votre candidature le " + d + " et vous écrirons à " + e + " d'ici quelques jours ouvrables."],

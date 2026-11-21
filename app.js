@@ -831,13 +831,13 @@ function simHTML(p){
   const t = typeOf(p), list = groupList(PRODUCTS.filter(x => x.id !== p.id && !x.soldOut && !x.member && typeOf(x) === t && x.itemId !== p.itemId)).slice(0, 4);
   return list.length ? `<section class="hsec simsec"><div class="h5row"><h2>Similar items</h2><a href="#shop">See all ›</a></div><div class="homegrid">${productCards(list)}</div></section>` : "";
 }
-const TITLES = {home: "Nojan · Quality products and services, for less", shop: "Shop new and used items · Nojan", services: "Services and classes · Nojan", contact: "Contact us · Nojan", news: "News · Nojan", cart: "Your cart · Nojan", checkout: "Checkout · Nojan", account: "Your account · Nojan", orders: "Your orders · Nojan", mybookings: "Your bookings · Nojan", acctdetails: "Your details and address · Nojan", acctsecurity: "Login and security · Nojan", acctmessages: "Messages · Nojan", acctemail: "Email preferences · Nojan", acctdata: "Your data · Nojan", acctlists: "Your lists · Nojan", provapply: "Become a provider · Nojan", help: "Help centre · Nojan", unsub: "Unsubscribe · Nojan", about: "About Nojan", returns: "Test before you pay · Nojan", privacy: "Privacy policy · Nojan", terms: "Terms of use · Nojan", certified: "What Certified means · Nojan", how: "How it works · Nojan", notfound: "Page not found · Nojan"};
+const TITLES = {home: "Nojan · Services, software and products, for less", software: "Software built by Nojan", shop: "Shop new and used items · Nojan", services: "Services and classes · Nojan", contact: "Contact us · Nojan", news: "News · Nojan", cart: "Your cart · Nojan", checkout: "Checkout · Nojan", account: "Your account · Nojan", orders: "Your orders · Nojan", mybookings: "Your bookings · Nojan", acctdetails: "Your details and address · Nojan", acctsecurity: "Login and security · Nojan", acctmessages: "Messages · Nojan", acctemail: "Email preferences · Nojan", acctdata: "Your data · Nojan", acctlists: "Your lists · Nojan", provapply: "Become a provider · Nojan", help: "Help centre · Nojan", unsub: "Unsubscribe · Nojan", about: "About Nojan", returns: "Test before you pay · Nojan", privacy: "Privacy policy · Nojan", terms: "Terms of use · Nojan", certified: "What Certified means · Nojan", how: "How it works · Nojan", notfound: "Page not found · Nojan"};
 const views = {
   home(){
     const q = query.trim();
-    if (q){ const svcs = SERVICES.filter(s => [s.title, s.summary, s.category, s.providerName, s.description].join(" ").toLowerCase().includes(q.toLowerCase())), items = filtered();
+    if (q){ const svcs = SERVICES.filter(s => [s.title, s.summary, s.category, s.providerName, s.description].join(" ").toLowerCase().includes(q.toLowerCase())), items = filtered(), sws = softList().filter(x => [x.name, x.text, x.cat].join(" ").toLowerCase().includes(q.toLowerCase()));
       return `<div class="sectionhead"><h1>Results for “${esc(q)}”</h1><button class="linkbtn" data-clear>Clear search</button></div>
-        ${items.length || (!svcs.length && !(evOn() && EVENTS.some(e => evMatchQ(e, q.toLowerCase())))) ? productGrid(items) : ""}${svcs.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Services</h2></div>${serviceGrid(svcs)}` : ""}${(() => { const evs = evOn() ? EVENTS.filter(e => evMatchQ(e, q.toLowerCase())) : []; return evs.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Events</h2></div><div class="evgrid">${evs.map(evCardHTML).join("")}</div>` : ""; })()}`; }
+        ${items.length || (!svcs.length && !sws.length && !(evOn() && EVENTS.some(e => evMatchQ(e, q.toLowerCase())))) ? productGrid(items) : ""}${svcs.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Services</h2></div>${serviceGrid(svcs)}` : ""}${sws.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Software</h2></div><div class="svcgrid swgrid">${softCards(sws)}</div>` : ""}${(() => { const evs = evOn() ? EVENTS.filter(e => evMatchQ(e, q.toLowerCase())) : []; return evs.length ? `<div class="sectionhead" style="margin-top:24px"><h2>Events</h2></div><div class="evgrid">${evs.map(evCardHTML).join("")}</div>` : ""; })()}`; }
     return homeHTML();
   },
   news(){ return `<div class="sectionhead"><h1>News</h1><p>What's new at Nojan.</p></div><div class="newslist">${newsList().map(newsCard).join("")}</div>`; },
@@ -1006,6 +1006,7 @@ const views = {
       <p class="note">We'll contact you soon to confirm your items and arrange payment and pickup or delivery. You can follow its status in My orders.</p>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn" href="#my-orders">View my orders</a><a class="btn ghost" href="#home" style="color:var(--fg)">Continue shopping</a></div></div>`; },
   services(){ return servicesView(); },
+  software(){ return softwareView(); },
   service(){ return serviceView(); },
   provider(){ return providerView(); },
   booked(){ return bookedView(); },
@@ -1224,33 +1225,67 @@ function megaCols(key){
       {h: "How it's held", links: [{go: "services|fmts|Online", label: "Online classes"}, {go: "services|fmts|In person", label: "In person"}, {go: "services|sizes|1-on-1", label: "One-on-one"}, {go: "services|sizes|Group class", label: "Small groups"}]},
       {h: "Quick links", links: [{href: "#services", label: "All services" + (SERVICES.length ? " (" + SERVICES.length + ")" : "")}, {href: "#my-orders", label: "My bookings"}, {href: "#become-a-provider", label: "Become a provider"}]}];
   }
+  if (key === "software"){
+    const cats = softCats(), soon = softSoon(), n = softList().length;
+    if (!cats.length) return [{big: true, h: "Coming soon", links: soon.map(c => ({label: c.name, soon: true}))}, {h: "Quick links", links: [{href: "#software", label: "Software by Nojan"}, {href: "#contact-us", label: "Tell us what you need"}]}];
+    return [{big: true, h: "Software by Nojan", links: cats.map(c => ({href: "#software", label: c.name}))},
+      soon.length ? {h: "Coming later", links: soon.map(c => ({label: c.name, soon: true}))} : null,
+      {h: "Quick links", links: [{href: "#software", label: "All software" + (n ? " (" + n + ")" : "")}, {href: "#contact-us", label: "Tell us what you need"}]}].filter(Boolean);
+  }
   return [{big: true, h: "Get help", links: [{href: "#contact-us", label: "Contact us"}, {href: "#contact-us", label: "Pickup & delivery"}, {href: "#contact-us", label: "Paying for your order"}, {href: "#contact-us", label: "Questions & answers"}]},
     {h: "Your account", links: [{href: "#account", label: USER ? "Your account" : "Sign in"}, {href: "#my-orders", label: "My orders & bookings"}, {href: "#cart", label: "Bag"}]},
     {h: "Follow us", links: [{href: "https://www.instagram.com/nojan_ca/", label: "@nojan_ca", ext: true}]}];
 }
 function megaHTML(key){
-  return `<div class="mwrap">${megaCols(key).map(c => `<div class="mcol${c.big ? " big" : ""}${c.cat ? " cat" : ""}"><h4>${mgEsc(c.h)}</h4>${c.links.map(l => l.go
+  return `<div class="mwrap">${megaCols(key).map(c => `<div class="mcol${c.big ? " big" : ""}${c.cat ? " cat" : ""}"><h4>${mgEsc(c.h)}</h4>${c.links.map(l => l.soon ? `<span class="msoon">${mgEsc(l.label)}</span>` : l.go
     ? `<a href="${l.go.startsWith("services") ? "#services" : l.go.startsWith("shop") ? "#shop" : l.go.startsWith("new") ? "#new-items" : "#used-items"}" data-mgo="${mgEsc(l.go)}">${mgEsc(l.label)}${l.n && !c.big ? `<i>${l.n}</i>` : ""}</a>`
     : `<a href="${mgEsc(l.href)}"${l.all ? ' class="mall"' : ""}${l.ext ? ' target="_blank" rel="noopener"' : ""}>${mgEsc(l.label)}${l.n && !c.big ? `<i>${l.n}</i>` : ""}</a>`).join("")}</div>`).join("")}</div>`;
 }
+/* v142: the top menu on computers. The lists in the menus are the same as before; only how they look and move has changed (styles: v142 in app.css). */
+/* the lens: one glass chip under the top menu. It rests on the page you are on and slides to the name you point at. */
+var NAVLENS = {el: null, hover: null};
+function navLensTo(){
+  const tabs = document.querySelector(".gtabs"); if (!tabs) return;
+  if (!matchMedia("(min-width: 821px)").matches){ if (NAVLENS.el) NAVLENS.el.classList.remove("on"); return; }
+  if (!NAVLENS.el){ const s = document.createElement("span"); s.className = "navlens"; s.setAttribute("aria-hidden", "true"); tabs.prepend(s); tabs.classList.add("haslens"); NAVLENS.el = s; }
+  const l = NAVLENS.el, t = NAVLENS.hover || tabs.querySelector("a.hot") || tabs.querySelector('a[aria-current="page"]');
+  if (!t || t.hidden || !t.offsetWidth){ l.classList.remove("on"); return; }
+  const first = !l.classList.contains("on");            /* appearing: no slide from the corner, it shows up in place */
+  if (first) l.style.transition = "none";
+  l.style.width = t.offsetWidth + "px"; l.style.height = t.offsetHeight + "px"; l.style.transform = `translate(${t.offsetLeft}px,${t.offsetTop}px)`;
+  l.classList.toggle("pt", !!(NAVLENS.hover || tabs.querySelector("a.hot")));   /* glossy only while you point; at rest it is the same chip as before */
+  l.classList.add("on");
+  if (first){ void l.offsetWidth; l.style.transition = ""; }
+}
+window.addEventListener("resize", () => navLensTo());
+(() => { const tabs = document.querySelector(".gtabs"); if (!tabs) return;
+  tabs.addEventListener("mouseleave", () => { NAVLENS.hover = null; navLensTo(); });
+  if (window.ResizeObserver) new ResizeObserver(() => navLensTo()).observe(tabs);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => navLensTo()); })();
+/* the glass follows the menu's real height: French words are longer and can add a line after the menu has opened */
+(() => { const m = document.getElementById("mega"), g = document.getElementById("gbar");
+  if (m && g && window.ResizeObserver) new ResizeObserver(() => { if (MEGA.key) g.style.setProperty("--megah", m.offsetHeight + "px"); }).observe(m); })();
 const megaWide = () => matchMedia("(min-width: 821px)").matches;
 function megaOpen(key){
   clearTimeout(MEGA.t);
   if (!megaWide() || !key) return;
   if (MEGA.key !== key){ $("#mega").innerHTML = megaHTML(key); }
   MEGA.key = key; $("#mega").hidden = false; $("#megaVeil").hidden = false; $("#gbar").classList.add("open");
+  $("#gbar").style.setProperty("--megah", $("#mega").offsetHeight + "px");   /* v142: the bar's glass grows to hold the menu */
   document.querySelectorAll(".gtabs a").forEach(a => { a.classList.toggle("hot", a.dataset.menu === key); if (a.dataset.menu) a.setAttribute("aria-expanded", String(a.dataset.menu === key)); });
+  navLensTo();
 }
 function megaClose(){
   clearTimeout(MEGA.t); MEGA.key = null;
   const m = $("#mega"); if (!m) return;
-  m.hidden = true; $("#megaVeil").hidden = true; $("#gbar").classList.remove("open");
+  m.hidden = true; $("#megaVeil").hidden = true; $("#gbar").classList.remove("open"); $("#gbar").style.setProperty("--megah", "0px");
   document.querySelectorAll(".gtabs a").forEach(a => { a.classList.remove("hot"); if (a.dataset.menu) a.setAttribute("aria-expanded", "false"); });
+  navLensTo();
 }
 const megaLater = () => { clearTimeout(MEGA.t); MEGA.t = setTimeout(megaClose, 450); };
 document.addEventListener("mouseover", e => {
   const tab = e.target.closest(".gtabs a");
-  if (tab){ tab.dataset.menu ? megaOpen(tab.dataset.menu) : megaLater(); return; }
+  if (tab){ NAVLENS.hover = tab; navLensTo(); tab.dataset.menu ? megaOpen(tab.dataset.menu) : megaLater(); return; }
   if (e.target.closest(".gtools, .gbar .logo")) { if (MEGA.key) megaLater(); return; }
   if (e.target.closest("#gbar")) { clearTimeout(MEGA.t); return; }
   if (MEGA.key) megaLater();
@@ -1309,7 +1344,7 @@ document.addEventListener("click", e => {
     cart[id] = {q: have + n, snap: p}; saveCart(); ITEMQ.added = true; ab.textContent = "Added to Bag ✓"; toast(n === 1 ? "Added to your bag" : `${n} added to your bag`); }
 });
 /* Page navigation — handled in script so it works inside embeds and previews too */
-const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", mybookings:"my-bookings", acctdetails:"account-details", acctsecurity:"login-security", acctmessages:"messages", acctemail:"email-preferences", acctdata:"your-data", acctlists:"your-lists", unsub:"unsubscribe", provapply:"become-a-provider", help:"help", admin:"admin", services:"services", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified", how:"how-it-works"};
+const SLUG = {home:"home", news:"news", shop:"shop", new:"new-items", used:"used-items", contact:"contact-us", cart:"cart", checkout:"checkout", thanks:"order-sent", account:"account", orders:"my-orders", mybookings:"my-bookings", acctdetails:"account-details", acctsecurity:"login-security", acctmessages:"messages", acctemail:"email-preferences", acctdata:"your-data", acctlists:"your-lists", unsub:"unsubscribe", provapply:"become-a-provider", help:"help", admin:"admin", services:"services", software:"software", booked:"booking-sent", events:"events", dating:"dating", matches:"matches", datingprofile:"dating-profile", homes:"homes", listhome:"list-your-home", mylistings:"my-listings", selling:"selling", sell:"sell", about:"about", returns:"returns", privacy:"privacy", terms:"terms", certified:"certified", how:"how-it-works"};
 const VIEW_OF = Object.fromEntries(Object.entries(SLUG).map(([v,sl])=>[sl,v]));
 Object.keys(SLUG).forEach(v => VIEW_OF[v] = VIEW_OF[v] || v);   // old links like #new still work
 let bookingId = null, receiptId = null, itemId = null, serviceId = null, providerId = null, eventId = null, personId = null, chatId = null, listingId = null, hchatId = null, PROVIDERS = [], providersLoaded = false;
@@ -1436,7 +1471,7 @@ document.addEventListener("click", e => {
   go("item", decodeURIComponent(a.getAttribute("href").slice(6)));
 });
 // v93: in-site links get real addresses so they can be opened in a new tab, shared and found by search engines
-const R_OK = /^(home|shop|services|contact-us|news|cart|checkout|account|my-orders|my-bookings|account-details|login-security|messages|email-preferences|your-data|your-lists|unsubscribe|become-a-provider|help|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
+const R_OK = /^(home|shop|services|software|contact-us|news|cart|checkout|account|my-orders|my-bookings|account-details|login-security|messages|email-preferences|your-data|your-lists|unsubscribe|become-a-provider|help|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
 function relink(root){
   if (!PATH_MODE || !root || root.nodeType !== 1) return;
   const fix = a => { const h = a.getAttribute("href"); if (!h || h[0] !== "#") return; let s = h.slice(1); try { s = decodeURIComponent(s); } catch (_) {} if (!R_OK.test(s)) return; a.dataset.r = s; a.setAttribute("href", pathFor(s)); };
@@ -1489,6 +1524,7 @@ function render(){
   if (v === "service") afterServiceRender();
   if (v === "provider") renderLinkedInBadges();
   document.querySelectorAll("header nav a, .tabbar a").forEach(a => (a.dataset.tab===navV || a.dataset.also===navV) ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
+  navLensTo();   /* v142: the lens rests on the page you are on */
   document.title = it ? `${it.name} · Nojan` : v === "category" ? `${catId} · Nojan` : v === "group" ? `${groupId} · Nojan` : v === "sgroup" ? `${sgroupId} · Nojan` : v === "scategory" ? `${scatName(svcMap()) || "Services"} · Nojan` : TITLES[v] || "Nojan";
   ["new","used"].forEach(c => { const el = document.querySelector(`[data-count="${c}"]`); if (el) el.textContent = feedState[c]==="loading" ? "" : PRODUCTS.filter(p=>p.condition===c).length; });
   { const el = document.querySelector('[data-count="services"]'); if (el) el.textContent = SERVICES.length || ""; }
@@ -1505,7 +1541,7 @@ function render(){
     : v === "group" ? [["Shop", "#shop"], [groupId || "Shop"]]
     : v === "sgroup" ? [["Services", "#services"], [sgroupId || "Services"]]
     : v === "scategory" ? (c => c ? [["Services", "#services"], [groupOf(SVC_GROUPS, c)[0], "#sgroup-" + catSlug(groupOf(SVC_GROUPS, c)[0])], [c]] : [["Services", "#services"], ["Category"]])(scatName(svcMap()))
-    : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], news:[["News"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["Your account","#account"],["Your orders"]], mybookings:[["Your account","#account"],["Your bookings"]], acctdetails:[["Your account","#account"],["Your details"]], acctsecurity:[["Your account","#account"],["Login & security"]], acctmessages:[["Your account","#account"],["Messages"]], acctemail:[["Your account","#account"],["Email preferences"]], acctdata:[["Your account","#account"],["Your data"]], acctlists:[["Your account","#account"],["Your lists"]], provapply:[["Services","#services"],["Become a provider"]], help:[["Help centre"]], unsub:[["Unsubscribe"]], admin:[["Admin"]], services:[["Services"]], booked:[["Services","#services"],["Booking sent"]],
+    : {shop:[["Shop"]], new:[["Shop"]], used:[["Shop"]], contact:[["Contact us"]], news:[["News"]], cart:[["Cart"]], checkout:[["Cart","#cart"],["Checkout"]], thanks:[["Cart","#cart"],["Order sent"]], account:[["Your account"]], orders:[["Your account","#account"],["Your orders"]], mybookings:[["Your account","#account"],["Your bookings"]], acctdetails:[["Your account","#account"],["Your details"]], acctsecurity:[["Your account","#account"],["Login & security"]], acctmessages:[["Your account","#account"],["Messages"]], acctemail:[["Your account","#account"],["Email preferences"]], acctdata:[["Your account","#account"],["Your data"]], acctlists:[["Your account","#account"],["Your lists"]], provapply:[["Services","#services"],["Become a provider"]], help:[["Help centre"]], unsub:[["Unsubscribe"]], admin:[["Admin"]], services:[["Services"]], software:[["Software"]], booked:[["Services","#services"],["Booking sent"]],
          service:(s => s && !s.member ? [["Services","#services"],[s.category, "#scategory-" + catSlug(s.category)],[s.title]] : [["Services","#services"],[(s||{}).title || "Service"]])(SERVICES.find(s=>s.id===serviceId)),
          provider:[["Services","#services"],[(providerById(providerId)||{}).name || "Provider"]],
          events:[["Events"]], event:[["Events","#events"],[(eventById(eventId)||{}).title || "Event"]],
@@ -4274,12 +4310,13 @@ function slotsFor(s, date, dow){
 }
 
 /* ---- Customer views ---- */
-function fmtChips(s){
+function fmtChips(s, card){
   const c = [];
   if (s.format !== "in-person") c.push(`<span class="svcchip online">${svgI("video")}Online</span>`);
   if (s.format !== "online") c.push(`<span class="svcchip inperson">${svgI("pin")}In person</span>`);
+  if (!(card && s.price == null)){   /* v140 */
   c.push(`<span class="svcchip">${svgI("clock")}${durTxt(s.duration)}</span>`);
-  c.push(`<span class="svcchip">${svgI(s.classType === "group" ? "users" : "user")}${s.classType === "group" ? `Group · up to ${s.capacity}` : "1-on-1"}</span>`);
+  c.push(`<span class="svcchip">${svgI(s.classType === "group" ? "users" : "user")}${s.classType === "group" ? `Group · up to ${s.capacity}` : "1-on-1"}</span>`); }
   return `<div class="svcchips">${c.join("")}</div>`;
 }
 function svcCover(s){ const img = imagesOf(s)[0]; return img ? `<img src="${esc(img)}" data-ref="${esc(refsOf(s)[0])}" alt="" loading="lazy">` : (SVC_ICONS[s.category] ? cgiSvg(SVC_ICONS[s.category]) : svgI(s.format === "in-person" ? "users" : "monitor")); }
@@ -4293,7 +4330,7 @@ function serviceCards(list){
         <h3><a href="#service-${esc(s.id)}">${esc(s.title)}</a></h3>
         <span class="prov">by ${s.providerUid && PROVIDERS.find(x => x.id === s.providerUid) ? `<a href="#provider-${esc(s.providerUid)}">${esc(s.providerName)}</a>` : esc(s.providerName)}</span>
         ${s.summary ? `<p class="desc">${esc(s.summary)}</p>` : ""}
-        ${fmtChips(s)}
+        ${fmtChips(s, true)}
         <div class="foot"><span class="svcprice">${priceTxt(s)}</span><a class="btn small" href="#service-${esc(s.id)}">${s.member ? "View" : s.price == null ? "Book a free intro call" : "Book a time"}</a></div>
       </div>
     </article>`).join("");
@@ -4312,6 +4349,52 @@ const fmtNewsDate = d => { const t = new Date(String(d) + "T12:00:00"); return i
 const newsCard = n => { const ext = /^https?:/i.test(n.link || ""), tag = n.link ? "a" : "div";
   return `<${tag} class="newscard"${n.link ? ` href="${esc(n.link)}"${ext ? ' target="_blank" rel="noopener"' : ""}` : ""}><small>${fmtNewsDate(n.date)}</small><b>${esc(n.title)}</b>${n.text ? `<span>${esc(n.text)}</span>` : ""}</${tag}>`; };
 const dollars = n => "$" + Math.round(n).toLocaleString("en-US");
+/* v140: Home shows every part of Nojan. Software built by Nojan is kept with the site settings (products/_site → software) and edited in Admin. */
+const HOME_PICKS = ["S026", "S029", "S001", "S007", "S049"];   // services shown first in the Home row (later: a "Show on Home" tick in Admin)
+const HOME_SUBS = ["App & web development", "Programming", "English & writing", "Assembly"];   // service categories pictured on the Services card
+const homePick = (list, ids) => { const got = ids.map(id => list.find(s => s.id === id)).filter(Boolean); return got.concat(list.filter(s => !got.includes(s))).slice(0, 5); };
+const SW_ICONS = {app: "M8 7l-5 5 5 5M16 7l5 5-5 5M13 5l-2 14", scan: "M3 8V5a1 1 0 0 1 1-1h3M17 4h3a1 1 0 0 1 1 1v3M21 16v3a1 1 0 0 1-1 1h-3M7 20H4a1 1 0 0 1-1-1v-3M7 9v6M10 9v6M13.5 9v6M17 9v6",
+  calendar: "M4 6h16v15H4zM4 11h16M8 3v4M16 3v4", receipt: "M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6", chat: "M4 5h16v11H10l-5 4v-4H4z", shop: "M5 8h14l-1 13H6L5 8zM9 8V6a3 3 0 0 1 6 0v2",
+  parts: "M4 5h16v14H4zM4 9h16M9 9v10", move: "M4 8h13M14 5l3 3-3 3M20 16H7M10 13l-3 3 3 3", globe: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
+  people: "M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5M17 11.5a2.5 2.5 0 1 0 0-5M16 14.5c2.5 0 4.5 1.5 5.5 4.5", news: "M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M8 9h5M8 13h5M8 16h3",
+  link: "M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1", help: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01", doc: "M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5"};
+const softList = () => (Array.isArray(SITE.software) ? SITE.software : []).filter(x => x && x.name && x.active !== false);
+/* software categories: the order and icons come from Admin (products/_site → softwareCats); a category with nothing in it is not shown */
+const softCats = () => { const order = Array.isArray(SITE.softwareCats) ? SITE.softwareCats : SW_PLAN, m = new Map(); softList().forEach(x => { const c = x.cat || "Other software"; if (!m.has(c)) m.set(c, []); m.get(c).push(x); });
+  const names = order.map(c => c.name).filter(n => m.has(n)).concat([...m.keys()].filter(n => !order.some(c => c.name === n)));
+  return names.map(n => ({name: n, icon: (order.find(c => c.name === n) || {}).icon || "app", list: m.get(n)})); };
+/* categories Nojan has announced but not filled yet (softwareCats entry with soon: true): shown as "Coming later" */
+/* until Admin keeps its own list: SharePoint web parts now, custom websites and custom applications later. With no software listed yet, every category shows as coming. */
+const SW_PLAN = [{name: "SharePoint web parts", icon: "parts"}, {name: "Custom websites", icon: "globe", soon: true}, {name: "Custom applications", icon: "app", soon: true}];
+const softSoon = () => { const l = softList(); return (Array.isArray(SITE.softwareCats) ? SITE.softwareCats : SW_PLAN).filter(c => c && c.name && (c.soon || !l.length) && !l.some(x => x.cat === c.name)); };
+const swSvg = k => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${SW_ICONS[k] || SW_ICONS.app}"/></svg>`;
+const swIcon = x => swSvg(x.icon);
+function softCards(list){
+  return list.map(x => `
+    <article class="svccard swcard">
+      <div class="cover">${x.tag ? `<span class="swtag">${esc(x.tag)}</span>` : ""}${swIcon(x)}</div>
+      <div class="sb">
+        <span class="cat">${esc(x.cat || "Software")}</span>
+        <h3><a href="#software">${esc(x.name)}</a></h3>
+        ${x.text ? `<p class="desc">${esc(x.text)}</p>` : ""}
+        <div class="foot"><span class="svcprice">${esc(x.price || "Price on request")}</span><a class="btn small" href="#software">Send a request</a></div>
+      </div></article>`).join("");
+}
+let swCat = "all";
+function softwareView(){
+  const list = softList(), cats = softCats(), soon = softSoon(), many = cats.length > 1, shown = !many || swCat === "all" ? list : list.filter(x => x.cat === swCat);
+  const catTile = c => `<a class="swcat" href="#software" data-swcat="${esc(c.name)}"><span class="dti">${swSvg(c.icon)}</span><b>${esc(c.name)}</b><span class="xn">${plural(c.list.length, "product")}</span></a>`;
+  const soonTile = c => `<div class="swcat later"><span class="dti">${swSvg(c.icon)}</span><b>${esc(c.name)}</b><span class="xn">${c.soon ? "Coming later" : "Coming soon"}</span></div>`;
+  return `<section class="pagehero lhero services software">
+      <div class="phtext"><h1>Software</h1><p>Software built by Nojan. Choose one and send us a request. We reply in your account.</p></div>
+    </section>
+    ${list.length ? `${many || soon.length ? `<div class="swhead"><h2>Categories</h2><span>${many ? `${plural(list.length, "product")} in ${cats.length} categories` : "More categories are coming"}</span></div>
+      <div class="swcats n${Math.min(4, cats.length + soon.length)}">${cats.map(catTile).join("")}${soon.map(soonTile).join("")}</div>` : ""}
+      <div class="swhead"><h2>${many ? "All software" : esc(cats[0].name)}</h2>${many ? "" : `<span>${plural(list.length, "product")}</span>`}</div>
+      ${many ? `<div class="cattools"><div class="catchips">${cgChip("swcat", "all", swCat === "all", "All", list.length)}${cats.map(c => cgChip("swcat", c.name, swCat === c.name, c.name, c.list.length)).join("")}</div></div>` : ""}
+      <div class="svcgrid swgrid">${softCards(shown)}</div>`
+      : `${soon.length ? `<div class="swhead"><h2>What we build</h2></div><div class="swcats n${Math.min(4, soon.length)}">${soon.map(soonTile).join("")}</div>` : ""}<div class="empty">Our software is coming soon. <a href="#contact-us" style="color:var(--link)">Tell us what your business needs</a>.</div>`}`;
+}
 function homeHTML(){
   const soon = (icon, title, text) => `<div class="soon"><span class="soonic">${svgI(icon)}</span><b>${title}</b><span>${text}</span></div>`;
   const f = SITE.fund || {}, raised = +f.raised || 0, goal = +f.goal || 0, donors = +f.donors || 0;
@@ -4343,23 +4426,53 @@ function homeHTML(){
   const ico = a => `<span class="xi" style="background:${a.tint}"><svg viewBox="0 0 24 24" style="stroke:${a.ink}" aria-hidden="true"><path d="${a.i}"/></svg></span>`;
   const tile = a => a.on ? `<a class="xtile" href="${a.href}">${ico(a)}<b>${a.n}</b><span class="xn">${a.note}</span></a>` : `<div class="xtile xsoon">${ico(a)}<b>${a.n}</b><span class="xn">Coming soon</span></div>`;
   const tick = t => `<span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>${t}</span>`;
+  /* v140: three cards (Services, Software, Shop), what comes next, then one row of examples for each */
+  const sw = softList(), sm = svcMap(), svgP = d => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
+  const subOf = (href, pic, name, ph) => `<a class="dt" href="${href}"><span class="dti${ph ? " ph" : ""}">${pic}</span><span class="dtn">${esc(name)}</span></a>`;
+  const svcCats = SVC_GROUPS.flatMap(g => g[2]).filter(c => sm.has(c)), svcFirst = HOME_SUBS.filter(c => svcCats.includes(c));
+  const svcSubs = svcFirst.concat(svcCats.filter(c => !svcFirst.includes(c))).slice(0, 4).map(c => subOf("#scategory-" + catSlug(c), cgiSvg(SVC_ICONS[c] || CG_ICON.svc), c)).join("");
+  const swc = softCats(), swText = SITE.softwareText || "SharePoint web parts built by Nojan, set up for you.";
+  const swSubs = (swc.length > 1 ? swc.slice(0, 4).map(c => subOf("#software", swSvg(c.icon), c.name)) : sw.slice(0, 4).map(x => subOf("#software", swIcon(x), x.name))).join("");
+  const shopSubs = cats.slice(0, 4).map(c => subOf("#category-" + catSlug(c), cgiImg(cg.get(c).find(x => imagesOf(x).length) || cg.get(c)[0]), c, true)).join("");
+  const door = (href, icon, name, text, note, subs) => `<div class="xtile door"><a class="dmain" href="${href}"><span class="xi">${icon}</span><b>${name}</b><span class="xgo">${note}<i aria-hidden="true"> ›</i></span><span class="xd">${text}</span></a><div class="dsubs">${subs}</div></div>`;
+  const doorSoon = (icon, name, text) => `<div class="xtile door dsoon"><div class="dmain"><span class="xi">${icon}</span><b>${name}</b><span class="xgo">Coming soon</span><span class="xd">${text}</span></div><p class="dnote">We are getting our first software ready to sell. <a href="#contact-us">Tell us what your business needs ›</a></p></div>`;
+  const next = (d, n, t) => `<span>${svgP(d)}<b>${n}</b><em>${t}</em></span>`;
+  const head = (title, text, href, all) => `<div class="h5row"><div class="hh"><h2>${title}</h2><p>${text}</p></div><a href="${href}">${all} ›</a></div>`;
+  const shopTabs = [deals.length ? ["deals", "Biggest savings"] : null, ["new", "New arrivals"]].filter(Boolean);
+  if (!shopTabs.some(t => t[0] === HOMETAB)) HOMETAB = shopTabs[0][0];
+  const shopRail = loading ? soon("clock", "Loading items…", "") : productCards(HOMETAB === "deals" ? deals : fresh);
   return `
     <div class="storehead"><a class="storelogo" href="#home" aria-label="Nojan home"><img class="logomark" src="${(document.querySelector("header .logomark") || {}).src || ""}" alt="" width="64" height="64"></a><a class="gicon storeacct" href="#account" aria-label="Your account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a></div>
     <section class="h5hero h5c" aria-label="Welcome to Nojan">
       <div class="h5l">
         <span class="h5tag">Shop and services</span>
-        <h1>Quality products and services, for less.</h1>
-        <p class="h5d">Nojan is a small Canadian business. We sell new and used brand-name items and provide services by appointment. 3% of our profit goes to the community and people in need.</p>
-        <p class="h5m">A small Canadian business with brand-name items for less and services by appointment. 3% of our profit goes to people in need.</p>
-        <form class="h5search" id="h5search" role="search"><label for="h5q" class="sr">Search Nojan</label><input id="h5q" type="search" placeholder="Search items and services" autocomplete="off"><button type="submit">Search</button></form>
+        <h1>Services, software and products, for less.</h1>
+        <p class="h5d">Nojan is a small Canadian business. We provide services by appointment, sell software we build ourselves, and sell new and used brand-name items. 3% of our profit goes to the community and people in need.</p>
+        <p class="h5m">A small Canadian business. Services by appointment, software we build ourselves, and brand-name items for less. 3% of our profit goes to people in need.</p>
+        <form class="h5search" id="h5search" role="search"><label for="h5q" class="sr">Search Nojan</label><input id="h5q" type="search" placeholder="Search services, software and items" autocomplete="off"><button type="submit">Search</button></form>
         <a class="h5how" href="#how-it-works">How it works ›</a>
       </div>
     </section>
-    <section aria-label="Shop by category"><div class="explore cats">${cats.map(catTile).join("")}${svcTile}</div>
-      <div class="trustline">${tick("Used items 40% below market")}${tick(`<a href="#certified">Checked and certified by Nojan</a>`)}${tick("Test before you pay")}${tick("3% of profit to the community")}</div></section>
-    <section class="hsec">
-      <div class="h5row"><div class="h5tabs" role="tablist" aria-label="What to show">${tabs.map(([k, l]) => `<button type="button" role="tab" data-htab="${k}" aria-selected="${HOMETAB === k}">${l}</button>`).join("")}</div><a href="${HOMETAB === "svc" ? "#services" : "#shop"}">See all ›</a></div>
-      <div class="homegrid">${rail}</div>
+    <section aria-label="What Nojan does">
+      <div class="doors">
+        ${door("#services", svgI("calendar"), "Services", "Classes, assembly, apps and websites.", SERVICES.length ? `${SERVICES.length} to book` : "Book a time", svcSubs)}
+        ${sw.length ? door("#software", svgP(SW_ICONS.app), "Software", swText, `${sw.length} to request`, swSubs) : doorSoon(svgP(SW_ICONS.app), "Software", swText)}
+        ${door("#shop", svgP("M3 12.5V4h8.5L21 13.5 13.5 21zM6.1 8.5a1.4 1.4 0 1 0 2.8 0 1.4 1.4 0 1 0-2.8 0"), "Shop", "New and used brand-name items, checked by us.", ads ? `${ads} items` : "See items", shopSubs)}
+      </div>
+      <div class="nextline"><strong>Coming next</strong>${next(I.hm, "Homes", " to rent or buy")}${next(I.dt, "Dating", " to meet new people")}</div>
+      <div class="trustline">${tick("Services by appointment")}${tick("Software built by Nojan")}${tick(`<a href="#certified">Items checked and certified by Nojan</a>`)}${tick("3% of profit to the community")}</div></section>
+    <section class="hsec" aria-label="Services">
+      ${head("Services to book", "Classes, assembly, and app and website development, by appointment.", "#services", SERVICES.length ? `All ${SERVICES.length} services` : "All services")}
+      <div class="homegrid">${SERVICES.length ? serviceCards(homePick(SERVICES, HOME_PICKS)) : soon("monitor", "Services are coming soon", servicesLoaded || fbFailed ? "Classes and expert help, online or in person." : "Loading services…")}</div>
+    </section>
+    ${sw.length ? `<section class="hsec" aria-label="Software">
+      ${head("Software by Nojan", "Built by us. Send a request and we reply in your account.", "#software", `All ${sw.length} products`)}
+      <div class="homegrid">${softCards(sw.slice(0, 5))}</div>
+    </section>` : ""}
+    <section class="hsec" aria-label="Shop">
+      ${head("In the shop", "Used items are 40% below market. Test before you pay.", "#shop", ads ? `All ${ads} items` : "All items")}
+      <div class="h5tabs" role="tablist" aria-label="Which items to show">${shopTabs.map(([k, l]) => `<button type="button" role="tab" data-htab="${k}" aria-selected="${HOMETAB === k}">${l}</button>`).join("")}</div>
+      <div class="homegrid">${shopRail}</div>
     </section>
     <section class="hsec"><div class="h5row"><h2>News</h2><a href="#news">All news ›</a></div><div class="news3">${newsList().slice(0, 3).map(newsCard).join("")}</div></section>
     ${giving}`;
