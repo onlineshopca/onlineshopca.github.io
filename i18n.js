@@ -5,6 +5,21 @@
    2) visitors in Quebec see French (checked once from their internet address — nothing is saved or sent to us), else English. */
 (function(){
 const FR = {
+/* v145: request box on the Software page, price offers, pay online */
+"Software built by Nojan. Tell us what you need. We reply in your account.": "Logiciels conçus par Nojan. Dites-nous ce qu'il vous faut. Nous répondons dans votre compte.",
+"Tell us what you need": "Dites-nous ce qu'il vous faut", "Need something else?": "Besoin d'autre chose?",
+"Tell us what you need. We reply with a price and a date.": "Dites-nous ce qu'il vous faut. Nous répondons avec un prix et une date.",
+"Our first software is coming soon. Send us a request now. We reply with a price and a date.": "Nos premiers logiciels arrivent bientôt. Envoyez-nous une demande dès maintenant. Nous répondons avec un prix et une date.",
+"Custom software request": "Demande de logiciel sur mesure",
+"We send you a price and a date as an offer, in the same conversation. You accept it with one button.": "Nous vous envoyons un prix et une date sous forme d'offre, dans la même conversation. Vous l'acceptez d'un seul bouton.",
+"Offer from Nojan": "Offre de Nojan", "Accepted": "Acceptée", "Sent": "Envoyée le", "Ready by": "Prêt d'ici le", "Paid on": "Payé le",
+"You accepted this offer on": "Vous avez accepté cette offre le", "Accept offer": "Accepter l'offre", "Pay online": "Payer en ligne",
+"Have a question? Write a reply below.": "Une question? Écrivez une réponse ci-dessous.",
+"We will write to you here about the next step.": "Nous vous écrirons ici pour la prochaine étape.",
+"Thank you. We will write to you here about the next step.": "Merci. Nous vous écrirons ici pour la prochaine étape.",
+"Your answer was sent to Nojan.": "Votre réponse a été envoyée à Nojan.",
+"Offer waiting for your answer": "Offre en attente de votre réponse", "Accept the offer above": "Acceptez l'offre ci-dessus",
+"Offer accepted": "Offre acceptée", "Sent to Nojan": "Envoyé à Nojan",
 /* v143: software pages, requests and Messages */
 "Built by Nojan": "Conçu par Nojan", "For SharePoint Online": "Pour SharePoint Online", "Set up for you": "Installé pour vous",
 "We build it, set it up on your site and support it.": "Nous le concevons, l'installons sur votre site et en assurons le soutien.",
@@ -631,6 +646,8 @@ const DAY = {Sunday:"dimanche",Monday:"lundi",Tuesday:"mardi",Wednesday:"mercred
 const pl = (n, one, many) => (+n > 1 ? many : one);
 const dateFR = (m, d, y) => d + " " + (MON[m] || m) + " " + y;
 const FRP = [
+  /* v145 */
+  [/^You pay on a secure page run by (.+)\. Nojan never sees your card details\.$/, (_, n) => "Vous payez sur une page sécurisée gérée par " + n + ". Nojan ne voit jamais les données de votre carte."],
   /* v143 */
   [/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{1,2}), (\d{4}), (\d{1,2}):(\d{2}) ([ap])\.m\.$/, (_, m, d, y, h, mi, ap) => d + " " + MON[m] + " " + y + ", " + ((+h % 12) + (ap === "p" ? 12 : 0)) + " h " + mi],
   [/^(\d{1,2}):(\d{2}) ([ap])\.m\.$/, (_, h, mi, ap) => ((+h % 12) + (ap === "p" ? 12 : 0)) + " h " + mi],

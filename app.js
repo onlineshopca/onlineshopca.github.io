@@ -888,7 +888,7 @@ function cvWatch(id){
 }
 function cvRefresh(){
   const v = current();
-  if (v === "convo"){ const box = document.querySelector("[data-cvhead]"); if (cvTyping() && box){ box.innerHTML = cvHeadInner(cvMineById(convoId)); return; }
+  if (v === "convo"){ const box = document.querySelector("[data-cvhead]"); if (cvTyping() && box){ const cc = cvMineById(convoId), ob = document.querySelector("[data-cvoffer]"); box.innerHTML = cvHeadInner(cc); if (ob && cc) ob.innerHTML = cvOfferInner(cc); return; }
     const ta = document.querySelector("form[data-cvreply] textarea"), keep = ta ? ta.value : ""; render(); const t2 = document.querySelector("form[data-cvreply] textarea"); if (t2 && keep) t2.value = keep; return; }
   if (["acctmessages", "account"].includes(v) && !cvTyping()) render();
   if (typeof updateAcct === "function") try { updateAcct(); } catch (_) {}
@@ -958,11 +958,11 @@ async function cvStart(section, about, text, extra){
 }
 
 /* ---- Software: one page per software, with the request box ---- */
-const swFind = id => softList().find(x => String(x.id) === String(id));
+const swFind = id => String(id) === "custom" ? swCustom() : softList().find(x => String(x.id) === String(id));   // v145: "custom" = a request for software that is not listed
 const SW_DRAFT = "nojanSwDraft";
 function swDraft(id){ try { const d = JSON.parse(sessionStorage.getItem(SW_DRAFT) || "null"); return d && d.id === id ? d : null; } catch (_) { return null; } }
 function swItemView(){
-  const x = swFind(swItemId);
+  const x = String(swItemId) === "custom" ? null : swFind(swItemId);
   if (!x) return feedState.new === "loading" ? `<div class="empty">Loading…</div>` : `<div class="empty">This software isn't listed any more. <a href="#software" style="color:var(--link)">See all software</a></div>`;
   if (USER) startMyConvos();
   const others = softList().filter(o => o.id !== x.id && (o.cat === x.cat)).concat(softList().filter(o => o.id !== x.id && o.cat !== x.cat)).slice(0, 3);
@@ -980,26 +980,26 @@ function swItemView(){
       <section class="panel"><h2>How a request works</h2>
         <ul style="margin:0;padding-left:18px;display:grid;gap:6px"><li>Tell us what you need and send the request. It takes a minute.</li>
         <li>Your request is saved in Your account, under Messages. We reply there, usually within one business day, and email you when a reply is waiting.</li>
-        <li>We agree on the price and the date in the same conversation. Nothing is charged online.</li></ul></section>
+        <li>We send you a price and a date as an offer, in the same conversation. You accept it with one button.</li></ul></section>
     </div>
     <aside class="bookpanel reqpanel" id="reqPanel" aria-label="Send a request">${swReqBox(x)}</aside>
   </article>
   ${others.length ? `<section class="alsosec"><h2>More software by Nojan</h2><div class="svcgrid swgrid">${softCards(others)}</div></section>` : ""}`;
 }
-function swReqBox(x){
-  const st = CV.req[x.id] || {}, d = swDraft(x.id) || {};
-  const price = `<div><span class="svcprice">${esc(x.price || "Price on request")}</span><div class="note">${x.price ? "We reply to confirm the details and a date." : "We reply with a price and a date."}</div></div>`;
+function swReqBox(x, head){
+  const st = CV.req[x.id] || {}, d = swDraft(x.id) || {}, next = x.custom ? "software" : "switem";
+  const price = head || `<div><span class="svcprice">${esc(x.price || "Price on request")}</span><div class="note">${x.price ? "We reply to confirm the details and a date." : "We reply with a price and a date."}</div></div>`;
   if (st.sent) return `<div class="okline"><i>${cvSvg("check")}</i>Request sent</div>
     <div class="picked"><b>${esc(x.name)}</b><br>Request #${esc(st.num)} · Sent ${esc(cvWhen(st.at))}</div>
     <p class="note" style="margin:0">It is saved in Your account, under Messages. We reply there, usually within one business day, and email you when a reply is waiting.</p>
     <a class="btn" href="#message-${esc(st.id)}" style="text-align:center">Open your request</a>
-    <a class="linkbtn" href="#software" style="justify-self:center">Back to Software</a>`;
-  if (st.signin && !USER) return price + `<div class="picked"><b>${esc(x.name)}</b><br>Your request is written and ready to send.<br><button class="linkbtn" type="button" data-swreqedit>Change it</button></div>
-    <div class="signinprompt"><h2>Sign in to send it</h2><p class="note">Sign in or create a free account, so your request and our replies are saved for you.</p>${googleBtn("switem")}
-      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn small" type="button" data-auth="signin" data-next="switem">Sign in with email</button><button class="btn small ghost" type="button" data-auth="signup" data-next="switem" style="color:var(--fg)">Create account</button></div></div>`;
+    ${x.custom ? "" : `<a class="linkbtn" href="#software" style="justify-self:center">Back to Software</a>`}`;
+  if (st.signin && !USER) return price + `<div class="picked"><b>${esc(x.name)}</b><br>Your request is written and ready to send.<br><button class="linkbtn" type="button" data-swreqedit="${esc(x.id)}">Change it</button></div>
+    <div class="signinprompt"><h2>Sign in to send it</h2><p class="note">Sign in or create a free account, so your request and our replies are saved for you.</p>${googleBtn(next)}
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn small" type="button" data-auth="signin" data-next="${next}">Sign in with email</button><button class="btn small ghost" type="button" data-auth="signup" data-next="${next}" style="color:var(--fg)">Create account</button></div></div>`;
   const pr = PROFILE || {};
   return price + `<form id="swReq" data-sw="${esc(x.id)}" novalidate>
-    <label>What do you need?<textarea name="text" rows="5" maxlength="2000" placeholder="For example: your site, how many people, what it should show.">${esc(st.text != null ? st.text : d.text || "")}</textarea></label>
+    <label>What do you need?<textarea name="text" rows="5" maxlength="2000" placeholder="${x.custom ? "For example: what the software should do, who will use it, and when you need it." : "For example: your site, how many people, what it should show."}">${esc(st.text != null ? st.text : d.text || "")}</textarea></label>
     <label><span>Company or team <small>(optional)</small></span><input name="company" maxlength="100" autocomplete="organization" value="${esc(st.company != null ? st.company : d.company || "")}"></label>
     <div class="msg" data-swmsg hidden></div>
     <button class="btn" type="submit">Send request</button>
@@ -1016,14 +1016,14 @@ document.addEventListener("submit", async e => {
   if (!(await needVerified(m))) return;
   const btn = f.querySelector('button[type="submit"]'); btn.disabled = true; btn.textContent = "Sending…";
   try {
-    const c = await cvStart("software", {kind: "software", id: x.id, title: x.name, cat: x.cat || "", icon: x.icon || ""}, text, company ? {company} : null);
+    const c = await cvStart("software", x.custom ? {kind: "custom", id: "custom", title: x.name, icon: x.icon} : {kind: "software", id: x.id, title: x.name, cat: x.cat || "", icon: x.icon || ""}, text, company ? {company} : null);
     try { sessionStorage.removeItem(SW_DRAFT); } catch (_) {}
     CV.req[x.id] = {sent: true, id: c.id, num: cvNum(c), at: Date.now()}; render();
   } catch (er){ console.error(er); btn.disabled = false; btn.textContent = "Send request"; showMsg(m, false, "Couldn't send. Check your connection and try again."); }
 });
 document.addEventListener("click", e => {
   if (e.target.closest("[data-swgo]")){ const p = $("#reqPanel"); if (p){ p.scrollIntoView({behavior: "smooth", block: "start"}); const t = p.querySelector("textarea"); if (t) setTimeout(() => t.focus({preventScroll: true}), 400); } return; }
-  if (e.target.closest("[data-swreqedit]")){ const x = swFind(swItemId); if (x){ CV.req[x.id] = {...(CV.req[x.id] || {}), signin: false}; render(); } }
+  const eb = e.target.closest("[data-swreqedit]"); if (eb){ const x = swFind(eb.dataset.swreqedit || swItemId); if (x){ CV.req[x.id] = {...(CV.req[x.id] || {}), signin: false}; render(); } }
 });
 
 /* ---- a message box on item and service pages ---- */
@@ -1092,7 +1092,7 @@ document.addEventListener("click", e => { const b = e.target.closest("[data-cvta
 /* ---- Your account → Messages → one conversation ---- */
 function cvHeadInner(c){
   if (!c) return "";
-  const closed = c.status === "closed", tag = closed ? "Closed" : c.status === "delivered" ? "Delivered" : c.status === "agreed" ? "Price and date agreed" : c.lastFrom === "admin" ? "Nojan replied" : "Waiting for Nojan";
+  const closed = c.status === "closed", tag = closed ? "Closed" : c.status === "delivered" ? "Delivered" : cvPaid(c) ? "Paid" : c.status === "agreed" || cvAccepted(c) ? "Price and date agreed" : cvOffer(c) ? "Offer waiting for your answer" : c.lastFrom === "admin" ? "Nojan replied" : "Waiting for Nojan";
   const a = c.about || {}, link = a.kind === "software" ? `#software-${a.id}` : a.kind === "item" ? `#item-${a.id}` : a.kind === "service" ? `#service-${a.id}` : "";
   const linkTxt = {software: "See the software", item: "See the item", service: "See the service"}[a.kind];
   const sub = [a.cat, c.company ? "For " + c.company : ""].filter(Boolean).join(" · ") || CV_TAG[c.section] || "";
@@ -1103,10 +1103,10 @@ function cvHeadInner(c){
 function cvStandInner(c){
   if (!c) return "";
   const msgs = CV.msgs[c.id] || [], firstReply = msgs.find(m => m.role === "admin"), st = c.stageAt || {}, step = (state, t, s) => `<li class="${state}"><span class="tdot" aria-hidden="true"></span><div><b>${t}</b>${s ? `<span>${s}</span>` : ""}</div></li>`;
-  const at = ms => esc(fmtDate(ms));
+  const at = ms => esc(fmtDate(ms)), off = cvOffer(c), agreedAt = cvAccepted(c) ? (c.acceptedAt || st.agreed || off.id) : (!off || c.status === "agreed" || c.status === "delivered") ? st.agreed : 0;
   return step("done", "Request sent", at(cvMs(c.createdAt) || cvMs(c.lastAt)))
     + step(firstReply ? "done" : "", "Nojan replied", firstReply ? at(cvMs(firstReply.at)) : "Usually within one business day")
-    + step(st.agreed ? "done" : "", "Price and date agreed", st.agreed ? at(st.agreed) : "In the messages above")
+    + step(agreedAt ? "done" : "", "Price and date agreed", agreedAt ? at(agreedAt) : off ? "Accept the offer above" : "In the messages above")
     + step(st.delivered ? "done" : "", "Delivered", st.delivered ? at(st.delivered) : "We set it up and show you how it works");
 }
 function convoView(){
@@ -1119,6 +1119,7 @@ function convoView(){
   const closed = c.status === "closed";
   return `<div class="bkpage reqpage">
     <section class="panel" data-cvhead>${cvHeadInner(c)}</section>
+    ${c.section === "software" && cvOffer(c) ? `<section class="panel offer" data-cvoffer>${cvOfferInner(c)}</section>` : ""}
     <section class="panel"><h2>Messages</h2>
       <div class="tlog" data-cvlog="${esc(c.id)}">${cvLogHTML(c.id, false)}</div>
       <form class="treply" data-cvreply="${esc(c.id)}" novalidate><textarea name="text" placeholder="Write a reply" aria-label="Your reply" maxlength="2000"></textarea><div class="msg" data-cvmsg hidden></div>
@@ -1142,6 +1143,119 @@ document.addEventListener("click", async e => {
   const c = cvMineById(b.dataset.cvclose); if (!c || !FB) return;
   if (!confirm(c.section === "software" ? "Close this request? You can write again later and it opens again." : "Close this conversation? You can write again later and it opens again.")) return;
   try { await FB.cvUpdate(c.id, {status: "closed"}); c.status = "closed"; toast("Closed"); render(); } catch (er){ console.error(er); toast("Couldn't close it. Try again."); }
+});
+
+/* ---- v145: price offers with an Accept button, and paying online (software requests) ---- */
+function swCustom(){ return {id: "custom", name: "Custom software request", cat: "", icon: "parts", price: "", custom: true}; }   // a request for software that is not listed
+function swAskHTML(has){
+  if (USER) startMyConvos();
+  return `<section class="panel reqpanel swask" id="reqPanel" aria-label="Tell us what you need">${swReqBox(swCustom(), `<div><h2>${has ? "Need something else?" : "Tell us what you need"}</h2><p class="note">${has ? "Tell us what you need. We reply with a price and a date." : "Our first software is coming soon. Send us a request now. We reply with a price and a date."}</p></div>`)}</section>`;
+}
+function cvOffer(c){ return c && c.offer && c.offer.id ? c.offer : null; }
+function cvAccepted(c){ const o = cvOffer(c); return !!(o && c.acceptedOffer === o.id); }
+function cvPaid(c){ return c && c.paid && c.paid.at ? c.paid : null; }
+function cvIsFr(){ try { return !!(window.NOJAN_LANG && window.NOJAN_LANG.get() === "fr"); } catch (_) { return false; } }
+function dayOf(ms, loc){ return new Date(ms).toLocaleDateString(loc || "en-CA", {month: "short", day: "numeric", year: "numeric"}); }
+function offerDay(d, loc){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d || "")); return m ? dayOf(new Date(+m[1], +m[2] - 1, +m[3]).getTime(), loc) : ""; }
+function cvOfferText(o, fr){ return money(+o.price || 0) + (o.date ? (fr ? ", prêt d'ici le " + offerDay(o.date, "fr-CA") : ", ready by " + offerDay(o.date)) : ""); }
+/* A payment link is only ever shown when it is a normal https address; the name tells the customer whose page opens. */
+function payInfo(link){
+  const HOSTS = [[/(^|\.)stripe\.com$/, "Stripe"], [/(^|\.)(square\.link|squareup\.com|square\.site)$/, "Square"], [/(^|\.)paypal\.(com|me)$/, "PayPal"], [/(^|\.)(helcim\.com|helcim\.app|myhelcim\.com)$/, "Helcim"], [/(^|\.)waveapps\.com$/, "Wave"]];
+  try { const u = new URL(String(link || "").trim()); if (u.protocol !== "https:" || !u.hostname.includes(".")) return null;
+    const h = u.hostname.toLowerCase(), k = HOSTS.find(([re]) => re.test(h)); return {href: u.href, host: h, name: k ? k[1] : h}; }
+  catch (_) { return null; }
+}
+
+/* the customer's side: the offer, Accept, and Pay online */
+function cvOfferInner(c){
+  const o = cvOffer(c); if (!o) return "";
+  const acc = cvAccepted(c), paid = cvPaid(c), pay = acc && !paid ? payInfo(c.payLink) : null, closed = c.status === "closed";
+  return `<div class="offtop"><span class="tagx${acc ? "" : " blue"}">${paid ? "Paid" : acc ? "Accepted" : "Offer from Nojan"}</span><span class="note"><span>Sent</span> <span>${esc(dayOf(o.id))}</span></span></div>
+    <div class="offrow"><div class="offprice">${esc(money(+o.price || 0))}</div>${o.date ? `<div class="offmeta"><span>Ready by</span> <b>${esc(offerDay(o.date))}</b></div>` : ""}</div>
+    ${o.note ? `<p class="offnote">${esc(o.note)}</p>` : ""}
+    ${paid ? `<p class="offdone">${cvSvg("check")}<span><span>Paid on</span> <b>${esc(dayOf(paid.at))}</b></span></p><p class="note">Thank you. We will write to you here about the next step.</p>`
+      : acc ? `<p class="offdone">${cvSvg("check")}<span><span>You accepted this offer on</span> <b>${esc(dayOf(c.acceptedAt || o.id))}</b></span></p>
+          ${pay ? `<a class="btn" href="${esc(pay.href)}" target="_blank" rel="noopener noreferrer">Pay online</a><p class="note">You pay on a secure page run by ${esc(pay.name)}. Nojan never sees your card details.</p>` : `<p class="note">We will write to you here about the next step.</p>`}`
+      : c._acceptSent ? `<p class="note">Your answer was sent to Nojan.</p>`
+      : `<div class="offacts"><button class="btn" type="button" data-cvaccept="${esc(c.id)}"${closed ? " disabled" : ""}>Accept offer</button><span class="note">Have a question? Write a reply below.</span></div><div class="msg" data-offmsg hidden></div>`}`;
+}
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-cvaccept]"); if (!b) return;
+  const c = cvMineById(b.dataset.cvaccept), o = cvOffer(c); if (!c || !o || cvAccepted(c) || !FB || !FB.cvUpdate) return;
+  const fr = cvIsFr(), line = cvOfferText(o, fr), box = b.closest("[data-cvoffer]"), m = box && box.querySelector("[data-offmsg]");
+  if (!confirm(fr ? "Accepter cette offre : " + line + " ?" : "Accept this offer: " + line + "?")) return;
+  b.disabled = true;
+  const text = (fr ? "J'accepte l'offre : " : "I accept the offer: ") + line + ".", p = {status: "agreed", acceptedOffer: o.id, acceptedAt: Date.now()};
+  let saved = false;
+  try { await FB.cvUpdate(c.id, p); Object.assign(c, p); saved = true; }
+  catch (er){ if (!er || er.code !== "permission-denied"){ console.error(er); b.disabled = false; if (m) showMsg(m, false, "Couldn't save. Check your connection and try again."); return; } }
+  if (!saved) c._acceptSent = true;
+  try { await cvSend(c, text, false); } catch (er){ console.error(er); }
+  toast(saved ? "Offer accepted" : "Sent to Nojan"); render();
+});
+
+/* Admin's side: send or change an offer, add a payment link, mark as paid */
+function cvOfferAdminHTML(c){
+  if (c.section !== "software") return "";
+  const o = cvOffer(c), acc = cvAccepted(c), paid = cvPaid(c), pay = payInfo(c.payLink), edit = CV.offerEdit === c.id, n = cvFirst(c.name) || "The customer";
+  const form = `<form class="offform" data-cvofferform="${esc(c.id)}" novalidate>
+      <label>Price ($)<input name="price" inputmode="decimal" autocomplete="off" placeholder="450" value="${o && edit ? esc(String(o.price)) : ""}"></label>
+      <label><span>Ready by <small>(optional)</small></span><input name="date" type="date" value="${o && edit ? esc(o.date || "") : ""}"></label>
+      <label class="wide"><span>Note <small>(optional)</small></span><input name="note" maxlength="300" autocomplete="off" placeholder="What the price includes" value="${o && edit ? esc(o.note || "") : ""}"></label>
+      <div class="msg wide" data-offmsg hidden></div>
+      <div class="wide offbtns"><button class="btn small" type="submit">${o ? "Send new offer" : "Send offer"}</button><button class="linkbtn" type="button" data-cvofferedit="">Cancel</button></div></form>`;
+  if (!o) return edit ? `<div class="offadm"><b>Price offer</b>${form}<p class="note">${esc(n)} sees the price with an Accept button. When they accept, the request moves to Agreed by itself.</p></div>`
+    : `<div class="offadm bare"><button class="linkbtn" type="button" data-cvofferedit="${esc(c.id)}">+ Send a price offer</button></div>`;
+  const state = paid ? "Paid " + dayOf(paid.at) : acc ? "Accepted " + dayOf(c.acceptedAt || o.id) : "Waiting for " + (cvFirst(c.name) || "the customer");
+  return `<div class="offadm has">
+    <div class="offline"><span><b>Offer: ${esc(money(+o.price || 0))}</b>${o.date ? " · ready by " + esc(offerDay(o.date)) : ""}</span><span class="tagx${acc ? " blue" : ""}">${esc(state)}</span>${paid || edit ? "" : `<button class="linkbtn" type="button" data-cvofferedit="${esc(c.id)}">Change offer</button>`}</div>
+    ${o.note ? `<p class="note">${esc(o.note)}</p>` : ""}
+    ${edit ? form + (acc ? `<p class="note">A new offer replaces this one. ${esc(n)} has to accept it again.</p>` : "") : ""}
+    ${acc && !paid && !edit ? `<form class="payform" data-cvpay="${esc(c.id)}" novalidate>
+        <label><span>Payment link <small>(from your payment provider, for this amount)</small></span><input name="link" type="url" inputmode="url" autocomplete="off" placeholder="https://" value="${esc(c.payLink || "")}"></label>
+        <div class="offbtns"><button class="btn small" type="submit">${c.payLink ? "Save link" : "Send link"}</button><button class="btn small ghost" type="button" data-cvpaid="${esc(c.id)}">Mark as paid</button></div>
+        <div class="msg" data-paymsg hidden></div></form>
+      <p class="note">${pay ? `${esc(n)} sees a Pay online button that opens ${esc(pay.name)}. Press Mark as paid when the money arrives.` : `Paste a payment link and ${esc(n)} sees a Pay online button. Or press Mark as paid if they paid another way.`}</p>` : ""}
+    ${paid ? `<p class="note">Paid ${esc(money(+paid.amount || 0))} on ${esc(dayOf(paid.at))}. <button class="linkbtn" type="button" data-cvunpaid="${esc(c.id)}">Undo</button></p>` : ""}
+  </div>`;
+}
+function cvAdmById(id){ return (CV.all || []).find(x => x.id === id); }
+document.addEventListener("submit", async e => {
+  const f = e.target.closest("form[data-cvofferform]"); if (!f) return;
+  e.preventDefault();
+  const c = cvAdmById(f.dataset.cvofferform), m = f.querySelector("[data-offmsg]"); if (!c) return;
+  const price = Math.round(parseFloat(String(f.price.value).replace(/[$,\s]/g, "")) * 100) / 100, date = f.date.value, note = f.note.value.trim().slice(0, 300);
+  if (!(price > 0) || price > 1000000){ showMsg(m, false, "Enter the price as a number, like 450."); f.price.focus(); return; }
+  if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)){ showMsg(m, false, "Choose the date from the calendar."); return; }
+  const offer = {id: Date.now(), price, date, note}, p = {offer, payLink: ""};
+  if (c.status === "agreed" || c.status === "closed") p.status = "open";
+  f.querySelectorAll("button").forEach(x => x.disabled = true);
+  try { await cvSend(c, "Offer: " + cvOfferText(offer) + "." + (note ? " " + note : ""), true, p); CV.offerEdit = null; toast("Offer sent"); refreshAdmin(true); }
+  catch (er){ console.error(er); f.querySelectorAll("button").forEach(x => x.disabled = false); showMsg(m, false, "Couldn't send. Check your connection and try again."); }
+});
+document.addEventListener("submit", async e => {
+  const f = e.target.closest("form[data-cvpay]"); if (!f) return;
+  e.preventDefault();
+  const c = cvAdmById(f.dataset.cvpay), m = f.querySelector("[data-paymsg]"), raw = f.link.value.trim(); if (!c) return;
+  const pay = raw ? payInfo(raw) : null;
+  if (raw && !pay){ showMsg(m, false, "Paste the full link. It starts with https://"); f.link.focus(); return; }
+  f.querySelectorAll("button").forEach(x => x.disabled = true);
+  try {
+    if (!pay){ await FB.cvUpdate(c.id, {payLink: ""}); c.payLink = ""; }
+    else if (pay.href !== c.payLink) await cvSend(c, "You can now pay online. Open your request on nojans.com and press Pay online.", true, {payLink: pay.href});
+    toast(pay ? "Payment link saved" : "Payment link removed"); refreshAdmin(true);
+  } catch (er){ console.error(er); f.querySelectorAll("button").forEach(x => x.disabled = false); showMsg(m, false, "Couldn't save. Check your connection and try again."); }
+});
+document.addEventListener("click", async e => {
+  const ed = e.target.closest("[data-cvofferedit]"); if (ed){ CV.offerEdit = ed.dataset.cvofferedit || null; refreshAdmin(true); return; }
+  const pd = e.target.closest("[data-cvpaid]");
+  if (pd){ const c = cvAdmById(pd.dataset.cvpaid), o = cvOffer(c); if (!c || !o) return;
+    if (!confirm("Mark this offer as paid? " + money(+o.price || 0))) return;
+    try { await cvSend(c, "Payment received. Thank you.", true, {paid: {at: Date.now(), amount: +o.price || 0}}); toast("Marked as paid"); refreshAdmin(true); } catch (er){ console.error(er); toast("Couldn't save. Try again."); }
+    return; }
+  const up = e.target.closest("[data-cvunpaid]");
+  if (up){ const c = cvAdmById(up.dataset.cvunpaid); if (!c || !FB) return;
+    try { await FB.cvUpdate(c.id, {paid: null}); c.paid = null; toast("Payment undone"); refreshAdmin(true); } catch (er){ console.error(er); toast("Couldn't save. Try again."); } }
 });
 
 /* ---- Admin: one grouped menu ---- */
@@ -1249,6 +1363,7 @@ function cvThreadHTML(c){
     <div class="mchead"><span class="pav">${esc(cvInit(c.name))}</span><div class="who"><b>${esc(c.name || "Customer")}</b><span>${esc([c.email, c.phone].filter(Boolean).join(" · "))}${c.uid ? ` · <button class="linkbtn" type="button" data-auid="${esc(c.uid)}">Orders ›</button>` : ""}</span></div><span class="tagx${needs ? " blue" : ""}">${needs ? "Needs your reply" : closed ? "Closed" : "Waiting for customer"}</span></div>
     <div class="ctx"><span class="ctxi">${cvIcon(c)}</span><span class="ctxt"><b>${link ? `<a href="${esc(link)}" style="color:inherit">${esc(cvTitle(c))}</a>` : esc(cvTitle(c))}</b><span>${esc(sub)}</span></span>
       <label class="stsel"><span>Status</span><select data-cvstatus="${esc(c.id)}" aria-label="Status">${opts}</select></label></div>
+    ${cvOfferAdminHTML(c)}
     <div class="tlog" data-cvlog="${esc(c.id)}" data-admin>${cvLogHTML(c.id, true)}</div>
     <form class="treply" data-cvareply="${esc(c.id)}" novalidate><div class="chips" role="group" aria-label="Quick replies">${quick}</div>
       <textarea name="text" placeholder="Write a reply to ${esc(n)}" aria-label="Your reply" maxlength="2000"></textarea><div class="msg" data-cvmsg hidden></div>
@@ -4974,14 +5089,14 @@ function softwareView(){
   const catTile = c => `<a class="swcat" href="#software" data-swcat="${esc(c.name)}"><span class="dti">${swSvg(c.icon)}</span><b>${esc(c.name)}</b><span class="xn">${plural(c.list.length, "product")}</span></a>`;
   const soonTile = c => `<div class="swcat later"><span class="dti">${swSvg(c.icon)}</span><b>${esc(c.name)}</b><span class="xn">${c.soon ? "Coming later" : "Coming soon"}</span></div>`;
   return `<section class="pagehero lhero services software">
-      <div class="phtext"><h1>Software</h1><p>Software built by Nojan. Choose one and send us a request. We reply in your account.</p></div>
+      <div class="phtext"><h1>Software</h1><p>${list.length ? "Software built by Nojan. Choose one and send us a request. We reply in your account." : "Software built by Nojan. Tell us what you need. We reply in your account."}</p></div>
     </section>
     ${list.length ? `${many || soon.length ? `<div class="swhead"><h2>Categories</h2><span>${many ? `${plural(list.length, "product")} in ${cats.length} categories` : "More categories are coming"}</span></div>
       <div class="swcats n${Math.min(4, cats.length + soon.length)}">${cats.map(catTile).join("")}${soon.map(soonTile).join("")}</div>` : ""}
       <div class="swhead"><h2>${many ? "All software" : esc(cats[0].name)}</h2>${many ? "" : `<span>${plural(list.length, "product")}</span>`}</div>
       ${many ? `<div class="cattools"><div class="catchips">${cgChip("swcat", "all", swCat === "all", "All", list.length)}${cats.map(c => cgChip("swcat", c.name, swCat === c.name, c.name, c.list.length)).join("")}</div></div>` : ""}
-      <div class="svcgrid swgrid">${softCards(shown)}</div>`
-      : `${soon.length ? `<div class="swhead"><h2>What we build</h2></div><div class="swcats n${Math.min(4, soon.length)}">${soon.map(soonTile).join("")}</div>` : ""}<div class="empty">Our software is coming soon. <a href="#contact-us" style="color:var(--link)">Tell us what your business needs</a>.</div>`}`;
+      <div class="svcgrid swgrid">${softCards(shown)}</div>${swAskHTML(true)}`
+      : `${soon.length ? `<div class="swhead"><h2>What we build</h2></div><div class="swcats n${Math.min(4, soon.length)}">${soon.map(soonTile).join("")}</div>` : ""}${swAskHTML(false)}`}`;
 }
 function homeHTML(){
   const soon = (icon, title, text) => `<div class="soon"><span class="soonic">${svgI(icon)}</span><b>${title}</b><span>${text}</span></div>`;
@@ -5023,7 +5138,7 @@ function homeHTML(){
   const swSubs = (swc.length > 1 ? swc.slice(0, 4).map(c => subOf("#software", swSvg(c.icon), c.name)) : sw.slice(0, 4).map(x => subOf("#software", swIcon(x), x.name))).join("");
   const shopSubs = cats.slice(0, 4).map(c => subOf("#category-" + catSlug(c), cgiImg(cg.get(c).find(x => imagesOf(x).length) || cg.get(c)[0]), c, true)).join("");
   const door = (href, icon, name, text, note, subs) => `<div class="xtile door"><a class="dmain" href="${href}"><span class="xi">${icon}</span><b>${name}</b><span class="xgo">${note}<i aria-hidden="true"> ›</i></span><span class="xd">${text}</span></a><div class="dsubs">${subs}</div></div>`;
-  const doorSoon = (icon, name, text) => `<div class="xtile door dsoon"><div class="dmain"><span class="xi">${icon}</span><b>${name}</b><span class="xgo">Coming soon</span><span class="xd">${text}</span></div><p class="dnote">We are getting our first software ready to sell. <a href="#contact-us">Tell us what your business needs ›</a></p></div>`;
+  const doorSoon = (icon, name, text) => `<div class="xtile door dsoon"><div class="dmain"><span class="xi">${icon}</span><b>${name}</b><span class="xgo">Coming soon</span><span class="xd">${text}</span></div><p class="dnote">We are getting our first software ready to sell. <a href="#software">Tell us what your business needs ›</a></p></div>`;
   const next = (d, n, t) => `<span>${svgP(d)}<b>${n}</b><em>${t}</em></span>`;
   const head = (title, text, href, all) => `<div class="h5row"><div class="hh"><h2>${title}</h2><p>${text}</p></div><a href="${href}">${all} ›</a></div>`;
   const shopTabs = [deals.length ? ["deals", "Biggest savings"] : null, ["new", "New arrivals"]].filter(Boolean);

@@ -3714,3 +3714,48 @@ html body .stsel select{font:inherit;font-size:14px;font-weight:600;color:var(--
   .swcatrow{grid-template-columns:44px minmax(0,1fr)}
   .swcatrow>select,.swcatrow .soonbox,.swcatrow .note,.swcatrow .swabtns{grid-column:2}
 }
+
+/* ===== v145: listing cards — one blue tint on every service cover, same height for shop, service and software cards, no empty band, nothing cut off ===== */
+html body .svccard .cover,html body .svcmain .cover{background:rgba(43,111,234,.08)!important}
+html body .grid>.card .body,html body .svcgrid>.svccard .sb,html body .swgrid>.svccard .sb{height:206px!important;overflow:visible!important}
+html body .svcgrid>.svccard:not(.swcard) .desc{display:none!important}
+html body .svcgrid>.svccard .prov,html body .svcgrid>.svccard .svcprice,html body .grid>.card .cbrand{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:100%}
+@media (max-width:640px){
+ html body .grid>.card .body,html body .svcgrid>.svccard .sb,html body .swgrid>.svccard .sb{height:212px!important}
+}
+/* Home rows: every card in a row is as tall as the tallest one, with the price and button at the bottom */
+html body .homegrid>.svccard,html body .homegrid>.card{height:auto!important;align-self:stretch!important;display:flex!important;flex-direction:column!important}
+html body .homegrid>.svccard .sb,html body .homegrid>.card .body{flex:1 1 auto!important;display:flex!important;flex-direction:column!important}
+html body .homegrid>.svccard .sb>.foot,html body .homegrid>.card .body>.cfoot{margin-top:auto!important}
+
+/* ===== v145: request box on the Software page, price offers, pay online ===== */
+html body .swask{display:grid;gap:12px;max-width:720px;margin:26px auto 0;padding:22px 24px!important}
+.swask h2{margin:0;font-size:1.35rem}
+.swask>div>.note{margin:4px 0 0}
+.swask textarea{min-height:110px}
+.swask .btn{justify-self:start;min-width:180px}
+html body .panel.offer{display:grid;gap:10px;border:1.5px solid rgba(43,111,234,.38)!important}
+.offtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.offrow{display:flex;align-items:baseline;gap:8px 16px;flex-wrap:wrap}
+.offprice{font-size:2.1rem;font-weight:700;letter-spacing:-.015em;line-height:1.1}
+.offmeta{font-size:1.02rem;color:var(--muted)}
+.offmeta b{color:var(--fg);font-weight:600}
+.offnote{margin:0}
+.offdone{display:flex;gap:8px;align-items:center;margin:0;font-weight:600}
+.offdone svg{flex:none;width:18px;height:18px;fill:none;stroke:#18753a;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.offacts{display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap}
+.offer .btn{justify-self:start;min-width:170px;text-align:center}
+.offer>.note{margin:0}
+/* Admin → Messages: offer and payment box in a software conversation */
+.offadm{border:1px solid rgba(0,0,0,.1);border-radius:14px;padding:12px 14px;display:grid;gap:10px;background:#fafafc}
+.offadm.bare{border:0;background:none;padding:0}
+.offadm .note{margin:0}
+.offline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.offline .linkbtn{margin-left:auto}
+.offform{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.offform label,.payform label{display:grid;gap:5px;font-size:13.5px;font-weight:600}
+.offform label small,.payform label small{font-weight:400;color:var(--muted)}
+.offform .wide{grid-column:1/-1}
+.offbtns{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.payform{display:grid;gap:10px}
+@media (max-width:560px){.offform{grid-template-columns:1fr} html body .swask{padding:18px 16px!important}}
