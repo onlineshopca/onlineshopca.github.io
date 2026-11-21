@@ -5,6 +5,9 @@
    2) visitors in Quebec see French (checked once from their internet address — nothing is saved or sent to us), else English. */
 (function(){
 const FR = {
+/* v146 */
+"Searching…": "Recherche…", "The address search is slow right now. You can type your city and postal code yourself.": "La recherche d'adresse est lente en ce moment. Vous pouvez saisir vous-même votre ville et votre code postal.",
+"Please add your city, or pick your address from the list.": "Veuillez ajouter votre ville ou choisir votre adresse dans la liste.",
 /* v145: request box on the Software page, price offers, pay online */
 "Software built by Nojan. Tell us what you need. We reply in your account.": "Logiciels conçus par Nojan. Dites-nous ce qu'il vous faut. Nous répondons dans votre compte.",
 "Tell us what you need": "Dites-nous ce qu'il vous faut", "Need something else?": "Besoin d'autre chose?",

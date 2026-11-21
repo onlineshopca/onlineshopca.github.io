@@ -4631,15 +4631,18 @@ function addrLabel(p){
 }
 async function addrSearch(q){
   const seq = ++ADDR.seq, box = $("#addrList"), inp = $("#addrIn"); if (!box || !inp) return;
+  if (ADDR.ctl) try { ADDR.ctl.abort(); } catch (_) {}   // v146: an older search never holds up a newer one
   if (q.length < 3){ box.hidden = true; inp.setAttribute("aria-expanded", "false"); return; }
+  if (box.hidden || !ADDR.list.length){ ADDR.list = []; box.innerHTML = `<li class="addrnone">Searching…</li>`; box.hidden = false; inp.setAttribute("aria-expanded", "true"); }
+  const ctl = ADDR.ctl = typeof AbortController === "function" ? new AbortController() : null, slow = setTimeout(() => { if (ctl) ctl.abort(); }, 6000);
   try {
-    const r = await fetch("https://photon.komoot.io/api/?limit=8&lang=en&lat=43.88&lon=-79.44&layer=house&layer=street&q=" + encodeURIComponent(q));
-    const j = await r.json(); if (seq !== ADDR.seq) return;
-    ADDR.list = (j.features || []).filter(f => (f.properties || {}).countrycode === "CA").map(f => { const p = f.properties; return {label: addrLabel(p), street: [p.housenumber, p.street].filter(Boolean).join(" ") || (p.street ? p.street : p.name || ""), city: p.city || p.town || p.village || p.district || "", state: p.state || "", postal: p.postcode || "", lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0]}; }).filter(x => x.label);
+    const r = await fetch("https://photon.komoot.io/api/?limit=8&lang=en&lat=43.88&lon=-79.44&layer=house&layer=street&q=" + encodeURIComponent(q), ctl ? {signal: ctl.signal} : {});
+    const j = await r.json(); clearTimeout(slow); if (seq !== ADDR.seq) return;
+    ADDR.list = (j.features || []).filter(f => (f.properties || {}).countrycode === "CA").map(f => { const p = f.properties; return {label: addrLabel(p), street: [p.housenumber, p.street].filter(Boolean).join(" ") || (p.street ? p.street : p.name || ""), city: p.city || p.town || p.village || p.district || "", state: p.state || "", postal: p.postcode || "", lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0]}; }).filter(x => x.label).filter((x, i, a) => a.findIndex(y => y.label === x.label) === i);
     ADDR.i = -1;
     box.innerHTML = ADDR.list.length ? ADDR.list.map((a, i) => `<li role="option" id="addrOpt${i}" data-addr="${i}" aria-selected="false">${HM_PIN}<span>${esc(a.label)}</span></li>`).join("") + `<li class="addrsrc" aria-hidden="true">Search by OpenStreetMap</li>` : `<li class="addrnone">No matches yet. Keep typing, or add the city.</li>`;
     box.hidden = false; inp.setAttribute("aria-expanded", "true");
-  } catch (e) { if (seq === ADDR.seq){ box.hidden = true; inp.setAttribute("aria-expanded", "false"); } }
+  } catch (e) { clearTimeout(slow); if (seq === ADDR.seq){ ADDR.list = []; box.innerHTML = `<li class="addrnone">The address search is slow right now. You can type your city and postal code yourself.</li>`; box.hidden = false; } }
 }
 function addrPick(i){
   const a = ADDR.list[i], f = $("#profileForm"); if (!a || !f) return;
@@ -4652,6 +4655,7 @@ function addrPick(i){
 document.addEventListener("input", e => {
   const t = e.target;
   if (t.id === "addrIn"){ const f = $("#profileForm"); if (f){ f.lat.value = ""; f.lng.value = ""; } clearTimeout(ADDR.t); ADDR.t = setTimeout(() => addrSearch(t.value.trim()), 280); return; }
+  if (t.closest && t.closest("#profileForm")){ const pm = $("#profileMsg"); if (pm && !pm.hidden && pm.classList.contains("err")) pm.hidden = true; }   // v146: an old error goes away when the form changes
   if (t.name === "dob" && t.closest("#profileForm")){ const a = ageOf(t.value), o = $("#ageOut"); if (o) o.textContent = a != null ? "Age " + a : ""; }
 });
 document.addEventListener("keydown", e => {
@@ -6481,7 +6485,7 @@ document.addEventListener("submit", async e => {
     if (dob && (age == null || new Date(dob) > new Date())) return showMsg(pm, false, "Please check your date of birth.");
     const street = (d.street || "").trim().slice(0, 100), unit = (d.unit || "").trim().slice(0, 12), city = (d.city || "").trim().slice(0, 40), province = d.province || "", postal = fmtPostal((d.postal || "").trim()).slice(0, 7);
     if (postal && !/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(postal)) return showMsg(pm, false, "Please check your postal code (like L4C 3B2).");
-    if (street && !city) return showMsg(pm, false, "Please add your city.");
+    if (street && !city) return showMsg(pm, false, "Please add your city, or pick your address from the list.");
     const address = street ? [(unit ? unit + "-" : "") + street, city, province, postal].filter(Boolean).join(", ") : "";
     const data = {name:d.name.trim(), phone:(d.phone||"").trim(), city, street, unit, province, postal, address, dob, lat: d.lat ? +d.lat : null, lng: d.lng ? +d.lng : null};
     try { await FB.saveProfile(USER.uid, data); PROFILE = {...(PROFILE||{}), ...data}; updateAcct(); showMsg(pm,true,"Details saved."); }
