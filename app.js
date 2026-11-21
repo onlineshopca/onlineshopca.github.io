@@ -831,6 +831,565 @@ function simHTML(p){
   const t = typeOf(p), list = groupList(PRODUCTS.filter(x => x.id !== p.id && !x.soldOut && !x.member && typeOf(x) === t && x.itemId !== p.itemId)).slice(0, 4);
   return list.length ? `<section class="hsec simsec"><div class="h5row"><h2>Similar items</h2><a href="#shop">See all ›</a></div><div class="homegrid">${productCards(list)}</div></section>` : "";
 }
+/* ===================== v143: software pages, requests and conversations =====================
+   Every software request, and every question about a service, an item or anything else, is one conversation
+   (convos/{id}) with its messages (convos/{id}/messages). The customer finds it in Your account → Messages,
+   Nojan answers in Admin → Messages. Emails only say that a new message is waiting; the text stays on the site. */
+const CV = {mine: null, mineFor: null, unsubMine: null, all: null, unsubAll: null, msgs: {}, unsubMsgs: {}, tab: "all", sec: "all", filt: "reply", q: "", open: null, newForm: false, menu: false,
+  asks: {}, req: {}, swEdit: null, catMsg: ""};
+let swItemId = null, convoId = null;
+const CV_SEC = {software: "Software", services: "Services", shop: "Shop", general: "General"};
+const CV_TAG = {software: "Software request", services: "Service question", shop: "Shop item", general: "Question"};
+const CV_STATUS = {open: "Open", agreed: "Agreed", delivered: "Delivered", closed: "Closed"};
+const CV_IC = {chat: "M4 5h16v11H10l-5 4v-4H4z", tag: "M3 12.5V4h8.5L21 13.5 13.5 21zM6.1 8.5a1.4 1.4 0 1 0 2.8 0 1.4 1.4 0 1 0-2.8 0",
+  calendar: "M4 6h16v15H4zM4 11h16M8 3v4M16 3v4", check: "M5 12l5 5 9-10", menu: "M4 7h16M4 12h16M4 17h16", today: "M4 4h7v9H4zM13 4h7v5h-7zM13 11h7v9h-7zM4 15h7v5H4z",
+  box: "M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10", scan: "M3 8V5a1 1 0 0 1 1-1h3M17 4h3a1 1 0 0 1 1 1v3M21 16v3a1 1 0 0 1-1 1h-3M7 20H4a1 1 0 0 1-1-1v-3M7 9v6M10 9v6M13.5 9v6M17 9v6",
+  grid: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z", list: "M4 6h10M4 12h16M4 18h7", person: "M4 20c1-4 4-6 8-6s7 2 8 6M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+  code: "M8 7l-5 5 5 5M16 7l5 5-5 5M13 5l-2 14", receipt: "M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6", window: "M4 5h16v14H4zM4 9h16",
+  star: "M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 17l-5.2 2.7 1-5.9L3.5 9.7l5.9-.8z", users: "M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5M17 11.5a2.5 2.5 0 1 0 0-5M16 14.5c2.5 0 4.5 1.5 5.5 4.5",
+  clock: "M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z", home: "M4 11l8-7 8 7v9H4zM10 20v-6h4v6", heart: "M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z", shop: "M5 8h14l-1 13H6L5 8zM9 8V6a3 3 0 0 1 6 0v2"};
+const cvSvg = n => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${CV_IC[n] || CV_IC.chat}"/></svg>`;
+const cvMs = x => x ? tsNum(x) : 0;
+const cvInit = n => (String(n || "").trim().split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("") || "?").toUpperCase();
+const cvFirst = n => String(n || "").trim().split(/\s+/)[0] || "";
+const cvNum = c => ({software: "R", services: "S", shop: "Q"}[c.section] || "M") + String(c.id || "").slice(-5).toUpperCase();
+const cvTitle = c => (c.about && c.about.title) || "Message";
+const cvNewForMe = c => c.lastFrom === "admin" && cvMs(c.lastAt) > (+c.seenC || 0);
+const cvNewForAdmin = c => c.lastFrom === "customer" && cvMs(c.lastAt) > (+c.seenA || 0);
+const cvIcon = c => c.section === "software" ? swSvg((c.about && c.about.icon) || "parts") : cvSvg(c.section === "services" ? "calendar" : c.section === "shop" ? "tag" : "chat");
+function cvWhen(ms){
+  if (!ms) return "";
+  const d = new Date(ms), now = new Date(), y = new Date(now); y.setDate(y.getDate() - 1);
+  if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString("en-CA", {hour: "numeric", minute: "2-digit"});
+  if (d.toDateString() === y.toDateString()) return "Yesterday";
+  return d.toLocaleDateString("en-CA", {month: "short", day: "numeric"});
+}
+const cvDay = ms => { const d = new Date(ms), now = new Date(), y = new Date(now); y.setDate(y.getDate() - 1);
+  return d.toDateString() === now.toDateString() ? "Today" : d.toDateString() === y.toDateString() ? "Yesterday" : d.toLocaleDateString("en-CA", {weekday: "long", month: "long", day: "numeric"}); };
+const cvTime = ms => new Date(ms).toLocaleTimeString("en-CA", {hour: "numeric", minute: "2-digit"});
+const cvTyping = () => { const a = document.activeElement; return !!(a && /^(TEXTAREA|INPUT|SELECT)$/.test(a.tagName) && a.closest("#view")); };
+
+/* ---- data: the customer's own conversations, all of them for admins, and the messages of the ones on screen ---- */
+function startMyConvos(){
+  if (!FB || !FB.cvWatchMine) return;
+  if (!USER){ if (CV.unsubMine){ CV.unsubMine(); CV.unsubMine = null; } CV.mine = null; CV.mineFor = null; return; }
+  if (CV.mineFor === USER.uid) return;
+  if (CV.unsubMine) CV.unsubMine();
+  CV.mineFor = USER.uid; CV.mine = null;
+  CV.unsubMine = FB.cvWatchMine(USER.uid, list => { CV.mine = list; cvRefresh(); }, err => { console.error(err); CV.mine = CV.mine || []; cvRefresh(); });
+}
+function startConvosAdmin(){
+  if (!FB || !FB.cvWatchAll || !isAdmin() || CV.unsubAll) return;
+  CV.unsubAll = FB.cvWatchAll(list => { CV.all = list; if (current() === "admin") refreshAdmin(); }, err => { console.error(err); CV.all = CV.all || []; if (current() === "admin") refreshAdmin(true); });
+}
+function cvWatch(id){
+  if (!FB || !FB.cvWatchMsgs || !id || CV.unsubMsgs[id]) return;
+  CV.unsubMsgs[id] = FB.cvWatchMsgs(id, list => { CV.msgs[id] = list; cvLogUpdate(id); }, err => { console.error(err); CV.msgs[id] = CV.msgs[id] || []; cvLogUpdate(id); });
+}
+function cvRefresh(){
+  const v = current();
+  if (v === "convo"){ const box = document.querySelector("[data-cvhead]"); if (cvTyping() && box){ box.innerHTML = cvHeadInner(cvMineById(convoId)); return; }
+    const ta = document.querySelector("form[data-cvreply] textarea"), keep = ta ? ta.value : ""; render(); const t2 = document.querySelector("form[data-cvreply] textarea"); if (t2 && keep) t2.value = keep; return; }
+  if (["acctmessages", "account"].includes(v) && !cvTyping()) render();
+  if (typeof updateAcct === "function") try { updateAcct(); } catch (_) {}
+}
+function cvLogUpdate(id){
+  const log = document.querySelector(`[data-cvlog="${CSS.escape(id)}"]`);
+  if (log){ const asAdmin = log.hasAttribute("data-admin"); log.innerHTML = cvLogHTML(id, asAdmin); log.scrollTop = log.scrollHeight; cvMarkSeen(id, asAdmin);
+    if (!asAdmin && current() === "convo"){ const st = document.querySelector("[data-cvstand]"); if (st) st.innerHTML = cvStandInner(cvMineById(id)); } }
+}
+const cvMineById = id => (CV.mine || []).find(c => c.id === id);
+function cvMarkSeen(id, asAdmin){
+  const c = asAdmin ? (CV.all || []).find(x => x.id === id) : cvMineById(id);
+  if (!c || !FB || !FB.cvUpdate || !CV.msgs[id]) return;
+  if (asAdmin){ if (cvNewForAdmin(c) || c.noticeA){ const p = {seenA: Date.now() + 5000, noticeA: false}; Object.assign(c, p); FB.cvUpdate(id, p).catch(e => console.error(e)); } }
+  else if (cvNewForMe(c) || c.noticeC){ const p = {seenC: Date.now() + 5000, noticeC: false}; Object.assign(c, p); FB.cvUpdate(id, p).catch(e => console.error(e)); }
+}
+function cvLogHTML(id, asAdmin){
+  const list = CV.msgs[id]; if (!list) return `<p class="note">Loading messages…</p>`;
+  if (!list.length) return `<p class="note">No messages yet.</p>`;
+  const c = asAdmin ? (CV.all || []).find(x => x.id === id) : null;
+  let day = "";
+  return list.map(m => { const ms = cvMs(m.at), d = new Date(ms).toDateString(), mine = asAdmin ? m.role === "admin" : m.role !== "admin";
+    const who = mine ? "You" : m.role === "admin" ? "Nojan" : (cvFirst(c && c.name) || "Customer");
+    const head = d !== day ? (day = d, `<span class="tday">${esc(cvDay(ms))}</span>`) : "";
+    return head + `<div class="tmsg${mine ? " me" : ""}"><p>${esc(m.text || "").replace(/\n/g, "<br>")}</p><small>${esc(who)} · ${esc(cvTime(ms))}</small></div>`; }).join("");
+}
+
+/* ---- sending, starting a conversation, and the notice emails ---- */
+async function cvSend(c, text, asAdmin, extra){
+  text = String(text || "").trim().slice(0, 2000); if (!text || !USER || !FB || !FB.cvSend) return false;
+  const patch = {lastText: text.slice(0, 140), lastFrom: asAdmin ? "admin" : "customer", ...(extra || {})};
+  if (asAdmin){ patch.seenA = Date.now() + 5000; patch.noticeA = false; if (!c.noticeC) patch.noticeC = true; }
+  else { patch.seenC = Date.now() + 5000; patch.noticeC = false; if (!c.noticeA) patch.noticeA = true; if (c.status === "closed") patch.status = "open"; }
+  await FB.cvSend(c.id, {from: USER.uid, role: asAdmin ? "admin" : "customer", text}, patch);
+  const was = {...c}; Object.assign(c, patch, {lastAt: new Date().toISOString()});
+  if (asAdmin && !was.noticeC && c.email) cvNotice(c, true);
+  if (!asAdmin && !was.noticeA) cvNotice(c, false);
+  return true;
+}
+function cvNotice(c, toCustomer){
+  const what = {software: "your software request", services: "your question about a service", shop: "your question about an item", general: "your message"}[c.section] || "your message";
+  if (toCustomer) sendEmail("You have a new message from Nojan", {
+      "Hello": cvFirst(c.name) || "there",
+      "What's new": `You have a new message from Nojan about ${what}: ${cvTitle(c)}.`,
+      "Read your message": location.origin + "/message-" + c.id,
+      "Why the message isn't here": "To keep your messages private, the message itself is not in this email. Sign in to your Nojan account to read it and reply.",
+      _cc: c.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {});
+  else sendEmail(`New message from ${c.name || "a customer"} (${CV_SEC[c.section] || "Messages"})`, {
+      From: c.name || c.email || "Customer", About: cvTitle(c), Section: CV_SEC[c.section] || "",
+      "Read and reply": location.origin + "/admin",
+      Note: "The message is in Admin → Messages. Only a notice is emailed.", _replyto: c.email || CONTACT_EMAIL, _template: "box"}).catch(() => {});
+}
+async function cvStart(section, about, text, extra){
+  const same = (CV.mine || []).find(c => c.section === section && c.about && c.about.kind === about.kind && String(c.about.id) === String(about.id) && c.status !== "closed");
+  if (same){ await cvSend(same, text, false); return same; }
+  const pr = PROFILE || {}, id = FB.cvNewId();
+  const c = {id, uid: USER.uid, name: String(pr.name || USER.displayName || "").slice(0, 100), email: USER.email || "", phone: String(pr.phone || "").slice(0, 40), section, about, status: "open", by: "customer",
+    lastText: "", lastFrom: "customer", seenC: Date.now() + 5000, seenA: 0, noticeA: false, noticeC: false, ...(extra || {})};
+  const {id: _id, ...data} = c;
+  await FB.cvCreate(id, data);
+  await cvSend(c, text, false);
+  if (CV.mine && !CV.mine.some(x => x.id === id)) CV.mine.push(c);
+  return c;
+}
+
+/* ---- Software: one page per software, with the request box ---- */
+const swFind = id => softList().find(x => String(x.id) === String(id));
+const SW_DRAFT = "nojanSwDraft";
+function swDraft(id){ try { const d = JSON.parse(sessionStorage.getItem(SW_DRAFT) || "null"); return d && d.id === id ? d : null; } catch (_) { return null; } }
+function swItemView(){
+  const x = swFind(swItemId);
+  if (!x) return feedState.new === "loading" ? `<div class="empty">Loading…</div>` : `<div class="empty">This software isn't listed any more. <a href="#software" style="color:var(--link)">See all software</a></div>`;
+  if (USER) startMyConvos();
+  const others = softList().filter(o => o.id !== x.id && (o.cat === x.cat)).concat(softList().filter(o => o.id !== x.id && o.cat !== x.cat)).slice(0, 3);
+  const gets = (Array.isArray(x.gets) ? x.gets : String(x.gets || "").split("\n")).map(s => String(s).trim()).filter(Boolean);
+  return `<article class="svcview swview">
+    <div class="svcmain">
+      <div class="cover">${x.tag ? `<span class="swtag">${esc(x.tag)}</span>` : ""}${swIcon(x)}</div>
+      <div><span class="cat swcatline">${esc(x.cat || "Software")}</span>
+        <h1 style="margin-top:4px">${esc(x.name)}</h1>
+        ${x.text ? `<p class="note" style="font-size:1.02rem;margin-top:6px">${esc(x.text)}</p>` : ""}
+        <div style="margin-top:10px"><div class="svcchips"><span class="svcchip">Built by Nojan</span>${/sharepoint/i.test(x.cat || "") ? `<span class="svcchip">For SharePoint Online</span>` : ""}<span class="svcchip">Set up for you</span></div></div>
+        <button class="btn mobilebook" type="button" data-swgo>Send a request · ${esc(x.price || "price on request")}</button></div>
+      <a class="provider provlink" href="#about"><div class="av">N</div><div><b>Nojan</b><p style="color:var(--fg)">We build it, set it up on your site and support it.</p><span class="pgo">About Nojan ›</span></div></a>
+      ${gets.length ? `<section><h2 style="margin-bottom:10px">What you get</h2><ul class="swgets">${gets.map(g => `<li>${cvSvg("check")}<span>${esc(g)}</span></li>`).join("")}</ul></section>` : ""}
+      <section class="panel"><h2>How a request works</h2>
+        <ul style="margin:0;padding-left:18px;display:grid;gap:6px"><li>Tell us what you need and send the request. It takes a minute.</li>
+        <li>Your request is saved in Your account, under Messages. We reply there, usually within one business day, and email you when a reply is waiting.</li>
+        <li>We agree on the price and the date in the same conversation. Nothing is charged online.</li></ul></section>
+    </div>
+    <aside class="bookpanel reqpanel" id="reqPanel" aria-label="Send a request">${swReqBox(x)}</aside>
+  </article>
+  ${others.length ? `<section class="alsosec"><h2>More software by Nojan</h2><div class="svcgrid swgrid">${softCards(others)}</div></section>` : ""}`;
+}
+function swReqBox(x){
+  const st = CV.req[x.id] || {}, d = swDraft(x.id) || {};
+  const price = `<div><span class="svcprice">${esc(x.price || "Price on request")}</span><div class="note">${x.price ? "We reply to confirm the details and a date." : "We reply with a price and a date."}</div></div>`;
+  if (st.sent) return `<div class="okline"><i>${cvSvg("check")}</i>Request sent</div>
+    <div class="picked"><b>${esc(x.name)}</b><br>Request #${esc(st.num)} · Sent ${esc(cvWhen(st.at))}</div>
+    <p class="note" style="margin:0">It is saved in Your account, under Messages. We reply there, usually within one business day, and email you when a reply is waiting.</p>
+    <a class="btn" href="#message-${esc(st.id)}" style="text-align:center">Open your request</a>
+    <a class="linkbtn" href="#software" style="justify-self:center">Back to Software</a>`;
+  if (st.signin && !USER) return price + `<div class="picked"><b>${esc(x.name)}</b><br>Your request is written and ready to send.<br><button class="linkbtn" type="button" data-swreqedit>Change it</button></div>
+    <div class="signinprompt"><h2>Sign in to send it</h2><p class="note">Sign in or create a free account, so your request and our replies are saved for you.</p>${googleBtn("switem")}
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn small" type="button" data-auth="signin" data-next="switem">Sign in with email</button><button class="btn small ghost" type="button" data-auth="signup" data-next="switem" style="color:var(--fg)">Create account</button></div></div>`;
+  const pr = PROFILE || {};
+  return price + `<form id="swReq" data-sw="${esc(x.id)}" novalidate>
+    <label>What do you need?<textarea name="text" rows="5" maxlength="2000" placeholder="For example: your site, how many people, what it should show.">${esc(st.text != null ? st.text : d.text || "")}</textarea></label>
+    <label><span>Company or team <small>(optional)</small></span><input name="company" maxlength="100" autocomplete="organization" value="${esc(st.company != null ? st.company : d.company || "")}"></label>
+    <div class="msg" data-swmsg hidden></div>
+    <button class="btn" type="submit">Send request</button>
+    ${USER ? `<p class="as">Sending as <b>${esc(pr.name || USER.displayName || "")}</b>${USER.email ? ", " + esc(USER.email) : ""}</p>` : ""}
+    <p class="note">Your request is saved in Your account, under Messages. We reply there, and email you when a reply is waiting.</p></form>`;
+}
+document.addEventListener("submit", async e => {
+  const f = e.target.closest("#swReq"); if (!f) return;
+  e.preventDefault();
+  const x = swFind(f.dataset.sw), m = f.querySelector("[data-swmsg]"), text = f.text.value.trim(), company = f.company.value.trim();
+  if (!x) return;
+  if (text.length < 5){ showMsg(m, false, "Please tell us a little about what you need."); f.text.focus(); return; }
+  if (!USER){ try { sessionStorage.setItem(SW_DRAFT, JSON.stringify({id: x.id, text, company})); } catch (_) {} CV.req[x.id] = {signin: true, text, company}; render(); return; }
+  if (!(await needVerified(m))) return;
+  const btn = f.querySelector('button[type="submit"]'); btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    const c = await cvStart("software", {kind: "software", id: x.id, title: x.name, cat: x.cat || "", icon: x.icon || ""}, text, company ? {company} : null);
+    try { sessionStorage.removeItem(SW_DRAFT); } catch (_) {}
+    CV.req[x.id] = {sent: true, id: c.id, num: cvNum(c), at: Date.now()}; render();
+  } catch (er){ console.error(er); btn.disabled = false; btn.textContent = "Send request"; showMsg(m, false, "Couldn't send. Check your connection and try again."); }
+});
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-swgo]")){ const p = $("#reqPanel"); if (p){ p.scrollIntoView({behavior: "smooth", block: "start"}); const t = p.querySelector("textarea"); if (t) setTimeout(() => t.focus({preventScroll: true}), 400); } return; }
+  if (e.target.closest("[data-swreqedit]")){ const x = swFind(swItemId); if (x){ CV.req[x.id] = {...(CV.req[x.id] || {}), signin: false}; render(); } }
+});
+
+/* ---- a message box on item and service pages ---- */
+function cvAskBlock(kind, id, title, label){
+  const key = kind + ":" + id, st = CV.asks[key];
+  return `<a class="msglink" href="#contact-us" data-ask="${esc(key)}" data-asktitle="${esc(title)}">${label} ›</a>${st ? cvAskBox(kind, key, st) : ""}`;
+}
+function cvAskBox(kind, key, st){
+  if (st.sent) return `<div class="askbox" id="askBox"><b>Message sent</b><p class="note">It is saved in Your account, under Messages. We reply there, and email you when a reply is waiting.</p><a class="btn small" href="#message-${esc(st.id)}">Open the conversation</a></div>`;
+  if (!USER) return `<div class="askbox" id="askBox"><b>Sign in to message Nojan</b><p class="note">So your message and our reply are saved in your account.</p>${googleBtn(kind)}
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn small" type="button" data-auth="signin" data-next="${kind}">Sign in with email</button><button class="btn small ghost" type="button" data-auth="signup" data-next="${kind}" style="color:var(--fg)">Create account</button></div></div>`;
+  return `<form class="askbox" id="askBox" data-askkey="${esc(key)}" novalidate><b>${kind === "item" ? "Message Nojan about this item" : kind === "service" ? "Message Nojan about this service" : "Message Nojan"}</b>
+    <textarea name="text" aria-label="Your message" maxlength="2000">${esc(st.text || "")}</textarea><div class="msg" data-askmsg hidden></div>
+    <button class="btn small" type="submit">Send message</button><p class="note">Saved in Your account, under Messages. We reply there, and email you when a reply is waiting.</p></form>`;
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[data-ask]"); if (!a) return;
+  e.preventDefault(); e.stopPropagation();
+  const key = a.dataset.ask;
+  if (CV.asks[key] && !CV.asks[key].sent){ delete CV.asks[key]; render(); return; }
+  CV.asks[key] = {title: a.dataset.asktitle || ""}; if (USER) startMyConvos(); render();
+  setTimeout(() => { const t = $("#askBox textarea"); if (t) t.focus(); else { const b = $("#askBox"); if (b) b.scrollIntoView({block: "nearest"}); } }, 30);
+}, true);
+document.addEventListener("submit", async e => {
+  const f = e.target.closest("form[data-askkey]"); if (!f) return;
+  e.preventDefault();
+  const key = f.dataset.askkey, st = CV.asks[key] || {}, m = f.querySelector("[data-askmsg]"), text = f.text.value.trim();
+  if (!text){ showMsg(m, false, "Please write your message."); f.text.focus(); return; }
+  if (!USER) return;
+  if (!(await needVerified(m))) return;
+  const [kind, ...rest] = key.split(":"), id = rest.join(":"), btn = f.querySelector('button[type="submit"]'); btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    const sec = kind === "item" ? "shop" : kind === "service" ? "services" : "general";
+    const c = await cvStart(sec, {kind, id, title: st.title || ""}, text);
+    CV.asks[key] = {sent: true, id: c.id}; render();
+  } catch (er){ console.error(er); btn.disabled = false; btn.textContent = "Send message"; st.text = text; showMsg(m, false, "Couldn't send. Check your connection and try again."); }
+});
+
+/* ---- Your account → Messages ---- */
+function cvMyRows(){
+  const rows = (CV.mine || []).map(c => { const isNew = cvNewForMe(c), who = c.lastFrom === "admin" ? "Nojan" : "You";
+    return {sec: c.section, at: cvMs(c.lastAt), isNew, html: `<a class="actmsgrow${isNew ? " new" : ""}" href="#message-${esc(c.id)}"><span class="actico tint">${cvIcon(c)}</span>
+      <span class="acttxt"><span class="tagx">${esc(CV_TAG[c.section] || "Message")}</span><b>${esc(cvTitle(c))}</b><span>${c.lastText ? `${who}: ${esc(c.lastText)}` : ""}</span></span>
+      <span class="actwhen">${isNew ? `<b class="actnew">New</b>` : c.status === "closed" ? `<span class="tagx">Closed</span>` : ""}<small>${esc(cvWhen(cvMs(c.lastAt)))}</small></span></a>`}; });
+  (MY.bookings || []).filter(b => b.msgAt).forEach(b => { const isNew = b.msgFrom === "admin" && b.msgSeenC !== b.msgAt;
+    rows.push({sec: "services", at: Date.parse(b.msgAt) || 0, isNew, html: `<a class="actmsgrow${isNew ? " new" : ""}" href="#mybooking-${esc(b.id)}"><span class="actico tint">${cvSvg("calendar")}</span>
+      <span class="acttxt"><span class="tagx">Service booking</span><b>${esc(b.serviceTitle || "Booking")} · #B${esc(b.number)}</b><span>${b.msgFrom === "admin" ? "Nojan" : "You"}: ${esc(b.msgText || "")}</span></span>
+      <span class="actwhen">${isNew ? `<b class="actnew">New</b>` : ""}<small>${esc(cvWhen(Date.parse(b.msgAt)))}</small></span></a>`}); });
+  return rows.sort((a, b) => b.at - a.at);
+}
+function acctMessagesView(){
+  if (!USER) return needSignIn("acctmessages", "Sign in to see your messages", "");
+  startMyBookings(); startMyConvos();
+  if (!MY.bookings || !CV.mine) return acctHead("Messages") + `<div class="empty">Loading your messages…</div>`;
+  const rows = cvMyRows(), n = s => rows.filter(r => s === "all" || r.sec === s).length;
+  if (!["all", "software", "services", "shop"].includes(CV.tab)) CV.tab = "all";
+  const tabs = [["all", "All"], ["software", "Software"], ["services", "Services"], ["shop", "Shop"]].map(([k, l]) => `<button type="button" data-cvtab="${k}" aria-pressed="${CV.tab === k}">${l} <i>${n(k)}</i></button>`).join("");
+  const shown = rows.filter(r => CV.tab === "all" || r.sec === CV.tab);
+  return acctHead("Messages", "Your software requests, and your messages with Nojan about orders and bookings.") + `<div class="seg svctabs msgtabs" role="group" aria-label="Show">${tabs}</div>
+    <div class="panel msgrows" style="gap:0">${shown.map(r => r.html).join("") || `<p class="note">${CV.tab === "all" ? "No messages yet. Send a request from any software page, or a message from any item or service page." : "Nothing here yet."}</p>`}</div>
+    <div class="panel" style="margin-top:14px"><h2>Something else?</h2><p class="note">For a general question, message us. We reply here, and email you when a reply is waiting.</p>
+      ${CV.asks["general:general"] ? cvAskBox("general", "general:general", CV.asks["general:general"]) : `<a class="btn" href="#contact-us" data-ask="general:general" data-asktitle="General question" style="justify-self:start">Message Nojan</a>`}</div>`;
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-cvtab]"); if (b){ CV.tab = b.dataset.cvtab; render(); } });
+
+/* ---- Your account → Messages → one conversation ---- */
+function cvHeadInner(c){
+  if (!c) return "";
+  const closed = c.status === "closed", tag = closed ? "Closed" : c.status === "delivered" ? "Delivered" : c.status === "agreed" ? "Price and date agreed" : c.lastFrom === "admin" ? "Nojan replied" : "Waiting for Nojan";
+  const a = c.about || {}, link = a.kind === "software" ? `#software-${a.id}` : a.kind === "item" ? `#item-${a.id}` : a.kind === "service" ? `#service-${a.id}` : "";
+  const linkTxt = {software: "See the software", item: "See the item", service: "See the service"}[a.kind];
+  const sub = [a.cat, c.company ? "For " + c.company : ""].filter(Boolean).join(" · ") || CV_TAG[c.section] || "";
+  return `<div class="bktop"><span class="tagx${!closed && c.lastFrom === "admin" ? " blue" : ""}">${esc(tag)}</span><span class="note">${esc(CV_TAG[c.section] || "Message")} · #${esc(cvNum(c))}</span></div>
+    <div class="bkhead"><div class="reqico">${cvIcon(c)}</div><div><h1>${esc(cvTitle(c))}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}<p class="note">Started <span>${esc(fmtDate(c.createdAt || c.lastAt))}</span></p></div></div>
+    <div class="bkacts">${link && linkTxt ? `<a class="btn small ghost" href="${esc(link)}">${linkTxt}</a>` : ""}${closed ? "" : `<button class="linkbtn" type="button" data-cvclose="${esc(c.id)}">${c.section === "software" ? "Close this request" : "Close this conversation"}</button>`}</div>`;
+}
+function cvStandInner(c){
+  if (!c) return "";
+  const msgs = CV.msgs[c.id] || [], firstReply = msgs.find(m => m.role === "admin"), st = c.stageAt || {}, step = (state, t, s) => `<li class="${state}"><span class="tdot" aria-hidden="true"></span><div><b>${t}</b>${s ? `<span>${s}</span>` : ""}</div></li>`;
+  const at = ms => esc(fmtDate(ms));
+  return step("done", "Request sent", at(cvMs(c.createdAt) || cvMs(c.lastAt)))
+    + step(firstReply ? "done" : "", "Nojan replied", firstReply ? at(cvMs(firstReply.at)) : "Usually within one business day")
+    + step(st.agreed ? "done" : "", "Price and date agreed", st.agreed ? at(st.agreed) : "In the messages above")
+    + step(st.delivered ? "done" : "", "Delivered", st.delivered ? at(st.delivered) : "We set it up and show you how it works");
+}
+function convoView(){
+  if (!USER) return needSignIn("convo", "Sign in to see this conversation", "Your requests and messages with Nojan are saved in your account.");
+  startMyConvos();
+  if (!CV.mine) return `<div class="empty">Loading…</div>`;
+  const c = cvMineById(convoId);
+  if (!c) return `<div class="empty">This conversation isn't in your account. <a href="#messages" style="color:var(--link)">See all your messages</a></div>`;
+  cvWatch(c.id); setTimeout(() => cvMarkSeen(c.id, false), 0);
+  const closed = c.status === "closed";
+  return `<div class="bkpage reqpage">
+    <section class="panel" data-cvhead>${cvHeadInner(c)}</section>
+    <section class="panel"><h2>Messages</h2>
+      <div class="tlog" data-cvlog="${esc(c.id)}">${cvLogHTML(c.id, false)}</div>
+      <form class="treply" data-cvreply="${esc(c.id)}" novalidate><textarea name="text" placeholder="Write a reply" aria-label="Your reply" maxlength="2000"></textarea><div class="msg" data-cvmsg hidden></div>
+        <div class="trow"><button class="btn" type="submit">Send</button><p class="note">${closed ? "This conversation is closed. Sending a message opens it again." : "We usually reply within one business day."}</p></div></form></section>
+    ${c.section === "software" ? `<section class="panel"><h2>Where things stand</h2><ol class="tline" data-cvstand>${cvStandInner(c)}</ol></section>` : ""}
+    <p class="note" style="text-align:center;margin:0"><a href="#messages" style="color:var(--link)">All my messages</a></p>
+  </div>`;
+}
+document.addEventListener("submit", async e => {
+  const f = e.target.closest("form[data-cvreply]"); if (!f) return;
+  e.preventDefault();
+  const c = cvMineById(f.dataset.cvreply), m = f.querySelector("[data-cvmsg]"), text = f.text.value.trim();
+  if (!c || !text) return;
+  const btn = f.querySelector('button[type="submit"]'); btn.disabled = true;
+  try { await cvSend(c, text, false); f.text.value = ""; if (m) m.hidden = true; }
+  catch (er){ console.error(er); showMsg(m, false, "Couldn't send. Check your connection and try again."); }
+  btn.disabled = false;
+});
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-cvclose]"); if (!b) return;
+  const c = cvMineById(b.dataset.cvclose); if (!c || !FB) return;
+  if (!confirm(c.section === "software" ? "Close this request? You can write again later and it opens again." : "Close this conversation? You can write again later and it opens again.")) return;
+  try { await FB.cvUpdate(c.id, {status: "closed"}); c.status = "closed"; toast("Closed"); render(); } catch (er){ console.error(er); toast("Couldn't close it. Try again."); }
+});
+
+/* ---- Admin: one grouped menu ---- */
+const ADM_LABEL = {today: "Today", messages: "Messages", orders: "Orders", inventory: "Inventory", products: "Products", bookings: "Bookings", services: "Services", providers: "Providers",
+  software: "Software", swcats: "Software categories", billing: "Billing", customers: "Customers", homepage: "Home page", feedback: "Feedback & promos", events: "Events", dating: "Dating", homes: "Homes", members: "Sellers"};
+function cvAdminItems(){
+  const items = (CV.all || []).map(c => ({key: c.id, c, sec: c.section, needs: c.lastFrom === "customer" && c.status !== "closed", fresh: cvNewForAdmin(c), closed: c.status === "closed",
+    at: cvMs(c.lastAt), name: c.name || c.email || "Customer", subj: cvTitle(c), pv: c.lastText ? (c.lastFrom === "admin" ? "You: " : "") + c.lastText : "", email: c.email || ""}));
+  (ADM.bookings || []).filter(b => b.msgAt && b.kind !== "event").forEach(b => items.push({key: "b:" + b.id, b, sec: "services", needs: b.msgFrom === "customer" && !["Cancelled"].includes(b.status), fresh: b.msgFrom === "customer",
+    closed: ["Cancelled", "Completed"].includes(b.status), at: Date.parse(b.msgAt) || 0, name: b.name || b.email || "Customer", subj: `${b.serviceTitle || "Booking"} · #B${b.number}`,
+    pv: (b.msgFrom === "admin" ? "You: " : "") + (b.msgText || ""), email: b.email || ""}));
+  return items.sort((a, b) => b.at - a.at);
+}
+function admNavHTML(){
+  const items = CV.all ? cvAdminItems() : [], needs = items.filter(i => i.needs).length;
+  const newO = (ADM.orders || []).filter(o => o.status === "New").length, reqB = (ADM.bookings || []).filter(b => b.status === "Requested" && b.kind !== "event").length;
+  const hmNew = HM.adm && HM.adm.list ? HM.adm.list.filter(h => h.status === "pending").length : 0, mkNew = MK.adm && MK.adm.sellers ? MK.adm.sellers.filter(x => x.status === "pending").length : 0;
+  const a = (key, icon, n, quiet, pin) => `<a href="#admin" data-atab="${key}"${ADM.tab === key ? ' aria-current="page"' : ""}${pin ? ' class="pin"' : ""}>${cvSvg(icon)}<span>${esc(ADM_LABEL[key])}</span>${n ? `<i class="cnt${quiet ? " q" : ""}">${n}</i>` : ""}</a>`;
+  return `<nav class="adm2nav${CV.menu ? " open" : ""}" id="admNav" aria-label="Admin menu">
+    <button class="menubtn" type="button" data-admmenu aria-expanded="${CV.menu}">${cvSvg("menu")}${CV.menu ? "Close menu" : "Menu"}</button>
+    <div class="grp">${a("today", "today", 0, false, true)}${a("messages", "chat", needs, false, true)}</div>
+    <div class="grp"><h3>Shop</h3>${a("orders", "box", newO, false, true)}${a("inventory", "scan")}${a("products", "grid", (ALL_PRODUCTS || []).length, true)}</div>
+    <div class="grp"><h3>Services</h3>${a("bookings", "calendar", reqB, false, true)}${a("services", "list", (SERVICES || []).length, true)}${a("providers", "person")}</div>
+    <div class="grp"><h3>Software</h3>${a("software", "code", softList().length, true)}${a("swcats", "list", swCatsEdit().length, true)}</div>
+    <div class="grp"><h3>Business</h3>${a("billing", "receipt")}${a("customers", "users", (ADM.users || []).length, true)}</div>
+    <div class="grp"><h3>Website</h3>${a("homepage", "window")}${a("feedback", "star")}</div>
+    <div class="grp off"><h3>Not open yet</h3>${a("events", "clock")}${a("dating", "heart", 0)}${a("homes", "home", hmNew)}${a("members", "shop", mkNew)}</div>
+    <div class="tools"><button class="linkbtn" type="button" data-backup>Download backup</button><button class="linkbtn" type="button" data-azsql>Download as Azure tables</button></div>
+  </nav>`;
+}
+function admHeadHTML(){
+  if (["today", "messages"].includes(ADM.tab)) return "";
+  const sub = {orders: "Orders update live as customers place them.", software: "What shows on the Software page. Changes show on the site right away.", swcats: "The categories on the Software page, in this order."}[ADM.tab];
+  return `<div class="sectionhead acthead"><div><h1>${esc(ADM_LABEL[ADM.tab] || "Admin")}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div></div>`;
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[data-atab]"); if (!a) return;
+  e.preventDefault(); e.stopPropagation();
+  ADM.tab = a.dataset.atab; ADM.q = ""; CV.menu = false; if (ADM.tab !== "software") CV.swEdit = null;
+  if (typeof PED !== "undefined") PED = {id: null, data: null, photo: null};
+  render(); if (a.closest("#admNav") || a.closest(".needs") || a.closest(".seeall2")) window.scrollTo(0, 0);
+}, true);
+document.addEventListener("click", e => { if (e.target.closest("[data-admmenu]")){ CV.menu = !CV.menu; const n = $("#admNav"); if (n) n.outerHTML = admNavHTML(); } });
+
+/* ---- Admin: Today ---- */
+function admTodayHTML(){
+  const items = CV.all ? cvAdminItems() : [], needs = items.filter(i => i.needs), sec = s => needs.filter(i => i.sec === s).length;
+  const newO = (ADM.orders || []).filter(o => o.status === "New"), oldest = newO.reduce((m, o) => Math.min(m, tsNum(o.createdAt)), Date.now());
+  const req = (ADM.bookings || []).filter(b => b.status === "Requested" && b.kind !== "event").sort((a, b) => a.startMs - b.startMs);
+  const low = (ALL_PRODUCTS || []).filter(p => p.condition === "new" && stockOf(p.id) > 0 && stockOf(p.id) <= 2);
+  const hrs = Math.max(1, Math.round((Date.now() - oldest) / 3600e3));
+  const need = (cls, n, what, small, go, tab) => `<a class="need${cls}" href="#admin" data-atab="${tab}"><b>${n}</b><span>${what}</span><small>${small}</small>${go ? `<em>${go} ›</em>` : ""}</a>`;
+  const wait = needs.slice(0, 5).map(i => `<a class="waitrow" href="#admin" ${i.c ? `data-cvopen="${esc(i.key)}"` : `data-cvbk="${esc(i.b.id)}"`}><span class="pav">${esc(cvInit(i.name))}</span><b>${esc(i.name)}<span class="tagx">${esc(CV_SEC[i.sec] || "")}</span></b><time>${esc(cvWhen(i.at))}</time><span class="pv">${esc(i.subj)} · ${esc(i.pv)}</span></a>`).join("");
+  return `<div class="sectionhead acthead"><div><h1>Today</h1><p>${esc(new Date().toLocaleDateString("en-CA", {weekday: "long", month: "long", day: "numeric"}))}</p></div><p class="live">Orders and messages update live.</p></div>
+    <h2 class="adm2h">Needs you now</h2>
+    <div class="needs">
+      ${need(needs.length ? " hot" : " quiet", needs.length, needs.length === 1 ? "message to answer" : "messages to answer", needs.length ? `Software ${sec("software")} · Services ${sec("services")} · Shop ${sec("shop")}` : "All answered", "Open messages", "messages")}
+      ${need(newO.length ? "" : " quiet", newO.length, newO.length === 1 ? "new order" : "new orders", newO.length ? `Oldest waiting ${hrs} hour${hrs === 1 ? "" : "s"}` : "All clear", "Open orders", "orders")}
+      ${need(req.length ? "" : " quiet", req.length, req.length === 1 ? "booking to confirm" : "bookings to confirm", req[0] ? esc(`${req[0].serviceTitle || ""} · ${fmtWhen(req[0].startMs, {weekday: "short", hour: "numeric", minute: "2-digit"})}`) : "All clear", "Open bookings", "bookings")}
+      ${need(low.length ? "" : " quiet", low.length, low.length === 1 ? "item low in stock" : "items low in stock", low.length ? esc(String(low[0].name).slice(0, 60)) : "All clear", low.length ? "Open inventory" : "", "inventory")}
+    </div>
+    <div class="dgrid" style="grid-template-columns:minmax(0,1fr)">
+      <section class="panel"><h2>Waiting for your reply</h2>${wait ? `<div class="waitrows">${wait}</div>` : `<p class="note">Nothing waiting. New messages show here.</p>`}
+        <a class="seeall2" href="#admin" data-atab="messages">All messages ›</a></section>
+    </div>
+    <h2 class="adm2h">How Nojan is doing</h2>
+    ${dashView()}`;
+}
+
+/* ---- Admin: Messages ---- */
+const CV_QUICK = {
+  software: [["Here is the price", "Hi {n}, thanks for your request. The price is $… and it includes … We can set it up by …. Does that work for you?"], ["Can we book a call?", "Hi {n}, could we book a short call to go over what you need? Which days and times work for you?"], ["I need a few details", "Hi {n}, thanks for your request. To give you a price, could you tell me a little more about …?"]],
+  services: [["Yes, that works", "Hi {n}, yes, that works. "], ["Can we book a call?", "Hi {n}, could we book a short call? Which days and times work for you?"], ["Let me check", "Hi {n}, thanks for your message. Let me check and get back to you today."]],
+  shop: [["Yes, it's available", "Hi {n}, yes, it's available. "], ["Pickup times", "Hi {n}, you can pick it up … Which time works for you?"], ["Let me check", "Hi {n}, thanks for your message. Let me check and get back to you today."]],
+  general: [["Thanks", "Hi {n}, thanks for your message. "], ["Let me check", "Hi {n}, thanks for your message. Let me check and get back to you today."]]};
+function admMessagesHTML(){
+  if (!CV.all) return `<div class="empty">Loading messages…</div>`;
+  const items = cvAdminItems(), inSec = i => CV.sec === "all" || i.sec === CV.sec, cnt = s => items.filter(i => (s === "all" || i.sec === s) && i.needs).length;
+  const tabs = [["all", "All"], ["software", "Software requests"], ["services", "Services"], ["shop", "Shop"]].map(([k, l]) => `<button type="button" data-cvsec="${k}" aria-pressed="${CV.sec === k}">${l}${cnt(k) ? ` <i class="cnt">${cnt(k)}</i>` : ""}</button>`).join("");
+  const sec = items.filter(inSec), F = {reply: i => i.needs, open: i => !i.closed, closed: i => i.closed};
+  const q = CV.q.trim().toLowerCase();
+  let list = sec.filter(F[CV.filt] || F.reply);
+  if (q) list = sec.filter(i => [i.name, i.email, i.subj, i.pv].join(" ").toLowerCase().includes(q));
+  const chips = [["reply", "Needs reply"], ["open", "Open"], ["closed", "Closed"]].map(([k, l]) => `<button type="button" data-cvfilt="${k}" aria-pressed="${!q && CV.filt === k}">${l} ${sec.filter(F[k]).length}</button>`).join("");
+  const sel = CV.open && (CV.all.find(c => c.id === CV.open));
+  const rows = list.map(i => `<a class="mcrow${i.fresh ? " new" : ""}${sel && i.key === sel.id ? " on" : ""}" href="#admin" ${i.c ? `data-cvopen="${esc(i.key)}"` : `data-cvbk="${esc(i.b.id)}"`}><span class="pav">${esc(cvInit(i.name))}</span><b>${esc(i.name)}</b><time>${esc(cvWhen(i.at))}</time><span class="sj">${CV.sec === "all" ? `<span class="tagx">${esc(CV_SEC[i.sec] || "")}</span>` : ""}<em>${esc(i.subj)}</em></span><span class="pv">${esc(i.pv)}</span></a>`).join("");
+  return `<div class="sectionhead acthead mchd"><div><h1>Messages</h1><p>Every request and question from customers, in one place.</p></div><button class="btn small" type="button" data-cvnew style="margin-bottom:6px">New message</button></div>
+    <div class="seg svctabs mcsec" role="group" aria-label="Section">${tabs}</div>
+    ${CV.newForm ? cvNewFormHTML() : ""}
+    <div class="mc${sel ? " one" : ""}">
+      <section class="panel mclist"><input id="cvQ" type="search" placeholder="Search name, subject or message" aria-label="Search messages" value="${esc(CV.q)}"><div class="chips" role="group" aria-label="Show">${chips}</div>
+        <div class="mcrows">${rows || `<p class="note" style="padding:10px 4px">${q ? "No messages match." : CV.filt === "reply" ? "Nothing waiting for a reply." : "Nothing here."}</p>`}</div></section>
+      ${sel ? cvThreadHTML(sel) : `<section class="panel mcthread mcempty"><p class="note">Choose a conversation on the left.</p></section>`}
+    </div>`;
+}
+function cvThreadHTML(c){
+  cvWatch(c.id); setTimeout(() => cvMarkSeen(c.id, true), 0);
+  const a = c.about || {}, n = cvFirst(c.name) || "there", closed = c.status === "closed", needs = c.lastFrom === "customer" && !closed;
+  const link = a.kind === "software" ? `#software-${a.id}` : a.kind === "item" ? `#item-${a.id}` : a.kind === "service" ? `#service-${a.id}` : "";
+  const opts = (c.section === "software" ? ["open", "agreed", "delivered", "closed"] : ["open", "closed"]).map(s => `<option value="${s}"${c.status === s ? " selected" : ""}>${CV_STATUS[s]}</option>`).join("");
+  const sub = [CV_TAG[c.section], "#" + cvNum(c), "Started " + fmtDate(c.createdAt || c.lastAt), a.cat, c.company ? "For " + c.company : ""].filter(Boolean).join(" · ");
+  const quick = (CV_QUICK[c.section] || CV_QUICK.general).map(([l, t]) => `<button type="button" data-cvquick="${esc(t.replace("{n}", n))}">${esc(l)}</button>`).join("");
+  return `<section class="panel mcthread" data-cvthread="${esc(c.id)}">
+    <button class="linkbtn mcback" type="button" data-cvopen="">‹ All messages</button>
+    <div class="mchead"><span class="pav">${esc(cvInit(c.name))}</span><div class="who"><b>${esc(c.name || "Customer")}</b><span>${esc([c.email, c.phone].filter(Boolean).join(" · "))}${c.uid ? ` · <button class="linkbtn" type="button" data-auid="${esc(c.uid)}">Orders ›</button>` : ""}</span></div><span class="tagx${needs ? " blue" : ""}">${needs ? "Needs your reply" : closed ? "Closed" : "Waiting for customer"}</span></div>
+    <div class="ctx"><span class="ctxi">${cvIcon(c)}</span><span class="ctxt"><b>${link ? `<a href="${esc(link)}" style="color:inherit">${esc(cvTitle(c))}</a>` : esc(cvTitle(c))}</b><span>${esc(sub)}</span></span>
+      <label class="stsel"><span>Status</span><select data-cvstatus="${esc(c.id)}" aria-label="Status">${opts}</select></label></div>
+    <div class="tlog" data-cvlog="${esc(c.id)}" data-admin>${cvLogHTML(c.id, true)}</div>
+    <form class="treply" data-cvareply="${esc(c.id)}" novalidate><div class="chips" role="group" aria-label="Quick replies">${quick}</div>
+      <textarea name="text" placeholder="Write a reply to ${esc(n)}" aria-label="Your reply" maxlength="2000"></textarea><div class="msg" data-cvmsg hidden></div>
+      <div class="trow"><button class="btn" type="submit" data-how="send">Send reply</button><button class="linkbtn" type="submit" data-how="close">Send and close</button><p class="note">${esc(n === "there" ? "The customer" : n)} gets an email that a new message is waiting. The message itself stays here.</p></div></form>
+  </section>`;
+}
+function cvNewFormHTML(){
+  const users = (ADM.users || []).filter(u => u.email).sort((a, b) => String(a.name || a.email).localeCompare(String(b.name || b.email)));
+  return `<form class="panel cvnew" id="cvNew" novalidate><h2>New message</h2>
+    <div class="row"><label>Customer<select name="uid" required><option value="">Choose a customer</option>${users.map(u => `<option value="${esc(u.id)}">${esc(u.name || u.email)}${u.name ? ` (${esc(u.email)})` : ""}</option>`).join("")}</select></label>
+      <label>Section<select name="section"><option value="software">Software</option><option value="services">Services</option><option value="shop">Shop</option><option value="general">General</option></select></label></div>
+    <label>Subject<input name="title" maxlength="120" placeholder="What it is about"></label>
+    <label>Message<textarea name="text" maxlength="2000" rows="4"></textarea></label>
+    <div class="msg" data-cvmsg hidden></div>
+    <div class="trow"><button class="btn" type="submit">Send</button><button class="linkbtn" type="button" data-cvnew>Cancel</button><p class="note">The customer gets an email that a new message is waiting.</p></div></form>`;
+}
+document.addEventListener("click", e => {
+  const s = e.target.closest("[data-cvsec]"); if (s){ CV.sec = s.dataset.cvsec; CV.open = null; refreshAdmin(true); return; }
+  const f = e.target.closest("[data-cvfilt]"); if (f){ CV.filt = f.dataset.cvfilt; CV.q = ""; refreshAdmin(true); return; }
+  const n = e.target.closest("[data-cvnew]"); if (n){ CV.newForm = !CV.newForm; refreshAdmin(true); if (CV.newForm) setTimeout(() => { const x = $("#cvNew select"); if (x) x.focus(); }, 30); return; }
+  const q = e.target.closest("[data-cvquick]"); if (q){ const t = q.closest("form").querySelector("textarea"); t.value = q.dataset.cvquick; t.focus(); t.setSelectionRange(t.value.length, t.value.length); return; }
+});
+document.addEventListener("click", e => {
+  const o = e.target.closest("[data-cvopen]");
+  if (o){ e.preventDefault(); e.stopPropagation(); ADM.tab = "messages"; CV.open = o.dataset.cvopen || null; CV.menu = false; render(); if (CV.open && matchMedia("(max-width: 900px)").matches) window.scrollTo(0, 0); return; }
+  const k = e.target.closest("[data-cvbk]");
+  if (k){ e.preventDefault(); e.stopPropagation(); const b = (ADM.bookings || []).find(x => x.id === k.dataset.cvbk); ADM.tab = "bookings";
+    if (b && typeof BADM !== "undefined"){ BADM.filter = "All"; BADM.q = String(b.number); ADM.open.add(b.id); ADM.open.add("b_" + b.id); } render(); window.scrollTo(0, 0); }
+}, true);
+document.addEventListener("input", e => { if (e.target.id === "cvQ"){ CV.q = e.target.value; const pos = e.target.selectionStart; refreshAdmin(true); const i = $("#cvQ"); if (i){ i.focus(); try { i.setSelectionRange(pos, pos); } catch (_) {} } } });
+document.addEventListener("change", async e => {
+  const s = e.target.closest("[data-cvstatus]"); if (!s || !FB) return;
+  const c = (CV.all || []).find(x => x.id === s.dataset.cvstatus); if (!c) return;
+  const v = s.value, p = {status: v}; if (["agreed", "delivered"].includes(v)) p["stageAt." + v] = Date.now();
+  try { await FB.cvUpdate(c.id, p); c.status = v; if (p["stageAt." + v]) c.stageAt = {...(c.stageAt || {}), [v]: p["stageAt." + v]}; toast("Status: " + CV_STATUS[v]); } catch (er){ console.error(er); toast("Couldn't change the status. Try again."); }
+});
+document.addEventListener("submit", async e => {
+  const f = e.target.closest("form[data-cvareply]"); if (!f) return;
+  e.preventDefault();
+  const c = (CV.all || []).find(x => x.id === f.dataset.cvareply), m = f.querySelector("[data-cvmsg]"), text = f.text.value.trim(), close = e.submitter && e.submitter.dataset.how === "close";
+  if (!c) return;
+  if (!text){ showMsg(m, false, "Write a reply first."); f.text.focus(); return; }
+  f.querySelectorAll("button").forEach(x => x.disabled = true);
+  try { await cvSend(c, text, true, close ? {status: "closed"} : (c.status === "closed" ? {status: "open"} : null)); f.text.value = ""; toast(close ? "Sent and closed" : "Sent"); if (close){ CV.open = null; refreshAdmin(true); } }
+  catch (er){ console.error(er); showMsg(m, false, "Couldn't send. Check your connection and try again."); }
+  f.querySelectorAll("button").forEach(x => x.disabled = false);
+});
+document.addEventListener("submit", async e => {
+  const f = e.target.closest("#cvNew"); if (!f) return;
+  e.preventDefault();
+  const m = f.querySelector("[data-cvmsg]"), u = (ADM.users || []).find(x => x.id === f.uid.value), title = f.title.value.trim(), text = f.text.value.trim();
+  if (!u){ showMsg(m, false, "Choose a customer."); return; }
+  if (!title || !text){ showMsg(m, false, "Write a subject and a message."); return; }
+  const btn = f.querySelector('button[type="submit"]'); btn.disabled = true;
+  try {
+    const id = FB.cvNewId(), c = {id, uid: u.id, name: String(u.name || "").slice(0, 100), email: u.email || "", phone: String(u.phone || "").slice(0, 40), section: f.section.value, about: {kind: "general", id: "", title: title.slice(0, 120)},
+      status: "open", by: "admin", lastText: "", lastFrom: "admin", seenA: Date.now() + 5000, seenC: 0, noticeA: false, noticeC: false};
+    const {id: _id, ...data} = c;
+    await FB.cvCreate(id, data); await cvSend(c, text, true);
+    CV.newForm = false; CV.open = id; toast("Sent"); refreshAdmin(true);
+  } catch (er){ console.error(er); btn.disabled = false; showMsg(m, false, "Couldn't send. Check your connection and try again."); }
+});
+
+/* ---- Admin: software and categories ---- */
+const SW_ICON_NAMES = {parts: "Web part", people: "People", news: "News", link: "Links", calendar: "Calendar", help: "Questions", doc: "Document", globe: "Website", app: "Code", chat: "Chat", move: "Move", scan: "Scan", receipt: "Receipt", shop: "Shop"};
+const swCatsEdit = () => (Array.isArray(SITE.softwareCats) ? SITE.softwareCats : SW_PLAN).filter(c => c && c.name).map(c => ({...c}));
+const swIconSelect = (name, cur) => `<select name="${name}">${Object.entries(SW_ICON_NAMES).filter(([k]) => SW_ICONS[k]).map(([k, l]) => `<option value="${k}"${k === cur ? " selected" : ""}>${l}</option>`).join("")}</select>`;
+function admSoftwareHTML(){
+  const list = Array.isArray(SITE.software) ? SITE.software : [];
+  if (CV.swEdit) return swFormHTML(CV.swEdit === "new" ? null : list.find(x => x.id === CV.swEdit));
+  const row = (x, i) => `<div class="swarow"><span class="dti">${swSvg(x.icon)}</span><div><b>${esc(x.name)}</b><span>${esc(x.cat || "No category")} · ${esc(x.price || "Price on request")}${x.active === false ? " · Hidden" : ""}</span></div>
+    <span class="swabtns"><button class="linkbtn" type="button" data-swmove="${i}:-1" aria-label="Move up"${i ? "" : " disabled"}>↑</button><button class="linkbtn" type="button" data-swmove="${i}:1" aria-label="Move down"${i < list.length - 1 ? "" : " disabled"}>↓</button>
+    <a class="linkbtn" href="#software-${esc(x.id)}">View</a><button class="linkbtn" type="button" data-swedit="${esc(x.id)}">Edit</button><button class="linkbtn" type="button" data-swdel="${esc(x.id)}" style="color:var(--danger)">Delete</button></span></div>`;
+  return `<div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2>${list.length ? plural(list.length, "software product") : "No software yet"}</h2><button class="btn" type="button" data-swedit="new">Add software</button></div>
+      ${list.length ? `<div class="swarows">${list.map(row).join("")}</div>` : `<p class="note">Add your first SharePoint web part. It shows on the Software page and on Home right away.</p>`}</div>
+    <form class="panel" id="swTextForm" novalidate style="margin-top:14px"><h2>Software card on Home</h2><label>One line under "Software"<input name="t" maxlength="120" value="${esc(SITE.softwareText || "SharePoint web parts built by Nojan, set up for you.")}"></label>
+      <div class="msg" id="swTextMsg" hidden></div><button class="btn" type="submit" style="justify-self:start">Save</button></form>`;
+}
+function swFormHTML(x){
+  const cats = swCatsEdit(), cur = x ? x.cat : (cats[0] || {}).name || "";
+  return `<form class="panel" id="swForm" novalidate data-id="${esc(x ? x.id : "")}"><h2>${x ? "Edit software" : "Add software"}</h2>
+    <label>Name<input name="name" maxlength="80" required value="${esc(x ? x.name : "")}" placeholder="For example: Staff directory"></label>
+    <div class="row"><label>Category<select name="cat">${cats.map(c => `<option${c.name === cur ? " selected" : ""}>${esc(c.name)}</option>`).join("")}<option value="__new">New category…</option></select></label>
+      <label>New category name <small>(only if you chose New category)</small><input name="newcat" maxlength="60"></label></div>
+    <label>Short text <small>(one or two sentences)</small><textarea name="text" maxlength="240" rows="2">${esc(x ? x.text || "" : "")}</textarea></label>
+    <label>What you get <small>(one per line, optional)</small><textarea name="gets" maxlength="1200" rows="4">${esc(x ? (Array.isArray(x.gets) ? x.gets.join("\n") : x.gets || "") : "")}</textarea></label>
+    <div class="row"><label>Price <small>(optional; empty shows "Price on request")</small><input name="price" maxlength="40" value="${esc(x ? x.price || "" : "")}" placeholder="For example: From $500"></label>
+      <label>Picture<span style="display:flex;gap:10px;align-items:center"><span class="dti" style="width:40px;height:40px">${swSvg(x ? x.icon : "parts")}</span>${swIconSelect("icon", x ? x.icon : "parts")}</span></label></div>
+    <div class="row"><label>Small label on the card <small>(optional, for example "New")</small><input name="tag" maxlength="20" value="${esc(x ? x.tag || "" : "")}"></label>
+      <label class="actcheck" style="align-self:end"><input type="checkbox" name="active"${!x || x.active !== false ? " checked" : ""}><span><b>Show on the site</b></span></label></div>
+    <div class="msg" id="swFormMsg" hidden></div>
+    <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit">${x ? "Save" : "Add software"}</button><button class="linkbtn" type="button" data-swedit="">Cancel</button></div></form>`;
+}
+function admSwCatsHTML(){
+  const cats = swCatsEdit(), list = Array.isArray(SITE.software) ? SITE.software : [], used = n => list.filter(x => x.cat === n).length;
+  return `<form class="panel" id="swCatsForm" novalidate><h2>Categories</h2>
+    <div class="swcatrows">${cats.map((c, i) => `<fieldset class="swcatrow" data-orig="${esc(c.name)}"><legend class="sr">Category ${i + 1}</legend>
+      <span class="dti">${swSvg(c.icon)}</span><input name="name" maxlength="60" value="${esc(c.name)}" aria-label="Category name">${swIconSelect("icon", c.icon || "parts")}
+      <label class="soonbox"><input type="checkbox" name="soon"${c.soon ? " checked" : ""}> Coming later</label>
+      <span class="note">${plural(used(c.name), "product")}</span>
+      <span class="swabtns"><button class="linkbtn" type="button" data-catmove="${i}:-1" aria-label="Move up"${i ? "" : " disabled"}>↑</button><button class="linkbtn" type="button" data-catmove="${i}:1" aria-label="Move down"${i < cats.length - 1 ? "" : " disabled"}>↓</button>
+      <button class="linkbtn" type="button" data-catdel="${i}" style="color:var(--danger)"${used(c.name) ? ` disabled title="Move its software to another category first"` : ""}>Delete</button></span></fieldset>`).join("")}</div>
+    <div class="row"><label>Add a category<input name="add" maxlength="60" placeholder="For example: Custom websites"></label></div>
+    <p class="note">A category with "Coming later" ticked shows as a dashed tile until its first software is listed. A category with no software and no tick does not show.</p>
+    <div class="msg" id="swCatsMsg" hidden></div><button class="btn" type="submit" style="justify-self:start">Save categories</button></form>`;
+}
+function swCatsFromForm(f){
+  return [...f.querySelectorAll(".swcatrow")].map(r => ({orig: r.dataset.orig, name: r.querySelector('[name="name"]').value.trim().slice(0, 60), icon: r.querySelector('[name="icon"]').value, soon: r.querySelector('[name="soon"]').checked})).filter(c => c.name);
+}
+async function swSaveCats(cats, msgEl, okText){
+  const list = (Array.isArray(SITE.software) ? SITE.software : []).map(x => { const c = cats.find(k => k.orig === x.cat); return c && c.name !== x.cat ? {...x, cat: c.name} : x; });
+  const clean = cats.map(({orig, ...c}) => c.soon ? c : {name: c.name, icon: c.icon});
+  if (new Set(clean.map(c => c.name.toLowerCase())).size !== clean.length){ if (msgEl) showMsg(msgEl, false, "Two categories have the same name."); return false; }
+  return saveSite({softwareCats: clean, software: list}, msgEl, okText);
+}
+document.addEventListener("click", async e => {
+  const ed = e.target.closest("[data-swedit]"); if (ed){ CV.swEdit = ed.dataset.swedit || null; refreshAdmin(true); window.scrollTo(0, 0); return; }
+  const mv = e.target.closest("[data-swmove]");
+  if (mv){ const [i, d] = mv.dataset.swmove.split(":").map(Number), list = [...(SITE.software || [])], j = i + d; if (j < 0 || j >= list.length) return; [list[i], list[j]] = [list[j], list[i]]; if (await saveSite({software: list}, null, "Order saved")) refreshAdmin(true); return; }
+  const del = e.target.closest("[data-swdel]");
+  if (del){ const x = (SITE.software || []).find(s => s.id === del.dataset.swdel); if (!x || !confirm(`Delete "${x.name}"? Requests already sent about it stay in Messages.`)) return; if (await saveSite({software: (SITE.software || []).filter(s => s.id !== x.id)}, null, "Deleted")) refreshAdmin(true); return; }
+  const cm = e.target.closest("[data-catmove]");
+  if (cm){ const f = $("#swCatsForm"), cats = swCatsFromForm(f), [i, d] = cm.dataset.catmove.split(":").map(Number), j = i + d; if (j < 0 || j >= cats.length) return; [cats[i], cats[j]] = [cats[j], cats[i]]; if (await swSaveCats(cats, $("#swCatsMsg"), "Order saved")) refreshAdmin(true); return; }
+  const cd = e.target.closest("[data-catdel]");
+  if (cd){ const f = $("#swCatsForm"), cats = swCatsFromForm(f), i = +cd.dataset.catdel; if (!cats[i] || !confirm(`Delete the category "${cats[i].name}"?`)) return; cats.splice(i, 1); if (await swSaveCats(cats, $("#swCatsMsg"), "Category deleted")) refreshAdmin(true); return; }
+});
+document.addEventListener("change", e => { const s = e.target.closest('#swForm select[name="icon"], .swcatrow select[name="icon"]'); if (s){ const d = s.closest("label, fieldset").querySelector(".dti"); if (d) d.innerHTML = swSvg(s.value); } });
+document.addEventListener("submit", async e => {
+  const f = e.target.closest("#swForm, #swCatsForm, #swTextForm"); if (!f) return;
+  e.preventDefault();
+  if (f.id === "swTextForm"){ const t = f.t.value.trim(); await saveSite({softwareText: t}, $("#swTextMsg"), "Saved"); return; }
+  if (f.id === "swCatsForm"){ const cats = swCatsFromForm(f), add = f.add.value.trim().slice(0, 60); if (add) cats.push({orig: "", name: add, icon: "parts", soon: true}); if (await swSaveCats(cats, $("#swCatsMsg"), "Categories saved")) refreshAdmin(true); return; }
+  const m = $("#swFormMsg"), name = f.name.value.trim(); let cat = f.cat.value;
+  if (!name){ showMsg(m, false, "Give it a name."); f.name.focus(); return; }
+  let cats = swCatsEdit();
+  if (cat === "__new"){ cat = f.newcat.value.trim().slice(0, 60); if (!cat){ showMsg(m, false, "Write the new category's name."); f.newcat.focus(); return; } if (!cats.some(c => c.name.toLowerCase() === cat.toLowerCase())) cats.push({name: cat, icon: f.icon.value}); else cat = cats.find(c => c.name.toLowerCase() === cat.toLowerCase()).name; }
+  const id = f.dataset.id || ("SW" + Date.now().toString(36).toUpperCase());
+  const item = {id, name: name.slice(0, 80), cat, text: f.text.value.trim().slice(0, 240), gets: f.gets.value.split("\n").map(s => s.trim()).filter(Boolean).slice(0, 12), price: f.price.value.trim().slice(0, 40), icon: f.icon.value, tag: f.tag.value.trim().slice(0, 20), active: f.active.checked};
+  const list = [...(SITE.software || [])], at = list.findIndex(x => x.id === id);
+  if (at >= 0) list[at] = item; else list.push(item);
+  cats = cats.map(c => c.name === cat && c.soon ? {name: c.name, icon: c.icon} : c);   // a category that gets its first software is no longer "coming later"
+  if (await saveSite({software: list, softwareCats: cats}, m, at >= 0 ? "Saved" : "Added")){ CV.swEdit = null; refreshAdmin(true); }
+});
+
 const TITLES = {home: "Nojan · Services, software and products, for less", software: "Software built by Nojan", shop: "Shop new and used items · Nojan", services: "Services and classes · Nojan", contact: "Contact us · Nojan", news: "News · Nojan", cart: "Your cart · Nojan", checkout: "Checkout · Nojan", account: "Your account · Nojan", orders: "Your orders · Nojan", mybookings: "Your bookings · Nojan", acctdetails: "Your details and address · Nojan", acctsecurity: "Login and security · Nojan", acctmessages: "Messages · Nojan", acctemail: "Email preferences · Nojan", acctdata: "Your data · Nojan", acctlists: "Your lists · Nojan", provapply: "Become a provider · Nojan", help: "Help centre · Nojan", unsub: "Unsubscribe · Nojan", about: "About Nojan", returns: "Test before you pay · Nojan", privacy: "Privacy policy · Nojan", terms: "Terms of use · Nojan", certified: "What Certified means · Nojan", how: "How it works · Nojan", notfound: "Page not found · Nojan"};
 const views = {
   home(){
@@ -991,7 +1550,7 @@ const views = {
           <div><span class="ibic alt">${ICC}</span><span><b>Pay at pickup</b><br><span>e-Transfer or cash, after you test the item. Nothing is charged online.</span></span></div>
           <div><span class="ibic">${ICT}</span><span><b>Test before you pay</b><br><span>Open it and try it at pickup. Once you pay, the sale is final.</span></span></div>
         </div>
-        <a class="msglink" href="#contact-us">Questions about this item? Message us ›</a>
+        ${cvAskBlock("item", p.id, p.name, "Questions about this item? Message us")}
       </div>
     </article>
     ${offersHTML(p)}
@@ -1007,6 +1566,8 @@ const views = {
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn" href="#my-orders">View my orders</a><a class="btn ghost" href="#home" style="color:var(--fg)">Continue shopping</a></div></div>`; },
   services(){ return servicesView(); },
   software(){ return softwareView(); },
+  switem(){ return swItemView(); },
+  convo(){ return convoView(); },
   service(){ return serviceView(); },
   provider(){ return providerView(); },
   booked(){ return bookedView(); },
@@ -1351,7 +1912,7 @@ let bookingId = null, receiptId = null, itemId = null, serviceId = null, provide
 // v93: real page addresses (nojans.com/shop, nojans.com/item-s-U002). preview.html keeps the old #addresses.
 const PREVIEW = /^\/preview(\.html)?$/.test(location.pathname);
 const PATH_MODE = !PREVIEW && /^https?:$/.test(location.protocol);
-const isRouteSlug = s => /^(item|service|provider|event|person|chat|listing|hchat|mybooking|receipt|category|group|scategory|sgroup)-./.test(s) || Object.prototype.hasOwnProperty.call(VIEW_OF, s);
+const isRouteSlug = s => /^(item|service|provider|event|person|chat|listing|hchat|mybooking|receipt|category|group|scategory|sgroup|software|message)-./.test(s) || Object.prototype.hasOwnProperty.call(VIEW_OF, s);
 const pathFor = s => !s || s === "home" ? "/" : "/" + encodeURIComponent(s);
 function slugNow(){
   let h = location.hash.slice(1); try { h = decodeURIComponent(h); } catch (_) {}
@@ -1364,6 +1925,8 @@ function viewFromHash(){
   const h = slugNow();
   if (h.startsWith("mybooking-")){ bookingId = h.slice(10); return "mybooking"; }
   if (h.startsWith("receipt-")){ receiptId = h.slice(8); return "receipt"; }   // v122
+  if (h.startsWith("software-")){ swItemId = h.slice(9); return "switem"; }   // v143
+  if (h.startsWith("message-")){ convoId = h.slice(8); return "convo"; }
   if (h.startsWith("item-")){ itemId = h.slice(5); return "item"; }
   if (h.startsWith("category-")){ const c = catFromSlug(h.slice(9)); if (!c) return PATH_MODE ? "notfound" : "home"; if (c !== catId) catCond = "all"; catId = c; return "category"; }
   if (h.startsWith("group-")){ const g = groupFromSlug(CAT_GROUPS, h.slice(6)); if (!g) return PATH_MODE ? "notfound" : "home"; if (g[0] !== groupId) groupCat = "all"; groupId = g[0]; return "group"; }
@@ -1428,8 +1991,10 @@ function go(v, id, keepQuery){
   if (v === "chat" && id != null) chatId = id;
   if (v === "listing" && id != null){ listingId = id; HM.gi = 0; }
   if (v === "hchat" && id != null) hchatId = id;
+  if (v === "switem" && id != null) swItemId = id;   // v143
+  if (v === "convo" && id != null) convoId = id;
   currentView = v; render(); window.scrollTo(0,0); pageIn();
-  const slug = v === "mybooking" ? "mybooking-" + bookingId : v === "receipt" ? "receipt-" + receiptId : v === "item" ? "item-" + id : v === "category" ? "category-" + catSlug(catId) : v === "group" ? "group-" + catSlug(groupId) : v === "sgroup" ? "sgroup-" + catSlug(sgroupId) : v === "scategory" ? "scategory-" + scatSlug : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : v === "listing" ? "listing-" + listingId : v === "hchat" ? "hchat-" + hchatId : SLUG[v];
+  const slug = v === "switem" ? "software-" + swItemId : v === "convo" ? "message-" + convoId : v === "mybooking" ? "mybooking-" + bookingId : v === "receipt" ? "receipt-" + receiptId : v === "item" ? "item-" + id : v === "category" ? "category-" + catSlug(catId) : v === "group" ? "group-" + catSlug(groupId) : v === "sgroup" ? "sgroup-" + catSlug(sgroupId) : v === "scategory" ? "scategory-" + scatSlug : v === "service" ? "service-" + serviceId : v === "provider" ? "provider-" + providerId : v === "event" ? "event-" + eventId : v === "person" ? "person-" + personId : v === "chat" ? "chat-" + chatId : v === "listing" ? "listing-" + listingId : v === "hchat" ? "hchat-" + hchatId : SLUG[v];
   try {
     const k = scrNewKey();
     if (PATH_MODE){ const u = pathFor(slug); if (location.pathname !== u || location.hash){ history.pushState({k}, "", u); SCR.key = k; SCR.from = fromView; } }
@@ -1458,6 +2023,8 @@ document.addEventListener("click", e => {
   if (h.startsWith("chat-")){ e.preventDefault(); go("chat", decodeURIComponent(h.slice(5))); return; }
   if (h.startsWith("listing-")){ e.preventDefault(); go("listing", decodeURIComponent(h.slice(8))); return; }
   if (h.startsWith("hchat-")){ e.preventDefault(); go("hchat", decodeURIComponent(h.slice(6))); return; }
+  if (h.startsWith("software-")){ e.preventDefault(); go("switem", decodeURIComponent(h.slice(9))); return; }   // v143
+  if (h.startsWith("message-")){ e.preventDefault(); go("convo", decodeURIComponent(h.slice(8))); return; }
   const v = VIEW_OF[h];
   if (!v) return;
   if (a.closest("#crumbs") && SCR.from && SCR.from === (v === "new" || v === "used" ? "shop" : v) && ["item", "service", "provider"].includes(current())){ e.preventDefault(); history.back(); return; }
@@ -1471,7 +2038,7 @@ document.addEventListener("click", e => {
   go("item", decodeURIComponent(a.getAttribute("href").slice(6)));
 });
 // v93: in-site links get real addresses so they can be opened in a new tab, shared and found by search engines
-const R_OK = /^(home|shop|services|software|contact-us|news|cart|checkout|account|my-orders|my-bookings|account-details|login-security|messages|email-preferences|your-data|your-lists|unsubscribe|become-a-provider|help|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup)-.+)$/;
+const R_OK = /^(home|shop|services|software|contact-us|news|cart|checkout|account|my-orders|my-bookings|account-details|login-security|messages|email-preferences|your-data|your-lists|unsubscribe|become-a-provider|help|about|returns|privacy|terms|certified|how-it-works|new-items|used-items|(item|service|provider|mybooking|category|group|scategory|sgroup|software|message)-.+)$/;
 function relink(root){
   if (!PATH_MODE || !root || root.nodeType !== 1) return;
   const fix = a => { const h = a.getAttribute("href"); if (!h || h[0] !== "#") return; let s = h.slice(1); try { s = decodeURIComponent(s); } catch (_) {} if (!R_OK.test(s)) return; a.dataset.r = s; a.setAttribute("href", pathFor(s)); };
@@ -1536,6 +2103,8 @@ function render(){
   { const mid = v === "item" && String(itemId).startsWith("m-") ? itemId : v === "service" && String(serviceId).startsWith("m-") ? serviceId : v === "event" && String(eventId).startsWith("m-") ? eventId : ""; const md = mid && mkFind(mid.slice(2)); if (md) document.title = md.title + " · Nojan"; }
   if (HM_VIEWS.includes(v)){ const hh = v === "listing" && ((HM.list || []).find(x => x.id === listingId) || HM.extra[listingId]); document.title = (hh ? hh.title : {homes: "Homes", listing: "Home", listhome: "List your home", mylistings: "My listings", hchat: "Messages"}[v]) + " · Nojan"; }
   if (DT_VIEWS.includes(v)) document.title = (v === "person" && dtProfile(personId) ? dtProfile(personId).name : {dating: "Dating", matches: "Matches", chat: "Chat", datingprofile: "My dating profile", person: "Dating"}[v]) + " · Nojan";
+  if (v === "switem"){ const x = swFind(swItemId); document.title = (x ? x.name : "Software") + " · Nojan"; }   // v143
+  if (v === "convo") document.title = "Messages · Nojan";
   const trail = v === "item" ? (it ? [["Shop", "#shop"], [typeOf(it), "#category-" + catSlug(typeOf(it))], [it.name]] : [["Shop", "#shop"], ["Item"]])
     : v === "category" ? [["Shop", "#shop"], [groupOf(CAT_GROUPS, catId)[0], "#group-" + catSlug(groupOf(CAT_GROUPS, catId)[0])], [catId || "Category"]]
     : v === "group" ? [["Shop", "#shop"], [groupId || "Shop"]]
@@ -1550,6 +2119,8 @@ function render(){
          homes:[["Homes"]], listing:[["Homes","#homes"],[(((HM.list || []).find(x => x.id === listingId) || HM.extra[listingId] || {}).city) || "Listing"]], listhome:[["Homes","#homes"],["List your home"]],
          mylistings:[["Homes","#homes"],["My listings"]], hchat: mkt ? [["Sell on Nojan","#selling"],["Messages"]] : [["Homes","#homes"],["My listings","#my-listings"],["Messages"]],
          mybooking:[["Your bookings","#my-bookings"],["Booking"]],
+         switem:[["Software","#software"],[(swFind(swItemId) || {}).name || "Software"]],
+         convo:[["Your account","#account"],["Messages","#messages"],[(c => c ? cvTitle(c) : "Conversation")(cvMineById(convoId))]],
          about:[["About Nojan"]], returns:[["Test before you pay"]], privacy:[["Privacy policy"]], terms:[["Terms of use"]], certified:[["What Certified means"]], how:[["How it works"]], notfound:[["Page not found"]],
          selling:[["Your account","#account"],["Sell on Nojan"]], sell:[["Sell on Nojan","#selling"],[MK.form && MK.form.id ? "Edit listing" : "New listing"]]}[v];
   const cr = $("#crumbs");
@@ -1626,7 +2197,7 @@ const STATUS_TEXT = {
 let FB = null, fbFailed = false, USER = null, PROFILE = null, authReady = false;
 let authMode = "signin", afterLogin = null, lastOrderNo = null, signingUp = false;
 let MY = {orders:null, unsub:null};
-let ADM = {orders:null, users:null, unsubO:null, unsubU:null, tab:"orders", status:"Open", q:"", uid:null, open:new Set(), pending:false, notes:{}};
+let ADM = {orders:null, users:null, unsubO:null, unsubU:null, tab:"today", status:"Open", q:"", uid:null, open:new Set(), pending:false, notes:{}};
 
 const stClass = s => "st-" + String(s).split(" ")[0];
 const pill = s => `<span class="pill ${stClass(s)}">${esc(s)}</span>`;
@@ -4101,18 +4672,24 @@ function startAdmin(){
 function refreshAdmin(force){
   if (current() !== "admin") return;
   const a = document.activeElement, box = $("#adminBody");
-  if (!force && box && a && box.contains(a) && /^(TEXTAREA|INPUT|SELECT)$/.test(a.tagName) && a.id !== "admQ"){ ADM.pending = true; const nb = $("#admNew"); if (nb) nb.hidden = false; return; }
+  if (!force && box && a && box.contains(a) && /^(TEXTAREA|INPUT|SELECT)$/.test(a.tagName) && a.id !== "admQ" && a.id !== "cvQ" && !a.closest("form[data-cvareply]")){ ADM.pending = true; const nb = $("#admNew"); if (nb) nb.hidden = false; return; }
   ADM.pending = false;
-  if (box) box.innerHTML = adminBody(); else setTimeout(render);
+  if (box){   // v143: a reply being written in Messages is kept while the page updates
+    const ta = box.querySelector("form[data-cvareply] textarea"), keep = ta ? {id: ta.closest("form").dataset.cvareply, v: ta.value, s: ta.selectionStart, e: ta.selectionEnd, f: document.activeElement === ta} : null;
+    box.innerHTML = adminBody();
+    const nv = $("#admNav"); if (nv) nv.outerHTML = admNavHTML();
+    const t2 = keep && box.querySelector(`form[data-cvareply="${CSS.escape(keep.id)}"] textarea`);
+    if (t2){ t2.value = keep.v; if (keep.f){ t2.focus(); try { t2.setSelectionRange(keep.s, keep.e); } catch (_) {} } }
+  } else setTimeout(render);
 }
 function adminView(){
   if (!USER) return needSignIn("admin", "Admin sign-in", "Sign in with the shop's admin account to manage orders.");
   if (!isAdmin()) return `<div class="empty">This page is for the shop's admins only.${USER && !USER.emailVerified ? " If you're an admin, confirm your email address first, then sign in again." : ""}</div>`;
-  startAdmin();
-  return `<div class="sectionhead"><h1>Admin</h1><p>Orders update live as customers place them. <button class="linkbtn" type="button" data-backup>Download backup</button> · <button class="linkbtn" type="button" data-azsql>Download as Azure tables</button></p></div>
-    <div class="admintabs" role="group" aria-label="Admin sections"><button type="button" data-atab="dash" aria-pressed="${ADM.tab==="dash"}">Dashboard</button><button type="button" data-atab="inventory" aria-pressed="${ADM.tab==="inventory"}">Inventory</button><button type="button" data-atab="orders" aria-pressed="${ADM.tab==="orders"}">Orders</button><button type="button" data-atab="bookings" aria-pressed="${ADM.tab==="bookings"}">Bookings${ADM.bookings ? ` (${ADM.bookings.filter(b => b.status === "Requested" && b.kind !== "event").length} new)` : ""}</button><button type="button" data-atab="billing" aria-pressed="${ADM.tab==="billing"}">Billing</button><button type="button" data-atab="feedback" aria-pressed="${ADM.tab==="feedback"}">Feedback &amp; promos</button><button type="button" data-atab="events" aria-pressed="${ADM.tab==="events"}">Events</button><button type="button" data-atab="dating" aria-pressed="${ADM.tab==="dating"}">Dating</button><button type="button" data-atab="homes" aria-pressed="${ADM.tab==="homes"}">Homes${HM.adm && HM.adm.list ? ` (${HM.adm.list.filter(h => h.status === "pending").length} new)` : ""}</button><button type="button" data-atab="members" aria-pressed="${ADM.tab==="members"}">Sellers${MK.adm && MK.adm.sellers ? ` (${MK.adm.sellers.filter(x => x.status === "pending").length} new)` : ""}</button><button type="button" data-atab="homepage" aria-pressed="${ADM.tab==="homepage"}">Home page</button><button type="button" data-atab="products" aria-pressed="${ADM.tab==="products"}">Products</button><button type="button" data-atab="services" aria-pressed="${ADM.tab==="services"}">Services</button><button type="button" data-atab="providers" aria-pressed="${ADM.tab==="providers"}">Providers</button><button type="button" data-atab="customers" aria-pressed="${ADM.tab==="customers"}">Customers</button></div>
-    <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
-    <div id="adminBody">${adminBody()}</div>`;
+  startAdmin(); startConvosAdmin();
+  if (ADM.tab === "dash") ADM.tab = "today";   // v143: one grouped menu; Dashboard is now part of Today
+  return `<div class="adm2">${admNavHTML()}<div class="adm2main">
+      <div class="newbar" id="admNew" hidden><span>New updates arrived.</span><button type="button" data-admrefresh>Show them</button></div>
+      <div id="adminBody">${adminBody()}</div></div></div>`;
 }
 /* v98: inventory (scan in, scan out, labels) loads only for admins, only when opened */
 let INV_LOAD = 0;
@@ -4130,7 +4707,15 @@ function invTab(){
   else if (!want && have){ have.remove(); bar.classList.remove("hasinv"); }
 }
 document.addEventListener("click", e => { if (e.target.closest && e.target.closest('.invtab,[data-atab="inventory"]')){ ADM.tab = "inventory"; if (window.NJ_INV){ window.NJ_INV.view = "list"; window.NJ_INV.form = null; } } }, true);
-function adminBody(){
+function adminBody(){   // v143: a heading for each section, and the new sections
+  if (ADM.error) return adminBody0();
+  if (ADM.tab === "today") return admTodayHTML();
+  if (ADM.tab === "messages") return admMessagesHTML();
+  if (ADM.tab === "software") return admHeadHTML() + admSoftwareHTML();
+  if (ADM.tab === "swcats") return admHeadHTML() + admSwCatsHTML();
+  return admHeadHTML() + adminBody0();
+}
+function adminBody0(){
   if (ADM.error) return `<div class="empty">Couldn't load orders (${esc(ADM.error)}). Refresh the page and sign in again.</div>`;
   if (ADM.tab === "inventory") return invHTML();
   if (ADM.tab === "homepage") return homeAdminHTML();
@@ -4375,9 +4960,9 @@ function softCards(list){
       <div class="cover">${x.tag ? `<span class="swtag">${esc(x.tag)}</span>` : ""}${swIcon(x)}</div>
       <div class="sb">
         <span class="cat">${esc(x.cat || "Software")}</span>
-        <h3><a href="#software">${esc(x.name)}</a></h3>
+        <h3><a href="#software-${esc(x.id)}">${esc(x.name)}</a></h3>
         ${x.text ? `<p class="desc">${esc(x.text)}</p>` : ""}
-        <div class="foot"><span class="svcprice">${esc(x.price || "Price on request")}</span><a class="btn small" href="#software">Send a request</a></div>
+        <div class="foot"><span class="svcprice">${esc(x.price || "Price on request")}</span><a class="btn small" href="#software-${esc(x.id)}">Send a request</a></div>
       </div></article>`).join("");
 }
 let swCat = "all";
@@ -4596,6 +5181,7 @@ function serviceView(){
           <li>No payment online. Pay the provider by Interac e-Transfer or cash, at or before the session.</li>
           <li>Plans changed? Cancel from My bookings${s.leadHours ? `, ideally at least ${s.leadHours} hours before` : ""}.</li>
         </ul></section>
+      ${s.member ? "" : `<div class="svcask">${cvAskBlock("service", s.id, s.title, "Questions about this service? Message us")}</div>`}
     </div>
     <aside class="bookpanel" id="bookPanel" aria-label="Book this service">${bookPanelHTML(s)}</aside>
   </article>`;
@@ -5139,8 +5725,8 @@ async function sendBkMsg(id, text, admin){
   const quiet = b.msgFrom === (admin ? "admin" : "customer") && b.msgAt && Date.now() - Date.parse(b.msgAt) < 600000;
   await FB.addBookingMsg(id, {from: USER.uid, role: admin ? "admin" : "customer", text});
   if (!quiet){
-    if (admin && b.email) sendEmail(`New message about your booking #B${b.number}`, {Booking: "#B" + b.number, Service: b.serviceTitle, Message: text, "Read and reply": location.origin + "/mybooking-" + b.id, _cc: b.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {});
-    if (!admin) sendEmail(`Message from ${b.name || "a customer"} about booking #B${b.number}`, {Booking: "#B" + b.number, Service: b.serviceTitle, From: b.name || "", Message: text, "Reply in Admin": location.origin + "/admin", _replyto: b.email || CONTACT_EMAIL, _template: "box"}).catch(() => {});
+    if (admin && b.email) sendEmail("You have a new message from Nojan", {Booking: "#B" + b.number, Service: b.serviceTitle, "What's new": "You have a new message from Nojan about your booking.", "Read your message": location.origin + "/mybooking-" + b.id, "Why the message isn't here": "To keep your messages private, the message itself is not in this email. Sign in to your Nojan account to read it and reply.", _cc: b.email, _replyto: CONTACT_EMAIL, _template: "box"}).catch(() => {});   // v143: a notice only
+    if (!admin) sendEmail(`New message from ${b.name || "a customer"} about booking #B${b.number}`, {Booking: "#B" + b.number, Service: b.serviceTitle, From: b.name || "", "Read and reply": location.origin + "/admin", Note: "The message is in Admin → Bookings. Only a notice is emailed.", _replyto: b.email || CONTACT_EMAIL, _template: "box"}).catch(() => {});
   }
   return true;
 }
@@ -6611,7 +7197,7 @@ const EMAIL_PREFS_URL = () => location.origin + "/email-preferences";
 const acctViaPw = () => !!(USER && (USER.providerData || []).some(p => p.providerId === "password"));
 const acctVia = () => { const p = USER && (USER.providerData || [])[0]; return !p ? "email" : p.providerId === "google.com" ? "Google" : p.providerId === "microsoft.com" ? "Microsoft" : "email"; };
 const acctPrefs = () => Object.assign({news: false, offers: false}, (PROFILE && PROFILE.emailPrefs) || {});
-const acctUnread = () => (MY.bookings || []).filter(b => b.msgFrom === "admin" && b.msgAt && b.msgSeenC !== b.msgAt).length;
+const acctUnread = () => (MY.bookings || []).filter(b => b.msgFrom === "admin" && b.msgAt && b.msgSeenC !== b.msgAt).length + (CV.mine || []).filter(cvNewForMe).length;   // v143: conversations too
 const acctIco = {
   orders: '<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>',
   bookings: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
@@ -6629,7 +7215,7 @@ function acctTile(href, ico, title, text, badge, off){
 function acctHead(title, sub){ return `<div class="sectionhead acthead"><div><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ""}</div></div>`; }
 function acctHub(){
   wishMerge();
-  startMyOrders(); startMyBookings();
+  startMyOrders(); startMyBookings(); startMyConvos();
   const pr = PROFILE || {}, first = String(pr.name || USER.displayName || "").trim().split(/\s+/)[0];
   const open = (MY.orders || []).filter(o => !["Completed", "Cancelled"].includes(o.status)).length;
   const now = Date.now(), up = (MY.bookings || []).filter(b => b.kind !== "event" && b.startMs >= now && !["Cancelled"].includes(b.status)).length;
@@ -6642,7 +7228,7 @@ function acctHub(){
     ${acctTile("#my-bookings", "bookings", "Your bookings", up ? `${up} coming up. Change, cancel, add to calendar` : "Classes and services you booked")}
     ${acctTile("#login-security", "security", "Login &amp; security", "Name, email, password, sign out everywhere")}
     ${acctTile("#account-details", "address", "Your details &amp; address", "Phone, address, date of birth")}
-    ${acctTile("#messages", "messages", "Messages", unread ? `${unread} new message${unread > 1 ? "s" : ""} from Nojan` : "Messages from Nojan about your bookings", unread || "")}
+    ${acctTile("#messages", "messages", "Messages", unread ? `${unread} new message${unread > 1 ? "s" : ""} from Nojan` : "Your software requests and messages", unread || "")}
     ${acctTile("#your-lists", "lists", "Your lists", (n => n ? `${n} saved item${n > 1 ? "s" : ""}` : "Items you saved for later")(wishIds().length))}
     ${acctTile("#email-preferences", "email", "Email preferences", p.news || p.offers ? "You get news or offers from Nojan" : "Order and booking emails only")}
     ${acctTile("#your-data", "data", "Your data", "Download your data or delete your account")}
@@ -6691,18 +7277,7 @@ function acctSecurityView(){
   </div>`;
 }
 /* ---- Messages ---- */
-function acctMessagesView(){
-  if (!USER) return needSignIn("acctmessages", "Sign in to see your messages", "");
-  startMyBookings();
-  if (!MY.bookings) return acctHead("Messages") + `<div class="empty">Loading your messages…</div>`;
-  const list = MY.bookings.filter(b => b.msgAt).sort((a, b) => String(b.msgAt).localeCompare(String(a.msgAt)));
-  const rows = list.map(b => { const isNew = b.msgFrom === "admin" && b.msgSeenC !== b.msgAt;
-    return `<a class="actmsgrow${isNew ? " new" : ""}" href="#mybooking-${esc(b.id)}"><span class="actico"><svg viewBox="0 0 24 24" aria-hidden="true">${acctIco.messages}</svg></span>
-      <span class="acttxt"><b>${esc(b.serviceTitle || "Booking")} · #B${b.number}</b><span>${b.msgFrom === "admin" ? "Nojan" : "You"}: ${esc(b.msgText || "")}</span></span>
-      <span class="actwhen">${isNew ? `<b class="actnew">New</b>` : ""}<small>${esc(fmtDate(b.msgAt))}</small></span></a>`; }).join("");
-  return acctHead("Messages", "Your conversations with Nojan about your bookings.") + `<div class="panel" style="gap:0">${rows || `<p class="note">No messages yet. You can send a message from any booking.</p>`}</div>
-    <div class="panel" style="margin-top:14px"><h2>Something else?</h2><p class="note">For an order or a general question, message us and we'll reply by email.</p><a class="btn" href="#contact-us" style="justify-self:start">Message Nojan</a></div>`;
-}
+/* v143: acctMessagesView() moved up, with the other conversation code */
 /* ---- Email preferences and unsubscribe ---- */
 function acctEmailView(){
   if (!USER) return unsubView();

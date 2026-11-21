@@ -226,6 +226,18 @@ window.SHOP_FB = {
     await updateDoc(doc(db, "threads", id), {lastText: text.slice(0, 120), lastFrom: me, lastAt: serverTimestamp(), ["seen." + me]: Date.now() + 5000});
   },
   hmSeen: (id, me) => updateDoc(doc(db, "threads", id), {["seen." + me]: Date.now() + 5000}),
+  /* v143: conversations with Nojan (software requests, questions about services, items, or anything else).
+     A customer reads and writes only their own; admins read and write all (database rules, convos). */
+  cvNewId: () => doc(collection(db, "convos")).id,
+  cvCreate: (id, data) => setDoc(doc(db, "convos", id), {...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), lastAt: serverTimestamp()}),
+  cvWatchMine: (uid, cb, err) => onSnapshot(query(collection(db, "convos"), where("uid", "==", uid)), s => cb(s.docs.map(d => ({id: d.id, ...d.data({serverTimestamps: "estimate"})}))), err),
+  cvWatchAll: (cb, err) => onSnapshot(query(collection(db, "convos"), orderBy("lastAt", "desc"), limit(500)), s => cb(s.docs.map(d => ({id: d.id, ...d.data({serverTimestamps: "estimate"})}))), err),
+  cvWatchMsgs: (id, cb, err) => onSnapshot(query(collection(db, "convos", id, "messages"), orderBy("at", "asc"), limit(500)), s => cb(s.docs.map(d => ({id: d.id, ...d.data({serverTimestamps: "estimate"})}))), err),
+  async cvSend(id, m, patch){
+    await addDoc(collection(db, "convos", id, "messages"), {...m, at: serverTimestamp()});
+    await updateDoc(doc(db, "convos", id), {...patch, lastAt: serverTimestamp(), updatedAt: serverTimestamp()});
+  },
+  cvUpdate: (id, patch) => updateDoc(doc(db, "convos", id), {...patch, updatedAt: serverTimestamp()}),
   /* v77 member selling */
   mkWatchLive: (cb, err) => onSnapshot(query(collection(db, "market"), where("status", "==", "live"), limit(1000)), s => cb(s.docs.map(withId)), err),
   async mkGet(id){ const s = await getDoc(doc(db, "market", id)); return s.exists() ? withId(s) : null; },
